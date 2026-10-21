@@ -1,0 +1,194 @@
+{
+ "id": "jfwd_convcheck_costing_v352",
+ "doc": "COSTING of one mu 0 convergence check of the governing seat line d+6.051 z'0 finer than s6 (FEA3D-2, 2026-10-21; lead 01:30:18Z (5b)).\nNo solve.  Candidate meshes were BUILT (gmsh, no deck) with a scratch copy of jfwd_sub.py (runs/cost_convcheck_v352/jfwd_sub_cost.py: TC-01\nread from 03-cad/v3.5.2/history/ENG-TC-01.step.1ad07e472709b1b2 because parts/ now holds the FINAL d11.2 TC-01 fcb3b5b93bebdb01; optional\nlocal Ball fields) and their L12 / xcut 26 patch counted with the jfwd_seat.py box rule (runs/cost_convcheck_v352/patch_count.py).\nThe scratch rebuild of s6 gives 104,678 patch nodes from the mesh vs 107,611 in the production model (interface duplicates): candidate\npatch nodes are scaled by that ratio [DERIVED].  Peak RSS: power law through the two measured mu 0 patch runs (b2) s6 and (b2') s9\n[ESTIMATE, +/-10 % assumed].  Runtime: s/increment ~ N^1.5 through the same two runs, 7 increments (the 6-step (b2') form) to 9 (as (b2))\n[ESTIMATE].  Folder peak: the v6 frd model n (125 + 248 k_out) B, k_out 5, gz 0.22 x frd, deck 141.6 B/node (as (b2')), + 2 MB\n(runs/disk_peak_jfwd.json; it over-predicted (b2') by 17 %).  Gate: 1.86 GiB + 1.25 x peak + 0.10 GiB on the whole peak (as js5b).",
+ "ruling": "lead 2026-10-21T01:30:18Z (5b): costing only, no start without the lead's go",
+ "evidence": {
+  "folder": "runs/cost_convcheck_v352",
+  "patch_counts_sha16": "9b820684d48a0963",
+  "jfwd_sub_cost_sha16": "26cb6a73bcfba2d1",
+  "interim_TC01_step": "03-cad/v3.5.2/history/ENG-TC-01.step.1ad07e472709b1b2 (read-only)",
+  "disk_peak_jfwd_sha16": "aa8f83ee77750e44"
+ },
+ "measured": {
+  "seat_s6L12_mu0": {
+   "n_nodes": 107611,
+   "peak_rss_GiB": 5.76,
+   "seconds": 7860.9,
+   "increments": 9,
+   "s_per_inc": 873.4
+  },
+  "seat_s9L12_mu0": {
+   "n_nodes": 60812,
+   "peak_rss_GiB": 3.146,
+   "seconds": 2594.7,
+   "increments": 7,
+   "s_per_inc": 370.7
+  }
+ },
+ "model": {
+  "rss_exponent": 1.06,
+  "s_per_inc_exponent": 1.502,
+  "patch_node_calibration": 1.028,
+  "deck_B_per_node": 141.6,
+  "frd_gz_ratio": 0.2205,
+  "k_out": 5,
+  "increments": [
+   7,
+   9
+  ],
+  "tags": "patch nodes DERIVED (built meshes); RSS / runtime / disk ESTIMATE"
+ },
+ "scratch_rebuild_check": {
+  "cs6_patch_nodes": 104678,
+  "cs6_mesh_nodes": 159382,
+  "s6_recorded_mesh_nodes": 159178,
+  "cs9_patch_nodes": 58118,
+  "s9_production_patch_nodes": 60812
+ },
+ "candidates": {
+  "cA5": {
+   "family": "(i) global step",
+   "mesh": "h_brk 0.064 / transition 0.6 (whole break zone)",
+   "h_line_ends_mm": 0.064,
+   "h_ratio_to_s6_there": 1.25,
+   "scratch_patch_nodes": 130672,
+   "patch_nodes_est": 134333,
+   "peak_rss_GiB_est": 7.29,
+   "rss_plus_10pct_GiB": 8.01,
+   "fits_8GiB_cap_with_10pct": false,
+   "room_for_other_ccx_GiB": 1.71,
+   "runtime_h_est": [
+    2.37,
+    3.05
+   ],
+   "folder_peak_MB_est": 244.8,
+   "gate_GiB": 2.245
+  },
+  "cA3": {
+   "family": "(i) global step",
+   "mesh": "h_brk 0.060 / transition 0.6",
+   "h_line_ends_mm": 0.06,
+   "h_ratio_to_s6_there": 1.333,
+   "scratch_patch_nodes": 139436,
+   "patch_nodes_est": 143343,
+   "peak_rss_GiB_est": 7.81,
+   "rss_plus_10pct_GiB": 8.59,
+   "fits_8GiB_cap_with_10pct": false,
+   "room_for_other_ccx_GiB": 1.19,
+   "runtime_h_est": [
+    2.61,
+    3.36
+   ],
+   "folder_peak_MB_est": 261.1,
+   "gate_GiB": 2.264
+  },
+  "cA2": {
+   "family": "(i) global step",
+   "mesh": "h_brk 0.056 / transition 0.6",
+   "h_line_ends_mm": 0.056,
+   "h_ratio_to_s6_there": 1.429,
+   "scratch_patch_nodes": 150715,
+   "patch_nodes_est": 154938,
+   "peak_rss_GiB_est": 8.48,
+   "rss_plus_10pct_GiB": 9.32,
+   "fits_8GiB_cap_with_10pct": false,
+   "room_for_other_ccx_GiB": 0.52,
+   "runtime_h_est": [
+    2.94,
+    3.77
+   ],
+   "folder_peak_MB_est": 282.1,
+   "gate_GiB": 2.288
+  },
+  "cD": {
+   "family": "(i-b) local on s6",
+   "mesh": "s6 + Ball h 0.04, r 0.3 + 0.3 at both ends of the governing line (bore R0.2 end, flat chamfer end)",
+   "h_line_ends_mm": 0.04,
+   "h_ratio_to_s6_there": 2.0,
+   "scratch_patch_nodes": 119960,
+   "patch_nodes_est": 123321,
+   "peak_rss_GiB_est": 6.65,
+   "rss_plus_10pct_GiB": 7.32,
+   "fits_8GiB_cap_with_10pct": true,
+   "room_for_other_ccx_GiB": 2.35,
+   "runtime_h_est": [
+    2.08,
+    2.68
+   ],
+   "folder_peak_MB_est": 224.9,
+   "gate_GiB": 2.222
+  },
+  "cD3": {
+   "family": "(i-b) local on s6",
+   "mesh": "s6 + Ball h 0.05, r 0.3 + 0.3 at both ends",
+   "h_line_ends_mm": 0.05,
+   "h_ratio_to_s6_there": 1.6,
+   "scratch_patch_nodes": 112437,
+   "patch_nodes_est": 115587,
+   "peak_rss_GiB_est": 6.21,
+   "rss_plus_10pct_GiB": 6.83,
+   "fits_8GiB_cap_with_10pct": true,
+   "room_for_other_ccx_GiB": 2.79,
+   "runtime_h_est": [
+    1.89,
+    2.43
+   ],
+   "folder_peak_MB_est": 210.9,
+   "gate_GiB": 2.206
+  },
+  "cD2": {
+   "family": "(i-b) local on s6",
+   "mesh": "s6 + Ball h 0.04, r 0.4 + 0.4 at both ends",
+   "h_line_ends_mm": 0.04,
+   "h_ratio_to_s6_there": 2.0,
+   "scratch_patch_nodes": 140362,
+   "patch_nodes_est": 144295,
+   "peak_rss_GiB_est": 7.86,
+   "rss_plus_10pct_GiB": 8.65,
+   "fits_8GiB_cap_with_10pct": false,
+   "room_for_other_ccx_GiB": 1.14,
+   "runtime_h_est": [
+    2.64,
+    3.39
+   ],
+   "folder_peak_MB_est": 262.8,
+   "gate_GiB": 2.266
+  },
+  "cB": {
+   "family": "(i-b) local on s6",
+   "mesh": "s6 + Ball h 0.04, r 0.45 + 0.5 at the bore end only",
+   "h_line_ends_mm": 0.04,
+   "h_ratio_to_s6_there": 2.0,
+   "scratch_patch_nodes": 128278,
+   "patch_nodes_est": 131872,
+   "peak_rss_GiB_est": 7.14,
+   "rss_plus_10pct_GiB": 7.86,
+   "fits_8GiB_cap_with_10pct": true,
+   "room_for_other_ccx_GiB": 1.86,
+   "runtime_h_est": [
+    2.3,
+    2.96
+   ],
+   "folder_peak_MB_est": 240.4,
+   "gate_GiB": 2.24
+  },
+  "cB2": {
+   "family": "(i-b) local on s6",
+   "mesh": "s6 + Ball h 0.04, r 0.3 + 0.3 at the bore end only",
+   "h_line_ends_mm": 0.04,
+   "h_ratio_to_s6_there": 2.0,
+   "scratch_patch_nodes": 112067,
+   "patch_nodes_est": 115207,
+   "peak_rss_GiB_est": 6.19,
+   "rss_plus_10pct_GiB": 6.81,
+   "fits_8GiB_cap_with_10pct": true,
+   "room_for_other_ccx_GiB": 2.81,
+   "runtime_h_est": [
+    1.88,
+    2.42
+   ],
+   "folder_peak_MB_est": 210.2,
+   "gate_GiB": 2.205
+  }
+ }
+}

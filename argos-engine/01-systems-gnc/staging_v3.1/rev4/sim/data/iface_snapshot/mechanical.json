@@ -1,0 +1,519 @@
+{
+ "id": "mechanical",
+ "version": "v1",
+ "date": "2026-10-12",
+ "owner": "Mechanical (03-cad / 04-fea)",
+ "status": "M1 FIRST PASS. Gimbal architecture decided (pivot at the gimballed CG, Cardan ring, TVC servos on the fixed thrust frame beside the gimbal). Engine solids from CAD v2 give the mass properties; gimbal/TVC/feed items added in CAD v3 are itemised estimates (+/-30 % each) in this version. v2 replaces them with the CAD v3 ledger and adds FEA modes.",
+ "units": "SI (m, kg, s, N, Pa, rad) unless the key says _mm/_deg/_Hz/_g",
+ "written_to": "fallback hub /home/claude/work/shared-fallback/engine/interfaces (shared mount I/O errors since ~17:10Z, lead notice)",
+ "inputs_read": {
+  "combustion.json": "v1",
+  "electronics.json": "v1",
+  "gnc.json": "v1",
+  "ENGINE-BASELINE-v0.json": "v0"
+ },
+ "frames": {
+  "engine_frame": "origin = gimbal pivot (intersection of both gimbal axes) at neutral; +Z = engine axis toward the injector (forward); +X = outer gimbal axis (ring pins in the fixed yoke lugs); +Y = inner axis (engine collar pins in the ring); right-handed",
+  "pose": "R = Rx(alpha) * Ry(beta): alpha about the fixed X axis (outer), beta about the ring Y axis (inner); thrust direction = R * (0,0,1)",
+  "cad": "STEP in mm, +Z forward; GLB in metres, +Y up (glTF)",
+  "rv1_station_of_pivot_m": {
+   "v": 0.2223,
+   "tag": "DERIVED",
+   "src": "RV-1 convention: nozzle exit at z = -0.03 m; z_station = pivot_station + z_engine"
+  }
+ },
+ "gimbal": {
+  "architecture": {
+   "v": "two-axis Cardan gimbal of the whole thrust chamber; split engine collar clamped in a 0.5 mm groove of the case at the pivot plane carries the inner pins (+/-Y); gimbal ring carries the outer pins (+/-X) running in 608-2RS bearings in two fixed yoke lugs on the thrust frame",
+   "tag": "DERIVED",
+   "src": "calcs/gimbal_trade.py v1"
+  },
+  "pivot_location": {
+   "v": "at the mid-burn CG of the gimballed engine (wet CG 6 mm aft, dry CG 6 mm forward of the pivot)",
+   "tag": "DERIVED",
+   "src": "calcs/m1_massprops_estimate.py"
+  },
+  "pivot_from_injector_face_m": {
+   "v": 0.0563,
+   "tag": "DERIVED",
+   "src": "injector face is forward of the pivot"
+  },
+  "pivot_from_nozzle_exit_m": {
+   "v": 0.2523,
+   "tag": "DERIVED"
+  },
+  "reason": "pivot trade (calcs/gimbal_trade.py v1, same engine, gnc.json v1 vehicle): the forward (injector-end) pivot gives a tail-wags-dog zero of 14.2 rad/s at 20 % thrust against the gnc.json requirement >= 25.0 rad/s, needs ~8.96 deg of range and a linear hinge-moment sum of 13.21 N m (lateral acceleration alone 3.925 N m); the CG pivot gives 33.2 rad/s (26.2 at 12.5 %), 6.69 deg range need and 4.832 N m. Cost of the CG pivot: the head (pintle actuator, torch, ports) sweeps the airframe and the actuators need an annulus beside the engine -> engine-bay ID 140 mm instead of 120 (see envelope) and a long feed hose.",
+  "trade_table": {
+   "forward_injector_end": {
+    "z_pivot_RV1_station_m": 0.3306,
+    "l_e_m": 0.1257,
+    "I_pivot_kgm2": 0.07462,
+    "w_twd_touchdown_12.5 %_rad_s": 11.2,
+    "w_twd_touchdown_20 %_rad_s": 14.2,
+    "w_twd_touchdown_100 %_rad_s": 31.8,
+    "GNC_range_req_deg_interp": 8.96,
+    "hinge_total_linear_sum_Nm_EI_hi": 13.21,
+    "required_ID_enclosed_mm": 171.1,
+    "protrusion_below_120ID_airframe_mm": 184.1
+   },
+   "CG": {
+    "z_pivot_RV1_station_m": 0.2049,
+    "l_e_m": 0.0,
+    "I_pivot_kgm2": 0.04106,
+    "w_twd_touchdown_12.5 %_rad_s": 26.2,
+    "w_twd_touchdown_20 %_rad_s": 33.2,
+    "w_twd_touchdown_100 %_rad_s": 74.2,
+    "GNC_range_req_deg_interp": 6.69,
+    "hinge_total_linear_sum_Nm_EI_hi": 4.832,
+    "required_ID_enclosed_mm": 172.0,
+    "protrusion_below_120ID_airframe_mm": 58.1
+   },
+   "aft": {
+    "z_pivot_RV1_station_m": 0.0306,
+    "l_e_m": -0.1743,
+    "I_pivot_kgm2": 0.1055,
+    "w_twd_touchdown_12.5 %_rad_s": NaN,
+    "w_twd_touchdown_20 %_rad_s": NaN,
+    "w_twd_touchdown_100 %_rad_s": NaN,
+    "GNC_range_req_deg_interp": 3.55,
+    "hinge_total_linear_sum_Nm_EI_hi": 19.273,
+    "required_ID_enclosed_mm": 220.5
+   }
+  },
+  "trade_tag": "DERIVED calcs/gimbal_trade.py v1 (CAD v2 engine solids; head hardware layout of CAD v2, compacted in v3)",
+  "range_deg": {
+   "v": 7.0,
+   "tag": "REQ",
+   "src": "gnc.json v1 / ENG-07",
+   "note": "commanded limit applies to the VECTOR norm sqrt(alpha^2+beta^2) <= 7 deg (request to GNC)"
+  },
+  "mechanical_stop_deg": {
+   "v": 8.0,
+   "tag": "DERIVED",
+   "src": "conical stop: polyurethane bumper ring in the thrust-frame bore contacts the case 89 mm aft of the pivot"
+  },
+  "bearings": {
+   "v": "4 x 608-2RS (8x22x7), C0 1.37 kN, C 3.45 kN per SKF 608-2RSH (verify); pins 8 h6 17-4PH H1150",
+   "tag": "DATASHEET",
+   "src": "config bearing_* "
+  },
+  "transport_lock": {
+   "v": "split 6061 lock ring pushed into the thrust-frame bore around the case (locks both axes at neutral) + red REMOVE-BEFORE-FLIGHT streamer; servos unpowered; 3 g any axis on the pins",
+   "tag": "DERIVED"
+  }
+ },
+ "gimballed_mass_properties": {
+  "about": "pivot, engine frame; includes engine, collar + TVC levers, inner pins, half pushrods/ball studs, pintle actuator + bracket, gimballed hose share, line shares",
+  "wet_full_grain": {
+   "m_kg": {
+    "v": 2.387,
+    "tag": "DERIVED+ASSUMED",
+    "src": "CAD v2 solids + itemised estimates"
+   },
+   "cg_m": {
+    "v": [
+     0.0005,
+     -0.001,
+     -0.0062
+    ],
+    "tag": "DERIVED+ASSUMED"
+   },
+   "I_pivot_kgm2": {
+    "v": [
+     [
+      0.0469,
+      4e-05,
+      -0.0003
+     ],
+     [
+      4e-05,
+      0.04677,
+      0.00068
+     ],
+     [
+      -0.0003,
+      0.00068,
+      0.00157
+     ]
+    ],
+    "tag": "DERIVED+ASSUMED",
+    "src": "tensor about the pivot, engine axes"
+   }
+  },
+  "dry_grain_burnt": {
+   "m_kg": {
+    "v": 2.018,
+    "tag": "DERIVED+ASSUMED"
+   },
+   "cg_m": {
+    "v": [
+     0.0006,
+     -0.0012,
+     0.0062
+    ],
+    "tag": "DERIVED+ASSUMED"
+   },
+   "I_pivot_kgm2": {
+    "v": [
+     [
+      0.04359,
+      4e-05,
+      -0.0003
+     ],
+     [
+      4e-05,
+      0.04346,
+      0.00069
+     ],
+     [
+      -0.0003,
+      0.00069,
+      0.00141
+     ]
+    ],
+    "tag": "DERIVED+ASSUMED"
+   }
+  },
+  "ring_alpha_axis_only": {
+   "m_kg": {
+    "v": 0.196,
+    "tag": "ASSUMED"
+   },
+   "I_xx_kgm2": {
+    "v": 0.00025,
+    "tag": "ASSUMED"
+   }
+  },
+  "grain_mass_kg": {
+   "v": 0.369,
+   "tag": "DERIVED",
+   "src": "CAD v2 grain solid at 1000 kg/m3 (combustion.json density ASSUMED)"
+  },
+  "uncertainty": "added items +/-30 % (about +/-0.10 kg, +/-0.004 kg m2)",
+  "for_gnc_ledger": "fixed propulsion-module items (thrust frame, servos, tank, valves) are listed under fixed_module"
+ },
+ "tvc_actuation": {
+  "concept": {
+   "v": "2 x Savox SB-2292SG (electronics.json) on the fixed thrust frame below the gimbal ring, shafts tangential; aluminium clamp horns r_h; short vertical pushrods with ball links to two levers on the engine collar",
+   "tag": "DERIVED"
+  },
+  "lever_azimuth_deg": {
+   "v": [
+    64.5,
+    154.5
+   ],
+   "tag": "DERIVED",
+   "src": "90 deg apart -> orthogonal, equal authority; between the yoke lugs (0/180) and the inner pins (90/270)"
+  },
+  "lever_radius_m": {
+   "v": 0.048,
+   "tag": "DERIVED"
+  },
+  "lever_ball_z_m": {
+   "v": -0.022,
+   "tag": "DERIVED"
+  },
+  "horn_radius_m": {
+   "v": 0.008,
+   "tag": "DERIVED"
+  },
+  "pushrod_length_m": {
+   "v": 0.028,
+   "tag": "DERIVED",
+   "src": "ball centre to ball centre"
+  },
+  "gear_ratio_n": {
+   "v": 6.0,
+   "tag": "DERIVED",
+   "src": "r_e / r_h (electronics.json proposed 7)"
+  },
+  "kinematics_linear": "lever-ball vertical displacement dz_i = r_e*(sin(phi_i)*alpha - cos(phi_i)*beta); servo angle psi_i = asin(dz_i / r_h) (rod-tilt correction < 2 % at 7 deg; exact map in calcs/tvc_kinematics.py with CAD v3)",
+  "mixing_matrix_dz_per_rad": {
+   "v": [
+    [
+     0.04332,
+     -0.02066
+    ],
+    [
+     0.02066,
+     0.04332
+    ]
+   ],
+   "tag": "DERIVED",
+   "src": "rows servo 1,2; columns alpha, beta; m/rad"
+  },
+  "servo_angle_at_7deg_vector_worst_deg": {
+   "v": 47.0,
+   "tag": "DERIVED",
+   "src": "<= 50 deg operating half-travel (electronics.json 100 deg)"
+  },
+  "servo_angle_at_8deg_stop_deg": {
+   "v": 56.6,
+   "tag": "DERIVED",
+   "src": "<= 65 deg max half-travel (130 deg)"
+  },
+  "hinge_moment_terms_Nm": {
+   "inertia_Ipivot_x_gimbal_accel": {
+    "v": 2.439,
+    "tag": "DERIVED",
+    "src": "I 0.0469 x 52.0 rad/s2 (gnc.json)"
+   },
+   "vehicle_angular_accel_Ipivot_x_omegadot": {
+    "v": 0.403,
+    "tag": "DERIVED",
+    "src": "I x 8.59 rad/s2 (gnc.json limit)"
+   },
+   "axial_accel_m_a_le_sin7": {
+    "v": 0.092,
+    "tag": "DERIVED",
+    "src": "l_e 6.2 mm (CG offset, wet)"
+   },
+   "lateral_accel_m_alat_le": {
+    "v": 0.218,
+    "tag": "DERIVED",
+    "src": "1.5 g flight (gnc.json)"
+   },
+   "hose_K_x_7deg_upper": {
+    "v": 0.241,
+    "tag": "DERIVED",
+    "src": "K_hose 0.20-1.97 N m/rad (EI [0.05, 0.5] N m2 ASSUMED, straight-hose model, L 0.26 m, inlet 142 mm above pivot)"
+   },
+   "bearing_seal_friction": {
+    "v": 0.04,
+    "tag": "ASSUMED",
+    "src": "2 x 608-2RS contact-seal drag ~0.02 N m each (ASSUMED, SKF model class); rolling friction 0.003 N m"
+   },
+   "thrust_misalignment": {
+    "v": 0.8,
+    "tag": "DERIVED",
+    "src": "500 N x (0.5 mm + 0.25 deg x pivot-exit arm) ASSUMED tolerances"
+   },
+   "nozzle_side_load_floor": {
+    "v": 1.398,
+    "tag": "DERIVED",
+    "src": "gnc.json v1 1.3 N m (mid pivot) scaled to the pivot-exit arm"
+   }
+  },
+  "hinge_moment_design_Nm": {
+   "v": 5.63,
+   "tag": "DERIVED",
+   "src": "linear worst-case sum (gnc.json method), CG pivot"
+  },
+  "pushrod_force_design_N": {
+   "v": 117.3,
+   "tag": "DERIVED",
+   "src": "|M|/r_e: worst direction loads one pushrod"
+  },
+  "servo_torque_design_Nm": {
+   "v": 0.939,
+   "tag": "DERIVED"
+  },
+  "servo_torque_margin_7V4": {
+   "v": 3.24,
+   "tag": "DERIVED",
+   "src": "stall / design torque"
+  },
+  "servo_speed_needed_dps_at_7deg": {
+   "v": 528.0,
+   "tag": "DERIVED",
+   "src": "60 deg/s engine at the 7 deg extreme (horn at psi7)"
+  },
+  "servo_speed_available_dps_7V4": {
+   "v": 677.0,
+   "tag": "DERIVED",
+   "src": "linear torque-speed model (electronics.json)"
+  },
+  "stall_load_on_structure": {
+   "pushrod_N_8V4": {
+    "v": 552.0,
+    "tag": "DERIVED"
+   },
+   "engine_moment_Nm_8V4": {
+    "v": 26.5,
+    "tag": "DERIVED"
+   }
+  },
+  "resolution_deg_engine": {
+   "v": 0.0167,
+   "tag": "DERIVED",
+   "src": "0.1 deg servo deadband (electronics.json ASSUMED)"
+  },
+  "backlash_deg_engine": {
+   "v": 0.0333,
+   "tag": "DERIVED",
+   "src": "servo 0.2 deg (ASSUMED) / n; ball links preloaded"
+  },
+  "axis_stiffness_Nm_per_rad": {
+   "v": [
+    2088.0,
+    6264.0
+   ],
+   "tag": "DERIVED",
+   "src": "k_servo (electronics.json 58-174) x n^2; structure compliance not included"
+  },
+  "rocking_mode_Hz_rigid_structure": {
+   "v": [
+    33.5,
+    58.0
+   ],
+   "tag": "DERIVED",
+   "src": "sqrt(K/I)/2pi vs requirement 25.0 Hz; FEA MODAL in v2 adds pushrod/lever/frame compliance"
+  }
+ },
+ "feed_across_gimbal": {
+  "hose": {
+   "v": "-6 PTFE-lined stainless-braided hose (oxygen-cleaned, Krytox only), JIC-37 ends: fixed end at the isolation-valve outlet above the engine, engine end on a JIC 90 deg elbow at the bonnet -6 ORB inlet",
+   "tag": "DERIVED"
+  },
+  "free_length_m": {
+   "v": 0.26,
+   "tag": "DERIVED"
+  },
+  "hinge_stiffness_Nm_per_rad": {
+   "v": [
+    0.2,
+    1.97
+   ],
+   "tag": "ASSUMED",
+   "src": "EI range 0.05-0.5 N m2 must be bench-measured pressurised; 3-D frame model of the routed hose in v2"
+  },
+  "flow_velocity_mps": {
+   "v": 5.8,
+   "tag": "DERIVED",
+   "src": "0.227 kg/s liquid N2O in 7.9 mm ID (combustion guideline 5 m/s -> request)"
+  },
+  "other_lines_across_gimbal": "1/8 in PTFE Pc sense line (transducer on the fixed side), 1/8 in PTFE N2O and propane torch lines (solenoids fixed side, check valves on the engine), harness for pintle servo/encoder/spark"
+ },
+ "envelope": {
+  "stations_from_pivot_m": {
+   "head_top": {
+    "v": 0.1223,
+    "tag": "DERIVED"
+   },
+   "inj_face": {
+    "v": 0.0563,
+    "tag": "DERIVED"
+   },
+   "grain_top": {
+    "v": 0.0263,
+    "tag": "DERIVED"
+   },
+   "grain_bot": {
+    "v": -0.1737,
+    "tag": "DERIVED"
+   },
+   "throat": {
+    "v": -0.2413,
+    "tag": "DERIVED"
+   },
+   "exit": {
+    "v": -0.2523,
+    "tag": "DERIVED"
+   },
+   "aft_bottom": {
+    "v": -0.2598,
+    "tag": "DERIVED"
+   },
+   "bonnet_top": {
+    "v": 0.1543,
+    "tag": "DERIVED"
+   }
+  },
+  "head_stack_top_m": {
+   "v": 0.2283,
+   "tag": "DERIVED",
+   "src": "pintle servo bracket top (CAD v3 layout)"
+  },
+  "overall_gimballed_length_m": {
+   "v": 0.4881,
+   "tag": "DERIVED"
+  },
+  "required_engine_bay_ID_m": {
+   "v": 0.14,
+   "tag": "DERIVED",
+   "src": "TBC by the CAD v3 sweep check: TVC servo bodies r 46-66 mm beside the case (fixed), aft closure sweep 67.5 mm if enclosed to the RV-1 base plane, torch 61.6 mm; 3 mm clearance"
+  },
+  "engine_bay_zone_m": {
+   "v": [
+    -0.26,
+    0.24
+   ],
+   "tag": "DERIVED",
+   "src": "z range (engine frame) where the 140 mm ID is needed; 120 mm is enough above the head stack"
+  },
+  "nozzle_exit_below_pivot_m": {
+   "v": 0.2523,
+   "tag": "DERIVED"
+  }
+ },
+ "fixed_module": {
+  "thrust_frame": {
+   "v": "6061 annular plate below the gimbal (z ~ -0.09 m) with 2 yoke lugs, 2 servo cheeks and the stop bumper; 8 x M5 radial screws into the airframe wall (ICD-AIRFRAME)",
+   "tag": "DERIVED"
+  },
+  "tank": {
+   "material": "6061-T6 tube 101.6 x 3.175 + 2 bolted bulkheads (24 x M6 radial, 2 FKM O-rings each)",
+   "internal_cyl_length_for_2.06L_m": {
+    "v": 0.289,
+    "tag": "DERIVED",
+    "src": "gnc.json v1 2.059 L (1.30 kg at 0.85 liquid fraction, 25 C)"
+   },
+   "internal_cyl_length_for_hop_B_m": {
+    "v": 0.522,
+    "tag": "DERIVED",
+    "src": "2.35 kg at the same fill density"
+   },
+   "hoop_stress_MEOP_MPa": {
+    "v": 105.0,
+    "tag": "DERIVED",
+    "src": "7.0 MPa MEOP"
+   }
+  },
+  "isolation_valve": {
+   "v": "NC full-port ball valve >= 8 mm bore, Cv >= 1.5 (combustion.json) on the tank aft bulkhead outlet, spring-return/latch actuator per electronics.json main_valve; tee to the torch N2O line; trapped-liquid relief <= 7.5 MPa",
+   "tag": "REQ"
+  }
+ },
+ "materials": {
+  "v": [
+   "6061-T6 (case, head, closures, collar, ring, frame, tank)",
+   "17-4PH H1150 (pins, pintle needle/seat, link)",
+   "isomolded graphite (throat)",
+   "paper/glass phenolic (liner, insulators)",
+   "ABS (grain)",
+   "PTFE/FKM/Krytox (seals, lubricant)",
+   "flexible graphite (insert gasket)",
+   "polyurethane 90A (stop bumper)",
+   "steel 12.9 zinc-flake / A4-70 (fasteners)"
+  ],
+  "tag": "DERIVED",
+  "src": "04-fea/materials/materials_v1.json"
+ },
+ "part_list": {
+  "v": {
+   "TC": "01 case, 02 head, 03 seat insert, 04 bonnet, 05 needle, 06 pre-chamber insulator, 07 liner, 08 post-chamber insulator, 09 aft closure, 10 face disc, 11 guide bushing, 12 pintle bracket, 13 pintle servo, 14 crank, 15 link, 16 carriage, 17 guide pin",
+   "NZ": "01 graphite insert, 02 sleeve, 03 gasket",
+   "GR": "01 ABS grain",
+   "IG": "01 torch (combustion envelope), 02 check valves",
+   "GM": "01 collar + levers, 02 inner pins, 03 ring, 04 outer pins, 05 thrust frame, 07 stop bumper, 09 transport lock, 12 ball studs, 13 pushrods, 14 ball links, 15 TVC servos, 16 horns, bearings/clips",
+   "FD": "tank, bulkheads, isolation valve, tee, filter, hose, fittings, relief, fill/vent, lines",
+   "EL": "03/04 gimbal encoders, 05 pintle encoder, Pc/tank/feed transducers, ECU, harness clips",
+   "HW": "O-rings, fasteners",
+   "GS": "test-stand adapter"
+  },
+  "tag": "DERIVED",
+  "src": "ENG-<SUB>-<NN>; full BOM in 03-cad/BOM.csv (CAD v3)"
+ },
+ "requests": [
+  "REQUEST Space/GNC: (1) limit the commanded gimbal VECTOR norm to 7 deg (the 8 deg stop is conical); (2) confirm the CG pivot with these numbers (pivot station 0.222 m, l_e within +/-6 mm, I_pivot 0.044-0.047 kg m2) and re-run the TWD/range check; (3) give the limit loads AT the engine mount for landing with the gimbal unlocked.",
+  "REQUEST Electronics: (1) Pc transducer moves to the fixed side on a 1/8 in sense line (no room on the swept head); (2) pintle servo now stands on the engine axis (body vertical, shaft along +Y, 28 mm link) - confirm the ear plane 11 mm below the spline face; (3) TVC horns r 8 mm (n = 6.0, not 7); servo stiffness 58-174 N m/rad basis and a bench test of it; (4) AS5048A encoders on the outer pin (lug at 180 deg) and inner pin (ring boss at 90 deg).",
+  "REQUEST Combustion: (1) the 20 x 70 mm torch envelope standing on the head sets 61.6 mm of sweep radius; a shorter (<= 45 mm) or inward-inclined torch body keeps the head inside 120 mm; (2) Pc tap stays on the head top (sense line); (3) -6 hose at 5.8 m/s vs 5 m/s guideline - accept or ask for -8 (stiffer hose).",
+  "REQUEST Airframe (Lauty) via lead: engine-bay ID 140 mm over the gimbal zone (pivot -0.26 m to +0.24 m), thrust-frame 8 x M5 radial screws; details in interfaces/ICD-AIRFRAME.md (to follow with CAD v3)."
+ ],
+ "open_items": [
+  "CAD v3 (collar, ring, frame, TVC, pintle bracket, feed) replaces all ASSUMED masses (mechanical.json v2)",
+  "hose bending stiffness EI must be bench-measured pressurised (largest hinge-moment uncertainty after inertia)",
+  "FEA MODAL with pushrod/lever/frame compliance against 25 Hz",
+  "thermal FEA: case under the collar, aft closure, O-ring temperatures"
+ ]
+}

@@ -1,0 +1,296 @@
+--- /dev/shm/rev_elec3/fw210/sil/sim.cpp	2026-10-13 14:02:58.000000000 +0000
++++ /dev/shm/rev_elec3/fw/sil/sim.cpp	2026-10-20 23:29:30.373298205 +0000
+@@ -1,3 +1,4 @@
++// [v2.11 2026-10-13, LEAD CHANGELOG 203/205: Pc chain selector (C1 default), per-sample ADC limit (item 14), ride-through hardware model (switched long RC: DELETED 2026-10-20, LEAD 216 (3) fixed RC), stuck-high Pc, FA-1 replay, chamber metrics, windowed CSV; see sim.h]
+ // [v2.10 2026-10-13, REV-ELEC-1 + LEAD CHANGELOG 164/166/168/172/175: photodiode and fault hooks, ECU clock skip; full list in 06-electronics/REPORT-v2.10-HANDBACK.md] ARGOS engine SIL - closed-loop harness (v2.2: 0-1000 psig Pc transducer, hardware over-pressure trip, ARM switch
+ // turn-off delay, pintle runaway; v2.5: HV69 pintle servo on the regulated 7.4 V rail, battery current fed to the ECU's
+ // FM-PWR-01 supply monitor; v2.6: pintle rail current fed to the stall monitor, jam events and no-progress recorded; OI-6:
+@@ -23,7 +24,12 @@
+ 
+ Sim::Sim(const SimConfig& c)
+     : eng(c.eng), pintle(c.pm, c.sv_pintle, c.seed * 7 + 1), gim(c.gim2, c.sv_tvc[0], c.sv_tvc[1], c.seed * 7 + 2),
+-      pc_line(c.sense), mv_servo(c.sv_mv, c.seed * 7 + 4), C(c), rng_(c.seed), rng2_(c.seed * 7 + 5), rng3_(c.seed * 7 + 6) {
++      pc_line(c.pc_chain == 1 ? c.sense_c1 : c.sense), mv_servo(c.sv_mv, c.seed * 7 + 4), C(c), rng_(c.seed), rng2_(c.seed * 7 + 5),
++      rng3_(c.seed * 7 + 6), rng4_(c.seed * 7 + 7) {
++  if (c.pc_chain == 1 && ecu::cfg::kPcXdcrSel != 1) {   // v2.11: the HAL scaling (pcFlightCal) must match the modelled transducer
++    std::fprintf(stderr, "SIL: pc_chain 1 (C1 XTL-190) needs cfg::kPcXdcrSel == 1\n");
++    std::abort();
++  }
+   ph_s_ = c.photo_dark_V;
+   pc_line.init(101325.0);
+   std::memset(nv_jam, 0xFF, sizeof nv_jam);   // v2.7: blank NvJamRecord (new board)
+@@ -38,6 +44,9 @@
+   pt_s_ = eng.P_tank;
+   pf_s_ = 101325.0;
+   ovp_vf = 0.5;   // transducer output at 0 bar g
++  if (c.pc_chain == 1) {   // v2.11 C1: PC_SIG = 0.5 V + 4 V x p_abs / FS (absolute) at the sea-level ambient
++    ovp_vf = ina_v_ = aaf_v_ = pcv_last_ = 0.5 + 4.0 * 101325.0 / c.pc_fs_abs;
++  }
+   // v2.5: the plant's crank-slider must be the hardware the firmware was generated for (engine_params.h)
+   const double geo[4][2] = {{c.pm.r_c, eng::kCrankR_m}, {c.pm.L, eng::kLinkL_m}, {c.pm.phi_c, eng::kCrankPhiContact_rad},
+                             {c.pm.phi_n, eng::kCrankPhiNeutral_rad}};
+@@ -60,6 +69,15 @@
+   return g;
+ }
+ 
++double Sim::pcErrG(double p_abs, double tt) const {   // v2.11 (sim.h)
++  const double gf = tt >= pc_gain_at ? pc_gain : 1.0;
++  double g = (p_abs - 101325.0) * (1.0 + C.pc_span_err) * gf + C.pc_zero_err;
++  if (C.pc_nl_bias != 0.0) g += C.pc_nl_bias * std::min(1.0, std::max(0.0, (p_abs - 101325.0) / C.pc_nl_ref));
++  if (C.pc_lin_bias != 0.0) g += C.pc_lin_bias * (p_abs - 101325.0) / C.pc_lin_ref;
++  if (tt >= C.pc_off_from) g += C.pc_off;
++  return g;
++}
++
+ void Sim::boot(double t0) {
+   ecu.init(t0);
+   ecu::GimbalNotchCal g;
+@@ -120,24 +138,45 @@
+   // ------------------------------------------------ 2) sensors -> Inputs (HAL scaling)
+   Inputs in;
+   in.t_s = t + (t >= ecu_t_skip_at - 1e-9 ? ecu_t_skip_s : 0.0);   // v2.10 SIL time skip (safing hold; sim.h)
+-  const double pc_avg = pc_n_ ? pc_acc_ / pc_n_ : pc_s2_;
+-  pc_acc_ = 0; pc_n_ = 0;
+-  const double pc_gf = t >= pc_gain_at ? pc_gain : 1.0;   // v2.8.1 in-range wrong Pc (gain fault on PC_SIG)
+-  double pcg = (pc_avg - 101325.0) * (1.0 + C.pc_span_err) * pc_gf + C.pc_zero_err + 0.5 * C.pc_noise * nrm_(rng_);   // 4:1 avg
+-  if (C.pc_nl_bias != 0.0) pcg += C.pc_nl_bias * std::min(1.0, std::max(0.0, (pc_avg - 101325.0) / C.pc_nl_ref));
+-  if (C.pc_lin_bias != 0.0) pcg += C.pc_lin_bias * (pc_avg - 101325.0) / C.pc_lin_ref;   // v2.9 S9 residual shapes
+-  if (C.pc_off_on_ign && C.pc_off_from > 1e8 && out.state == State::IGNITION) C.pc_off_from = t;
+-  if (t >= C.pc_off_from) pcg += C.pc_off;
+-  if (t >= pc_spike_at - 1e-9 && t < pc_spike_end) {   // v2.6 OI-6 disturbance injection (EMI / ground shift)
++  const bool spike_now = [&] {   // v2.6 OI-6 disturbance injection (EMI / ground shift) on the 1 kHz reading
++    if (!(t >= pc_spike_at - 1e-9 && t < pc_spike_end)) return false;
+     const double ph = pc_spike_period > 0 ? std::fmod(t - pc_spike_at + 1e-9, pc_spike_period) : t - pc_spike_at + 1e-9;
+-    if (ph < pc_spike_len) pcg += pc_spike_Pa;
++    return ph < pc_spike_len;
++  }();
++  if (C.pc_chain == 1 || C.pc_clamp_per_sample_v210) {
++    // v2.11: per-ADC-sample limited samples (substep loop below) -> HAL 4:1 average -> spike -> HAL scaling (C1: pcFlightCal(101325),
++    // gauge-equivalent; chain 0 per-sample mode: 070BG nominal). LEAD 203 (7) item 14: the limit acts on each sample, before the average
++    if (C.pc_off_on_ign && C.pc_off_from > 1e8 && out.state == State::IGNITION) C.pc_off_from = t;
++    const double fs = C.pc_chain == 1 ? C.pc_fs_abs : C.pc_fs;
++    double v = pc_n_ ? pcv_acc_ / pc_n_ : pcv_last_;
++    pcv_acc_ = 0; pc_acc_ = 0; pc_n_ = 0;
++    if (spike_now) v += 4.0 * pc_spike_Pa / fs;
++    // stuck high: chain 0 per-sample mode only; on C1 the conditioner output itself is forced in the sub-step loop (ADC samples and comparator
++    // tap see it physically; the 1 ms read average follows), v2.11 R2-23 (the v2.11 draft also forced this read: a 1 ms glitch looked 2 ms long)
++    if (C.pc_chain != 1 && t >= pc_stuck_high_at && t < pc_stuck_high_to) v = 4.95;
++    if (t >= pc_sensor_fail_at) v = 0.02;
++    v = std::max(0.0, std::min(C.pc_chain == 1 ? C.pc_adc_max_V : 4.95, v));
++    in.pc_raw_V = static_cast<float>(v);
++    const ecu::xdcr::XdcrCal cal = C.pc_chain == 1 ? ecu::xdcr::pcFlightCal(101325.0f) : ecu::xdcr::cal070BG();
++    in.pc_Pa = ecu::xdcr::gaugePa(static_cast<float>(v), 5.0f, cal);
++  } else {   // the v2.10 SIL HAL model (chain 0), unchanged: average of the transducer-side pressure, errors, ONE limit after the average
++    const double pc_avg = pc_n_ ? pc_acc_ / pc_n_ : pc_s2_;
++    pc_acc_ = 0; pc_n_ = 0;
++    const double pc_gf = t >= pc_gain_at ? pc_gain : 1.0;   // v2.8.1 in-range wrong Pc (gain fault on PC_SIG)
++    double pcg = (pc_avg - 101325.0) * (1.0 + C.pc_span_err) * pc_gf + C.pc_zero_err + 0.5 * C.pc_noise * nrm_(rng_);   // 4:1 avg
++    if (C.pc_nl_bias != 0.0) pcg += C.pc_nl_bias * std::min(1.0, std::max(0.0, (pc_avg - 101325.0) / C.pc_nl_ref));
++    if (C.pc_lin_bias != 0.0) pcg += C.pc_lin_bias * (pc_avg - 101325.0) / C.pc_lin_ref;   // v2.9 S9 residual shapes
++    if (C.pc_off_on_ign && C.pc_off_from > 1e8 && out.state == State::IGNITION) C.pc_off_from = t;
++    if (t >= C.pc_off_from) pcg += C.pc_off;
++    if (spike_now) pcg += pc_spike_Pa;
++    // v2.6: 0-70 bar g M3200 (070BG; v2.2-v2.5 0-1000 psig); output limited to 0..4.95 V [ASSUMED: behaviour above FS not in the datasheet]
++    double v_pc = std::min(4.95, std::max(0.0, 0.5 + 4.0 * pcg / C.pc_fs));
++    if (t >= pc_stuck_high_at && t < pc_stuck_high_to) v_pc = 4.95;   // v2.11 S6R
++    pcg = (v_pc - 0.5) / 4.0 * C.pc_fs;
++    in.pc_raw_V = static_cast<float>(v_pc);
++    if (t >= pc_sensor_fail_at) { in.pc_raw_V = 0.02f; pcg = (0.02 - 0.5) / 4.0 * C.pc_fs; }
++    in.pc_Pa = static_cast<float>(pcg);
+   }
+-  // v2.6: 0-70 bar g M3200 (070BG; v2.2-v2.5 0-1000 psig); output limited to 0..4.95 V [ASSUMED: behaviour above FS not in the datasheet]
+-  const double v_pc = std::min(4.95, std::max(0.0, 0.5 + 4.0 * pcg / C.pc_fs));
+-  pcg = (v_pc - 0.5) / 4.0 * C.pc_fs;
+-  in.pc_raw_V = static_cast<float>(v_pc);
+-  if (t >= pc_sensor_fail_at) { in.pc_raw_V = 0.02f; pcg = (0.02 - 0.5) / 4.0 * C.pc_fs; }
+-  in.pc_Pa = static_cast<float>(pcg);
+   in.pfeed_Pa = static_cast<float>(pf_s_ - 101325.0 + C.pfeed_noise * nrm_(rng_));
+   in.ptank_Pa = static_cast<float>(pt_s_ - 101325.0 + C.ptank_noise * nrm_(rng_) + (t >= ptank_bias_at ? ptank_bias : 0.0) + C.ptank_bias0_Pa);
+   if (t >= tc_hot_at) in.tc_K[tc_hot_idx] = static_cast<float>(tc_hot_K);
+@@ -195,6 +234,7 @@
+     ecu.hbleed_fitted = C.eng.hb_fitted; ecu.ign_detect_relative = C.ign_relative; ecu.pc_coast_rezero = C.coast_rezero;   // v2.9
+     ecu.ptank_cal_ok = C.ptank_cal;                                                                                          // v2.10
+     ecu.test_disable_pintle_mon = pintle_mon_disabled;
++    if (C.ride_fw >= 0) ecu.ride_through = C.ride_fw == 1;                                                                   // v2.11
+     ecu.step(in, cmd, out);
+     if (out.gimbal_cal_changed) {   // v2.6 HAL: store the new calibration
+       const ecu::NvGimbalCal r = ecu::nvGimbalEncode(ecu.gimbalNotchCal(), static_cast<uint16_t>(++nv_gcal_writes + 1), static_cast<uint32_t>(t * 1e3));
+@@ -252,8 +292,16 @@
+   const bool latch = out.mv_latch && arm_bus_on && rail_ok;
+   const bool ign = out.igniter_enable && arm_bus_on;
+   const bool sol1 = out.sol[0] && ign, sol2 = out.sol[1] && ign, spark = out.spark_gate && ign;
++  {   // v2.11 hardware both-commanded-open timer (config.h kHbleedHwBoth*, DESIGN): BOTH = both drives high (ARM bus on); retriggerable
++      // one-shot from each rising edge of BOTH; at its end, BOTH still high -> V1's drive is cut until BOTH falls
++    const bool both = out.hbleed[0] && out.hbleed[1] && arm_bus_on;
++    if (both && !hb_both_prev) hb_both_rise_t = t;
++    if (!both) hb_hw_cut = false;
++    else if (C.hb_both_timer && !hb_hw_cut && t - hb_both_rise_t >= C.hb_both_timer_s - 1e-9) { hb_hw_cut = true; hb_hw_cut_t = t; ++hb_hw_cuts; }
++    hb_both_prev = both;
++  }
+   for (int k = 0; k < 2; ++k) {   // v2.9 head-end bleed valves on +12V_ARM (J508 / J509), NC
+-    eng.hb_cmd[k] = out.hbleed[k] && arm_bus_on;
++    eng.hb_cmd[k] = out.hbleed[k] && arm_bus_on && !(k == 0 && hb_hw_cut);
+     eng.hb_stuck[k] = t >= hb_stuck_open_at[k]; eng.hb_failc[k] = t >= hb_fail_closed_at[k];
+   }
+   const bool pulses = mcu_ok || (ecu_alive == false && reboot_until_ < 0);   // a hung MCU keeps its last PWM running
+@@ -261,7 +309,22 @@
+   const double dt = 1e-3 / n;
+   double i_acc = 0;
+   bool cmp_this_ms = false;
+-  const double v_trip = 0.5 + 4.0 * C.ovp_trip_Pa_g / C.pc_fs;   // comparator trip referred to PC_SIG [V]
++  const double v_trip = C.pc_chain == 1 ? 0.5 + 4.0 * C.ovp3_trip_Pa_abs / C.pc_fs_abs
++                                         : 0.5 + 4.0 * C.ovp_trip_Pa_g / C.pc_fs;   // comparator trip referred to PC_SIG [V]
++  const double tau_cmp = C.pc_chain == 1 ? C.ovp3_tau : C.ovp_tau;   // v2.11 LEAD 216 (3): FIXED (ride variant: ovp3_tau = 12.83 ms)
++  const double a_ina = 1.0 - std::exp(-2.0 * M_PI * C.pc_ina_fc * dt), a_aaf = 1.0 - std::exp(-2.0 * M_PI * C.pc_aaf_fc * dt);
++  if (fa1_t0 < 0.0 && !fa1_hist.empty() && t >= fa1_after - 1e-9 && eng.ignited) fa1_t0 = t;   // v2.11 S9R replay start (plant light)
++  if (gop) {   // v2.11 S6R genuine over-pressure: trigger, then the decay reference at the first abort / ARM-bus loss (sim.h)
++    if (gop_t0 < 0.0) {
++      if (gop_trig == 1 && t >= gop_after - 1e-9 && eng.ignited) gop_t0 = t + gop_dt;
++      else if (gop_trig == 2 && !run_entry_t.empty() && run_entry_t.back() >= gop_after - 1e-9) gop_t0 = run_entry_t.back() + gop_dt;
++    }
++    if (gop_t0 >= 0.0 && gop_t_ab < 0.0 && t >= gop_t0 - 1e-9 && gop_p0 > 0.0 &&
++        (out.state == State::ABORT || out.state == State::SAFE || !arm_bus_on)) {
++      gop_t_ab = t; gop_mox_ab = std::max(eng.mox + eng.mvap, 1e-4); gop_pf_ab = eng.p_feed;
++    }
++  }
++  pc_ch_ms_max_ = 0.0;
+   const double jam_th_p = pintle.servo.theta, jam_th_g = gim.servo[0].theta;
+   for (int k = 0; k < n; ++k) {
+     const double ts = t + k * dt;
+@@ -275,9 +338,53 @@
+     const double us_tvc[2] = {out.servo_us[0], out.servo_us[1]};
+     gim.step(dt, ts, us_tvc);
+     if (t >= tvc_jam_at) { gim.servo[0].theta = jam_th_g; gim.servo[0].omega = 0; }
+-    pc_s1_ = pc_line.step(dt, eng.Pc);
+-    pc_s2_ += (pc_s1_ - pc_s2_) * dt / C.pc_tau;
+-    pc_xdcr_max = std::max(pc_xdcr_max, pc_s2_);
++    double p_ch = eng.Pc;   // v2.11: chamber pressure seen by the Pc chain (FA-1 replay, sim.h)
++    if (fa1_t0 >= 0.0 && fa1_hist.size() > 1) {
++      const double tau = ts - fa1_t0, Th = 1e-4 * static_cast<double>(fa1_hist.size() - 1);
++      if (tau >= 0.0 && tau < Th) {
++        const size_t j = std::min(fa1_hist.size() - 2, static_cast<size_t>(tau / 1e-4));
++        const double f = std::min(1.0, tau / 1e-4 - static_cast<double>(j));
++        const double h = (fa1_hist[j] + (fa1_hist[j + 1] - fa1_hist[j]) * f) * 1e5;
++        p_ch = std::max(p_ch, 101325.0 + fa1_scale * (h - 101325.0));
++      }
++    }
++    const bool gop_on = gop && gop_t0 >= 0.0 && ts >= gop_t0 - 1e-12;
++    if (gop_on) {   // v2.11 S6R (sim.h)
++      if (gop_p0 < 0.0) gop_p0 = p_ch;
++      const double ff = gop_t_ab < 0.0 ? 1.0 : std::max(0.0, std::min(1.0, (eng.mox + eng.mvap) / gop_mox_ab));
++      p_ch = std::max(p_ch, 101325.0 + (gop(ts - gop_t0, gop_p0) - 101325.0) * ff);
++      if (gop_t_ab >= 0.0 && gop_p_ab <= 0.0) gop_p_ab = p_ch;   // head pressure at the abort (first plant step after it)
++    }
++    if (gop_on || (!gop && ts >= ch_from - 1e-12)) {   // v2.11 envelope metrics (LC-TB70, sim.h) from the trigger, or from ch_from
++      const double tau = ts - (gop ? gop_t0 : ch_from);
++      env_pk = std::max(env_pk, p_ch);
++      if (p_ch > 45.0e5) { if (env_t45a < 0.0) env_t45a = ts; env_t45b = ts; env_t45 += dt; }
++      if (p_ch > 58.1e5) env_t581 += dt;
++      if (p_ch > 60.0e5) env_t60 += dt;
++      if (p_ch > 63.1e5) { if (env_t63a < 0.0) env_t63a = ts; env_t63b = ts; env_t631 += dt; }
++      if (tau < 0.6 && (tau < 0.05 || (k & 3) == 0)) { gtr_t.push_back(static_cast<float>(tau)); gtr_p.push_back(static_cast<float>(p_ch)); }
++    }
++    pc_ch_ms_max_ = std::max(pc_ch_ms_max_, p_ch);
++    if (ts >= ch_from - 1e-12) { ch_pk = std::max(ch_pk, p_ch); if (p_ch > 45.0e5) ch_t45 += dt; if (p_ch > 30.0e5) ch_t30 += dt; }
++    pc_s1_ = pc_line.step(dt, p_ch);
++    if (C.pc_chain == 1) {   // v2.11 C1: no transducer lag; INA333 pole with its output swing (state limited: no wind-up past the rail)
++      pc_s2_ = pc_s1_;
++      const double v_lin = 0.5 + 4.0 * (pcErrG(pc_s1_, ts) + 101325.0) / C.pc_fs_abs;
++      ina_v_ = std::max(C.pc_vmin, std::min(C.pc_vsat, ina_v_ + (v_lin - ina_v_) * a_ina));
++      double v_out = ina_v_;
++      if (ts >= pc_stuck_high_at && ts < pc_stuck_high_to) v_out = C.pc_vsat;     // S6R stuck high (conditioner at its rail)
++      if (ts >= pc_sensor_fail_at) v_out = 0.02;         // open PC_SIG wire / dead conditioner (as the v2.10 model)
++      aaf_v_ += (v_out - aaf_v_) * a_aaf;                // ADC-path anti-alias (12.7k || 4.02k x 22 nF)
++      if (ts >= next_adc_) {                             // ADS131M04 sample: per-sample noise and the per-sample range limit (item 14)
++        const double vs = std::max(0.0, std::min(C.pc_adc_max_V, aaf_v_ + 4.0 * C.pc_noise / C.pc_fs_abs * nrm_(rng4_)));
++        pcv_acc_ += vs; pcv_last_ = vs; ++pc_n_; next_adc_ += 0.00025;
++      }
++      ovp_vf += (v_out - ovp_vf) * dt / tau_cmp;         // comparator tap RC (fixed; ride-through BOM variant C330 540 nF)
++      if (ovp_vf > v_trip) { cmp_this_ms = true; if (ovp_trip_t < 0) ovp_trip_t = ts; }
++    } else {
++      pc_s2_ += (pc_s1_ - pc_s2_) * dt / C.pc_tau;
++    }
++    pc_xdcr_max = std::max(pc_xdcr_max, C.pc_chain == 1 ? pc_s1_ : pc_s2_);
+     pf_s_ += (eng.p_feed - pf_s_) * dt / C.pc_tau;
+     pt_s_ += (eng.P_tank - pt_s_) * dt / C.pc_tau;
+     ptq_s_ += (eng.P_torch - ptq_s_) * dt / C.ptorch_tau;   // v2.7 torch transducer
+@@ -293,13 +400,22 @@
+       if (!eng.ignited) { ox_unlit_total += mfl * dt; if (ep_open_ && !ox_unlit_starts.empty()) ox_unlit_starts.back() += mfl * dt; }
+       else ep_open_ = false;
+     }
+-    if (ts >= next_adc_) { pc_acc_ += pc_s2_; ++pc_n_; next_adc_ += 0.00025; }
+-    // v2.2 hardware comparator: transducer output (noise not modelled) through the tap RC (C.ovp_tau = ovp::kTau_s 5.28 ms; the
+-    // v2.2-v2.7 comment said 1.13 ms, the value used was the generated one). v2.8: a failed Pc signal (open wire / dead transducer,
+-    // pc_sensor_fail_at) blinds the comparator too - same PC_SIG wire (v2.7 kept it seeing the plant pressure: optimistic)
+-    const double v_sig = (t >= pc_sensor_fail_at) ? 0.02 : std::min(4.95, 0.5 + 4.0 * (pc_s2_ - 101325.0) * (ts >= pc_gain_at ? pc_gain : 1.0) / C.pc_fs);
+-    ovp_vf += (v_sig - ovp_vf) * dt / C.ovp_tau;
+-    if (ovp_vf > v_trip) { cmp_this_ms = true; if (ovp_trip_t < 0) ovp_trip_t = ts; }
++    if (C.pc_chain != 1) {
++      if (ts >= next_adc_) {
++        if (C.pc_clamp_per_sample_v210) {   // v2.11 item 14 on the 070BG chain: per-sample errors, noise and limit (0..4.95 V)
++          const double vs = std::max(0.0, std::min(4.95, 0.5 + 4.0 * (pcErrG(pc_s2_, ts) + C.pc_noise * nrm_(rng4_)) / C.pc_fs));
++          pcv_acc_ += vs; pcv_last_ = vs;
++        } else pc_acc_ += pc_s2_;
++        ++pc_n_; next_adc_ += 0.00025;
++      }
++      // v2.2 hardware comparator: transducer output (noise not modelled) through the tap RC (C.ovp_tau = ovp::kTau_s 5.28 ms; the
++      // v2.2-v2.7 comment said 1.13 ms, the value used was the generated one). v2.8: a failed Pc signal (open wire / dead transducer,
++      // pc_sensor_fail_at) blinds the comparator too - same PC_SIG wire (v2.7 kept it seeing the plant pressure: optimistic)
++      double v_sig = (t >= pc_sensor_fail_at) ? 0.02 : std::min(4.95, 0.5 + 4.0 * (pc_s2_ - 101325.0) * (ts >= pc_gain_at ? pc_gain : 1.0) / C.pc_fs);
++      if (ts >= pc_stuck_high_at && ts < pc_stuck_high_to && t < pc_sensor_fail_at) v_sig = 4.95;   // v2.11 S6R
++      ovp_vf += (v_sig - ovp_vf) * dt / C.ovp_tau;
++      if (ovp_vf > v_trip) { cmp_this_ms = true; if (ovp_trip_t < 0) ovp_trip_t = ts; }
++    }
+     // v2.5: the pintle servo draws from the regulated rail; battery side = Vrail I / (eta Vbat)
+     const double i_pint_bat = C.pintle_rail ? C.rail_V * pintle.servo.current / (C.rail_eta * std::max(vbat, 3.0))
+                                             : pintle.servo.current;
+@@ -391,26 +507,35 @@
+     r.pc_valid = out.pc_valid ? 1 : 0; r.mpool = eng.mpool;   // v2.10
+     r.photo_V = in.photo_V; r.fa1 = out.fa1; r.fault2 = out.fault2; r.hbleed2 = out.hbleed2; r.purge_flow_ms = out.purge_flow_ms;   // v2.10
+     r.ls_flags = (out.light_spike.open ? 1 : 0) | (out.light_spike.done ? 2 : 0) | (out.light_spike.lit ? 4 : 0) |
+-                 (out.light_spike_event ? 8 : 0) | (out.light_spike.closed_by_exit ? 16 : 0);
++                 (out.light_spike_event ? 8 : 0) | (out.light_spike.closed_by_exit ? 16 : 0) |
++                 (out.light_spike.overrange ? 32 : 0) | (out.light_spike.abovefs ? 128 : 0);   // v2.11: b5 over-range, b7 above FS (log v12)
++    r.pc_raw_V = in.pc_raw_V; r.ovr_flags = out.ovr_flags; r.ovp_vf = ovp_vf; r.Pc_face = pc_s1_;   // v2.11
++    r.cmd_refused = out.cmd_refused;
++    if (fa1_t0 >= 0.0 && t - fa1_t0 < 0.027) r.Pc = pc_ch_ms_max_;   // v2.11: the replayed chamber pressure (ms maximum) while it runs
++    if (gop && gop_t0 >= 0.0 && t >= gop_t0 - 1e-3 && t - gop_t0 < 0.6) r.Pc = pc_ch_ms_max_;   // v2.11 S6R: the event head pressure (ms max)
+     rec_.push_back(r);
+   }
+   t += 1e-3; ++ms_;
+ }
+ 
+-void Sim::writeCsv(const std::string& fn) const {
++void Sim::writeCsv(const std::string& fn, double t0, double t1) const {
++  // v2.11 disk budget (lead brief 2026-10-20: per-case summaries, raw traces only for failing / bounding cases): SIL_NO_CSV=1 skips
++  // every time-history CSV of this process (the JSON summaries and the run log are unchanged)
++  if (const char* e = std::getenv("SIL_NO_CSV")) if (e[0] == '1') return;
+   std::ofstream f(fn);
+   f << "t,thr_cmd,F,F_est,Pc,Pc_meas,Pc_sp,x,x_cmd,x_ff,integ,band,ptank,pfeed,mox,mf,of,ga_cmd,ga,gb_cmd,gb,vbat,i_tot,mv,crank_deg,"
+        "Fnet_pintle,Tservo_pintle,us_pintle,state,abort,faults,torch,ignited,spark,sol1,sol4,sol5,arm_bus,ovp_ok,gas_T,us_mv_opener,"
+        "v_pintle,i_pintle,noprog,jam_kind,Pc_xdcr,sol2,P_torch,ptorch_in,prail_V,preg_V,mv_latch_hw,ltc_gate,torch_ok,lockout,seat_wait,"
+        "mvap,vap_left_cc,ox_unlit_start,ign_rule,ign_lift_t,relight_direct,s1_fault,s1_dp,seg_valid,seg_primed,relight_block,relight_worst,"
+        "mode_stand,fc_thr_fresh,relight_state,seg_vapour,tank_hot,tank_T,P_mid,mdot_bleed,mvap_bleed,hb_io,ign_det,ign_ref,ign_rise,"
+-       "flame_ratio,pc_map,a7_tlmf,pc_valid,ls_flags,mpool,photo_V,fa1,fault2,hbleed2,purge_flow_ms\n";   // v2.10 columns appended   // a7_tlmf: b0-b1 a7 phase, b2 A7 flag, b3 A7 event, b4-b7 tlmf::
++       "flame_ratio,pc_map,a7_tlmf,pc_valid,ls_flags,mpool,photo_V,fa1,fault2,hbleed2,purge_flow_ms,pc_raw_V,ovr_flags,ovp_vf,Pc_face,cmd_refused\n";   // v2.10 columns appended   // a7_tlmf: b0-b1 a7 phase, b2 A7 flag, b3 A7 event, b4-b7 tlmf::
+   char b[1600];
+   for (const Rec& r : rec_) {
++    if (r.t < t0 - 1e-9 || r.t > t1 + 1e-9) continue;   // v2.11 optional window
+     std::snprintf(b, sizeof b, "%.4f,%.2f,%.3f,%.3f,%.0f,%.0f,%.0f,%.4e,%.4e,%.4e,%.4e,%.0f,%.0f,%.0f,%.5f,%.5f,%.3f,%.5f,%.5f,%.5f,%.5f,"
+                   "%.3f,%.3f,%.3f,%.3f,%.2f,%.4f,%.2f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%.1f,%.1f,%.3f,%.3f,%.4f,%d,%.0f,"
+                   "%d,%.0f,%.0f,%.3f,%.3f,%d,%d,%d,%d,%d,%.5f,%.3f,%.6f,%d,%.4f,%d,%d,%.0f,%d,%d,%d,%.3f,%d,%.0f,%d,%d,%d,%.2f,"
+-                  "%.0f,%.5f,%.5f,%d,%d,%.0f,%.0f,%.3f,%.0f,%d,%d,%d,%.6f,%.4f,%d,%d,%d,%d\n",
++                  "%.0f,%.5f,%.5f,%d,%d,%.0f,%.0f,%.3f,%.0f,%d,%d,%d,%.6f,%.4f,%d,%d,%d,%d,%.4f,%d,%.4f,%.0f,%d\n",
+                   r.t, r.thr_cmd, r.F, r.F_est, r.Pc, r.Pc_meas, r.Pc_sp, r.x, r.x_cmd, r.x_ff, r.integ, r.band, r.ptank, r.pfeed,
+                   r.mox, r.mf, r.of, r.ga_cmd, r.ga, r.gb_cmd, r.gb, r.vbat, r.i_tot, r.mv, r.crank_deg, r.Fnet_pintle,
+                   r.Tservo_pintle, r.us_pintle, r.state, r.abort, r.faults, r.torch, r.ignited, r.spark, r.sol1, r.sol4, r.sol5,
+@@ -419,7 +544,8 @@
+                   r.mvap, r.vap_cc, r.ox_unlit, r.ign_rule, r.ign_lift_t, r.relight_direct, r.s1_fault, r.s1_dp, r.seg_valid, r.seg_primed,
+                   r.relight_block, r.relight_worst, r.mode_stand, r.fc_thr, r.rstate, r.segvap, r.tank_hot, r.tank_T,
+                   r.pmid, r.mdot_hb, r.mvap_hb, r.hb_io, r.ign_det, r.ign_ref, r.ign_rise, r.flame_ratio, r.pc_map, r.a7,
+-                  r.pc_valid, r.ls_flags, r.mpool, r.photo_V, r.fa1, r.fault2, r.hbleed2, r.purge_flow_ms);
++                  r.pc_valid, r.ls_flags, r.mpool, r.photo_V, r.fa1, r.fault2, r.hbleed2, r.purge_flow_ms,
++                  r.pc_raw_V, r.ovr_flags, r.ovp_vf, r.Pc_face, r.cmd_refused);
+     f << b;
+   }
+ }

@@ -1,0 +1,4179 @@
+{
+ "id": "jfwd_variant_v352",
+ "version": "v2",
+ "date": "2026-10-20",
+ "owner": "mechanical",
+ "basis": "J-FWD HW-101 at the gap-conductance variant temperatures (lead 2026-10-20 (2) variant; CHANGELOG 234 (1)(b) basis kept).  Mechanical,\n2026-10-20, v2 (v1 = jfwd_variant_v352_v1.py -> jfwd_variant_v352_v1.json 9a7165eeda7cfc71, kept).  CALC on SIM temperatures; stiffnesses\nASSUMED as in jfwd_preload_v352.py.\nv2 adds (lead 2026-10-20: 'J-FWD 3.0 N m ACCEPTED'; '2.5 N m fallback rows'; 'GVHI rows'): the GVHI bound; 2.5 N m; every row at\nk_sh x0.5 / x1 / x1.5; every output frame of the B1 runs instead of 7 picked times (LC2 at every burn frame, soak at every frame after the\nburn); the maximum installation preload each check allows (the J-F1 acceptance limit) with the governing bound, frame and check.\nRow temperatures (SIM): read from tb70/hist/<label>_hist.npz (case_tc_hist_v352.py, streamed from the thermal frd.gz) with the v1 rule:\nTC-01 = mean of the ENG-TC-01 nodes within +/- 2.6 mm of the screw row (thermal frame z 134.06), TC-02 = mean of the ENG-TC-02 nodes with\nr >= 19.5 mm in the same band (tap zone); v1's hand-entered rows are reproduced to 0.05 K (asserted).\nWhat the variant adds to jfwd_preload_v352 (uniform joint temperature): TC-01 and TC-02 at different temperatures at the screw row.\n  (a) through-wall term: dF_w = (alpha_Al(T01) dT01 - alpha_A4(Ts) dTs) L_grip k_bm  (L_grip 3.15 mm, k_bm = k_b k_m / (k_b + k_m));\n  (b) ring-growth mismatch: the case ring (T01) grows radially against the plug (T02) by d = alpha_Al (T01 - T02) r_fit at r_fit 28.6 mm\n      (> 0: the case moves away from the plug and stretches the screws; < 0 unloads them), resisted by the case shell at the 10 screws\n      (long thin cylinder, ring-load mode + local point-load mode: k_sh about 21 kN/mm per screw, CALC (Roark-type, ASSUMED +/-50 %)) in\n      series with the screw: dF_r = d k_sh k_b / (k_sh + k_b).\n  Screw temperature Ts = mean of the TC-01 wall mean and the TC-02 tap-zone mean at the row (ASSUMED; the 2D model has no screw).\nChecks (max installation preload F_inst = 1.25 F_nom, K 0.20; F_max = F_inst + dF_w + dF_r):\n  LC2 (45 bar, SF 1.5 / 2.0) at every burn frame: combined yield sqrt(st^2 + 3 tf^2) <= kT Rp0.2, ultimate interaction Rt^2 + Rs^2 <= 1;\n  soak (no pressure) at every frame after the burn: screw tension F_max / A_s <= kT Rp0.2 (and kTu Rm);\n  TC-02 internal thread (FED-STD-H28 strip area, L_eff 6.35 mm, unfactored installation load) <= 0.577 Fty(T02) / Fsu(T02), every frame.\nAllowed installation preload (J-F1 acceptance): the largest F_inst with every check above >= 0 at every frame of the bound.",
+ "supersedes": {
+  "file": "jfwd_variant_v352_v1.json",
+  "sha256_16": "9a7165eeda7cfc71",
+  "script": "jfwd_variant_v352_v1.py",
+  "script_sha256_16": "a30e2cf2c087cf4a",
+  "what_changed": "GVHI bound, 2.5 N m, k_sh x0.5/x1/x1.5 on every row, every output frame, allowed installation preload"
+ },
+ "k_sh_N_mm_ASSUMED": 21000.0,
+ "k_sh_factors": [
+  0.5,
+  1.0,
+  1.5
+ ],
+ "k_b_N_mm_ASSUMED": 472997,
+ "row_rule": {
+  "z_row_thermal_mm": 134.06,
+  "dz_mm": 2.6,
+  "TC02_r_min_mm": 19.5
+ },
+ "sources_SIM": {
+  "merged": {
+   "hist_npz": "tb70/hist/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_hist.npz",
+   "hist_sha256_16": "f53ecacdf306259f",
+   "frd": "DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b.frd.gz",
+   "frd_sha256_16": "2be75ded99fa0296",
+   "gap_variant": "merged (perfect contact)",
+   "n_frames": 363,
+   "n_TC01_row_nodes": 21,
+   "n_TC02_tap_nodes": 41,
+   "row_T_max_C": {
+    "TC01": [
+     119.6,
+     171.651
+    ],
+    "TC02_tap": [
+     119.6,
+     171.651
+    ],
+    "Ts": [
+     119.6,
+     171.651
+    ]
+   }
+  },
+  "GVLO": {
+   "hist_npz": "tb70/hist/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_GVLO_hist.npz",
+   "hist_sha256_16": "1c083a6c9246abb8",
+   "frd": "DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_GVLO.frd.gz",
+   "frd_sha256_16": "00c8f9eaf7edf1d6",
+   "gap_variant": "GVLO",
+   "n_frames": 363,
+   "n_TC01_row_nodes": 142,
+   "n_TC02_tap_nodes": 171,
+   "row_T_max_C": {
+    "TC01": [
+     158.0,
+     65.651
+    ],
+    "TC02_tap": [
+     108.2,
+     266.651
+    ],
+    "Ts": [
+     127.3,
+     70.651
+    ]
+   }
+  },
+  "GVHI": {
+   "hist_npz": "tb70/hist/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_GVHI_hist.npz",
+   "hist_sha256_16": "2b06cf1374e06585",
+   "frd": "DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_GVHI.frd.gz",
+   "frd_sha256_16": "3dae2cb923129ff2",
+   "gap_variant": "GVHI",
+   "n_frames": 363,
+   "n_TC01_row_nodes": 142,
+   "n_TC02_tap_nodes": 171,
+   "row_T_max_C": {
+    "TC01": [
+     127.4,
+     56.651
+    ],
+    "TC02_tap": [
+     115.4,
+     201.651
+    ],
+    "Ts": [
+     117.1,
+     136.651
+    ]
+   }
+  }
+ },
+ "v1_row_reproduction": {
+  "merged": {
+   "21.65": {
+    "frame_t_s": 21.651,
+    "v1_T01_T02_C": [
+     75.8,
+     75.9
+    ],
+    "v2_T01_T02_C": [
+     75.84,
+     75.86
+    ]
+   },
+   "64.7": {
+    "frame_t_s": 64.651,
+    "v1_T01_T02_C": [
+     110.7,
+     110.6
+    ],
+    "v2_T01_T02_C": [
+     110.74,
+     110.62
+    ]
+   },
+   "166.7": {
+    "frame_t_s": 166.651,
+    "v1_T01_T02_C": [
+     119.6,
+     119.6
+    ],
+    "v2_T01_T02_C": [
+     119.6,
+     119.62
+    ]
+   }
+  },
+  "GVLO": {
+   "21.65": {
+    "frame_t_s": 21.651,
+    "v1_T01_T02_C": [
+     60.0,
+     81.2
+    ],
+    "v2_T01_T02_C": [
+     59.97,
+     81.22
+    ]
+   },
+   "37.7": {
+    "frame_t_s": 37.651,
+    "v1_T01_T02_C": [
+     126.4,
+     92.2
+    ],
+    "v2_T01_T02_C": [
+     126.38,
+     92.17
+    ]
+   },
+   "51.7": {
+    "frame_t_s": 51.651,
+    "v1_T01_T02_C": [
+     152.6,
+     93.7
+    ],
+    "v2_T01_T02_C": [
+     152.62,
+     93.68
+    ]
+   },
+   "64.7": {
+    "frame_t_s": 64.651,
+    "v1_T01_T02_C": [
+     158.0,
+     96.0
+    ],
+    "v2_T01_T02_C": [
+     157.98,
+     95.97
+    ]
+   },
+   "100": {
+    "frame_t_s": 101.651,
+    "v1_T01_T02_C": [
+     147.1,
+     101.6
+    ],
+    "v2_T01_T02_C": [
+     147.12,
+     101.62
+    ]
+   },
+   "166.7": {
+    "frame_t_s": 166.651,
+    "v1_T01_T02_C": [
+     129.1,
+     106.5
+    ],
+    "v2_T01_T02_C": [
+     129.1,
+     106.48
+    ]
+   },
+   "266.7": {
+    "frame_t_s": 266.651,
+    "v1_T01_T02_C": [
+     117.3,
+     108.2
+    ],
+    "v2_T01_T02_C": [
+     117.32,
+     108.2
+    ]
+   }
+  }
+ },
+ "results": {
+  "merged": {
+   "4Nm_ksh_x0.5": {
+    "LC2_burn_governing": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 5477,
+     "MS_y_combined": 0.1666,
+     "MS_u_interaction": 0.5934,
+     "TC02_thread_MS_y": 0.5486,
+     "TC02_thread_MS_u": 0.7271,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 5477,
+     "MS_y_combined": 0.1666,
+     "MS_u_interaction": 0.5934,
+     "TC02_thread_MS_y": 0.5486,
+     "TC02_thread_MS_u": 0.7271,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.1666,
+     "MS_u_interaction": 0.5934
+    },
+    "soak_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 5862,
+     "MS_y_tension": 0.1633,
+     "MS_u_tension": 0.864,
+     "TC02_thread_MS_y": 0.3194,
+     "TC02_thread_MS_u": 0.4584,
+     "t_s": 161.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.1633,
+     "MS_u_tension": 0.864
+    },
+    "TC02_thread_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 5863,
+     "MS_y_tension": 0.1633,
+     "MS_u_tension": 0.864,
+     "TC02_thread_MS_y": 0.3192,
+     "TC02_thread_MS_u": 0.4583,
+     "t_s": 166.651
+    }
+   },
+   "3.5Nm_ksh_x0.5": {
+    "LC2_burn_governing": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 4852,
+     "MS_y_combined": 0.2701,
+     "MS_u_interaction": 0.711,
+     "TC02_thread_MS_y": 0.7481,
+     "TC02_thread_MS_u": 0.9496,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 4852,
+     "MS_y_combined": 0.2701,
+     "MS_u_interaction": 0.711,
+     "TC02_thread_MS_y": 0.7481,
+     "TC02_thread_MS_u": 0.9496,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.2701,
+     "MS_u_interaction": 0.711
+    },
+    "soak_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 5238,
+     "MS_y_tension": 0.3021,
+     "MS_u_tension": 1.0864,
+     "TC02_thread_MS_y": 0.4767,
+     "TC02_thread_MS_u": 0.6323,
+     "t_s": 166.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.3021,
+     "MS_u_tension": 1.0864
+    },
+    "TC02_thread_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 5238,
+     "MS_y_tension": 0.3021,
+     "MS_u_tension": 1.0864,
+     "TC02_thread_MS_y": 0.4767,
+     "TC02_thread_MS_u": 0.6323,
+     "t_s": 166.651
+    }
+   },
+   "3Nm_ksh_x0.5": {
+    "LC2_burn_governing": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 4227,
+     "MS_y_combined": 0.3881,
+     "MS_u_interaction": 0.8392,
+     "TC02_thread_MS_y": 1.0066,
+     "TC02_thread_MS_u": 1.2379,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 4227,
+     "MS_y_combined": 0.3881,
+     "MS_u_interaction": 0.8392,
+     "TC02_thread_MS_y": 1.0066,
+     "TC02_thread_MS_u": 1.2379,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.3881,
+     "MS_u_interaction": 0.8392
+    },
+    "soak_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 4613,
+     "MS_y_tension": 0.4785,
+     "MS_u_tension": 1.3691,
+     "TC02_thread_MS_y": 0.6768,
+     "TC02_thread_MS_u": 0.8535,
+     "t_s": 166.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.4785,
+     "MS_u_tension": 1.3691
+    },
+    "TC02_thread_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 4613,
+     "MS_y_tension": 0.4785,
+     "MS_u_tension": 1.3691,
+     "TC02_thread_MS_y": 0.6767,
+     "TC02_thread_MS_u": 0.8535,
+     "t_s": 171.651
+    }
+   },
+   "2.5Nm_ksh_x0.5": {
+    "LC2_burn_governing": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 3602,
+     "MS_y_combined": 0.5215,
+     "MS_u_interaction": 0.9765,
+     "TC02_thread_MS_y": 1.3548,
+     "TC02_thread_MS_u": 1.6263,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 3602,
+     "MS_y_combined": 0.5215,
+     "MS_u_interaction": 0.9765,
+     "TC02_thread_MS_y": 1.3548,
+     "TC02_thread_MS_u": 1.6263,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.5215,
+     "MS_u_interaction": 0.9765
+    },
+    "soak_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 3988,
+     "MS_y_tension": 0.7102,
+     "MS_u_tension": 1.7404,
+     "TC02_thread_MS_y": 0.9396,
+     "TC02_thread_MS_u": 1.144,
+     "t_s": 166.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.7102,
+     "MS_u_tension": 1.7404
+    },
+    "TC02_thread_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 3988,
+     "MS_y_tension": 0.7102,
+     "MS_u_tension": 1.7405,
+     "TC02_thread_MS_y": 0.9395,
+     "TC02_thread_MS_u": 1.144,
+     "t_s": 171.651
+    }
+   },
+   "4Nm_ksh_x1": {
+    "LC2_burn_governing": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 5476,
+     "MS_y_combined": 0.1667,
+     "MS_u_interaction": 0.5934,
+     "TC02_thread_MS_y": 0.5486,
+     "TC02_thread_MS_u": 0.7271,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 5476,
+     "MS_y_combined": 0.1667,
+     "MS_u_interaction": 0.5934,
+     "TC02_thread_MS_y": 0.5486,
+     "TC02_thread_MS_u": 0.7271,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.1667,
+     "MS_u_interaction": 0.5934
+    },
+    "soak_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 5862,
+     "MS_y_tension": 0.1633,
+     "MS_u_tension": 0.864,
+     "TC02_thread_MS_y": 0.3193,
+     "TC02_thread_MS_u": 0.4583,
+     "t_s": 166.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.1633,
+     "MS_u_tension": 0.864
+    },
+    "TC02_thread_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 5862,
+     "MS_y_tension": 0.1633,
+     "MS_u_tension": 0.864,
+     "TC02_thread_MS_y": 0.3193,
+     "TC02_thread_MS_u": 0.4583,
+     "t_s": 166.651
+    },
+    "soak_selected_frames": {
+     "t37.651": {
+      "T01_C": 98.2,
+      "T02_C": 98.0,
+      "Ts_C": 98.1,
+      "dF_wall_N": 678,
+      "dF_ring_N": 3,
+      "F_max_N": 5681,
+      "MS_y_tension": 0.249,
+      "MS_u_tension": 0.9394,
+      "TC02_thread_MS_y": 0.4712,
+      "TC02_thread_MS_u": 0.6338,
+      "t_s": 37.651
+     },
+     "t51.651": {
+      "T01_C": 106.1,
+      "T02_C": 106.0,
+      "Ts_C": 106.1,
+      "dF_wall_N": 747,
+      "dF_ring_N": 2,
+      "F_max_N": 5750,
+      "MS_y_tension": 0.2152,
+      "MS_u_tension": 0.9104,
+      "TC02_thread_MS_y": 0.4192,
+      "TC02_thread_MS_u": 0.5736,
+      "t_s": 51.651
+     },
+     "t64.651": {
+      "T01_C": 110.7,
+      "T02_C": 110.6,
+      "Ts_C": 110.7,
+      "dF_wall_N": 787,
+      "dF_ring_N": 2,
+      "F_max_N": 5789,
+      "MS_y_tension": 0.1972,
+      "MS_u_tension": 0.8943,
+      "TC02_thread_MS_y": 0.3847,
+      "TC02_thread_MS_u": 0.5337,
+      "t_s": 64.651
+     },
+     "t101.651": {
+      "T01_C": 117.1,
+      "T02_C": 117.1,
+      "Ts_C": 117.1,
+      "dF_wall_N": 842,
+      "dF_ring_N": 0,
+      "F_max_N": 5842,
+      "MS_y_tension": 0.1727,
+      "MS_u_tension": 0.8724,
+      "TC02_thread_MS_y": 0.3374,
+      "TC02_thread_MS_u": 0.4793,
+      "t_s": 101.651
+     },
+     "t166.651": {
+      "T01_C": 119.6,
+      "T02_C": 119.6,
+      "Ts_C": 119.6,
+      "dF_wall_N": 863,
+      "dF_ring_N": 0,
+      "F_max_N": 5862,
+      "MS_y_tension": 0.1633,
+      "MS_u_tension": 0.864,
+      "TC02_thread_MS_y": 0.3193,
+      "TC02_thread_MS_u": 0.4583,
+      "t_s": 166.651
+     },
+     "t266.651": {
+      "T01_C": 117.9,
+      "T02_C": 117.9,
+      "Ts_C": 117.9,
+      "dF_wall_N": 848,
+      "dF_ring_N": 0,
+      "F_max_N": 5847,
+      "MS_y_tension": 0.1699,
+      "MS_u_tension": 0.8701,
+      "TC02_thread_MS_y": 0.3318,
+      "TC02_thread_MS_u": 0.4728,
+      "t_s": 266.651
+     }
+    }
+   },
+   "3.5Nm_ksh_x1": {
+    "LC2_burn_governing": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 4851,
+     "MS_y_combined": 0.2701,
+     "MS_u_interaction": 0.7111,
+     "TC02_thread_MS_y": 0.7481,
+     "TC02_thread_MS_u": 0.9497,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 4851,
+     "MS_y_combined": 0.2701,
+     "MS_u_interaction": 0.7111,
+     "TC02_thread_MS_y": 0.7481,
+     "TC02_thread_MS_u": 0.9497,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.2701,
+     "MS_u_interaction": 0.7111
+    },
+    "soak_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 5237,
+     "MS_y_tension": 0.3021,
+     "MS_u_tension": 1.0865,
+     "TC02_thread_MS_y": 0.4767,
+     "TC02_thread_MS_u": 0.6323,
+     "t_s": 166.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.3021,
+     "MS_u_tension": 1.0865
+    },
+    "TC02_thread_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 5237,
+     "MS_y_tension": 0.3021,
+     "MS_u_tension": 1.0865,
+     "TC02_thread_MS_y": 0.4767,
+     "TC02_thread_MS_u": 0.6323,
+     "t_s": 166.651
+    },
+    "soak_selected_frames": {
+     "t37.651": {
+      "T01_C": 98.2,
+      "T02_C": 98.0,
+      "Ts_C": 98.1,
+      "dF_wall_N": 678,
+      "dF_ring_N": 3,
+      "F_max_N": 5056,
+      "MS_y_tension": 0.4034,
+      "MS_u_tension": 1.1792,
+      "TC02_thread_MS_y": 0.653,
+      "TC02_thread_MS_u": 0.8358,
+      "t_s": 37.651
+     },
+     "t51.651": {
+      "T01_C": 106.1,
+      "T02_C": 106.0,
+      "Ts_C": 106.1,
+      "dF_wall_N": 747,
+      "dF_ring_N": 2,
+      "F_max_N": 5125,
+      "MS_y_tension": 0.3634,
+      "MS_u_tension": 1.1434,
+      "TC02_thread_MS_y": 0.5923,
+      "TC02_thread_MS_u": 0.7655,
+      "t_s": 51.651
+     },
+     "t64.651": {
+      "T01_C": 110.7,
+      "T02_C": 110.6,
+      "Ts_C": 110.7,
+      "dF_wall_N": 787,
+      "dF_ring_N": 2,
+      "F_max_N": 5164,
+      "MS_y_tension": 0.3421,
+      "MS_u_tension": 1.1235,
+      "TC02_thread_MS_y": 0.5523,
+      "TC02_thread_MS_u": 0.7194,
+      "t_s": 64.651
+     },
+     "t101.651": {
+      "T01_C": 117.1,
+      "T02_C": 117.1,
+      "Ts_C": 117.1,
+      "dF_wall_N": 842,
+      "dF_ring_N": 0,
+      "F_max_N": 5217,
+      "MS_y_tension": 0.3132,
+      "MS_u_tension": 1.0967,
+      "TC02_thread_MS_y": 0.4977,
+      "TC02_thread_MS_u": 0.6565,
+      "t_s": 101.651
+     },
+     "t166.651": {
+      "T01_C": 119.6,
+      "T02_C": 119.6,
+      "Ts_C": 119.6,
+      "dF_wall_N": 863,
+      "dF_ring_N": 0,
+      "F_max_N": 5237,
+      "MS_y_tension": 0.3021,
+      "MS_u_tension": 1.0865,
+      "TC02_thread_MS_y": 0.4767,
+      "TC02_thread_MS_u": 0.6323,
+      "t_s": 166.651
+     },
+     "t266.651": {
+      "T01_C": 117.9,
+      "T02_C": 117.9,
+      "Ts_C": 117.9,
+      "dF_wall_N": 848,
+      "dF_ring_N": 0,
+      "F_max_N": 5222,
+      "MS_y_tension": 0.31,
+      "MS_u_tension": 1.0939,
+      "TC02_thread_MS_y": 0.4912,
+      "TC02_thread_MS_u": 0.649,
+      "t_s": 266.651
+     }
+    }
+   },
+   "3Nm_ksh_x1": {
+    "LC2_burn_governing": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 4226,
+     "MS_y_combined": 0.3881,
+     "MS_u_interaction": 0.8393,
+     "TC02_thread_MS_y": 1.0067,
+     "TC02_thread_MS_u": 1.238,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 4226,
+     "MS_y_combined": 0.3881,
+     "MS_u_interaction": 0.8393,
+     "TC02_thread_MS_y": 1.0067,
+     "TC02_thread_MS_u": 1.238,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.3881,
+     "MS_u_interaction": 0.8393
+    },
+    "soak_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 4612,
+     "MS_y_tension": 0.4786,
+     "MS_u_tension": 1.3693,
+     "TC02_thread_MS_y": 0.677,
+     "TC02_thread_MS_u": 0.8537,
+     "t_s": 161.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.4786,
+     "MS_u_tension": 1.3692
+    },
+    "TC02_thread_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 4612,
+     "MS_y_tension": 0.4786,
+     "MS_u_tension": 1.3692,
+     "TC02_thread_MS_y": 0.6768,
+     "TC02_thread_MS_u": 0.8535,
+     "t_s": 166.651
+    },
+    "soak_selected_frames": {
+     "t37.651": {
+      "T01_C": 98.2,
+      "T02_C": 98.0,
+      "Ts_C": 98.1,
+      "dF_wall_N": 678,
+      "dF_ring_N": 3,
+      "F_max_N": 4431,
+      "MS_y_tension": 0.6014,
+      "MS_u_tension": 1.4866,
+      "TC02_thread_MS_y": 0.8862,
+      "TC02_thread_MS_u": 1.0948,
+      "t_s": 37.651
+     },
+     "t51.651": {
+      "T01_C": 106.1,
+      "T02_C": 106.0,
+      "Ts_C": 106.1,
+      "dF_wall_N": 747,
+      "dF_ring_N": 2,
+      "F_max_N": 4500,
+      "MS_y_tension": 0.5527,
+      "MS_u_tension": 1.4411,
+      "TC02_thread_MS_y": 0.8135,
+      "TC02_thread_MS_u": 1.0107,
+      "t_s": 51.651
+     },
+     "t64.651": {
+      "T01_C": 110.7,
+      "T02_C": 110.6,
+      "Ts_C": 110.7,
+      "dF_wall_N": 787,
+      "dF_ring_N": 2,
+      "F_max_N": 4539,
+      "MS_y_tension": 0.5269,
+      "MS_u_tension": 1.416,
+      "TC02_thread_MS_y": 0.766,
+      "TC02_thread_MS_u": 0.9562,
+      "t_s": 64.651
+     },
+     "t101.651": {
+      "T01_C": 117.1,
+      "T02_C": 117.1,
+      "Ts_C": 117.1,
+      "dF_wall_N": 842,
+      "dF_ring_N": 0,
+      "F_max_N": 4592,
+      "MS_y_tension": 0.4919,
+      "MS_u_tension": 1.3821,
+      "TC02_thread_MS_y": 0.7015,
+      "TC02_thread_MS_u": 0.882,
+      "t_s": 101.651
+     },
+     "t166.651": {
+      "T01_C": 119.6,
+      "T02_C": 119.6,
+      "Ts_C": 119.6,
+      "dF_wall_N": 863,
+      "dF_ring_N": 0,
+      "F_max_N": 4612,
+      "MS_y_tension": 0.4786,
+      "MS_u_tension": 1.3692,
+      "TC02_thread_MS_y": 0.6768,
+      "TC02_thread_MS_u": 0.8535,
+      "t_s": 166.651
+     },
+     "t266.651": {
+      "T01_C": 117.9,
+      "T02_C": 117.9,
+      "Ts_C": 117.9,
+      "dF_wall_N": 848,
+      "dF_ring_N": 0,
+      "F_max_N": 4597,
+      "MS_y_tension": 0.4881,
+      "MS_u_tension": 1.3786,
+      "TC02_thread_MS_y": 0.6939,
+      "TC02_thread_MS_u": 0.8732,
+      "t_s": 266.651
+     }
+    }
+   },
+   "2.5Nm_ksh_x1": {
+    "LC2_burn_governing": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 3601,
+     "MS_y_combined": 0.5215,
+     "MS_u_interaction": 0.9765,
+     "TC02_thread_MS_y": 1.3549,
+     "TC02_thread_MS_u": 1.6264,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 3601,
+     "MS_y_combined": 0.5215,
+     "MS_u_interaction": 0.9765,
+     "TC02_thread_MS_y": 1.3549,
+     "TC02_thread_MS_u": 1.6264,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.5215,
+     "MS_u_interaction": 0.9765
+    },
+    "soak_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 3987,
+     "MS_y_tension": 0.7103,
+     "MS_u_tension": 1.7405,
+     "TC02_thread_MS_y": 0.9396,
+     "TC02_thread_MS_u": 1.1441,
+     "t_s": 166.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.7103,
+     "MS_u_tension": 1.7405
+    },
+    "TC02_thread_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 3987,
+     "MS_y_tension": 0.7103,
+     "MS_u_tension": 1.7405,
+     "TC02_thread_MS_y": 0.9396,
+     "TC02_thread_MS_u": 1.1441,
+     "t_s": 166.651
+    },
+    "soak_selected_frames": {
+     "t37.651": {
+      "T01_C": 98.2,
+      "T02_C": 98.0,
+      "Ts_C": 98.1,
+      "dF_wall_N": 678,
+      "dF_ring_N": 3,
+      "F_max_N": 3806,
+      "MS_y_tension": 0.8644,
+      "MS_u_tension": 1.8949,
+      "TC02_thread_MS_y": 1.196,
+      "TC02_thread_MS_u": 1.4388,
+      "t_s": 37.651
+     },
+     "t51.651": {
+      "T01_C": 106.1,
+      "T02_C": 106.0,
+      "Ts_C": 106.1,
+      "dF_wall_N": 747,
+      "dF_ring_N": 2,
+      "F_max_N": 3875,
+      "MS_y_tension": 0.8032,
+      "MS_u_tension": 1.8348,
+      "TC02_thread_MS_y": 1.106,
+      "TC02_thread_MS_u": 1.3351,
+      "t_s": 51.651
+     },
+     "t64.651": {
+      "T01_C": 110.7,
+      "T02_C": 110.6,
+      "Ts_C": 110.7,
+      "dF_wall_N": 787,
+      "dF_ring_N": 2,
+      "F_max_N": 3914,
+      "MS_y_tension": 0.7707,
+      "MS_u_tension": 1.8018,
+      "TC02_thread_MS_y": 1.048,
+      "TC02_thread_MS_u": 1.2686,
+      "t_s": 64.651
+     },
+     "t101.651": {
+      "T01_C": 117.1,
+      "T02_C": 117.1,
+      "Ts_C": 117.1,
+      "dF_wall_N": 842,
+      "dF_ring_N": 0,
+      "F_max_N": 3967,
+      "MS_y_tension": 0.727,
+      "MS_u_tension": 1.7573,
+      "TC02_thread_MS_y": 0.9696,
+      "TC02_thread_MS_u": 1.1785,
+      "t_s": 101.651
+     },
+     "t166.651": {
+      "T01_C": 119.6,
+      "T02_C": 119.6,
+      "Ts_C": 119.6,
+      "dF_wall_N": 863,
+      "dF_ring_N": 0,
+      "F_max_N": 3987,
+      "MS_y_tension": 0.7103,
+      "MS_u_tension": 1.7405,
+      "TC02_thread_MS_y": 0.9396,
+      "TC02_thread_MS_u": 1.1441,
+      "t_s": 166.651
+     },
+     "t266.651": {
+      "T01_C": 117.9,
+      "T02_C": 117.9,
+      "Ts_C": 117.9,
+      "dF_wall_N": 848,
+      "dF_ring_N": 0,
+      "F_max_N": 3972,
+      "MS_y_tension": 0.7222,
+      "MS_u_tension": 1.7529,
+      "TC02_thread_MS_y": 0.9605,
+      "TC02_thread_MS_u": 1.168,
+      "t_s": 266.651
+     }
+    }
+   },
+   "4Nm_ksh_x1.5": {
+    "LC2_burn_governing": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 5476,
+     "MS_y_combined": 0.1667,
+     "MS_u_interaction": 0.5935,
+     "TC02_thread_MS_y": 0.5487,
+     "TC02_thread_MS_u": 0.7272,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 5476,
+     "MS_y_combined": 0.1667,
+     "MS_u_interaction": 0.5935,
+     "TC02_thread_MS_y": 0.5487,
+     "TC02_thread_MS_u": 0.7272,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.1667,
+     "MS_u_interaction": 0.5935
+    },
+    "soak_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 5862,
+     "MS_y_tension": 0.1633,
+     "MS_u_tension": 0.8641,
+     "TC02_thread_MS_y": 0.3193,
+     "TC02_thread_MS_u": 0.4584,
+     "t_s": 166.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.1633,
+     "MS_u_tension": 0.8641
+    },
+    "TC02_thread_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 5862,
+     "MS_y_tension": 0.1633,
+     "MS_u_tension": 0.8641,
+     "TC02_thread_MS_y": 0.3193,
+     "TC02_thread_MS_u": 0.4584,
+     "t_s": 166.651
+    }
+   },
+   "3.5Nm_ksh_x1.5": {
+    "LC2_burn_governing": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 4851,
+     "MS_y_combined": 0.2701,
+     "MS_u_interaction": 0.7111,
+     "TC02_thread_MS_y": 0.7482,
+     "TC02_thread_MS_u": 0.9497,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 4851,
+     "MS_y_combined": 0.2701,
+     "MS_u_interaction": 0.7111,
+     "TC02_thread_MS_y": 0.7482,
+     "TC02_thread_MS_u": 0.9497,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.2701,
+     "MS_u_interaction": 0.7111
+    },
+    "soak_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 5237,
+     "MS_y_tension": 0.3021,
+     "MS_u_tension": 1.0865,
+     "TC02_thread_MS_y": 0.4767,
+     "TC02_thread_MS_u": 0.6324,
+     "t_s": 166.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.3021,
+     "MS_u_tension": 1.0865
+    },
+    "TC02_thread_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 5237,
+     "MS_y_tension": 0.3021,
+     "MS_u_tension": 1.0865,
+     "TC02_thread_MS_y": 0.4767,
+     "TC02_thread_MS_u": 0.6324,
+     "t_s": 166.651
+    }
+   },
+   "3Nm_ksh_x1.5": {
+    "LC2_burn_governing": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 4226,
+     "MS_y_combined": 0.3881,
+     "MS_u_interaction": 0.8393,
+     "TC02_thread_MS_y": 1.0067,
+     "TC02_thread_MS_u": 1.238,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 4226,
+     "MS_y_combined": 0.3881,
+     "MS_u_interaction": 0.8393,
+     "TC02_thread_MS_y": 1.0067,
+     "TC02_thread_MS_u": 1.238,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.3881,
+     "MS_u_interaction": 0.8393
+    },
+    "soak_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 4612,
+     "MS_y_tension": 0.4786,
+     "MS_u_tension": 1.3693,
+     "TC02_thread_MS_y": 0.6768,
+     "TC02_thread_MS_u": 0.8536,
+     "t_s": 166.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.4786,
+     "MS_u_tension": 1.3693
+    },
+    "TC02_thread_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 4612,
+     "MS_y_tension": 0.4786,
+     "MS_u_tension": 1.3693,
+     "TC02_thread_MS_y": 0.6768,
+     "TC02_thread_MS_u": 0.8536,
+     "t_s": 166.651
+    }
+   },
+   "2.5Nm_ksh_x1.5": {
+    "LC2_burn_governing": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 3601,
+     "MS_y_combined": 0.5215,
+     "MS_u_interaction": 0.9766,
+     "TC02_thread_MS_y": 1.355,
+     "TC02_thread_MS_u": 1.6265,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 75.8,
+     "T02_C": 75.9,
+     "Ts_C": 75.9,
+     "dF_wall_N": 477,
+     "dF_ring_N": 0,
+     "F_max_N": 3601,
+     "MS_y_combined": 0.5215,
+     "MS_u_interaction": 0.9766,
+     "TC02_thread_MS_y": 1.355,
+     "TC02_thread_MS_u": 1.6265,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.5215,
+     "MS_u_interaction": 0.9766
+    },
+    "soak_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 3987,
+     "MS_y_tension": 0.7104,
+     "MS_u_tension": 1.7406,
+     "TC02_thread_MS_y": 0.9397,
+     "TC02_thread_MS_u": 1.1441,
+     "t_s": 166.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.7104,
+     "MS_u_tension": 1.7406
+    },
+    "TC02_thread_governing": {
+     "T01_C": 119.6,
+     "T02_C": 119.6,
+     "Ts_C": 119.6,
+     "dF_wall_N": 863,
+     "dF_ring_N": 0,
+     "F_max_N": 3987,
+     "MS_y_tension": 0.7104,
+     "MS_u_tension": 1.7406,
+     "TC02_thread_MS_y": 0.9397,
+     "TC02_thread_MS_u": 1.1441,
+     "t_s": 166.651
+    }
+   }
+  },
+  "GVLO": {
+   "4Nm_ksh_x0.5": {
+    "LC2_burn_governing": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -146,
+     "F_max_N": 4997,
+     "MS_y_combined": 0.2605,
+     "MS_u_interaction": 0.6859,
+     "TC02_thread_MS_y": 0.6911,
+     "TC02_thread_MS_u": 0.8841,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -146,
+     "F_max_N": 4997,
+     "MS_y_combined": 0.2605,
+     "MS_u_interaction": 0.6859,
+     "TC02_thread_MS_y": 0.6911,
+     "TC02_thread_MS_u": 0.8841,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.2605,
+     "MS_u_interaction": 0.6859
+    },
+    "soak_governing": {
+     "T01_C": 157.9,
+     "T02_C": 95.8,
+     "Ts_C": 126.9,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 434,
+     "F_max_N": 7219,
+     "MS_y_tension": -0.0677,
+     "MS_u_tension": 0.5096,
+     "TC02_thread_MS_y": 0.1595,
+     "TC02_thread_MS_u": 0.2882,
+     "t_s": 63.651
+    },
+    "soak_min": {
+     "MS_y_tension": -0.0677,
+     "MS_u_tension": 0.5096
+    },
+    "TC02_thread_governing": {
+     "T01_C": 157.8,
+     "T02_C": 95.6,
+     "Ts_C": 126.7,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 435,
+     "F_max_N": 7219,
+     "MS_y_tension": -0.0675,
+     "MS_u_tension": 0.5096,
+     "TC02_thread_MS_y": 0.1595,
+     "TC02_thread_MS_u": 0.2884,
+     "t_s": 62.651
+    }
+   },
+   "3.5Nm_ksh_x0.5": {
+    "LC2_burn_governing": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -146,
+     "F_max_N": 4372,
+     "MS_y_combined": 0.3764,
+     "MS_u_interaction": 0.812,
+     "TC02_thread_MS_y": 0.9328,
+     "TC02_thread_MS_u": 1.1534,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -146,
+     "F_max_N": 4372,
+     "MS_y_combined": 0.3764,
+     "MS_u_interaction": 0.812,
+     "TC02_thread_MS_y": 0.9328,
+     "TC02_thread_MS_u": 1.1534,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.3764,
+     "MS_u_interaction": 0.812
+    },
+    "soak_governing": {
+     "T01_C": 157.9,
+     "T02_C": 95.8,
+     "Ts_C": 126.9,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 434,
+     "F_max_N": 6594,
+     "MS_y_tension": 0.0207,
+     "MS_u_tension": 0.6527,
+     "TC02_thread_MS_y": 0.2694,
+     "TC02_thread_MS_u": 0.4103,
+     "t_s": 63.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.0207,
+     "MS_u_tension": 0.6527
+    },
+    "TC02_thread_governing": {
+     "T01_C": 157.8,
+     "T02_C": 95.6,
+     "Ts_C": 126.7,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 435,
+     "F_max_N": 6594,
+     "MS_y_tension": 0.0209,
+     "MS_u_tension": 0.6527,
+     "TC02_thread_MS_y": 0.2694,
+     "TC02_thread_MS_u": 0.4105,
+     "t_s": 62.651
+    }
+   },
+   "3Nm_ksh_x0.5": {
+    "LC2_burn_governing": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -146,
+     "F_max_N": 3747,
+     "MS_y_combined": 0.5078,
+     "MS_u_interaction": 0.9477,
+     "TC02_thread_MS_y": 1.2552,
+     "TC02_thread_MS_u": 1.5126,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -146,
+     "F_max_N": 3747,
+     "MS_y_combined": 0.5078,
+     "MS_u_interaction": 0.9477,
+     "TC02_thread_MS_y": 1.2552,
+     "TC02_thread_MS_u": 1.5126,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.5078,
+     "MS_u_interaction": 0.9477
+    },
+    "soak_governing": {
+     "T01_C": 157.9,
+     "T02_C": 95.8,
+     "Ts_C": 126.9,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 434,
+     "F_max_N": 5969,
+     "MS_y_tension": 0.1276,
+     "MS_u_tension": 0.8258,
+     "TC02_thread_MS_y": 0.4023,
+     "TC02_thread_MS_u": 0.558,
+     "t_s": 63.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.1276,
+     "MS_u_tension": 0.8257
+    },
+    "TC02_thread_governing": {
+     "T01_C": 157.9,
+     "T02_C": 95.8,
+     "Ts_C": 126.9,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 434,
+     "F_max_N": 5969,
+     "MS_y_tension": 0.1276,
+     "MS_u_tension": 0.8258,
+     "TC02_thread_MS_y": 0.4023,
+     "TC02_thread_MS_u": 0.558,
+     "t_s": 63.651
+    }
+   },
+   "2.5Nm_ksh_x0.5": {
+    "LC2_burn_governing": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -146,
+     "F_max_N": 3122,
+     "MS_y_combined": 0.6544,
+     "MS_u_interaction": 1.0898,
+     "TC02_thread_MS_y": 1.7066,
+     "TC02_thread_MS_u": 2.0155,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -146,
+     "F_max_N": 3122,
+     "MS_y_combined": 0.6544,
+     "MS_u_interaction": 1.0898,
+     "TC02_thread_MS_y": 1.7066,
+     "TC02_thread_MS_u": 2.0155,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.6544,
+     "MS_u_interaction": 1.0898
+    },
+    "soak_governing": {
+     "T01_C": 157.9,
+     "T02_C": 95.8,
+     "Ts_C": 126.9,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 434,
+     "F_max_N": 5344,
+     "MS_y_tension": 0.2595,
+     "MS_u_tension": 1.0393,
+     "TC02_thread_MS_y": 0.5663,
+     "TC02_thread_MS_u": 0.7403,
+     "t_s": 63.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.2595,
+     "MS_u_tension": 1.0392
+    },
+    "TC02_thread_governing": {
+     "T01_C": 157.9,
+     "T02_C": 95.8,
+     "Ts_C": 126.9,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 434,
+     "F_max_N": 5344,
+     "MS_y_tension": 0.2595,
+     "MS_u_tension": 1.0393,
+     "TC02_thread_MS_y": 0.5663,
+     "TC02_thread_MS_u": 0.7403,
+     "t_s": 63.651
+    }
+   },
+   "4Nm_ksh_x1": {
+    "LC2_burn_governing": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -287,
+     "F_max_N": 4857,
+     "MS_y_combined": 0.2852,
+     "MS_u_interaction": 0.7133,
+     "TC02_thread_MS_y": 0.7399,
+     "TC02_thread_MS_u": 0.9385,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -287,
+     "F_max_N": 4857,
+     "MS_y_combined": 0.2852,
+     "MS_u_interaction": 0.7133,
+     "TC02_thread_MS_y": 0.7399,
+     "TC02_thread_MS_u": 0.9385,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.2852,
+     "MS_u_interaction": 0.7133
+    },
+    "soak_governing": {
+     "T01_C": 157.9,
+     "T02_C": 95.8,
+     "Ts_C": 126.9,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 850,
+     "F_max_N": 7634,
+     "MS_y_tension": -0.1184,
+     "MS_u_tension": 0.4274,
+     "TC02_thread_MS_y": 0.0963,
+     "TC02_thread_MS_u": 0.2181,
+     "t_s": 63.651
+    },
+    "soak_min": {
+     "MS_y_tension": -0.1184,
+     "MS_u_tension": 0.4273
+    },
+    "TC02_thread_governing": {
+     "T01_C": 157.8,
+     "T02_C": 95.6,
+     "Ts_C": 126.7,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 851,
+     "F_max_N": 7635,
+     "MS_y_tension": -0.1183,
+     "MS_u_tension": 0.4273,
+     "TC02_thread_MS_y": 0.0963,
+     "TC02_thread_MS_u": 0.2181,
+     "t_s": 62.651
+    },
+    "soak_selected_frames": {
+     "t37.651": {
+      "T01_C": 126.4,
+      "T02_C": 92.2,
+      "Ts_C": 109.3,
+      "dF_wall_N": 1243,
+      "dF_ring_N": 466,
+      "F_max_N": 6709,
+      "MS_y_tension": 0.0356,
+      "MS_u_tension": 0.6353,
+      "TC02_thread_MS_y": 0.2506,
+      "TC02_thread_MS_u": 0.3905,
+      "t_s": 37.651
+     },
+     "t51.651": {
+      "T01_C": 152.6,
+      "T02_C": 93.7,
+      "Ts_C": 123.2,
+      "dF_wall_N": 1708,
+      "dF_ring_N": 805,
+      "F_max_N": 7513,
+      "MS_y_tension": -0.0981,
+      "MS_u_tension": 0.4526,
+      "TC02_thread_MS_y": 0.1156,
+      "TC02_thread_MS_u": 0.24,
+      "t_s": 51.651
+     },
+     "t64.651": {
+      "T01_C": 158.0,
+      "T02_C": 96.0,
+      "Ts_C": 127.0,
+      "dF_wall_N": 1784,
+      "dF_ring_N": 848,
+      "F_max_N": 7632,
+      "MS_y_tension": -0.1183,
+      "MS_u_tension": 0.4278,
+      "TC02_thread_MS_y": 0.0966,
+      "TC02_thread_MS_u": 0.2183,
+      "t_s": 64.651
+     },
+     "t101.651": {
+      "T01_C": 147.1,
+      "T02_C": 101.6,
+      "Ts_C": 124.4,
+      "dF_wall_N": 1533,
+      "dF_ring_N": 622,
+      "F_max_N": 7155,
+      "MS_y_tension": -0.0551,
+      "MS_u_tension": 0.5245,
+      "TC02_thread_MS_y": 0.1595,
+      "TC02_thread_MS_u": 0.2868,
+      "t_s": 101.651
+     },
+     "t166.651": {
+      "T01_C": 129.1,
+      "T02_C": 106.5,
+      "Ts_C": 117.8,
+      "dF_wall_N": 1159,
+      "dF_ring_N": 309,
+      "F_max_N": 6467,
+      "MS_y_tension": 0.0579,
+      "MS_u_tension": 0.6908,
+      "TC02_thread_MS_y": 0.2593,
+      "TC02_thread_MS_u": 0.3961,
+      "t_s": 166.651
+     },
+     "t266.651": {
+      "T01_C": 117.3,
+      "T02_C": 108.2,
+      "Ts_C": 112.8,
+      "dF_wall_N": 929,
+      "dF_ring_N": 124,
+      "F_max_N": 6053,
+      "MS_y_tension": 0.1406,
+      "MS_u_tension": 0.8101,
+      "TC02_thread_MS_y": 0.3366,
+      "TC02_thread_MS_u": 0.4813,
+      "t_s": 266.651
+     }
+    }
+   },
+   "3.5Nm_ksh_x1": {
+    "LC2_burn_governing": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -287,
+     "F_max_N": 4232,
+     "MS_y_combined": 0.4045,
+     "MS_u_interaction": 0.8417,
+     "TC02_thread_MS_y": 0.9968,
+     "TC02_thread_MS_u": 1.2248,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -287,
+     "F_max_N": 4232,
+     "MS_y_combined": 0.4045,
+     "MS_u_interaction": 0.8417,
+     "TC02_thread_MS_y": 0.9968,
+     "TC02_thread_MS_u": 1.2248,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.4045,
+     "MS_u_interaction": 0.8417
+    },
+    "soak_governing": {
+     "T01_C": 157.9,
+     "T02_C": 95.8,
+     "Ts_C": 126.9,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 850,
+     "F_max_N": 7009,
+     "MS_y_tension": -0.0398,
+     "MS_u_tension": 0.5547,
+     "TC02_thread_MS_y": 0.1941,
+     "TC02_thread_MS_u": 0.3267,
+     "t_s": 63.651
+    },
+    "soak_min": {
+     "MS_y_tension": -0.0398,
+     "MS_u_tension": 0.5545
+    },
+    "TC02_thread_governing": {
+     "T01_C": 157.8,
+     "T02_C": 95.6,
+     "Ts_C": 126.7,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 851,
+     "F_max_N": 7010,
+     "MS_y_tension": -0.0397,
+     "MS_u_tension": 0.5545,
+     "TC02_thread_MS_y": 0.1941,
+     "TC02_thread_MS_u": 0.3267,
+     "t_s": 62.651
+    },
+    "soak_selected_frames": {
+     "t37.651": {
+      "T01_C": 126.4,
+      "T02_C": 92.2,
+      "Ts_C": 109.3,
+      "dF_wall_N": 1243,
+      "dF_ring_N": 466,
+      "F_max_N": 6084,
+      "MS_y_tension": 0.142,
+      "MS_u_tension": 0.8033,
+      "TC02_thread_MS_y": 0.3791,
+      "TC02_thread_MS_u": 0.5333,
+      "t_s": 37.651
+     },
+     "t51.651": {
+      "T01_C": 152.6,
+      "T02_C": 93.7,
+      "Ts_C": 123.2,
+      "dF_wall_N": 1708,
+      "dF_ring_N": 805,
+      "F_max_N": 6888,
+      "MS_y_tension": -0.0162,
+      "MS_u_tension": 0.5844,
+      "TC02_thread_MS_y": 0.2169,
+      "TC02_thread_MS_u": 0.3526,
+      "t_s": 51.651
+     },
+     "t64.651": {
+      "T01_C": 158.0,
+      "T02_C": 96.0,
+      "Ts_C": 127.0,
+      "dF_wall_N": 1784,
+      "dF_ring_N": 848,
+      "F_max_N": 7007,
+      "MS_y_tension": -0.0397,
+      "MS_u_tension": 0.5551,
+      "TC02_thread_MS_y": 0.1944,
+      "TC02_thread_MS_u": 0.327,
+      "t_s": 64.651
+     },
+     "t101.651": {
+      "T01_C": 147.1,
+      "T02_C": 101.6,
+      "Ts_C": 124.4,
+      "dF_wall_N": 1533,
+      "dF_ring_N": 622,
+      "F_max_N": 6530,
+      "MS_y_tension": 0.0354,
+      "MS_u_tension": 0.6704,
+      "TC02_thread_MS_y": 0.2705,
+      "TC02_thread_MS_u": 0.4099,
+      "t_s": 101.651
+     },
+     "t166.651": {
+      "T01_C": 129.1,
+      "T02_C": 106.5,
+      "Ts_C": 117.8,
+      "dF_wall_N": 1159,
+      "dF_ring_N": 309,
+      "F_max_N": 5842,
+      "MS_y_tension": 0.1711,
+      "MS_u_tension": 0.8717,
+      "TC02_thread_MS_y": 0.394,
+      "TC02_thread_MS_u": 0.5455,
+      "t_s": 166.651
+     },
+     "t266.651": {
+      "T01_C": 117.3,
+      "T02_C": 108.2,
+      "Ts_C": 112.8,
+      "dF_wall_N": 929,
+      "dF_ring_N": 124,
+      "F_max_N": 5428,
+      "MS_y_tension": 0.272,
+      "MS_u_tension": 1.0185,
+      "TC02_thread_MS_y": 0.4905,
+      "TC02_thread_MS_u": 0.6519,
+      "t_s": 266.651
+     }
+    }
+   },
+   "3Nm_ksh_x1": {
+    "LC2_burn_governing": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -287,
+     "F_max_N": 3607,
+     "MS_y_combined": 0.5395,
+     "MS_u_interaction": 0.9791,
+     "TC02_thread_MS_y": 1.3428,
+     "TC02_thread_MS_u": 1.6102,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -287,
+     "F_max_N": 3607,
+     "MS_y_combined": 0.5395,
+     "MS_u_interaction": 0.9791,
+     "TC02_thread_MS_y": 1.3428,
+     "TC02_thread_MS_u": 1.6102,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.5395,
+     "MS_u_interaction": 0.9791
+    },
+    "soak_governing": {
+     "T01_C": 157.9,
+     "T02_C": 95.8,
+     "Ts_C": 126.9,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 850,
+     "F_max_N": 6384,
+     "MS_y_tension": 0.0542,
+     "MS_u_tension": 0.7069,
+     "TC02_thread_MS_y": 0.311,
+     "TC02_thread_MS_u": 0.4566,
+     "t_s": 63.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.0542,
+     "MS_u_tension": 0.7067
+    },
+    "TC02_thread_governing": {
+     "T01_C": 157.8,
+     "T02_C": 95.6,
+     "Ts_C": 126.7,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 851,
+     "F_max_N": 6385,
+     "MS_y_tension": 0.0543,
+     "MS_u_tension": 0.7067,
+     "TC02_thread_MS_y": 0.3109,
+     "TC02_thread_MS_u": 0.4566,
+     "t_s": 62.651
+    },
+    "soak_selected_frames": {
+     "t37.651": {
+      "T01_C": 126.4,
+      "T02_C": 92.2,
+      "Ts_C": 109.3,
+      "dF_wall_N": 1243,
+      "dF_ring_N": 466,
+      "F_max_N": 5459,
+      "MS_y_tension": 0.2727,
+      "MS_u_tension": 1.0098,
+      "TC02_thread_MS_y": 0.537,
+      "TC02_thread_MS_u": 0.7089,
+      "t_s": 37.651
+     },
+     "t51.651": {
+      "T01_C": 152.6,
+      "T02_C": 93.7,
+      "Ts_C": 123.2,
+      "dF_wall_N": 1708,
+      "dF_ring_N": 805,
+      "F_max_N": 6263,
+      "MS_y_tension": 0.0819,
+      "MS_u_tension": 0.7425,
+      "TC02_thread_MS_y": 0.3383,
+      "TC02_thread_MS_u": 0.4875,
+      "t_s": 51.651
+     },
+     "t64.651": {
+      "T01_C": 158.0,
+      "T02_C": 96.0,
+      "Ts_C": 127.0,
+      "dF_wall_N": 1784,
+      "dF_ring_N": 848,
+      "F_max_N": 6382,
+      "MS_y_tension": 0.0543,
+      "MS_u_tension": 0.7074,
+      "TC02_thread_MS_y": 0.3113,
+      "TC02_thread_MS_u": 0.4569,
+      "t_s": 64.651
+     },
+     "t101.651": {
+      "T01_C": 147.1,
+      "T02_C": 101.6,
+      "Ts_C": 124.4,
+      "dF_wall_N": 1533,
+      "dF_ring_N": 622,
+      "F_max_N": 5905,
+      "MS_y_tension": 0.145,
+      "MS_u_tension": 0.8472,
+      "TC02_thread_MS_y": 0.4049,
+      "TC02_thread_MS_u": 0.5592,
+      "t_s": 101.651
+     },
+     "t166.651": {
+      "T01_C": 129.1,
+      "T02_C": 106.5,
+      "Ts_C": 117.8,
+      "dF_wall_N": 1159,
+      "dF_ring_N": 309,
+      "F_max_N": 5217,
+      "MS_y_tension": 0.3114,
+      "MS_u_tension": 1.0959,
+      "TC02_thread_MS_y": 0.561,
+      "TC02_thread_MS_u": 0.7306,
+      "t_s": 166.651
+     },
+     "t266.651": {
+      "T01_C": 117.3,
+      "T02_C": 108.2,
+      "Ts_C": 112.8,
+      "dF_wall_N": 929,
+      "dF_ring_N": 124,
+      "F_max_N": 4803,
+      "MS_y_tension": 0.4375,
+      "MS_u_tension": 1.2811,
+      "TC02_thread_MS_y": 0.6845,
+      "TC02_thread_MS_u": 0.8668,
+      "t_s": 266.651
+     }
+    }
+   },
+   "2.5Nm_ksh_x1": {
+    "LC2_burn_governing": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -287,
+     "F_max_N": 2982,
+     "MS_y_combined": 0.689,
+     "MS_u_interaction": 1.1221,
+     "TC02_thread_MS_y": 1.8338,
+     "TC02_thread_MS_u": 2.1573,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -287,
+     "F_max_N": 2982,
+     "MS_y_combined": 0.689,
+     "MS_u_interaction": 1.1221,
+     "TC02_thread_MS_y": 1.8338,
+     "TC02_thread_MS_u": 2.1573,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.689,
+     "MS_u_interaction": 1.1221
+    },
+    "soak_governing": {
+     "T01_C": 157.9,
+     "T02_C": 95.8,
+     "Ts_C": 126.9,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 850,
+     "F_max_N": 5759,
+     "MS_y_tension": 0.1686,
+     "MS_u_tension": 0.8921,
+     "TC02_thread_MS_y": 0.4532,
+     "TC02_thread_MS_u": 0.6146,
+     "t_s": 63.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.1686,
+     "MS_u_tension": 0.8919
+    },
+    "TC02_thread_governing": {
+     "T01_C": 157.8,
+     "T02_C": 95.6,
+     "Ts_C": 126.7,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 851,
+     "F_max_N": 5760,
+     "MS_y_tension": 0.1687,
+     "MS_u_tension": 0.8919,
+     "TC02_thread_MS_y": 0.4532,
+     "TC02_thread_MS_u": 0.6146,
+     "t_s": 62.651
+    },
+    "soak_selected_frames": {
+     "t37.651": {
+      "T01_C": 126.4,
+      "T02_C": 92.2,
+      "Ts_C": 109.3,
+      "dF_wall_N": 1243,
+      "dF_ring_N": 466,
+      "F_max_N": 4834,
+      "MS_y_tension": 0.4373,
+      "MS_u_tension": 1.2697,
+      "TC02_thread_MS_y": 0.7358,
+      "TC02_thread_MS_u": 0.9299,
+      "t_s": 37.651
+     },
+     "t51.651": {
+      "T01_C": 152.6,
+      "T02_C": 93.7,
+      "Ts_C": 123.2,
+      "dF_wall_N": 1708,
+      "dF_ring_N": 805,
+      "F_max_N": 5638,
+      "MS_y_tension": 0.2019,
+      "MS_u_tension": 0.9356,
+      "TC02_thread_MS_y": 0.4867,
+      "TC02_thread_MS_u": 0.6524,
+      "t_s": 51.651
+     },
+     "t64.651": {
+      "T01_C": 158.0,
+      "T02_C": 96.0,
+      "Ts_C": 127.0,
+      "dF_wall_N": 1784,
+      "dF_ring_N": 848,
+      "F_max_N": 5757,
+      "MS_y_tension": 0.1688,
+      "MS_u_tension": 0.8928,
+      "TC02_thread_MS_y": 0.4537,
+      "TC02_thread_MS_u": 0.6151,
+      "t_s": 64.651
+     },
+     "t101.651": {
+      "T01_C": 147.1,
+      "T02_C": 101.6,
+      "Ts_C": 124.4,
+      "dF_wall_N": 1533,
+      "dF_ring_N": 622,
+      "F_max_N": 5280,
+      "MS_y_tension": 0.2805,
+      "MS_u_tension": 1.0659,
+      "TC02_thread_MS_y": 0.5712,
+      "TC02_thread_MS_u": 0.7437,
+      "t_s": 101.651
+     },
+     "t166.651": {
+      "T01_C": 129.1,
+      "T02_C": 106.5,
+      "Ts_C": 117.8,
+      "dF_wall_N": 1159,
+      "dF_ring_N": 309,
+      "F_max_N": 4592,
+      "MS_y_tension": 0.4899,
+      "MS_u_tension": 1.3812,
+      "TC02_thread_MS_y": 0.7734,
+      "TC02_thread_MS_u": 0.9661,
+      "t_s": 166.651
+     },
+     "t266.651": {
+      "T01_C": 117.3,
+      "T02_C": 108.2,
+      "Ts_C": 112.8,
+      "dF_wall_N": 929,
+      "dF_ring_N": 124,
+      "F_max_N": 4178,
+      "MS_y_tension": 0.6525,
+      "MS_u_tension": 1.6224,
+      "TC02_thread_MS_y": 0.9365,
+      "TC02_thread_MS_u": 1.1461,
+      "t_s": 266.651
+     }
+    }
+   },
+   "4Nm_ksh_x1.5": {
+    "LC2_burn_governing": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -421,
+     "F_max_N": 4723,
+     "MS_y_combined": 0.3095,
+     "MS_u_interaction": 0.74,
+     "TC02_thread_MS_y": 0.7894,
+     "TC02_thread_MS_u": 0.9936,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -421,
+     "F_max_N": 4723,
+     "MS_y_combined": 0.3095,
+     "MS_u_interaction": 0.74,
+     "TC02_thread_MS_y": 0.7894,
+     "TC02_thread_MS_u": 0.9936,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.3095,
+     "MS_u_interaction": 0.7174
+    },
+    "soak_governing": {
+     "T01_C": 157.9,
+     "T02_C": 95.8,
+     "Ts_C": 126.9,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 1248,
+     "F_max_N": 8033,
+     "MS_y_tension": -0.1622,
+     "MS_u_tension": 0.3566,
+     "TC02_thread_MS_y": 0.0419,
+     "TC02_thread_MS_u": 0.1577,
+     "t_s": 63.651
+    },
+    "soak_min": {
+     "MS_y_tension": -0.1622,
+     "MS_u_tension": 0.3564
+    },
+    "TC02_thread_governing": {
+     "T01_C": 157.8,
+     "T02_C": 95.6,
+     "Ts_C": 126.7,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 1250,
+     "F_max_N": 8034,
+     "MS_y_tension": -0.1621,
+     "MS_u_tension": 0.3564,
+     "TC02_thread_MS_y": 0.0419,
+     "TC02_thread_MS_u": 0.1576,
+     "t_s": 62.651
+    }
+   },
+   "3.5Nm_ksh_x1.5": {
+    "LC2_burn_governing": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -421,
+     "F_max_N": 4098,
+     "MS_y_combined": 0.4322,
+     "MS_u_interaction": 0.8705,
+     "TC02_thread_MS_y": 1.0623,
+     "TC02_thread_MS_u": 1.2977,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -421,
+     "F_max_N": 4098,
+     "MS_y_combined": 0.4322,
+     "MS_u_interaction": 0.8705,
+     "TC02_thread_MS_y": 1.0623,
+     "TC02_thread_MS_u": 1.2977,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.4322,
+     "MS_u_interaction": 0.8459
+    },
+    "soak_governing": {
+     "T01_C": 157.9,
+     "T02_C": 95.8,
+     "Ts_C": 126.9,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 1248,
+     "F_max_N": 7408,
+     "MS_y_tension": -0.0915,
+     "MS_u_tension": 0.471,
+     "TC02_thread_MS_y": 0.1299,
+     "TC02_thread_MS_u": 0.2553,
+     "t_s": 63.651
+    },
+    "soak_min": {
+     "MS_y_tension": -0.0915,
+     "MS_u_tension": 0.4708
+    },
+    "TC02_thread_governing": {
+     "T01_C": 157.8,
+     "T02_C": 95.6,
+     "Ts_C": 126.7,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 1250,
+     "F_max_N": 7409,
+     "MS_y_tension": -0.0914,
+     "MS_u_tension": 0.4708,
+     "TC02_thread_MS_y": 0.1298,
+     "TC02_thread_MS_u": 0.2553,
+     "t_s": 62.651
+    }
+   },
+   "3Nm_ksh_x1.5": {
+    "LC2_burn_governing": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -421,
+     "F_max_N": 3473,
+     "MS_y_combined": 0.5705,
+     "MS_u_interaction": 1.0096,
+     "TC02_thread_MS_y": 1.4334,
+     "TC02_thread_MS_u": 1.7112,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -421,
+     "F_max_N": 3473,
+     "MS_y_combined": 0.5705,
+     "MS_u_interaction": 1.0096,
+     "TC02_thread_MS_y": 1.4334,
+     "TC02_thread_MS_u": 1.7112,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.5705,
+     "MS_u_interaction": 0.9841
+    },
+    "soak_governing": {
+     "T01_C": 157.9,
+     "T02_C": 95.8,
+     "Ts_C": 126.9,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 1248,
+     "F_max_N": 6783,
+     "MS_y_tension": -0.0078,
+     "MS_u_tension": 0.6066,
+     "TC02_thread_MS_y": 0.234,
+     "TC02_thread_MS_u": 0.371,
+     "t_s": 63.651
+    },
+    "soak_min": {
+     "MS_y_tension": -0.0078,
+     "MS_u_tension": 0.6063
+    },
+    "TC02_thread_governing": {
+     "T01_C": 157.8,
+     "T02_C": 95.6,
+     "Ts_C": 126.7,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 1250,
+     "F_max_N": 6784,
+     "MS_y_tension": -0.0077,
+     "MS_u_tension": 0.6063,
+     "TC02_thread_MS_y": 0.2338,
+     "TC02_thread_MS_u": 0.3709,
+     "t_s": 62.651
+    }
+   },
+   "2.5Nm_ksh_x1.5": {
+    "LC2_burn_governing": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -421,
+     "F_max_N": 2848,
+     "MS_y_combined": 0.7228,
+     "MS_u_interaction": 1.1529,
+     "TC02_thread_MS_y": 1.9675,
+     "TC02_thread_MS_u": 2.3062,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 60.0,
+     "T02_C": 81.2,
+     "Ts_C": 70.6,
+     "dF_wall_N": 144,
+     "dF_ring_N": -421,
+     "F_max_N": 2848,
+     "MS_y_combined": 0.7228,
+     "MS_u_interaction": 1.1529,
+     "TC02_thread_MS_y": 1.9675,
+     "TC02_thread_MS_u": 2.3062,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.7228,
+     "MS_u_interaction": 1.1289
+    },
+    "soak_governing": {
+     "T01_C": 157.8,
+     "T02_C": 95.6,
+     "Ts_C": 126.7,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 1250,
+     "F_max_N": 6159,
+     "MS_y_tension": 0.093,
+     "MS_u_tension": 0.7693,
+     "TC02_thread_MS_y": 0.359,
+     "TC02_thread_MS_u": 0.51,
+     "t_s": 62.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.093,
+     "MS_u_tension": 0.7693
+    },
+    "TC02_thread_governing": {
+     "T01_C": 157.8,
+     "T02_C": 95.6,
+     "Ts_C": 126.7,
+     "dF_wall_N": 1784,
+     "dF_ring_N": 1250,
+     "F_max_N": 6159,
+     "MS_y_tension": 0.093,
+     "MS_u_tension": 0.7693,
+     "TC02_thread_MS_y": 0.359,
+     "TC02_thread_MS_u": 0.51,
+     "t_s": 62.651
+    }
+   }
+  },
+  "GVHI": {
+   "4Nm_ksh_x0.5": {
+    "LC2_burn_governing": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -28,
+     "F_max_N": 5398,
+     "MS_y_combined": 0.1772,
+     "MS_u_interaction": 0.6072,
+     "TC02_thread_MS_y": 0.5684,
+     "TC02_thread_MS_u": 0.7484,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -28,
+     "F_max_N": 5398,
+     "MS_y_combined": 0.1772,
+     "MS_u_interaction": 0.6072,
+     "TC02_thread_MS_y": 0.5684,
+     "TC02_thread_MS_u": 0.7484,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.1772,
+     "MS_u_interaction": 0.6072
+    },
+    "soak_governing": {
+     "T01_C": 127.1,
+     "T02_C": 100.0,
+     "Ts_C": 113.6,
+     "dF_wall_N": 1183,
+     "dF_ring_N": 189,
+     "F_max_N": 6372,
+     "MS_y_tension": 0.082,
+     "MS_u_tension": 0.7189,
+     "TC02_thread_MS_y": 0.3097,
+     "TC02_thread_MS_u": 0.454,
+     "t_s": 51.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.082,
+     "MS_u_tension": 0.7185
+    },
+    "TC02_thread_governing": {
+     "T01_C": 127.1,
+     "T02_C": 103.6,
+     "Ts_C": 115.4,
+     "dF_wall_N": 1150,
+     "dF_ring_N": 164,
+     "F_max_N": 6313,
+     "MS_y_tension": 0.0884,
+     "MS_u_tension": 0.7336,
+     "TC02_thread_MS_y": 0.304,
+     "TC02_thread_MS_u": 0.4466,
+     "t_s": 62.651
+    }
+   },
+   "3.5Nm_ksh_x0.5": {
+    "LC2_burn_governing": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -28,
+     "F_max_N": 4773,
+     "MS_y_combined": 0.2823,
+     "MS_u_interaction": 0.7262,
+     "TC02_thread_MS_y": 0.7738,
+     "TC02_thread_MS_u": 0.9773,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -28,
+     "F_max_N": 4773,
+     "MS_y_combined": 0.2823,
+     "MS_u_interaction": 0.7262,
+     "TC02_thread_MS_y": 0.7738,
+     "TC02_thread_MS_u": 0.9773,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.2823,
+     "MS_u_interaction": 0.7262
+    },
+    "soak_governing": {
+     "T01_C": 127.1,
+     "T02_C": 100.0,
+     "Ts_C": 113.6,
+     "dF_wall_N": 1183,
+     "dF_ring_N": 189,
+     "F_max_N": 5747,
+     "MS_y_tension": 0.1996,
+     "MS_u_tension": 0.9059,
+     "TC02_thread_MS_y": 0.4522,
+     "TC02_thread_MS_u": 0.6121,
+     "t_s": 51.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.1996,
+     "MS_u_tension": 0.9053
+    },
+    "TC02_thread_governing": {
+     "T01_C": 127.4,
+     "T02_C": 102.7,
+     "Ts_C": 115.0,
+     "dF_wall_N": 1162,
+     "dF_ring_N": 172,
+     "F_max_N": 5709,
+     "MS_y_tension": 0.2045,
+     "MS_u_tension": 0.9176,
+     "TC02_thread_MS_y": 0.4471,
+     "TC02_thread_MS_u": 0.6057,
+     "t_s": 59.651
+    }
+   },
+   "3Nm_ksh_x0.5": {
+    "LC2_burn_governing": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -28,
+     "F_max_N": 4148,
+     "MS_y_combined": 0.402,
+     "MS_u_interaction": 0.8557,
+     "TC02_thread_MS_y": 1.0411,
+     "TC02_thread_MS_u": 1.2752,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -28,
+     "F_max_N": 4148,
+     "MS_y_combined": 0.402,
+     "MS_u_interaction": 0.8557,
+     "TC02_thread_MS_y": 1.0411,
+     "TC02_thread_MS_u": 1.2752,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.402,
+     "MS_u_interaction": 0.8557
+    },
+    "soak_governing": {
+     "T01_C": 127.1,
+     "T02_C": 100.0,
+     "Ts_C": 113.6,
+     "dF_wall_N": 1183,
+     "dF_ring_N": 189,
+     "F_max_N": 5122,
+     "MS_y_tension": 0.346,
+     "MS_u_tension": 1.1384,
+     "TC02_thread_MS_y": 0.6294,
+     "TC02_thread_MS_u": 0.8089,
+     "t_s": 51.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.346,
+     "MS_u_tension": 1.1376
+    },
+    "TC02_thread_governing": {
+     "T01_C": 127.4,
+     "T02_C": 102.4,
+     "Ts_C": 114.9,
+     "dF_wall_N": 1166,
+     "dF_ring_N": 174,
+     "F_max_N": 5090,
+     "MS_y_tension": 0.3512,
+     "MS_u_tension": 1.1508,
+     "TC02_thread_MS_y": 0.625,
+     "TC02_thread_MS_u": 0.8031,
+     "t_s": 58.651
+    }
+   },
+   "2.5Nm_ksh_x0.5": {
+    "LC2_burn_governing": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -28,
+     "F_max_N": 3523,
+     "MS_y_combined": 0.5372,
+     "MS_u_interaction": 0.9938,
+     "TC02_thread_MS_y": 1.4032,
+     "TC02_thread_MS_u": 1.6789,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -28,
+     "F_max_N": 3523,
+     "MS_y_combined": 0.5372,
+     "MS_u_interaction": 0.9938,
+     "TC02_thread_MS_y": 1.4032,
+     "TC02_thread_MS_u": 1.6789,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.5372,
+     "MS_u_interaction": 0.9938
+    },
+    "soak_governing": {
+     "T01_C": 127.0,
+     "T02_C": 99.7,
+     "Ts_C": 113.3,
+     "dF_wall_N": 1184,
+     "dF_ring_N": 190,
+     "F_max_N": 4499,
+     "MS_y_tension": 0.5331,
+     "MS_u_tension": 1.4348,
+     "TC02_thread_MS_y": 0.8556,
+     "TC02_thread_MS_u": 1.0602,
+     "t_s": 50.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.5331,
+     "MS_u_tension": 1.4345
+    },
+    "TC02_thread_governing": {
+     "T01_C": 127.4,
+     "T02_C": 101.8,
+     "Ts_C": 114.6,
+     "dF_wall_N": 1173,
+     "dF_ring_N": 179,
+     "F_max_N": 4477,
+     "MS_y_tension": 0.5372,
+     "MS_u_tension": 1.4458,
+     "TC02_thread_MS_y": 0.8522,
+     "TC02_thread_MS_u": 1.0555,
+     "t_s": 56.651
+    }
+   },
+   "4Nm_ksh_x1": {
+    "LC2_burn_governing": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -56,
+     "F_max_N": 5371,
+     "MS_y_combined": 0.1815,
+     "MS_u_interaction": 0.6122,
+     "TC02_thread_MS_y": 0.5764,
+     "TC02_thread_MS_u": 0.7572,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -56,
+     "F_max_N": 5371,
+     "MS_y_combined": 0.1815,
+     "MS_u_interaction": 0.6122,
+     "TC02_thread_MS_y": 0.5764,
+     "TC02_thread_MS_u": 0.7572,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.1815,
+     "MS_u_interaction": 0.6122
+    },
+    "soak_governing": {
+     "T01_C": 127.0,
+     "T02_C": 99.7,
+     "Ts_C": 113.3,
+     "dF_wall_N": 1184,
+     "dF_ring_N": 372,
+     "F_max_N": 6556,
+     "MS_y_tension": 0.0521,
+     "MS_u_tension": 0.6709,
+     "TC02_thread_MS_y": 0.2734,
+     "TC02_thread_MS_u": 0.4138,
+     "t_s": 50.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.0521,
+     "MS_u_tension": 0.6705
+    },
+    "TC02_thread_governing": {
+     "T01_C": 127.4,
+     "T02_C": 101.8,
+     "Ts_C": 114.6,
+     "dF_wall_N": 1173,
+     "dF_ring_N": 350,
+     "F_max_N": 6523,
+     "MS_y_tension": 0.055,
+     "MS_u_tension": 0.6785,
+     "TC02_thread_MS_y": 0.2711,
+     "TC02_thread_MS_u": 0.4107,
+     "t_s": 56.651
+    },
+    "soak_selected_frames": {
+     "t37.651": {
+      "T01_C": 118.8,
+      "T02_C": 94.4,
+      "Ts_C": 106.6,
+      "dF_wall_N": 1085,
+      "dF_ring_N": 332,
+      "F_max_N": 6417,
+      "MS_y_tension": 0.0877,
+      "MS_u_tension": 0.7113,
+      "TC02_thread_MS_y": 0.3055,
+      "TC02_thread_MS_u": 0.4509,
+      "t_s": 37.651
+     },
+     "t51.651": {
+      "T01_C": 127.1,
+      "T02_C": 100.0,
+      "Ts_C": 113.6,
+      "dF_wall_N": 1183,
+      "dF_ring_N": 369,
+      "F_max_N": 6553,
+      "MS_y_tension": 0.0521,
+      "MS_u_tension": 0.6715,
+      "TC02_thread_MS_y": 0.2736,
+      "TC02_thread_MS_u": 0.4139,
+      "t_s": 51.651
+     },
+     "t64.651": {
+      "T01_C": 127.0,
+      "T02_C": 104.2,
+      "Ts_C": 115.6,
+      "dF_wall_N": 1141,
+      "dF_ring_N": 310,
+      "F_max_N": 6451,
+      "MS_y_tension": 0.0649,
+      "MS_u_tension": 0.6966,
+      "TC02_thread_MS_y": 0.2735,
+      "TC02_thread_MS_u": 0.4125,
+      "t_s": 64.651
+     },
+     "t101.651": {
+      "T01_C": 122.6,
+      "T02_C": 111.1,
+      "Ts_C": 116.9,
+      "dF_wall_N": 997,
+      "dF_ring_N": 156,
+      "F_max_N": 6153,
+      "MS_y_tension": 0.1138,
+      "MS_u_tension": 0.7778,
+      "TC02_thread_MS_y": 0.3,
+      "TC02_thread_MS_u": 0.4398,
+      "t_s": 101.651
+     },
+     "t166.651": {
+      "T01_C": 118.8,
+      "T02_C": 115.0,
+      "Ts_C": 116.9,
+      "dF_wall_N": 892,
+      "dF_ring_N": 51,
+      "F_max_N": 5943,
+      "MS_y_tension": 0.1531,
+      "MS_u_tension": 0.8406,
+      "TC02_thread_MS_y": 0.3254,
+      "TC02_thread_MS_u": 0.4666,
+      "t_s": 166.651
+     },
+     "t266.651": {
+      "T01_C": 115.6,
+      "T02_C": 114.8,
+      "Ts_C": 115.2,
+      "dF_wall_N": 836,
+      "dF_ring_N": 12,
+      "F_max_N": 5848,
+      "MS_y_tension": 0.1755,
+      "MS_u_tension": 0.8718,
+      "TC02_thread_MS_y": 0.3485,
+      "TC02_thread_MS_u": 0.4924,
+      "t_s": 266.651
+     }
+    }
+   },
+   "3.5Nm_ksh_x1": {
+    "LC2_burn_governing": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -56,
+     "F_max_N": 4746,
+     "MS_y_combined": 0.2872,
+     "MS_u_interaction": 0.7316,
+     "TC02_thread_MS_y": 0.784,
+     "TC02_thread_MS_u": 0.9886,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -56,
+     "F_max_N": 4746,
+     "MS_y_combined": 0.2872,
+     "MS_u_interaction": 0.7316,
+     "TC02_thread_MS_y": 0.784,
+     "TC02_thread_MS_u": 0.9886,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.2872,
+     "MS_u_interaction": 0.7316
+    },
+    "soak_governing": {
+     "T01_C": 127.0,
+     "T02_C": 99.7,
+     "Ts_C": 113.3,
+     "dF_wall_N": 1184,
+     "dF_ring_N": 372,
+     "F_max_N": 5931,
+     "MS_y_tension": 0.163,
+     "MS_u_tension": 0.8469,
+     "TC02_thread_MS_y": 0.4076,
+     "TC02_thread_MS_u": 0.5627,
+     "t_s": 50.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.163,
+     "MS_u_tension": 0.8464
+    },
+    "TC02_thread_governing": {
+     "T01_C": 127.4,
+     "T02_C": 101.4,
+     "Ts_C": 114.4,
+     "dF_wall_N": 1176,
+     "dF_ring_N": 354,
+     "F_max_N": 5905,
+     "MS_y_tension": 0.1657,
+     "MS_u_tension": 0.8542,
+     "TC02_thread_MS_y": 0.4059,
+     "TC02_thread_MS_u": 0.5603,
+     "t_s": 55.651
+    },
+    "soak_selected_frames": {
+     "t37.651": {
+      "T01_C": 118.8,
+      "T02_C": 94.4,
+      "Ts_C": 106.6,
+      "dF_wall_N": 1085,
+      "dF_ring_N": 332,
+      "F_max_N": 5792,
+      "MS_y_tension": 0.2051,
+      "MS_u_tension": 0.896,
+      "TC02_thread_MS_y": 0.4464,
+      "TC02_thread_MS_u": 0.6074,
+      "t_s": 37.651
+     },
+     "t51.651": {
+      "T01_C": 127.1,
+      "T02_C": 100.0,
+      "Ts_C": 113.6,
+      "dF_wall_N": 1183,
+      "dF_ring_N": 369,
+      "F_max_N": 5928,
+      "MS_y_tension": 0.1631,
+      "MS_u_tension": 0.8478,
+      "TC02_thread_MS_y": 0.4079,
+      "TC02_thread_MS_u": 0.563,
+      "t_s": 51.651
+     },
+     "t64.651": {
+      "T01_C": 127.0,
+      "T02_C": 104.2,
+      "Ts_C": 115.6,
+      "dF_wall_N": 1141,
+      "dF_ring_N": 310,
+      "F_max_N": 5826,
+      "MS_y_tension": 0.1791,
+      "MS_u_tension": 0.8786,
+      "TC02_thread_MS_y": 0.4101,
+      "TC02_thread_MS_u": 0.5641,
+      "t_s": 64.651
+     },
+     "t101.651": {
+      "T01_C": 122.6,
+      "T02_C": 111.1,
+      "Ts_C": 116.9,
+      "dF_wall_N": 997,
+      "dF_ring_N": 156,
+      "F_max_N": 5528,
+      "MS_y_tension": 0.2397,
+      "MS_u_tension": 0.9788,
+      "TC02_thread_MS_y": 0.4469,
+      "TC02_thread_MS_u": 0.6026,
+      "t_s": 101.651
+     },
+     "t166.651": {
+      "T01_C": 118.8,
+      "T02_C": 115.0,
+      "Ts_C": 116.9,
+      "dF_wall_N": 892,
+      "dF_ring_N": 51,
+      "F_max_N": 5318,
+      "MS_y_tension": 0.2886,
+      "MS_u_tension": 1.0569,
+      "TC02_thread_MS_y": 0.4811,
+      "TC02_thread_MS_u": 0.639,
+      "t_s": 166.651
+     },
+     "t266.651": {
+      "T01_C": 115.6,
+      "T02_C": 114.8,
+      "Ts_C": 115.2,
+      "dF_wall_N": 836,
+      "dF_ring_N": 12,
+      "F_max_N": 5223,
+      "MS_y_tension": 0.3162,
+      "MS_u_tension": 1.0958,
+      "TC02_thread_MS_y": 0.5099,
+      "TC02_thread_MS_u": 0.671,
+      "t_s": 266.651
+     }
+    }
+   },
+   "3Nm_ksh_x1": {
+    "LC2_burn_governing": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -56,
+     "F_max_N": 4121,
+     "MS_y_combined": 0.4076,
+     "MS_u_interaction": 0.8615,
+     "TC02_thread_MS_y": 1.0546,
+     "TC02_thread_MS_u": 1.2903,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -56,
+     "F_max_N": 4121,
+     "MS_y_combined": 0.4076,
+     "MS_u_interaction": 0.8615,
+     "TC02_thread_MS_y": 1.0546,
+     "TC02_thread_MS_u": 1.2903,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.4076,
+     "MS_u_interaction": 0.8615
+    },
+    "soak_governing": {
+     "T01_C": 127.0,
+     "T02_C": 99.7,
+     "Ts_C": 113.3,
+     "dF_wall_N": 1184,
+     "dF_ring_N": 372,
+     "F_max_N": 5306,
+     "MS_y_tension": 0.2999,
+     "MS_u_tension": 1.0645,
+     "TC02_thread_MS_y": 0.5734,
+     "TC02_thread_MS_u": 0.7468,
+     "t_s": 50.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.2999,
+     "MS_u_tension": 1.0638
+    },
+    "TC02_thread_governing": {
+     "T01_C": 127.4,
+     "T02_C": 101.1,
+     "Ts_C": 114.2,
+     "dF_wall_N": 1178,
+     "dF_ring_N": 359,
+     "F_max_N": 5287,
+     "MS_y_tension": 0.3025,
+     "MS_u_tension": 1.0712,
+     "TC02_thread_MS_y": 0.5723,
+     "TC02_thread_MS_u": 0.7451,
+     "t_s": 54.651
+    },
+    "soak_selected_frames": {
+     "t37.651": {
+      "T01_C": 118.8,
+      "T02_C": 94.4,
+      "Ts_C": 106.6,
+      "dF_wall_N": 1085,
+      "dF_ring_N": 332,
+      "F_max_N": 5167,
+      "MS_y_tension": 0.3508,
+      "MS_u_tension": 1.1253,
+      "TC02_thread_MS_y": 0.6213,
+      "TC02_thread_MS_u": 0.8018,
+      "t_s": 37.651
+     },
+     "t51.651": {
+      "T01_C": 127.1,
+      "T02_C": 100.0,
+      "Ts_C": 113.6,
+      "dF_wall_N": 1183,
+      "dF_ring_N": 369,
+      "F_max_N": 5303,
+      "MS_y_tension": 0.3001,
+      "MS_u_tension": 1.0656,
+      "TC02_thread_MS_y": 0.5739,
+      "TC02_thread_MS_u": 0.7472,
+      "t_s": 51.651
+     },
+     "t64.651": {
+      "T01_C": 127.0,
+      "T02_C": 104.2,
+      "Ts_C": 115.6,
+      "dF_wall_N": 1141,
+      "dF_ring_N": 310,
+      "F_max_N": 5201,
+      "MS_y_tension": 0.3208,
+      "MS_u_tension": 1.1043,
+      "TC02_thread_MS_y": 0.5795,
+      "TC02_thread_MS_u": 0.752,
+      "t_s": 64.651
+     },
+     "t101.651": {
+      "T01_C": 122.6,
+      "T02_C": 111.1,
+      "Ts_C": 116.9,
+      "dF_wall_N": 997,
+      "dF_ring_N": 156,
+      "F_max_N": 4903,
+      "MS_y_tension": 0.3978,
+      "MS_u_tension": 1.231,
+      "TC02_thread_MS_y": 0.6314,
+      "TC02_thread_MS_u": 0.8068,
+      "t_s": 101.651
+     },
+     "t166.651": {
+      "T01_C": 118.8,
+      "T02_C": 115.0,
+      "Ts_C": 116.9,
+      "dF_wall_N": 892,
+      "dF_ring_N": 51,
+      "F_max_N": 4693,
+      "MS_y_tension": 0.4602,
+      "MS_u_tension": 1.3309,
+      "TC02_thread_MS_y": 0.6784,
+      "TC02_thread_MS_u": 0.8573,
+      "t_s": 166.651
+     },
+     "t266.651": {
+      "T01_C": 115.6,
+      "T02_C": 114.8,
+      "Ts_C": 115.2,
+      "dF_wall_N": 836,
+      "dF_ring_N": 12,
+      "F_max_N": 4598,
+      "MS_y_tension": 0.4951,
+      "MS_u_tension": 1.3807,
+      "TC02_thread_MS_y": 0.7152,
+      "TC02_thread_MS_u": 0.8981,
+      "t_s": 266.651
+     }
+    }
+   },
+   "2.5Nm_ksh_x1": {
+    "LC2_burn_governing": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -56,
+     "F_max_N": 3496,
+     "MS_y_combined": 0.5434,
+     "MS_u_interaction": 1.0,
+     "TC02_thread_MS_y": 1.4219,
+     "TC02_thread_MS_u": 1.6997,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -56,
+     "F_max_N": 3496,
+     "MS_y_combined": 0.5434,
+     "MS_u_interaction": 1.0,
+     "TC02_thread_MS_y": 1.4219,
+     "TC02_thread_MS_u": 1.6997,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.5434,
+     "MS_u_interaction": 1.0
+    },
+    "soak_governing": {
+     "T01_C": 127.0,
+     "T02_C": 99.7,
+     "Ts_C": 113.3,
+     "dF_wall_N": 1184,
+     "dF_ring_N": 372,
+     "F_max_N": 4681,
+     "MS_y_tension": 0.4735,
+     "MS_u_tension": 1.3401,
+     "TC02_thread_MS_y": 0.7835,
+     "TC02_thread_MS_u": 0.9801,
+     "t_s": 50.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.4735,
+     "MS_u_tension": 1.3392
+    },
+    "TC02_thread_governing": {
+     "T01_C": 126.8,
+     "T02_C": 99.3,
+     "Ts_C": 113.0,
+     "dF_wall_N": 1184,
+     "dF_ring_N": 374,
+     "F_max_N": 4683,
+     "MS_y_tension": 0.4736,
+     "MS_u_tension": 1.3393,
+     "TC02_thread_MS_y": 0.7831,
+     "TC02_thread_MS_u": 0.9798,
+     "t_s": 49.651
+    },
+    "soak_selected_frames": {
+     "t37.651": {
+      "T01_C": 118.8,
+      "T02_C": 94.4,
+      "Ts_C": 106.6,
+      "dF_wall_N": 1085,
+      "dF_ring_N": 332,
+      "F_max_N": 4542,
+      "MS_y_tension": 0.5367,
+      "MS_u_tension": 1.4178,
+      "TC02_thread_MS_y": 0.8444,
+      "TC02_thread_MS_u": 1.0498,
+      "t_s": 37.651
+     },
+     "t51.651": {
+      "T01_C": 127.1,
+      "T02_C": 100.0,
+      "Ts_C": 113.6,
+      "dF_wall_N": 1183,
+      "dF_ring_N": 369,
+      "F_max_N": 4678,
+      "MS_y_tension": 0.4739,
+      "MS_u_tension": 1.3416,
+      "TC02_thread_MS_y": 0.7842,
+      "TC02_thread_MS_u": 0.9807,
+      "t_s": 51.651
+     },
+     "t64.651": {
+      "T01_C": 127.0,
+      "T02_C": 104.2,
+      "Ts_C": 115.6,
+      "dF_wall_N": 1141,
+      "dF_ring_N": 310,
+      "F_max_N": 4576,
+      "MS_y_tension": 0.5012,
+      "MS_u_tension": 1.3918,
+      "TC02_thread_MS_y": 0.7953,
+      "TC02_thread_MS_u": 0.9913,
+      "t_s": 64.651
+     },
+     "t101.651": {
+      "T01_C": 122.6,
+      "T02_C": 111.1,
+      "Ts_C": 116.9,
+      "dF_wall_N": 997,
+      "dF_ring_N": 156,
+      "F_max_N": 4278,
+      "MS_y_tension": 0.602,
+      "MS_u_tension": 1.5569,
+      "TC02_thread_MS_y": 0.8697,
+      "TC02_thread_MS_u": 1.0708,
+      "t_s": 101.651
+     },
+     "t166.651": {
+      "T01_C": 118.8,
+      "T02_C": 115.0,
+      "Ts_C": 116.9,
+      "dF_wall_N": 892,
+      "dF_ring_N": 51,
+      "F_max_N": 4068,
+      "MS_y_tension": 0.6845,
+      "MS_u_tension": 1.689,
+      "TC02_thread_MS_y": 0.9363,
+      "TC02_thread_MS_u": 1.1426,
+      "t_s": 166.651
+     },
+     "t266.651": {
+      "T01_C": 115.6,
+      "T02_C": 114.8,
+      "Ts_C": 115.2,
+      "dF_wall_N": 836,
+      "dF_ring_N": 12,
+      "F_max_N": 3973,
+      "MS_y_tension": 0.7303,
+      "MS_u_tension": 1.7553,
+      "TC02_thread_MS_y": 0.985,
+      "TC02_thread_MS_u": 1.1967,
+      "t_s": 266.651
+     }
+    }
+   },
+   "4Nm_ksh_x1.5": {
+    "LC2_burn_governing": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -82,
+     "F_max_N": 5345,
+     "MS_y_combined": 0.1857,
+     "MS_u_interaction": 0.617,
+     "TC02_thread_MS_y": 0.5841,
+     "TC02_thread_MS_u": 0.7658,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -82,
+     "F_max_N": 5345,
+     "MS_y_combined": 0.1857,
+     "MS_u_interaction": 0.617,
+     "TC02_thread_MS_y": 0.5841,
+     "TC02_thread_MS_u": 0.7658,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.1857,
+     "MS_u_interaction": 0.617
+    },
+    "soak_governing": {
+     "T01_C": 127.0,
+     "T02_C": 99.7,
+     "Ts_C": 113.3,
+     "dF_wall_N": 1184,
+     "dF_ring_N": 547,
+     "F_max_N": 6730,
+     "MS_y_tension": 0.0248,
+     "MS_u_tension": 0.6276,
+     "TC02_thread_MS_y": 0.2404,
+     "TC02_thread_MS_u": 0.3771,
+     "t_s": 50.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.0248,
+     "MS_u_tension": 0.6267
+    },
+    "TC02_thread_governing": {
+     "T01_C": 127.4,
+     "T02_C": 101.1,
+     "Ts_C": 114.2,
+     "dF_wall_N": 1178,
+     "dF_ring_N": 527,
+     "F_max_N": 6705,
+     "MS_y_tension": 0.027,
+     "MS_u_tension": 0.6331,
+     "TC02_thread_MS_y": 0.2397,
+     "TC02_thread_MS_u": 0.376,
+     "t_s": 54.651
+    }
+   },
+   "3.5Nm_ksh_x1.5": {
+    "LC2_burn_governing": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -82,
+     "F_max_N": 4720,
+     "MS_y_combined": 0.2919,
+     "MS_u_interaction": 0.7369,
+     "TC02_thread_MS_y": 0.7938,
+     "TC02_thread_MS_u": 0.9996,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -82,
+     "F_max_N": 4720,
+     "MS_y_combined": 0.2919,
+     "MS_u_interaction": 0.7369,
+     "TC02_thread_MS_y": 0.7938,
+     "TC02_thread_MS_u": 0.9996,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.2919,
+     "MS_u_interaction": 0.7369
+    },
+    "soak_governing": {
+     "T01_C": 126.8,
+     "T02_C": 99.3,
+     "Ts_C": 113.0,
+     "dF_wall_N": 1184,
+     "dF_ring_N": 550,
+     "F_max_N": 6109,
+     "MS_y_tension": 0.1297,
+     "MS_u_tension": 0.7934,
+     "TC02_thread_MS_y": 0.367,
+     "TC02_thread_MS_u": 0.5178,
+     "t_s": 49.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.1297,
+     "MS_u_tension": 0.7931
+    },
+    "TC02_thread_governing": {
+     "T01_C": 126.5,
+     "T02_C": 98.9,
+     "Ts_C": 112.7,
+     "dF_wall_N": 1183,
+     "dF_ring_N": 553,
+     "F_max_N": 6110,
+     "MS_y_tension": 0.13,
+     "MS_u_tension": 0.7931,
+     "TC02_thread_MS_y": 0.367,
+     "TC02_thread_MS_u": 0.5179,
+     "t_s": 48.651
+    }
+   },
+   "3Nm_ksh_x1.5": {
+    "LC2_burn_governing": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -82,
+     "F_max_N": 4095,
+     "MS_y_combined": 0.413,
+     "MS_u_interaction": 0.8671,
+     "TC02_thread_MS_y": 1.0677,
+     "TC02_thread_MS_u": 1.3049,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -82,
+     "F_max_N": 4095,
+     "MS_y_combined": 0.413,
+     "MS_u_interaction": 0.8671,
+     "TC02_thread_MS_y": 1.0677,
+     "TC02_thread_MS_u": 1.3049,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.413,
+     "MS_u_interaction": 0.8671
+    },
+    "soak_governing": {
+     "T01_C": 126.8,
+     "T02_C": 99.3,
+     "Ts_C": 113.0,
+     "dF_wall_N": 1184,
+     "dF_ring_N": 550,
+     "F_max_N": 5484,
+     "MS_y_tension": 0.2585,
+     "MS_u_tension": 0.9978,
+     "TC02_thread_MS_y": 0.5228,
+     "TC02_thread_MS_u": 0.6908,
+     "t_s": 49.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.2585,
+     "MS_u_tension": 0.9975
+    },
+    "TC02_thread_governing": {
+     "T01_C": 126.5,
+     "T02_C": 98.9,
+     "Ts_C": 112.7,
+     "dF_wall_N": 1183,
+     "dF_ring_N": 553,
+     "F_max_N": 5485,
+     "MS_y_tension": 0.2588,
+     "MS_u_tension": 0.9975,
+     "TC02_thread_MS_y": 0.5227,
+     "TC02_thread_MS_u": 0.6908,
+     "t_s": 48.651
+    }
+   },
+   "2.5Nm_ksh_x1.5": {
+    "LC2_burn_governing": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -82,
+     "F_max_N": 3470,
+     "MS_y_combined": 0.5494,
+     "MS_u_interaction": 1.0059,
+     "TC02_thread_MS_y": 1.4401,
+     "TC02_thread_MS_u": 1.72,
+     "t_s": 21.651
+    },
+    "LC2_end_of_burn": {
+     "T01_C": 74.4,
+     "T02_C": 78.5,
+     "Ts_C": 76.4,
+     "dF_wall_N": 426,
+     "dF_ring_N": -82,
+     "F_max_N": 3470,
+     "MS_y_combined": 0.5494,
+     "MS_u_interaction": 1.0059,
+     "TC02_thread_MS_y": 1.4401,
+     "TC02_thread_MS_u": 1.72,
+     "t_s": 21.651
+    },
+    "LC2_burn_min": {
+     "MS_y_combined": 0.5494,
+     "MS_u_interaction": 1.0059
+    },
+    "soak_governing": {
+     "T01_C": 126.8,
+     "T02_C": 99.3,
+     "Ts_C": 113.0,
+     "dF_wall_N": 1184,
+     "dF_ring_N": 550,
+     "F_max_N": 4859,
+     "MS_y_tension": 0.4204,
+     "MS_u_tension": 1.2548,
+     "TC02_thread_MS_y": 0.7187,
+     "TC02_thread_MS_u": 0.9083,
+     "t_s": 49.651
+    },
+    "soak_min": {
+     "MS_y_tension": 0.4204,
+     "MS_u_tension": 1.2543
+    },
+    "TC02_thread_governing": {
+     "T01_C": 126.5,
+     "T02_C": 98.9,
+     "Ts_C": 112.7,
+     "dF_wall_N": 1183,
+     "dF_ring_N": 553,
+     "F_max_N": 4860,
+     "MS_y_tension": 0.4207,
+     "MS_u_tension": 1.2543,
+     "TC02_thread_MS_y": 0.7185,
+     "TC02_thread_MS_u": 0.9082,
+     "t_s": 48.651
+    }
+   }
+  }
+ },
+ "allowed_installation_preload_N": {
+  "merged_ksh_x0.5": {
+   "F_inst_max_N": 5957,
+   "governing_check": "soak_tension_yield",
+   "frame_t_s": 171.651,
+   "T01_C": 119.6,
+   "T02_C": 119.6,
+   "K_min": {
+    "4Nm": 0.1343,
+    "3.5Nm": 0.1175,
+    "3Nm": 0.1007,
+    "2.5Nm": 0.0839
+   }
+  },
+  "merged_ksh_x1": {
+   "F_inst_max_N": 5957,
+   "governing_check": "soak_tension_yield",
+   "frame_t_s": 166.651,
+   "T01_C": 119.6,
+   "T02_C": 119.6,
+   "K_min": {
+    "4Nm": 0.1343,
+    "3.5Nm": 0.1175,
+    "3Nm": 0.1007,
+    "2.5Nm": 0.0839
+   }
+  },
+  "merged_ksh_x1.5": {
+   "F_inst_max_N": 5957,
+   "governing_check": "soak_tension_yield",
+   "frame_t_s": 166.651,
+   "T01_C": 119.6,
+   "T02_C": 119.6,
+   "K_min": {
+    "4Nm": 0.1343,
+    "3.5Nm": 0.1175,
+    "3Nm": 0.1007,
+    "2.5Nm": 0.0839
+   }
+  },
+  "GVLO_ksh_x0.5": {
+   "F_inst_max_N": 4512,
+   "governing_check": "soak_tension_yield",
+   "frame_t_s": 63.651,
+   "T01_C": 157.9,
+   "T02_C": 95.8,
+   "K_min": {
+    "4Nm": 0.1773,
+    "3.5Nm": 0.1552,
+    "3Nm": 0.133,
+    "2.5Nm": 0.1108
+   }
+  },
+  "GVLO_ksh_x1": {
+   "F_inst_max_N": 4096,
+   "governing_check": "soak_tension_yield",
+   "frame_t_s": 63.651,
+   "T01_C": 157.9,
+   "T02_C": 95.8,
+   "K_min": {
+    "4Nm": 0.1953,
+    "3.5Nm": 0.1709,
+    "3Nm": 0.1465,
+    "2.5Nm": 0.1221
+   }
+  },
+  "GVLO_ksh_x1.5": {
+   "F_inst_max_N": 3697,
+   "governing_check": "soak_tension_yield",
+   "frame_t_s": 63.651,
+   "T01_C": 157.9,
+   "T02_C": 95.8,
+   "K_min": {
+    "4Nm": 0.2164,
+    "3.5Nm": 0.1893,
+    "3Nm": 0.1623,
+    "2.5Nm": 0.1352
+   }
+  },
+  "GVHI_ksh_x0.5": {
+   "F_inst_max_N": 5522,
+   "governing_check": "soak_tension_yield",
+   "frame_t_s": 52.651,
+   "T01_C": 127.3,
+   "T02_C": 100.4,
+   "K_min": {
+    "4Nm": 0.1449,
+    "3.5Nm": 0.1268,
+    "3Nm": 0.1087,
+    "2.5Nm": 0.0905
+   }
+  },
+  "GVHI_ksh_x1": {
+   "F_inst_max_N": 5341,
+   "governing_check": "soak_tension_yield",
+   "frame_t_s": 50.651,
+   "T01_C": 127.0,
+   "T02_C": 99.7,
+   "K_min": {
+    "4Nm": 0.1498,
+    "3.5Nm": 0.1311,
+    "3Nm": 0.1123,
+    "2.5Nm": 0.0936
+   }
+  },
+  "GVHI_ksh_x1.5": {
+   "F_inst_max_N": 5167,
+   "governing_check": "soak_tension_yield",
+   "frame_t_s": 50.651,
+   "T01_C": 127.0,
+   "T02_C": 99.7,
+   "K_min": {
+    "4Nm": 0.1548,
+    "3.5Nm": 0.1355,
+    "3Nm": 0.1161,
+    "2.5Nm": 0.0968
+   }
+  },
+  "ALL_BOUNDS_ksh_x0.5": {
+   "F_inst_max_N": 4512,
+   "governing_bound": "GVLO",
+   "K_min": {
+    "4Nm": 0.1773,
+    "3.5Nm": 0.1551,
+    "3Nm": 0.133,
+    "2.5Nm": 0.1108
+   }
+  },
+  "ALL_BOUNDS_ksh_x1": {
+   "F_inst_max_N": 4096,
+   "governing_bound": "GVLO",
+   "K_min": {
+    "4Nm": 0.1953,
+    "3.5Nm": 0.1709,
+    "3Nm": 0.1465,
+    "2.5Nm": 0.1221
+   }
+  },
+  "ALL_BOUNDS_ksh_x1.5": {
+   "F_inst_max_N": 3697,
+   "governing_bound": "GVLO",
+   "K_min": {
+    "4Nm": 0.2164,
+    "3.5Nm": 0.1893,
+    "3Nm": 0.1623,
+    "2.5Nm": 0.1352
+   }
+  }
+ },
+ "summary_rows": [
+  {
+   "bound": "merged",
+   "torque_Nm": 4.0,
+   "k_sh_factor": 0.5,
+   "LC2_MS_y_min": 0.1666,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.5934,
+   "soak_MS_y_min": 0.1633,
+   "soak_at_t_s": 161.651,
+   "soak_T01_T02_C": [
+    119.6,
+    119.6
+   ],
+   "soak_MS_u_min": 0.864,
+   "thread_MS_y_min": 0.3192,
+   "thread_at_t_s": 166.651
+  },
+  {
+   "bound": "merged",
+   "torque_Nm": 3.5,
+   "k_sh_factor": 0.5,
+   "LC2_MS_y_min": 0.2701,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.711,
+   "soak_MS_y_min": 0.3021,
+   "soak_at_t_s": 166.651,
+   "soak_T01_T02_C": [
+    119.6,
+    119.6
+   ],
+   "soak_MS_u_min": 1.0864,
+   "thread_MS_y_min": 0.4767,
+   "thread_at_t_s": 166.651
+  },
+  {
+   "bound": "merged",
+   "torque_Nm": 3.0,
+   "k_sh_factor": 0.5,
+   "LC2_MS_y_min": 0.3881,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.8392,
+   "soak_MS_y_min": 0.4785,
+   "soak_at_t_s": 166.651,
+   "soak_T01_T02_C": [
+    119.6,
+    119.6
+   ],
+   "soak_MS_u_min": 1.3691,
+   "thread_MS_y_min": 0.6767,
+   "thread_at_t_s": 171.651
+  },
+  {
+   "bound": "merged",
+   "torque_Nm": 2.5,
+   "k_sh_factor": 0.5,
+   "LC2_MS_y_min": 0.5215,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.9765,
+   "soak_MS_y_min": 0.7102,
+   "soak_at_t_s": 166.651,
+   "soak_T01_T02_C": [
+    119.6,
+    119.6
+   ],
+   "soak_MS_u_min": 1.7404,
+   "thread_MS_y_min": 0.9395,
+   "thread_at_t_s": 171.651
+  },
+  {
+   "bound": "merged",
+   "torque_Nm": 4.0,
+   "k_sh_factor": 1.0,
+   "LC2_MS_y_min": 0.1667,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.5934,
+   "soak_MS_y_min": 0.1633,
+   "soak_at_t_s": 166.651,
+   "soak_T01_T02_C": [
+    119.6,
+    119.6
+   ],
+   "soak_MS_u_min": 0.864,
+   "thread_MS_y_min": 0.3193,
+   "thread_at_t_s": 166.651
+  },
+  {
+   "bound": "merged",
+   "torque_Nm": 3.5,
+   "k_sh_factor": 1.0,
+   "LC2_MS_y_min": 0.2701,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.7111,
+   "soak_MS_y_min": 0.3021,
+   "soak_at_t_s": 166.651,
+   "soak_T01_T02_C": [
+    119.6,
+    119.6
+   ],
+   "soak_MS_u_min": 1.0865,
+   "thread_MS_y_min": 0.4767,
+   "thread_at_t_s": 166.651
+  },
+  {
+   "bound": "merged",
+   "torque_Nm": 3.0,
+   "k_sh_factor": 1.0,
+   "LC2_MS_y_min": 0.3881,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.8393,
+   "soak_MS_y_min": 0.4786,
+   "soak_at_t_s": 161.651,
+   "soak_T01_T02_C": [
+    119.6,
+    119.6
+   ],
+   "soak_MS_u_min": 1.3692,
+   "thread_MS_y_min": 0.6768,
+   "thread_at_t_s": 166.651
+  },
+  {
+   "bound": "merged",
+   "torque_Nm": 2.5,
+   "k_sh_factor": 1.0,
+   "LC2_MS_y_min": 0.5215,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.9765,
+   "soak_MS_y_min": 0.7103,
+   "soak_at_t_s": 166.651,
+   "soak_T01_T02_C": [
+    119.6,
+    119.6
+   ],
+   "soak_MS_u_min": 1.7405,
+   "thread_MS_y_min": 0.9396,
+   "thread_at_t_s": 166.651
+  },
+  {
+   "bound": "merged",
+   "torque_Nm": 4.0,
+   "k_sh_factor": 1.5,
+   "LC2_MS_y_min": 0.1667,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.5935,
+   "soak_MS_y_min": 0.1633,
+   "soak_at_t_s": 166.651,
+   "soak_T01_T02_C": [
+    119.6,
+    119.6
+   ],
+   "soak_MS_u_min": 0.8641,
+   "thread_MS_y_min": 0.3193,
+   "thread_at_t_s": 166.651
+  },
+  {
+   "bound": "merged",
+   "torque_Nm": 3.5,
+   "k_sh_factor": 1.5,
+   "LC2_MS_y_min": 0.2701,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.7111,
+   "soak_MS_y_min": 0.3021,
+   "soak_at_t_s": 166.651,
+   "soak_T01_T02_C": [
+    119.6,
+    119.6
+   ],
+   "soak_MS_u_min": 1.0865,
+   "thread_MS_y_min": 0.4767,
+   "thread_at_t_s": 166.651
+  },
+  {
+   "bound": "merged",
+   "torque_Nm": 3.0,
+   "k_sh_factor": 1.5,
+   "LC2_MS_y_min": 0.3881,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.8393,
+   "soak_MS_y_min": 0.4786,
+   "soak_at_t_s": 166.651,
+   "soak_T01_T02_C": [
+    119.6,
+    119.6
+   ],
+   "soak_MS_u_min": 1.3693,
+   "thread_MS_y_min": 0.6768,
+   "thread_at_t_s": 166.651
+  },
+  {
+   "bound": "merged",
+   "torque_Nm": 2.5,
+   "k_sh_factor": 1.5,
+   "LC2_MS_y_min": 0.5215,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.9766,
+   "soak_MS_y_min": 0.7104,
+   "soak_at_t_s": 166.651,
+   "soak_T01_T02_C": [
+    119.6,
+    119.6
+   ],
+   "soak_MS_u_min": 1.7406,
+   "thread_MS_y_min": 0.9397,
+   "thread_at_t_s": 166.651
+  },
+  {
+   "bound": "GVLO",
+   "torque_Nm": 4.0,
+   "k_sh_factor": 0.5,
+   "LC2_MS_y_min": 0.2605,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.6859,
+   "soak_MS_y_min": -0.0677,
+   "soak_at_t_s": 63.651,
+   "soak_T01_T02_C": [
+    157.9,
+    95.8
+   ],
+   "soak_MS_u_min": 0.5096,
+   "thread_MS_y_min": 0.1595,
+   "thread_at_t_s": 62.651
+  },
+  {
+   "bound": "GVLO",
+   "torque_Nm": 3.5,
+   "k_sh_factor": 0.5,
+   "LC2_MS_y_min": 0.3764,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.812,
+   "soak_MS_y_min": 0.0207,
+   "soak_at_t_s": 63.651,
+   "soak_T01_T02_C": [
+    157.9,
+    95.8
+   ],
+   "soak_MS_u_min": 0.6527,
+   "thread_MS_y_min": 0.2694,
+   "thread_at_t_s": 62.651
+  },
+  {
+   "bound": "GVLO",
+   "torque_Nm": 3.0,
+   "k_sh_factor": 0.5,
+   "LC2_MS_y_min": 0.5078,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.9477,
+   "soak_MS_y_min": 0.1276,
+   "soak_at_t_s": 63.651,
+   "soak_T01_T02_C": [
+    157.9,
+    95.8
+   ],
+   "soak_MS_u_min": 0.8257,
+   "thread_MS_y_min": 0.4023,
+   "thread_at_t_s": 63.651
+  },
+  {
+   "bound": "GVLO",
+   "torque_Nm": 2.5,
+   "k_sh_factor": 0.5,
+   "LC2_MS_y_min": 0.6544,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 1.0898,
+   "soak_MS_y_min": 0.2595,
+   "soak_at_t_s": 63.651,
+   "soak_T01_T02_C": [
+    157.9,
+    95.8
+   ],
+   "soak_MS_u_min": 1.0392,
+   "thread_MS_y_min": 0.5663,
+   "thread_at_t_s": 63.651
+  },
+  {
+   "bound": "GVLO",
+   "torque_Nm": 4.0,
+   "k_sh_factor": 1.0,
+   "LC2_MS_y_min": 0.2852,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.7133,
+   "soak_MS_y_min": -0.1184,
+   "soak_at_t_s": 63.651,
+   "soak_T01_T02_C": [
+    157.9,
+    95.8
+   ],
+   "soak_MS_u_min": 0.4273,
+   "thread_MS_y_min": 0.0963,
+   "thread_at_t_s": 62.651
+  },
+  {
+   "bound": "GVLO",
+   "torque_Nm": 3.5,
+   "k_sh_factor": 1.0,
+   "LC2_MS_y_min": 0.4045,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.8417,
+   "soak_MS_y_min": -0.0398,
+   "soak_at_t_s": 63.651,
+   "soak_T01_T02_C": [
+    157.9,
+    95.8
+   ],
+   "soak_MS_u_min": 0.5545,
+   "thread_MS_y_min": 0.1941,
+   "thread_at_t_s": 62.651
+  },
+  {
+   "bound": "GVLO",
+   "torque_Nm": 3.0,
+   "k_sh_factor": 1.0,
+   "LC2_MS_y_min": 0.5395,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.9791,
+   "soak_MS_y_min": 0.0542,
+   "soak_at_t_s": 63.651,
+   "soak_T01_T02_C": [
+    157.9,
+    95.8
+   ],
+   "soak_MS_u_min": 0.7067,
+   "thread_MS_y_min": 0.3109,
+   "thread_at_t_s": 62.651
+  },
+  {
+   "bound": "GVLO",
+   "torque_Nm": 2.5,
+   "k_sh_factor": 1.0,
+   "LC2_MS_y_min": 0.689,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 1.1221,
+   "soak_MS_y_min": 0.1686,
+   "soak_at_t_s": 63.651,
+   "soak_T01_T02_C": [
+    157.9,
+    95.8
+   ],
+   "soak_MS_u_min": 0.8919,
+   "thread_MS_y_min": 0.4532,
+   "thread_at_t_s": 62.651
+  },
+  {
+   "bound": "GVLO",
+   "torque_Nm": 4.0,
+   "k_sh_factor": 1.5,
+   "LC2_MS_y_min": 0.3095,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.7174,
+   "soak_MS_y_min": -0.1622,
+   "soak_at_t_s": 63.651,
+   "soak_T01_T02_C": [
+    157.9,
+    95.8
+   ],
+   "soak_MS_u_min": 0.3564,
+   "thread_MS_y_min": 0.0419,
+   "thread_at_t_s": 62.651
+  },
+  {
+   "bound": "GVLO",
+   "torque_Nm": 3.5,
+   "k_sh_factor": 1.5,
+   "LC2_MS_y_min": 0.4322,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.8459,
+   "soak_MS_y_min": -0.0915,
+   "soak_at_t_s": 63.651,
+   "soak_T01_T02_C": [
+    157.9,
+    95.8
+   ],
+   "soak_MS_u_min": 0.4708,
+   "thread_MS_y_min": 0.1298,
+   "thread_at_t_s": 62.651
+  },
+  {
+   "bound": "GVLO",
+   "torque_Nm": 3.0,
+   "k_sh_factor": 1.5,
+   "LC2_MS_y_min": 0.5705,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.9841,
+   "soak_MS_y_min": -0.0078,
+   "soak_at_t_s": 63.651,
+   "soak_T01_T02_C": [
+    157.9,
+    95.8
+   ],
+   "soak_MS_u_min": 0.6063,
+   "thread_MS_y_min": 0.2338,
+   "thread_at_t_s": 62.651
+  },
+  {
+   "bound": "GVLO",
+   "torque_Nm": 2.5,
+   "k_sh_factor": 1.5,
+   "LC2_MS_y_min": 0.7228,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 1.1289,
+   "soak_MS_y_min": 0.093,
+   "soak_at_t_s": 62.651,
+   "soak_T01_T02_C": [
+    157.8,
+    95.6
+   ],
+   "soak_MS_u_min": 0.7693,
+   "thread_MS_y_min": 0.359,
+   "thread_at_t_s": 62.651
+  },
+  {
+   "bound": "GVHI",
+   "torque_Nm": 4.0,
+   "k_sh_factor": 0.5,
+   "LC2_MS_y_min": 0.1772,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.6072,
+   "soak_MS_y_min": 0.082,
+   "soak_at_t_s": 51.651,
+   "soak_T01_T02_C": [
+    127.1,
+    100.0
+   ],
+   "soak_MS_u_min": 0.7185,
+   "thread_MS_y_min": 0.304,
+   "thread_at_t_s": 62.651
+  },
+  {
+   "bound": "GVHI",
+   "torque_Nm": 3.5,
+   "k_sh_factor": 0.5,
+   "LC2_MS_y_min": 0.2823,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.7262,
+   "soak_MS_y_min": 0.1996,
+   "soak_at_t_s": 51.651,
+   "soak_T01_T02_C": [
+    127.1,
+    100.0
+   ],
+   "soak_MS_u_min": 0.9053,
+   "thread_MS_y_min": 0.4471,
+   "thread_at_t_s": 59.651
+  },
+  {
+   "bound": "GVHI",
+   "torque_Nm": 3.0,
+   "k_sh_factor": 0.5,
+   "LC2_MS_y_min": 0.402,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.8557,
+   "soak_MS_y_min": 0.346,
+   "soak_at_t_s": 51.651,
+   "soak_T01_T02_C": [
+    127.1,
+    100.0
+   ],
+   "soak_MS_u_min": 1.1376,
+   "thread_MS_y_min": 0.625,
+   "thread_at_t_s": 58.651
+  },
+  {
+   "bound": "GVHI",
+   "torque_Nm": 2.5,
+   "k_sh_factor": 0.5,
+   "LC2_MS_y_min": 0.5372,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.9938,
+   "soak_MS_y_min": 0.5331,
+   "soak_at_t_s": 50.651,
+   "soak_T01_T02_C": [
+    127.0,
+    99.7
+   ],
+   "soak_MS_u_min": 1.4345,
+   "thread_MS_y_min": 0.8522,
+   "thread_at_t_s": 56.651
+  },
+  {
+   "bound": "GVHI",
+   "torque_Nm": 4.0,
+   "k_sh_factor": 1.0,
+   "LC2_MS_y_min": 0.1815,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.6122,
+   "soak_MS_y_min": 0.0521,
+   "soak_at_t_s": 50.651,
+   "soak_T01_T02_C": [
+    127.0,
+    99.7
+   ],
+   "soak_MS_u_min": 0.6705,
+   "thread_MS_y_min": 0.2711,
+   "thread_at_t_s": 56.651
+  },
+  {
+   "bound": "GVHI",
+   "torque_Nm": 3.5,
+   "k_sh_factor": 1.0,
+   "LC2_MS_y_min": 0.2872,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.7316,
+   "soak_MS_y_min": 0.163,
+   "soak_at_t_s": 50.651,
+   "soak_T01_T02_C": [
+    127.0,
+    99.7
+   ],
+   "soak_MS_u_min": 0.8464,
+   "thread_MS_y_min": 0.4059,
+   "thread_at_t_s": 55.651
+  },
+  {
+   "bound": "GVHI",
+   "torque_Nm": 3.0,
+   "k_sh_factor": 1.0,
+   "LC2_MS_y_min": 0.4076,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.8615,
+   "soak_MS_y_min": 0.2999,
+   "soak_at_t_s": 50.651,
+   "soak_T01_T02_C": [
+    127.0,
+    99.7
+   ],
+   "soak_MS_u_min": 1.0638,
+   "thread_MS_y_min": 0.5723,
+   "thread_at_t_s": 54.651
+  },
+  {
+   "bound": "GVHI",
+   "torque_Nm": 2.5,
+   "k_sh_factor": 1.0,
+   "LC2_MS_y_min": 0.5434,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 1.0,
+   "soak_MS_y_min": 0.4735,
+   "soak_at_t_s": 50.651,
+   "soak_T01_T02_C": [
+    127.0,
+    99.7
+   ],
+   "soak_MS_u_min": 1.3392,
+   "thread_MS_y_min": 0.7831,
+   "thread_at_t_s": 49.651
+  },
+  {
+   "bound": "GVHI",
+   "torque_Nm": 4.0,
+   "k_sh_factor": 1.5,
+   "LC2_MS_y_min": 0.1857,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.617,
+   "soak_MS_y_min": 0.0248,
+   "soak_at_t_s": 50.651,
+   "soak_T01_T02_C": [
+    127.0,
+    99.7
+   ],
+   "soak_MS_u_min": 0.6267,
+   "thread_MS_y_min": 0.2397,
+   "thread_at_t_s": 54.651
+  },
+  {
+   "bound": "GVHI",
+   "torque_Nm": 3.5,
+   "k_sh_factor": 1.5,
+   "LC2_MS_y_min": 0.2919,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.7369,
+   "soak_MS_y_min": 0.1297,
+   "soak_at_t_s": 49.651,
+   "soak_T01_T02_C": [
+    126.8,
+    99.3
+   ],
+   "soak_MS_u_min": 0.7931,
+   "thread_MS_y_min": 0.367,
+   "thread_at_t_s": 48.651
+  },
+  {
+   "bound": "GVHI",
+   "torque_Nm": 3.0,
+   "k_sh_factor": 1.5,
+   "LC2_MS_y_min": 0.413,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 0.8671,
+   "soak_MS_y_min": 0.2585,
+   "soak_at_t_s": 49.651,
+   "soak_T01_T02_C": [
+    126.8,
+    99.3
+   ],
+   "soak_MS_u_min": 0.9975,
+   "thread_MS_y_min": 0.5227,
+   "thread_at_t_s": 48.651
+  },
+  {
+   "bound": "GVHI",
+   "torque_Nm": 2.5,
+   "k_sh_factor": 1.5,
+   "LC2_MS_y_min": 0.5494,
+   "LC2_at_t_s": 21.651,
+   "LC2_MS_u_min": 1.0059,
+   "soak_MS_y_min": 0.4204,
+   "soak_at_t_s": 49.651,
+   "soak_T01_T02_C": [
+    126.8,
+    99.3
+   ],
+   "soak_MS_u_min": 1.2543,
+   "thread_MS_y_min": 0.7185,
+   "thread_at_t_s": 48.651
+  }
+ ]
+}

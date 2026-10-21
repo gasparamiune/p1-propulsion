@@ -1,0 +1,412 @@
+--- /dev/shm/rev_elec3/fw210/sil/sil_main.cpp	2026-10-13 15:43:26.000000000 +0000
++++ /dev/shm/rev_elec3/fw/sil/sil_main.cpp	2026-10-21 00:58:37.447929474 +0000
+@@ -564,6 +564,9 @@
+   int hw_trips = 0, ovp_aborts = 0, mc_jams = 0;
+   std::vector<double> mc_noprog;
+   std::vector<double> l2e2s, rmins, tdros; int a7_total = 0, held_n = 0;   // v2.9 start metrics
++  // v2.11 (REV-ELEC-2 R2-10): statistics over FLYING runs (no abort and no ARM refusal through the profile) with stated denominators
++  std::vector<double> ups_f, dns_f, ovu_f, ovd_f, deep_f; int n_fly = 0, f_req = 0, f_tgt = 0, f_res = 0, f_a = 0, n_ppx = 0;
++  std::map<std::string, int> nonfly;   // non-flying runs by first abort cause
+   for (int i = 0; i < N; ++i) {
+     const SimConfig& c = cs[i];
+     Sim s(c);
+@@ -597,7 +600,7 @@
+     {   // v2.10: an interlock refusal at ARM (TANK_HOT / TANK_COLD before any start) is the interlock working, not an engine abort
+       bool started = false;
+       for (const Rec& x : r) if (x.state == (int)State::PREPRESS || x.state == (int)State::IGNITION) { started = true; break; }
+-      const bool il = !started && (ab == (int)ecu::Abort::TANK_HOT || ab == (int)ecu::Abort::TANK_COLD);
++      const bool il = !started && (ab == (int)ecu::Abort::TANK_HOT || ab == (int)ecu::Abort::TANK_COLD || ab == (int)ecu::Abort::CASE_WARM_STAND);
+       const double tc = c.eng.T_tank0 - 273.15;
+       if (il) { ++refused_il; t_ref_min = std::isnan(t_ref_min) ? tc : std::min(t_ref_min, tc); }
+       else t_arm_max = std::isnan(t_arm_max) ? tc : std::max(t_arm_max, tc);
+@@ -608,6 +611,11 @@
+     n_ok_a += cla;
+     const bool res = std::fabs(dp.ss_err) <= 5.0 && dp.pp <= 10.0 && std::fabs(s10.ss_err) <= 5.0 && s10.pp <= 10.0;
+     n_ok_req += req; n_ok_tgt += tgt; n_ok_res += res;
++    n_ppx += s.ecu.prepressExits() > 0;   // v2.11 LEAD 216 (7): PREPRESS ended by an IGNITE refusal (safe exit)
++    if (ab == 0) {
++      ++n_fly; f_req += req; f_tgt += tgt; f_res += res; f_a += cla;
++      ups_f.push_back(up.rise); dns_f.push_back(dn.rise); ovu_f.push_back(up.overshoot); ovd_f.push_back(dn.overshoot); deep_f.push_back(dp.pp);
++    } else ++nonfly[ecu::abortName(static_cast<ecu::Abort>(ab))];
+     ups.push_back(up.rise); dns.push_back(dn.rise); ovs.push_back(std::max(up.overshoot, dn.overshoot)); deep_pp.push_back(dp.pp);
+     char b[800];
+     std::snprintf(b, sizeof b, "%d,%.4f,%.4f,%.4f,%.5f,%.4f,%.2f,%.3f,%.3f,%.3f,%.5f,%.5f,%.3f,%.3f,%.5f,%.3f,%.4f,%.4f,%.4f,%.4f,%.2f,%.3f,%.4f,%.4f,%.2f,%.3f,%.3f,%.3f,%.0f,%d,%d,%d,%.4f,%d,%.1f,%.4f,%d,%d,%.1f\n",
+@@ -658,6 +666,24 @@
+   j.k("light_to_E2_ms_p50").v(pct(l2e2s, 0.5)); j.k("light_to_E2_ms_p95").v(pct(l2e2s, 0.95)); j.k("light_to_E2_ms_max").v(pct(l2e2s, 1.0));
+   j.k("A3_ratio_min_min").v(pct(rmins, 0.0)); j.k("A3_ratio_min_p05").v(pct(rmins, 0.05)); j.k("A7_events").v(a7_total);
+   j.k("drogue_rise_held_to_E2_0p10_runs").v(held_n); j.k("drogue_E2_to_release_ms_p50").v(pct(tdros, 0.5)); j.k("drogue_E2_to_release_ms_max").v(pct(tdros, 1.0));
++  {   // v2.11 R2-10: flying-run statistics and denominators
++    j.k("denominators").v("runs = all dispersed configurations; armed = runs - interlock_refused_at_arm; flying = runs with no abort and no ARM "
++                          "refusal through the profile (v2.11, REV-ELEC-2 R2-10). The *_frac fields above use runs as the denominator (kept for "
++                          "continuity), *_frac_of_armed the armed runs; the flying_* fields below use the flying runs only");
++    j.k("flying_runs").v(n_fly); j.k("armed_runs").v(n_arm);
++    std::string nf = "{"; for (const auto& kv : nonfly) nf += (nf.size() > 1 ? ", \"" : "\"") + kv.first + "\": " + std::to_string(kv.second); nf += "}";
++    j.k("non_flying_by_first_cause").raw(nf);
++    j.k("prepress_safe_exit_runs").v(n_ppx);
++    j.k("flying_pass_eng03_clause_a_frac").v(n_fly > 0 ? double(f_a) / n_fly : NAN);
++    j.k("flying_pass_eng03_req_150ms_frac").v(n_fly > 0 ? double(f_req) / n_fly : NAN);
++    j.k("flying_pass_eng03_target_100ms_frac").v(n_fly > 0 ? double(f_tgt) / n_fly : NAN);
++    j.k("flying_pass_deep_resolution_frac").v(n_fly > 0 ? double(f_res) / n_fly : NAN);
++    j.k("flying_up_rise_p50_s").v(pct(ups_f, 0.5)); j.k("flying_up_rise_p95_s").v(pct(ups_f, 0.95)); j.k("flying_up_rise_max_s").v(pct(ups_f, 1.0));
++    j.k("flying_dn_rise_p50_s").v(pct(dns_f, 0.5)); j.k("flying_dn_rise_p95_s").v(pct(dns_f, 0.95)); j.k("flying_dn_rise_max_s").v(pct(dns_f, 1.0));
++    j.k("flying_up_overshoot_p50_pct").v(pct(ovu_f, 0.5)); j.k("flying_up_overshoot_p95_pct").v(pct(ovu_f, 0.95)); j.k("flying_up_overshoot_max_pct").v(pct(ovu_f, 1.0));
++    j.k("flying_dn_overshoot_p50_pct").v(pct(ovd_f, 0.5)); j.k("flying_dn_overshoot_p95_pct").v(pct(ovd_f, 0.95)); j.k("flying_dn_overshoot_max_pct").v(pct(ovd_f, 1.0));
++    j.k("flying_deep_pp_p50_N").v(pct(deep_f, 0.5)); j.k("flying_deep_pp_p95_N").v(pct(deep_f, 0.95)); j.k("flying_deep_pp_max_N").v(pct(deep_f, 1.0));
++  }
+   writeFile(OUT + "/S5_mc.json", j.str());
+   std::printf("S5 MC: %s\n", j.str().c_str());
+ }
+@@ -712,10 +738,10 @@
+       {"pintle_jam_steady_cmd_detect_late", (int)ecu::Abort::PINTLE_FAULT, [](Sim& s) { s.pintle_jam_at = 3.0; }, 3.0, true},
+       // v2.6: the spring closes the unpowered needle away from the command -> stall monitor (kind DIVERGING) or flameout, whichever first
+       {"pintle_servo_unpowered", (int)ecu::Abort::PINTLE_FAULT, [](Sim& s) { s.pintle_unpower_at = 3.0; }, 3.0, true, nullptr, (int)ecu::Abort::FLAMEOUT},
+-      // v2.8 (LEAD 2026-10-13 correction, MECH pre36): case abort 448.15 K / 0.2 s while the MV is latched or OPEN; 445 K (above the
+-      // 433.15 K start refusal, below the abort) must not abort a burn
+-      {"case_over_temp_455K", (int)ecu::Abort::OVER_TEMP, [](Sim& s) { s.tc_hot_at = 3.0; s.tc_hot_idx = 0; s.tc_hot_K = 455.0; }, 3.0, true},
+-      {"case_445K_in_RUN_no_abort", 0, [](Sim& s) { s.tc_hot_at = 3.0; s.tc_hot_idx = 1; s.tc_hot_K = 445.0; }, 3.0, true},
++      // v2.11 (LEAD CHANGELOG 243 (3) A = 423.15 K, start limit 403.15 K, lead 2026-10-20T21:46:49Z): case abort A / 0.2 s while the MV is
++      // latched or OPEN; 415 K (above the 403.15 K start limit, below A) must not abort a burn. v2.8-v2.10: 455 K / 445 K around 448.15 K
++      {"case_over_temp_430K", (int)ecu::Abort::OVER_TEMP, [](Sim& s) { s.tc_hot_at = 3.0; s.tc_hot_idx = 0; s.tc_hot_K = 430.0; }, 3.0, true},
++      {"case_415K_in_RUN_no_abort", 0, [](Sim& s) { s.tc_hot_at = 3.0; s.tc_hot_idx = 1; s.tc_hot_K = 415.0; }, 3.0, true},
+       {"tank_overpressure_in_ARMED", (int)ecu::Abort::TANK_OVERPRESSURE, [](Sim& s) { s.ptank_bias_at = 0.4; s.ptank_bias = 20e5; }, 0.4, false},
+       {"tank_overpressure_in_RUN_flag_only", 0, [](Sim& s) { s.ptank_bias_at = 3.0; s.ptank_bias = 20e5; }, 3.0, true},
+       // FC gimbal command 2 deg sine at 1 Hz from 2.0 s; actuator A output locks at 3.0 s.
+@@ -770,9 +796,9 @@
+       // hardware path alone: firmware over-pressure check AND (v2.6) the pintle stall monitor disabled by SIL hooks
+       {"pintle_runaway_fw_ovp_off_hw_trip", HWOVP, [](Sim& s) { s.pintle_runaway_at = 3.0; s.fw_ovp_disabled = true; s.pintle_mon_disabled = true; }, 3.0, true},
+       {"pintle_runaway_fw_ovp_off_hw_trip_24C_Cd0p8_band_high", HWOVP, [](Sim& s) { s.pintle_runaway_at = 3.0; s.fw_ovp_disabled = true; s.pintle_mon_disabled = true; }, 3.0, true,
+-       [](SimConfig& c) { hot24Cd08(c); c.ovp_trip_Pa_g += ovp::kBandPa; }},
++       [](SimConfig& c) { hot24Cd08(c); c.ovp_trip_Pa_g += ovp::kBandPa; c.ovp3_trip_Pa_abs += ovp3::kBandPa; }},   // v2.11: both chains (C1 default)
+       {"pintle_runaway_500N_fw_ovp_off_hw_trip_24C_Cd0p8_band_high", HWOVP, [](Sim& s) { s.pintle_runaway_at = 3.0; s.fw_ovp_disabled = true; s.pintle_mon_disabled = true;
+-         s.thrust_cmd = [](double) { return 500.0; }; }, 3.0, true, [](SimConfig& c) { hot24Cd08(c); c.ovp_trip_Pa_g += ovp::kBandPa; }},
++         s.thrust_cmd = [](double) { return 500.0; }; }, 3.0, true, [](SimConfig& c) { hot24Cd08(c); c.ovp_trip_Pa_g += ovp::kBandPa; c.ovp3_trip_Pa_abs += ovp3::kBandPa; }},
+       // v2.6 stall monitor alone (firmware over-pressure check off): runaway at 300 N caught by the monitor
+       {"pintle_runaway_fw_ovp_off_monitor_catches", PFAULT, [](Sim& s) { s.pintle_runaway_at = 3.0; s.fw_ovp_disabled = true; }, 3.0, true, nullptr, HWOVP},
+       // sudden partial throat blockage (debris): Pc jumps faster than the Pc loop can throttle down
+@@ -1528,7 +1554,7 @@
+ // invalid) runs PREPRESS first. Window W from the lift command: flight 0.65 s on every relight (first start 0.40 s); stand (v2.8.1, LEAD
+ // fallback (b)) R1 0.35 s first start, R2 0.35 s every other stand start, R3 deleted, R4 no relight with a state sensor invalid. Torch gate
+ // 0.16 s (Combustion v2.4 confirmed). Case
+-// abort 448.15 K (MV open) / start refusal 433.15 K. Kept from v2.7: relight lockout (NV, lit-session marker), seat-confirmed shutdown,
++// abort 423.15 K (MV open) / start refusal 403.15 K (v2.11; v2.8-v2.10 448.15 / 433.15 K). Kept from v2.7: relight lockout (NV, lit-session marker), seat-confirmed shutdown,
+ // rail loss -> PINTLE_FAULT, stand timing-only start. Flight profile: ARM 0.05, PREPRESS 0.80, IGNITE 1.40 (300 N), MECO SHUTDOWN 3.00
+ // (MV closed in the coast), RELIGHT 5.00 (150 N), SHUTDOWN 7.00, DISARM 8.00. Vapour: from 4.0 s the valve-to-seat volume holds N2O
+ // vapour (Combustion low_inlet_check_v2p3 volume and state); the plant does not let vapour light the main (conservative for the window).
+@@ -1751,16 +1777,16 @@
+          char b[220]; std::snprintf(b, sizeof b, "from SHUTDOWN: seated (plant) +%.0f ms, MV unlatched +%.0f ms, COAST +%.0f ms, MV closed +%.0f ms (unlatch -> closed %.0f ms)",
+                                     (t_seat - 3.0) * 1e3, (t_unl - 3.0) * 1e3, (t_coast - 3.0) * 1e3, (t_mvc - 3.0) * 1e3, (t_mvc - t_unl) * 1e3); *d = b;
+          return t_unl >= t_seat && t_unl - 3.0 < ecu::cfg::kMvSeatTimeout_s - 1e-3 && t_coast >= t_unl && t_mvc - t_unl < 0.060; }},
+-      {"case_TC_445K_in_RUN_no_abort_relight_refused", "445 K on a case TC from 2.5 s: no abort in the burn (abort 448.15 K); RELIGHT in the coast refused (CASE_HOT > 433.15 K)",
+-       nullptr, [](Sim& s) { s.tc_hot_at = 2.5; s.tc_hot_idx = 0; s.tc_hot_K = 445.0; }, 8.5,
++      {"case_TC_415K_in_RUN_no_abort_relight_refused", "415 K on a case TC from 2.5 s: no abort in the burn (abort A 423.15 K); RELIGHT in the coast refused (CASE_HOT > 403.15 K)",
++       nullptr, [](Sim& s) { s.tc_hot_at = 2.5; s.tc_hot_idx = 0; s.tc_hot_K = 415.0; }, 8.5,
+        [=](const Sim& s, const std::vector<Rec>& r, std::string* d) {
+          double ta; const int ab = firstAbortCause(r, &ta);
+          const TlmM t = tlmM(s, 5.00);
+          char b[160]; std::snprintf(b, sizeof b, "first abort %s; TLM block at the command %d; IGNITION entries %zu", ecu::abortName(static_cast<ecu::Abort>(ab)),
+                                     t.at_cmd ? t.at_cmd->block : -1, s.ign_entry_t.size()); *d = b;
+          return ab == 0 && s.ign_entry_t.size() == 1 && t.at_cmd && t.at_cmd->block == ecu::refuse::CASE_HOT; }},
+-      {"case_TC_455K_in_RUN_abort", "455 K on a case TC in the burn: OVER_TEMP 0.2 s after the step", nullptr,
+-       [](Sim& s) { s.tc_hot_at = 2.5; s.tc_hot_idx = 0; s.tc_hot_K = 455.0; }, 4.0,
++      {"case_TC_430K_in_RUN_abort", "430 K on a case TC in the burn (A 423.15 K): OVER_TEMP 0.2 s after the step", nullptr,
++       [](Sim& s) { s.tc_hot_at = 2.5; s.tc_hot_idx = 0; s.tc_hot_K = 430.0; }, 4.0,
+        [=](const Sim& s, const std::vector<Rec>& r, std::string* d) {
+          double ta; const int ab = firstAbortCause(r, &ta);
+          char b[120]; std::snprintf(b, sizeof b, "abort %s %.3f s after the TC step", ecu::abortName(static_cast<ecu::Abort>(ab)), ta - 2.5); *d = b;
+@@ -1897,7 +1923,7 @@
+   J j;
+   j.k("scenario").v("S10 v2.8 relight path and windows (LEAD 2026-10-13): direct relight on a primed segment (NC valve + torch at E0, lift at E1), PREPRESS on a "
+                      "segment that may hold gas, W from the lift (flight 0.65 s; stand v2.8.1 R1 0.35 / R2 0.35 s, R3 deleted, R4 refused), torch gate 0.16 s, MV OPEN "
+-                     "switch supervision, case 448.15 / 433.15 K, relight lockout (NV), seat-confirmed shutdown, rail loss in COAST, stand timing-only start. "
++                     "switch supervision, case 423.15 / 403.15 K (v2.11; v2.10 448.15 / 433.15 K), relight lockout (NV), seat-confirmed shutdown, rail loss in COAST, stand timing-only start. "
+                      "TLM_RELIGHT checked in every case (>= 10 Hz in COAST, sequence, status at the command). Flight: no load cell (NaN), strap FLIGHT");
+   std::string arr = "[";
+   int pass = 0, tlm_pass = 0;
+@@ -2040,6 +2066,7 @@
+   double mhb_liq = 0, mhb_vap = 0, vap_end = 0, t_abort = NAN;
+   // v2.9 drogue-release support (FC rule, LEAD/GNC 2026-10-13): RISE_HELD_T seen; E2 -> first valid measured Pc >= 3.0 bar abs; E2 -> FC release
+   bool held_t = false; double t_pc3 = NAN, t_drogue = NAN;
++  int f2 = 0; bool mv_closed_end = false;   // v2.11 (LEAD 216 (4)): f2:: bits seen from E0 (BASE_HIGH), plant MV closed at the end of the run
+ };
+ static RelM relightRun(SimConfig c, const A1State& st, bool lit, bool purge_pre, const std::string& csv, const std::function<void(Sim&)>& tweak = nullptr) {
+   Sim s(c);
+@@ -2065,13 +2092,14 @@
+   m.e0 = sm.te; m.e1 = sm.e1; m.lit = sm.lit; m.e2 = sm.e2;
+   double ta; m.abort = firstAbortCause(r, &ta); m.t_abort = ta;
+   if (std::isnan(sm.te)) m.refused = 1;
+-  if (m.abort == (int)ecu::Abort::TANK_HOT || m.abort == (int)ecu::Abort::TANK_COLD) {
++  if (m.abort == (int)ecu::Abort::TANK_HOT || m.abort == (int)ecu::Abort::TANK_COLD || m.abort == (int)ecu::Abort::CASE_WARM_STAND) {
+     bool started = false;
+     for (const Rec& x : r) if (x.state == (int)State::PREPRESS || x.state == (int)State::IGNITION) { started = true; break; }
+     m.il = !started;
+   }
+   for (const Rec& x : r) {
+     if (std::isnan(sm.te) || x.t < sm.te) continue;
++    m.f2 |= x.fault2;
+     if (x.state == (int)State::RUN) m.ran = true;
+     if (x.state == (int)State::IGNITION) {
+       if (std::isnan(m.p0) && std::isfinite(x.ign_ref)) m.p0 = x.ign_ref;
+@@ -2097,6 +2125,7 @@
+   if (std::isfinite(sm.e2)) m.t_drogue = std::fmin(std::isfinite(m.t_pc3) ? m.t_pc3 : 1e9, m.held_t ? (double)ecu::cfg::kDrogueRiseHold_s : 1e9);
+   if (!(m.t_drogue < 1e8)) m.t_drogue = NAN;
+   m.mhb_liq = s.eng.m_hb_liq; m.mhb_vap = s.eng.m_hb_vap; m.vap_end = s.eng.vap_left;
++  if (!r.empty()) m.mv_closed_end = r.back().mv < 1e-3;
+   return m;
+ }
+ static std::string relJson(const std::string& name, const RelM& m, bool lit) {
+@@ -2124,29 +2153,46 @@
+   if (m.ran) return "unlit_FALSE_E2";
+   return std::string("unlit_") + (m.abort ? ecu::abortName(static_cast<ecu::Abort>(m.abort)) : "NONE");
+ }
++// v2.11 (LEAD CHANGELOG 216 (4): R2-04 / 203 (5) RESTATED per location): the stand first start is added (strap + load cell, same pad
++// sequence), and every run records the BASE_HIGH flag (f2), whether the ignition lift was ever commanded and whether the MV is closed at the
++// end. v2.11 criteria per location: pad / stand BASE_HIGH or BASE_AMB -> PC_SENSOR before the lift (lift never commanded), MV closed by the
++// abort; A1 BASE_HIGH -> lit RUN on the measured P0; A1 BASE_AMB -> outcome stated (the lead set no target; criterion: no false E2); torch
++// gate not reached -> TORCH_FAULT with no lift; in band: lit -> RUN, unlit -> NO_IGNITION; every unlit run: no E2. The v2.10 criteria are
++// still evaluated for the case-by-case comparison.
++static std::string fmtNum(double x, const char* f) { if (!std::isfinite(x)) return "null"; char b[48]; std::snprintf(b, sizeof b, f, x); return b; }
+ static void scIgnRuleBExt(const A1State& st, const std::string& file) {
+-  J j; j.k("id").v("sil_S13B_ext_v2p10"); j.k("version").v("v2.10"); j.k("date").v("2026-10-13");
++  J j; j.k("id").v("sil_S13B_ext_v2p11"); j.k("version").v("v2.11"); j.k("date").v("2026-10-20");
+   j.k("build_kBpc1Shown").v(ecu::cfg::kBpc1Shown ? 1 : 0);
+   j.k("kIgnBaseCheck_Pa").v(ecu::cfg::kIgnBaseCheck_Pa); j.k("kIgnFloorAbs_Pa").v(ecu::cfg::kIgnFloorAbs_Pa);
+-  j.k("scenario").v("S13 B extension (LEAD 166 (1)): offset at E0, -0.8..+1.2 bar step 0.05, pad first start and A1 relight, lit / unlit, nominal plant");
+-  std::string arr = "["; int n = 0, fail = 0;
++  j.k("scenario").v("S13 B extension (LEAD 166 (1); v2.11 LEAD 216 (4) per location): offset at E0, -0.8..+1.2 bar step 0.05, A1 relight, pad first "
++                    "start and (v2.11) stand first start, lit / unlit, nominal plant");
++  j.k("criteria_v2p11").v("pad / stand: BASE_HIGH or BASE_AMB -> PC_SENSOR, lift never commanded, MV closed at the end; A1: BASE_HIGH lit -> RUN on the "
++                          "measured P0, BASE_AMB -> outcome stated (no lead target; criterion no false E2); torch gate not reached -> TORCH_FAULT, no lift; "
++                          "in band: lit -> RUN, unlit -> NO_IGNITION; every unlit run: no E2");
++  static const char* kWhere[3] = {"a1", "pad", "stand"};
++  std::string arr = "["; int n = 0, fail = 0, fail210 = 0;
+   std::map<std::string, std::pair<double, double>> range;   // class -> offset range [bar]
+   std::map<std::string, int> count;
+-  for (int where = 0; where < 2; ++where) for (int k = 0; k <= 40; ++k) for (int u = 0; u < 2; ++u) {
++  struct Loc { int runs = 0, unlit = 0, false_e2 = 0, torch_fault = 0, base_high = 0, base_amb = 0, refused_before_lift = 0, abort_after_lift = 0,
++               mv_open_after_abort = 0, fail = 0; std::map<std::string, int> amb, high; };
++  Loc L[3];
++  for (int where = 0; where < 3; ++where) for (int k = 0; k <= 40; ++k) for (int u = 0; u < 2; ++u) {
+     const double r = (-0.80 + 0.05 * k) * 1e5;
+     SimConfig c = nominal(97);
+     RelM m;
+     if (where == 0) {
+       m = relightRun(c, st, u == 0, false, "", [&](Sim& q) { q.C.pc_off = r; q.C.pc_off_from = 5.001; });
+-    } else {
+-      c.pc_off = r; c.pc_off_on_ign = true;
++    } else {   // pad (1) / stand (2) first start
++      c.pc_off = r; c.pc_off_on_ign = true; c.test_stand = where == 2;
+       Sim s(c); s.schedule = padSequence(1.40); s.thrust_cmd = [](double) { return 300.0; };
+       if (u) s.eng.P.ign_delay = 99.0;
+       s.run(2.6);
+       const StartM sm = startM(s, s.rec(), 0);
+-      m.e0 = sm.te; m.e1 = sm.e1; m.lit = sm.lit; m.e2 = sm.e2; double ta; m.abort = firstAbortCause(s.rec(), &ta);
++      m.e0 = sm.te; m.e1 = sm.e1; m.lit = sm.lit; m.e2 = sm.e2; double ta; m.abort = firstAbortCause(s.rec(), &ta); m.t_abort = ta;
++      if (std::isnan(sm.te)) m.refused = 1;
+       for (const Rec& x : s.rec()) {
+-        if (x.t < sm.te) continue;
++        if (std::isnan(sm.te) || x.t < sm.te) continue;
++        m.f2 |= x.fault2;
+         if (x.state == (int)State::RUN) m.ran = true;
+         if (x.state == (int)State::IGNITION) {
+           if (std::isnan(m.p0) && std::isfinite(x.ign_ref)) m.p0 = x.ign_ref;
+@@ -2154,19 +2200,41 @@
+           m.pcm_max = std::isnan(m.pcm_max) ? x.Pc_meas : std::max(m.pcm_max, x.Pc_meas);
+           m.det |= x.ign_det;
+         }
++        // v2.11 record fix (2026-10-21): the pad / stand BASE_AMB refusal (LEAD 216 (4)) sets det::BASE_AMB on the abort tick itself, so
++        // the first record carrying it is already in ABORT; the v2.11 first record (00:42Z) read det only in IGNITION records and
++        // classed the 12 refusals at -0.70..-0.80 bar as 'PC_SENSOR without a baseline flag' (test_core v211b-7 shows the flag)
++        if (x.state == (int)State::ABORT) m.det |= x.ign_det;
+       }
++      if (!s.rec().empty()) m.mv_closed_end = s.rec().back().mv < 1e-3;
+     }
+     const bool lit = u == 0;
+-    const bool ok = lit ? (m.ran && m.abort == 0) : (!m.ran && (m.abort == (int)ecu::Abort::NO_IGNITION || m.abort == (int)ecu::Abort::TORCH_FAULT));
+-    ++n; fail += !ok;
+-    const std::string cls = std::string(where ? "pad_" : "a1_") + s13bClass(lit, m);
++    const bool bh = (m.f2 & ecu::f2::BASE_HIGH) != 0, ba = (m.det & ecu::det::BASE_AMB) != 0, lift = std::isfinite(m.e1);
++    const bool tf = m.abort == (int)ecu::Abort::TORCH_FAULT, pcs = m.abort == (int)ecu::Abort::PC_SENSOR;
++    const bool ok210 = lit ? (m.ran && m.abort == 0) : (!m.ran && (m.abort == (int)ecu::Abort::NO_IGNITION || tf));
++    bool ok;
++    if (!lit && m.ran) ok = false;                                                    // false E2
++    else if (tf) ok = !lift;                                                          // torch gate not reached
++    else if (where >= 1 && (bh || ba)) ok = pcs && !lift && m.mv_closed_end;          // pad / stand refusal before the lift
++    else if (where == 0 && ba) ok = lit || !m.ran;                                    // A1 BASE_AMB: outcome stated, no false E2
++    else ok = lit ? (m.ran && m.abort == 0) : (!m.ran && m.abort == (int)ecu::Abort::NO_IGNITION);   // A1 BASE_HIGH and in band
++    ++n; fail += !ok; fail210 += !ok210;
++    Loc& lc = L[where];
++    ++lc.runs; lc.unlit += !lit; lc.false_e2 += (!lit && m.ran); lc.torch_fault += tf; lc.base_high += bh; lc.base_amb += ba; lc.fail += !ok;
++    if (m.abort && !lift) ++lc.refused_before_lift;
++    if (m.abort && lift) ++lc.abort_after_lift;
++    if (m.abort && !m.mv_closed_end) ++lc.mv_open_after_abort;
++    const std::string cls = std::string(kWhere[where]) + "_" + s13bClass(lit, m);
++    if (ba) ++lc.amb[cls + (lift ? "_after_lift" : "_before_lift")];
++    if (bh) ++lc.high[cls + (lift ? "_after_lift" : "_before_lift")];
+     ++count[cls];
+     auto it = range.find(cls);
+     if (it == range.end()) range[cls] = {r / 1e5, r / 1e5};
+     else { it->second.first = std::min(it->second.first, r / 1e5); it->second.second = std::max(it->second.second, r / 1e5); }
+-    char nm[120]; std::snprintf(nm, sizeof nm, "%s_offset_%+.2fbar_%s", where ? "pad" : "a1_relight", r / 1e5, lit ? "lit" : "unlit");
+-    char b[300]; std::snprintf(b, sizeof b, "{\"offset_bar\": %.2f, \"where\": \"%s\", \"lit\": %d, \"class\": \"%s\", \"lead_pass\": %s, \"base_amb\": %d, \"detail\": ",
+-                               r / 1e5, where ? "pad" : "a1", lit ? 1 : 0, cls.c_str(), ok ? "true" : "false", (m.det & ecu::det::BASE_AMB) ? 1 : 0);
++    char nm[120]; std::snprintf(nm, sizeof nm, "%s_offset_%+.2fbar_%s", where == 0 ? "a1_relight" : kWhere[where], r / 1e5, lit ? "lit" : "unlit");
++    char b[420]; std::snprintf(b, sizeof b, "{\"offset_bar\": %.2f, \"where\": \"%s\", \"lit\": %d, \"class\": \"%s\", \"pass_v2p11\": %s, \"lead_pass_v2p10\": %s, "
++                               "\"base_amb\": %d, \"base_high\": %d, \"lift_commanded\": %d, \"mv_closed_at_end\": %d, \"t_abort_from_E0_s\": %s, \"detail\": ",
++                               r / 1e5, kWhere[where], lit ? 1 : 0, cls.c_str(), ok ? "true" : "false", ok210 ? "true" : "false", ba ? 1 : 0, bh ? 1 : 0,
++                               lift ? 1 : 0, m.mv_closed_end ? 1 : 0, (m.abort && std::isfinite(m.t_abort) && std::isfinite(m.e0)) ? fmtNum(m.t_abort - m.e0, "%.4f").c_str() : "null");
+     arr += std::string(n > 1 ? ", " : "") + b + relJson(nm, m, lit) + "}";
+   }
+   arr += "]";
+@@ -2179,9 +2247,28 @@
+                 range[kv.first].first, range[kv.first].second);
+   }
+   cl += "]";
+-  j.k("classes").raw(cl); j.k("runs").v(n); j.k("lead_criteria_fail").v(fail); j.k("cases").raw(arr);
++  std::string lo = "[";
++  for (int w = 0; w < 3; ++w) {
++    const Loc& q = L[w];
++    auto mp = [](const std::map<std::string, int>& mm) { std::string o = "{"; for (const auto& kv : mm) o += (o.size() > 1 ? ", \"" : "\"") + kv.first + "\": " + std::to_string(kv.second); return o + "}"; };
++    char b[700];
++    std::snprintf(b, sizeof b, "%s{\"where\": \"%s\", \"runs\": %d, \"unlit_runs\": %d, \"unlit_false_E2\": %d, \"torch_fault\": %d, \"base_high_runs\": %d, "
++                  "\"base_amb_runs\": %d, \"aborted_before_lift\": %d, \"aborted_after_lift\": %d, \"mv_open_after_abort\": %d, \"fail_v2p11\": %d, ",
++                  w ? ", " : "", kWhere[w], q.runs, q.unlit, q.false_e2, q.torch_fault, q.base_high, q.base_amb, q.refused_before_lift, q.abort_after_lift,
++                  q.mv_open_after_abort, q.fail);
++    lo += std::string(b) + "\"base_amb_outcomes\": " + mp(q.amb) + ", \"base_high_outcomes\": " + mp(q.high) + "}";
++    std::printf("S13 Bext (kBpc1Shown %d) %-5s: %d runs, unlit false E2 %d/%d, TORCH_FAULT %d, BASE_HIGH %d, BASE_AMB %d, aborted before lift %d / after lift %d, "
++                "MV open after an abort %d, v2.11 criteria fail %d\n", ecu::cfg::kBpc1Shown ? 1 : 0, kWhere[w], q.runs, q.false_e2, q.unlit, q.torch_fault,
++                q.base_high, q.base_amb, q.refused_before_lift, q.abort_after_lift, q.mv_open_after_abort, q.fail);
++    for (const auto& kv : q.amb) std::printf("S13 Bext   %-5s BASE_AMB  -> %-40s %d\n", kWhere[w], kv.first.c_str(), kv.second);
++    for (const auto& kv : q.high) std::printf("S13 Bext   %-5s BASE_HIGH -> %-40s %d\n", kWhere[w], kv.first.c_str(), kv.second);
++  }
++  lo += "]";
++  j.k("locations").raw(lo);
++  j.k("classes").raw(cl); j.k("runs").v(n); j.k("fail_v2p11_criteria").v(fail); j.k("lead_criteria_fail_v2p10").v(fail210); j.k("cases").raw(arr);
+   writeFile(OUT + "/" + file, j.str());
+-  std::printf("S13 Bext (kBpc1Shown %d): %d runs, %d fail the lead criteria\n", ecu::cfg::kBpc1Shown ? 1 : 0, n, fail);
++  std::printf("S13 Bext (kBpc1Shown %d): %d runs, %d fail the v2.11 per-location criteria (%d fail the v2.10 lead criteria)\n", ecu::cfg::kBpc1Shown ? 1 : 0, n,
++              fail, fail210);
+ }
+ static void scIgnRule(const std::string& spec, int N) {
+   A1State st;
+@@ -2194,7 +2281,7 @@
+   std::ofstream f(OUT + "/S13_a1_mc.csv");
+   f << "run,rule,plant_lit,entered_RUN,abort,E1_s,light_s,E2_s,E2_minus_light_ms,P0_Pa,base_amb,rise_max_Pa,Pc_meas_max_Pa,Pc_light30_Pa,A3_ratio_min,A3_ratio_min_E3,a7_events,rise_held_to_E2_0p10,E2_to_Pc3bar_ms,E2_to_drogue_rule_ms,Cd_scale,eta_scale,reg_scale,comb_delay\n";
+   const std::vector<SimConfig> cs = mcConfigs(N);
+-  struct Agg { int n = 0, lit_abort = 0, unlit_light = 0, a7 = 0, held = 0, il = 0; std::vector<double> dl, rmin, rmin3, pc30, rise_unlit, pcm_unlit, tpc3, tdro; };
++  struct Agg { int n = 0, lit_abort = 0, unlit_light = 0, a7 = 0, held = 0, il = 0, bamb = 0, bhigh = 0; std::vector<double> dl, rmin, rmin3, pc30, rise_unlit, pcm_unlit, tpc3, tdro; };
+   Agg ag[2][2];   // [rule relative=0 / legacy=1][lit=0 / unlit=1]
+   for (int i = 0; i < N; ++i) {
+     for (int rule = 0; rule < 2; ++rule) for (int u = 0; u < 2; ++u) {
+@@ -2203,6 +2290,8 @@
+       Agg& a = ag[rule][u];
+       if (m.il) ++a.il;   // v2.10: interlock refusal at the pad ARM: no start, excluded from the light-rule statistics
+       else ++a.n;
++      if (!m.il && (m.det & ecu::det::BASE_AMB)) ++a.bamb;    // v2.11 (LEAD 216 (4)): occurrence of the baseline flags on the A1 relight population
++      if (!m.il && (m.f2 & ecu::f2::BASE_HIGH)) ++a.bhigh;
+       if (m.il) {}
+       else if (u == 0) {
+         if (!m.ran || m.abort) ++a.lit_abort;
+@@ -2236,11 +2325,15 @@
+                   "\"E2_minus_light_ms_p50\": %.1f, \"E2_minus_light_ms_p95\": %.1f, \"E2_minus_light_ms_max\": %.1f, \"plant_Pc_light30_abs_Pa_min\": %.0f, \"plant_Pc_light30_abs_Pa_p50\": %.0f, "
+                   "\"A3_ratio_min_min\": %.3f, \"A3_ratio_min_after_E3_min\": %.3f, \"A7_events_lit\": %d, \"unlit_rise_max_Pa_max\": %.0f, \"unlit_Pc_meas_max_abs_Pa_max\": %.0f, "
+                   "\"lit_rise_held_to_E2_0p10\": %d, \"E2_to_Pc3bar_ms_p50\": %.1f, \"E2_to_Pc3bar_ms_max\": %.1f, \"E2_to_drogue_rule_ms_p50\": %.1f, \"E2_to_drogue_rule_ms_max\": %.1f, "
++                  "\"base_amb_runs_lit_unlit\": [%d, %d], \"base_high_runs_lit_unlit\": [%d, %d], "
+                   "\"note_drogue\": \"FC rule scored on SIL telemetry (1e6 = criterion never met in the run); legacy rule has no P0, so no rise bits\"}",
+                   rule ? ", " : "", rule ? "legacy_absolute_3p0bar (comparison)" : "relative (LEAD adopted)", L.il, U.il, L.n, L.lit_abort, U.n, U.unlit_light,
+                   pct(L.dl, 0.5), pct(L.dl, 0.95), pct(L.dl, 1.0), pct(L.pc30, 0.0), pct(L.pc30, 0.5), pct(L.rmin, 0.0), pct(L.rmin3, 0.0), L.a7,
+-                  pct(U.rise_unlit, 1.0), pct(U.pcm_unlit, 1.0), L.held, pct(L.tpc3, 0.5), pct(L.tpc3, 1.0), pct(L.tdro, 0.5), pct(L.tdro, 1.0));
++                  pct(U.rise_unlit, 1.0), pct(U.pcm_unlit, 1.0), L.held, pct(L.tpc3, 0.5), pct(L.tpc3, 1.0), pct(L.tdro, 0.5), pct(L.tdro, 1.0),
++                  L.bamb, U.bamb, L.bhigh, U.bhigh);
+     arr += b;
++    std::printf("S13 A %s baseline flags on the A1 relight population: BASE_AMB %d/%d lit, %d/%d unlit; BASE_HIGH %d/%d lit, %d/%d unlit\n",
++                rule ? "legacy  " : "relative", L.bamb, L.n, U.bamb, U.n, L.bhigh, L.n, U.bhigh, U.n);
+     std::printf("S13 A %s drogue rule: rise held to E2 + 0.10 s in %d/%d lit, E2 -> Pc 3.0 bar abs p50 %.1f max %.1f ms, E2 -> release p50 %.1f max %.1f ms\n",
+                 rule ? "legacy  " : "relative", L.held, L.n, pct(L.tpc3, 0.5), pct(L.tpc3, 1.0), pct(L.tdro, 0.5), pct(L.tdro, 1.0));
+     std::printf("S13 A %s: lit aborts %d/%d, unlit false lights %d/%d, E2 - light p50 %.1f p95 %.1f max %.1f ms, lit Pc30 min %.2f bar, A3 ratio min %.3f (after E3 %.3f), A7 events %d, unlit rise max %.2f bar\n",
+@@ -2461,9 +2554,20 @@
+   cs.push_back({"purge_abort_cmd", nullptr, [TR](Sim& s) { s.schedule.push_back({TR + 1.0, Cmd::ABORT, 0}); std::sort(s.schedule.begin(), s.schedule.end(), [](const StateCmd& a, const StateCmd& b) { return a.t < b.t; }); }, (int)ecu::Abort::CMD});
+   // firmware cap alone: the V1 close command of the schedule is inhibited (SIL hook); the cap closes both valves after kHbleedCap_s
+   cs.push_back({"cap_v1_close_inhibited_EVIDENCE", nullptr, [](Sim& s) { s.ecu.test_inhibit_purge_close = true; }, 0, false, false, -1, false, true});
+-  // v2.10 LEAD 175 (3)-(4): no PURGE committed -> the FC sends a bare RELIGHT at TR: accepted, unpurged, direct path at once (no bleed
+-  // valve, no BLEED_FAULT); flight and stand
+-  cs.push_back({"relight_no_purge_fitted_unpurged_LEAD175", nullptr, nullptr, 0, false, false, 0, false, false, true});
++  // v2.11 (LEAD 216 (5)): the HARDWARE both-commanded-open timer alone (schematic v2.6 U576-U578, sim.h hb_both_timer): the schedule's V1 close
++  // is inhibited AND the firmware cap is off (SIL hooks), so only the timer drops V1 after T_hw from the BOTH rising edge; nominal and both
++  // LTC6993 tolerance ends (kHbleedHwBothErr 3.1 %)
++  for (int k = -1; k <= 1; ++k) {
++    const double thw = kHbleedHwBothNom_s * (1.0 + k * kHbleedHwBothErr);
++    char nm[96]; std::snprintf(nm, sizeof nm, "hw_timer_alone_%s_%.3fs_cap_off_close_inhibited_EVIDENCE", k < 0 ? "min" : (k > 0 ? "max" : "nom"), thw);
++    cs.push_back({nm, [thw](SimConfig& c) { c.hb_both_timer_s = thw; },
++                  [](Sim& s) { s.ecu.test_inhibit_purge_close = true; s.ecu.test_disable_hb_cap = true; }, 0, false, false, -1, false, true});
++  }
++  // v2.10 LEAD 175 (3)-(4): no PURGE committed -> the FC sends a bare RELIGHT at TR. v2.10: accepted, unpurged, direct path at once (no bleed
++  // valve, no BLEED_FAULT), flight and stand. v2.11 (LEAD 203 (7), unpurged RELIGHT guard ADOPTED): FLIGHT with the bleed fitted -> the
++  // RELIGHT in COAST is REFUSED (refuse::UNPURGED), no E0, the vehicle stays in COAST (renamed case; v2.10 name
++  // relight_no_purge_fitted_unpurged_LEAD175); STAND keeps the unpurged start (CF-4 / T4 measure it), same name as v2.10
++  cs.push_back({"relight_no_purge_flight_refused_UNPURGED_LEAD203_7", nullptr, nullptr, 0, false, false, 0, false, false, true});
+   cs.push_back({"relight_no_purge_fitted_unpurged_LEAD175_stand", nullptr, nullptr, 0, true, false, 0, false, false, true});
+   J j;
+   j.k("scenario").v("S12 v2.10 head-end bleed provision, decided path (restrictor 0.707 mm per tap upstream of V1 = 1.0 mm equivalent; P_mid both open 0.06 x P_feed), plant valves 30/80 ms: flight pad start 1.40 s (300 N; pad BIT in PREPRESS), MECO 3.50 s, 'integrated' = FC PURGE 5.00 s + RELIGHT 5.001 s (v2.10 LEAD 175 (3): the ECU no longer purges on a bare RELIGHT; E0 7.90 s) or pre-scheduled PURGE 4.10 s + RELIGHT 7.00 s, or (LEAD 175) a bare RELIGHT 5.00 s = unpurged relight, 200 N, SHUTDOWN 9.50 s; stuck-open injected 0.8 s after the relight E0 or at 3.00 s; flight: closure not confirmed -> f2 BLEED_FAULT flag, relight proceeds; stand: abort. Plant ESTIMATES on ASSUMED valve, Cd and P_mid parameters");
+@@ -2519,22 +2623,28 @@
+     const bool flag_ok = bc.flag < 0 || bc.flag == flag;
+     const bool mass_ok = !bc.mass || m_purge * 1e3 <= kMassMax_g;
+     const bool fb_ok = bc.name.find("first_burn") == std::string::npos || (t_leak > 0.0 && t_leak < 0.5);
+-    const bool np_ok = !bc.nopurge || (std::isfinite(t_ign) && t_ign - TR <= 0.002 && std::isfinite(t_run2) && std::isnan(t_purge0) && mhb_max == 0.0);   // LEAD 175
++    // LEAD 175: bare RELIGHT accepted at once (stand; v2.10 also flight). v2.11 LEAD 203 (7): flight with the bleed fitted -> refused UNPURGED
++    bool refused_unpurged = false; for (const Rec& x : r) if (x.t >= TR - 1e-9 && x.t <= TR + 0.01 && x.cmd_refused == (int)ecu::refuse::UNPURGED) refused_unpurged = true;
++    const bool np_ok = !bc.nopurge ||
++                       (bc.stand ? (std::isfinite(t_ign) && t_ign - TR <= 0.002 && std::isfinite(t_run2) && std::isnan(t_purge0) && mhb_max == 0.0)
++                                 : (refused_unpurged && std::isnan(t_ign) && std::isnan(t_purge0) && mhb_max == 0.0));
+     const bool pass = cause_ok && flag_ok && fb_ok && np_ok;   // logic expectations; the purge mass is reported apart (plant-model dependent)
+     nfail += !pass; nmass += bc.mass && !mass_ok;
+-    char b[2400];
++    char b[2900];
+     std::snprintf(b, sizeof b, "%s{\"case\": \"%s\", \"stand\": %s, \"prescheduled\": %s, \"bare_relight_no_purge\": %s, \"expect\": \"%s\", \"expect_bleed_fault_flag\": %d, \"evidence_only\": %s, "
+                   "\"first_abort\": \"%s\", \"t_abort_s\": %.4f, \"bleed_fault_flag\": %d, \"t_bleed_fault_flag_s\": %.4f, \"pass\": %s, \"bit\": %d, \"hb_flags_end\": %d, "
+                   "\"hb2_last_purge\": %d, \"ecu_purge_flow_ms_DERIVED_from_commands\": %d, \"both_valves_cmd_open_s\": %.3f, \"purge_mass_g\": %.2f, \"purge_mass_limit_g\": %.1f, \"mass_checked\": %s, \"mass_le_limit\": %s, "
+                   "\"purge_entry_s\": %.4f, \"E0_s\": %.4f, \"RUN_s\": %.4f, \"bleed_flow_max_g_s\": %.2f, \"bleed_flow_in_burn_max_g_s\": %.2f, \"bleed_liquid_total_g\": %.2f, "
+                   "\"bleed_vapour_total_g\": %.3f, \"leak_flag_after_injection_s\": %.4f, \"Pc_before_abs_Pa\": %.0f, \"Pc_after_abs_Pa\": %.0f, \"mox_before_g_s\": %.3f, "
+                   "\"mox_after_g_s\": %.3f, \"pfeed_before_Pa\": %.0f, \"pfeed_after_Pa\": %.0f, \"E0_to_bleed_closed_s\": %.4f, \"plant_valve_open_close_s\": [%.3f, %.3f], "
+-                  "\"plant_mid_frac\": %.2f, \"plant_hb_d_mm\": %.2f, \"final_state\": \"%s\"}",
++                  "\"plant_mid_frac\": %.2f, \"plant_hb_d_mm\": %.2f, \"final_state\": \"%s\", \"hw_timer_s\": %.4f, \"hw_timer_cuts\": %d, "
++                  "\"hw_cut_after_both_rise_s\": %.4f}",
+                   i ? ", " : "", bc.name.c_str(), bc.stand ? "true" : "false", bc.pre ? "true" : "false", bc.nopurge ? "true" : "false", ecu::abortName(static_cast<ecu::Abort>(bc.expect)), bc.flag,
+                   bc.record ? "true" : "false", ecu::abortName(static_cast<ecu::Abort>(ab)), ta, flag, t_flag, pass ? "true" : "false", s.out.hbleed_bit,
+                   s.out.hbleed_flags, hb2, flow_ms, t_v_open, m_purge * 1e3, kMassMax_g, bc.mass ? "true" : "false", mass_ok ? "true" : "false", t_purge0, t_ign, t_run2, mhb_max * 1e3, mhb_burn * 1e3, s.eng.m_hb_liq * 1e3,
+                   s.eng.m_hb_vap * 1e3, t_leak, pc_before, pc_after, mox_before * 1e3, mox_after * 1e3, pf_before, pf_after, t_closed, c.eng.hb_t_open,
+-                  c.eng.hb_t_close, c.eng.hb_mid_frac, c.eng.hb_d * 1e3, ecu::stateName(s.ecu.state()));
++                  c.eng.hb_t_close, c.eng.hb_mid_frac, c.eng.hb_d * 1e3, ecu::stateName(s.ecu.state()), c.hb_both_timer ? c.hb_both_timer_s : NAN, s.hb_hw_cuts,
++                  s.hb_hw_cut_t >= 0.0 ? s.hb_hw_cut_t - s.hb_both_rise_t : NAN);
+     arr += b;
+     if (i == 0) nomRec = r;
+     if (bc.name.find("after_lift") != std::string::npos && !bc.stand && !nomRec.empty()) {   // item 7: stuck-open flow split in the burn (flight)
+@@ -2671,7 +2781,7 @@
+       {   // v2.10 guard band: a refusal at ARM (no PREPRESS / IGNITION) is the interlock, not a start outcome
+         bool started = false;
+         for (const Rec& x : r) if (x.state == (int)State::PREPRESS || x.state == (int)State::IGNITION) { started = true; break; }
+-        if (!started && (m.abort == (int)ecu::Abort::TANK_HOT || m.abort == (int)ecu::Abort::TANK_COLD)) ++n_il;
++        if (!started && (m.abort == (int)ecu::Abort::TANK_HOT || m.abort == (int)ecu::Abort::TANK_COLD || m.abort == (int)ecu::Abort::CASE_WARM_STAND)) ++n_il;
+       }
+       if (m.abort == (int)ecu::Abort::PC_SENSOR && m.a7_ev > 0) ++n_a7_abort;
+       n_ovp += m.abort == (int)ecu::Abort::PC_OVERPRESSURE; n_hw += s.ovp_trip_t >= 0; n_hard += m.abort == (int)ecu::Abort::HARD_START;
+@@ -3164,6 +3274,9 @@
+   std::printf("S17 R2 command hold: %d not as expected\n", nfail);
+ }
+ 
++#include "sc_v211.inc"   // v2.11 S6R / S6C (and later v2.11 scenarios)
++#include "sc_v211_r2.inc"   // v2.11 S17 R2 v2 sweep (LEAD 216 (1), 227 (5) / (6))
++
+ int main(int argc, char** argv) {
+   const std::string which = argc > 1 ? argv[1] : "all";
+   if (argc > 2) OUT = argv[2];
+@@ -3188,6 +3301,10 @@
+   if (which == "v210") scV210();                                     // v2.10 S14 (pool replay, Pc invalid at E2 + 20 ms)
+   if (which == "coast206") scCoast206();                             // v2.10 S16 (RE-07 A1 coast 20.6 s with zero drift)
+   if (which == "r2hold") scR2Hold();                                 // v2.10 S17 (LEAD CHANGELOG 186 (2) R2 command hold; sil r2hold <out>)
++  if (which == "s6r") v211::scS6R();                                 // v2.11 S6R (LEAD 216 (3) in-window genuine over-pressure; sil s6r <out>)
++  if (which == "rccost") v211::scRcCost();                           // v2.11 S6C (LEAD 216 (3) fixed RC whole-burn cost)
++  if (which == "coldrule" || which == "all") v211::scColdRule();       // v2.11 S10v211 cold rule (LEAD 216 (7) ARM margin + PREPRESS safe exit)
++  if (which == "r2v2") v211::scR2v2();                               // v2.11 S17 against GNC R2 v2 (LEAD 216 (1), 227 (5) / (6); sil r2v2 <out>)
+   if (which == "ignruleb") scIgnRuleBExt(A1State(), ecu::cfg::kBpc1Shown ? "S13B_ext_bpc1_true.json" : "S13B_ext_bpc1_false.json");   // v2.10
+   {   // v2.7 RC-01: the torch N2O solenoid is never energised without the propane solenoid, over every Sim of this invocation
+     std::printf("SIL v2.7 torch N2O-without-propane over all runs of '%s': %ld ms (must be 0)\n", which.c_str(), Sim::g_n2o_alone_ms);

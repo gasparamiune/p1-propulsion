@@ -1,0 +1,107 @@
+--- /dev/shm/rev_elec3/fw210/sil/sim.h	2026-10-13 14:02:58.000000000 +0000
++++ /dev/shm/rev_elec3/fw/sil/sim.h	2026-10-20 23:29:30.373796513 +0000
+@@ -1,3 +1,4 @@
++// [v2.11 2026-10-13, LEAD CHANGELOG 203/205: Pc chain selector (C1 XTL-190 seat-mounted default, v2.10 070BG line kept), per-sample ADC limit (item 14), ride-through hardware model (switched long RC DELETED 2026-10-20, LEAD 216 (3): fixed RC), stuck-high Pc, FA-1 replay, chamber metrics, windowed CSV]
+ // [v2.10 2026-10-13, REV-ELEC-1 + LEAD CHANGELOG 164/166/168/172/175: photodiode and fault hooks, ECU clock skip; full list in 06-electronics/REPORT-v2.10-HANDBACK.md] ARGOS engine SIL - closed-loop harness: FC command generator -> CAN frames -> ECU core (unchanged flight code)
+ // -> actuator/plant models -> sensor models -> ECU. 1 kHz ECU tick, plant sub-steps (default 25 us).
+ // v2.7 (2026-10-13 Combustion review fold-in): torch-pressure transducer (P_torch, flame gate), LTC4365 OV disconnect between the
+@@ -40,6 +41,32 @@
+   // v2.2 hardware over-pressure trip (U330/U331, values generated from the schematic by calc/ovp_threshold_v1.py)
+   double ovp_trip_Pa_g = ovp::kTripPa_g;   // comparator trip (gauge); shift by +/- ovp::kBandPa for tolerance cases
+   double ovp_tau = ovp::kTau_s;            // input RC
++  // v2.11 (LEAD CHANGELOG 205) Pc measurement chain. pc_chain 0 = the v2.10 chain, kept for the v2.10 comparison arms: TE 070BG 0-70 bar g
++  // at the end of the 0.30 m sense line (sense), lag pc_tau, output limit 4.95 V, HAL limit applied AFTER the 4:1 average (the v2.10 SIL
++  // model, LEAD 203 (7) item 14 defect kept so v2.10 runs reproduce; pc_clamp_per_sample_v210 = true applies the per-sample limit),
++  // comparator ovp:: (gauge trip ovp_trip_Pa_g, ovp_tau). pc_chain 1 (DEFAULT) = the v2.11 flight proposal C1: Kulite XTL-190SM-2000A
++  // 0-137.9 bar ABSOLUTE seat-mounted on the head passage (sense_c1), no transducer lag (DATASHEET-class natural frequency >> 10 kHz),
++  // INA333 pole + output swing (DATASHEET-derived) feeding the comparator, anti-alias pole on the ADC path (DESIGN), per-ADC-sample limit
++  // (item 14) before the 4:1 average, HAL scaling through xdcr::pcFlightCal(101325) (gauge-equivalent reading), comparator ovp3::
++  // (ABSOLUTE trip ovp3_trip_Pa_abs, ovp3_tau). The error terms below (span, zero, nl/lin bias, offsets, gain fault) are applied as
++  // gauge-equivalent pressure errors in both chains; chain 1 applies them to PC_SIG (comparator and ADC see them, as in hardware).
++  int pc_chain = 1;
++  SenseLineParams sense_c1 = seatPassage(0.032, 222.0, 6.0);   // CC-2 (passage 30 mm + 2 mm disc), c 222 m/s (MISSING; N2O vapour
++                                                               //   200 K bracket end), V_end 6 mm3 [ASSUMED; LEAD 205 bound 20 / 60]
++  double pc_fs_abs = ovp3::kPcFsAbs_Pa;                        // [DATASHEET] 2000 psia
++  double pc_ina_fc = ovp3::kInaFc_Hz, pc_aaf_fc = ovp3::kAafFc_Hz;   // [DERIVED / DESIGN]
++  double pc_vsat = ovp3::kVsat_V, pc_vmin = 0.05;              // [DATASHEET INA333] output swing 50 mV from the rails at 5 V
++  double pc_adc_max_V = 1.2 / 0.238215;                        // [DERIVED] ADS131M04 +/-1.2 V FS through the 12.7k/4.02k divider (loaded)
++  double ovp3_trip_Pa_abs = ovp3::kTripPaAbs;                  // shift by +/- ovp3::kBandPa for tolerance cases
++  double ovp3_tau = ovp3::kTau_s;
++  bool pc_clamp_per_sample_v210 = false;
++  // v2.11 ride-through (LEAD 216 (3)): the comparator RC is FIXED (no firmware-switched long RC; the v2.11 draft's R334 / TMUX1102 /
++  // U335 / U336 model is deleted). The ride-through BOM variant is ovp3_tau = cfg::kRideCmpTauNom_s (C330 2 x 270 nF C0G, 12.83 ms) over
++  // the whole burn; cfg::kRideCmpTauMin_s 12.10 ms / kRideCmpTauMax_s 13.55 ms are the tolerance ends.
++  // v2.11 hardware both-commanded-open timer (config.h kHbleedHwBoth*, LEAD 166 (3) / 216 (5); DESIGN): V1's drive drops once both
++  // bleed drives have been high for hb_both_timer_s since the last rising edge of BOTH (retriggerable), until BOTH falls
++  bool hb_both_timer = true; double hb_both_timer_s = ecu::cfg::kHbleedHwBothNom_s;
++  int ride_fw = -1;                        // firmware EngineEcu::ride_through: -1 = build default (cfg::kRideThroughBuild), 0 off, 1 on
+   double arm_off_delay = 0.006;            // [s] DERIVED estimate: ARM switch turn-off (C301 Miller, bench verify)
+   double runaway_us = 2100.0;              // [DATASHEET] servo maximum travel pulse (pintle runaway target)
+   double pc_span_err = 0.0, pc_zero_err = 0.2e5;   // span fraction; zero offset [Pa] (removed by auto-zero)
+@@ -141,6 +168,8 @@
+   double mpool;            // v2.10: plant pool-burn evaporation [kg/s]
+   double photo_V;          // v2.10 FA-1: photodiode input to the ECU [V]
+   int fa1, fault2, hbleed2, purge_flow_ms;   // v2.10 Outputs: fa1:: flags, f2:: flags, hb2:: flags, achieved purge flow [ms] (65535 = none)
++  double pc_raw_V, ovp_vf, Pc_face;            // v2.11: Inputs::pc_raw_V; comparator node [V at PC_SIG]; pressure at the diaphragm [Pa abs]
++  int ovr_flags, cmd_refused;    // v2.11: Outputs::ovr_flags (ovr::); refuse:: code
+ };
+ 
+ struct StateCmd { double t; ecu::Cmd cmd; uint16_t arg; };
+@@ -195,6 +224,25 @@
+   // v2.8.1 in-range wrong Pc: transducer gain fault (reads pc_gain x the true gauge pressure, e.g. a ratiometric excitation / reference
+   // error) on the single PC_SIG signal from pc_gain_at: firmware sample AND hardware comparator see it (same wire)
+   double pc_gain_at = 1e9, pc_gain = 1.0;
++  // v2.11 S6R: PC_SIG stuck high (conditioner output at its rail: shorted input / failed amplifier) from this time; firmware AND comparator
++  double pc_stuck_high_at = 1e9, pc_stuck_high_to = 1e18;   // v2.11: [at, to) in plant time (a glitch when 'to' is set; R2-23 S17 evidence).
++                                                             //   C1: the conditioner output is at its rail (ADC samples + comparator tap)
++  // v2.11 S9R FA-1 replay: the chamber pressure seen by the Pc chain (and recorded as Rec::Pc, metrics below) is max(plant Pc, p_amb +
++  // fa1_scale x (h(t - fa1_t0) - p_amb)) for the 25 ms history h [bar abs, 0.1 ms grid], from the first plant light at or after fa1_after
++  std::vector<double> fa1_hist; double fa1_scale = 1.0, fa1_after = 1e9, fa1_t0 = -1;
++  // v2.11 chamber metrics at the plant step (25 us) from ch_from: peak, time above 45 / 30 bar abs
++  double ch_from = 1e9, ch_pk = 0, ch_t45 = 0, ch_t30 = 0;
++  // v2.11 S6R genuine over-pressure (LEAD 216 (3), Mechanical lc_tb70_envelope_v1): from the trigger gop_t0 the head pressure seen by the Pc
++  // chain is max(plant / replay Pc, p_amb + (gop(tau, p0) - p_amb) x ff), tau = t - gop_t0, p0 = the head pressure at the trigger. ff = 1 until
++  // the first ECU ABORT / SAFE or ARM-bus loss after the trigger, then the plant injector-flow ratio (mox + mvap) / (that at the abort),
++  // clamped to [0, 1] [ASSUMED: the event's excess head pressure decays with the plant's own post-abort flow; no feedback of the event on the
++  // plant flow]. Trigger: gop_trig 1 = first plant light at or after gop_after, + gop_dt; 2 = first ECU RUN entry (E2) at or after gop_after,
++  // + gop_dt. Envelope metrics at the plant step (25 us) from the trigger; trace (25 us to 50 ms, then 0.1 ms, to 0.6 s) for the rise check
++  std::function<double(double, double)> gop;
++  int gop_trig = 0; double gop_after = 1e9, gop_dt = 0.0;
++  double gop_t0 = -1, gop_p0 = -1, gop_t_ab = -1, gop_mox_ab = 0, gop_p_ab = 0, gop_pf_ab = 0;
++  double env_pk = 0, env_t45a = -1, env_t45b = -1, env_t63a = -1, env_t63b = -1, env_t45 = 0, env_t581 = 0, env_t60 = 0, env_t631 = 0;
++  std::vector<float> gtr_t, gtr_p;
+   double fc_thr_stale_from = 1e9, fc_thr_invalid_from = 1e9;
+   // v2.8 sensors / harness (hooks may change them during a run)
+   int strap_override = -1;            // -1: strap from C.test_stand (2 stand, 1 flight); else the raw decoded value (0 invalid)
+@@ -212,6 +260,8 @@
+   double hb_stuck_open_at[2] = {1e9, 1e9}, hb_fail_closed_at[2] = {1e9, 1e9};
+   bool pmid_dead = false; double pmid_invalid_from = 1e9;
+   bool pmid_cmp = false;                    // comparator state (true = P_mid above the trip)
++  bool hb_both_prev = false, hb_hw_cut = false; double hb_both_rise_t = -1.0, hb_hw_cut_t = -1.0;   // v2.11 hardware both-open timer state
++  int hb_hw_cuts = 0;                       // v2.11: number of hardware V1 cuts in this run
+                                                    //   (needle held off the seat by debris, or an encoder offset; the plant needle is unaffected)
+   // v2.8 TLM_RELIGHT as received by the FC (HAL sends every 20 ms)
+   struct TlmrRx { double t; ecu::can::TlmRelight m; };
+@@ -221,7 +271,7 @@
+   void run(double t_end);
+   void runUntil(double t_end, const std::function<bool(const Sim&)>& stop);
+   const std::vector<Rec>& rec() const { return rec_; }
+-  void writeCsv(const std::string& fn) const;
++  void writeCsv(const std::string& fn, double t0 = -1e9, double t1 = 1e9) const;   // v2.11: optional time window
+ 
+   EnginePlant eng;
+   PintleDrive pintle;
+@@ -269,9 +319,13 @@
+   void tick();
+   void boot(double t0);              // v2.6 ECU init + HAL record load
+   std::mt19937 rng_, rng2_, rng3_;   // v2.10: rng3_ for the photodiode (keeps the earlier noise sequences)
++  std::mt19937 rng4_;                // v2.11: per-ADC-sample Pc noise (chain 1 / per-sample mode; keeps the other channels' sequences)
++  double pcErrG(double p_abs, double tt) const;   // v2.11: gauge-equivalent reading with the configured error terms (no noise / spike)
++  double pc_ch_ms_max_ = 0.0;        // v2.11: chamber pressure seen by the chain, max over the last ms (Rec::Pc while a replay runs)
+   double ph_s_ = 0.10;               // v2.10 photodiode head state [V]
+   std::normal_distribution<double> nrm_{0.0, 1.0};
+   double pc_s1_ = 101325.0, pc_s2_ = 101325.0, pf_s_ = 101325.0, pt_s_ = 0, ptq_s_ = 101325.0;
++  double ina_v_ = 0.0, aaf_v_ = 0.0, pcv_acc_ = 0.0, pcv_last_ = 0.0;   // v2.11 chain 1: INA333 output, anti-alias node, ADC sample sum [V]
+   bool ep_open_ = false; int prev_state_ = -1;
+   double pc_acc_ = 0; int pc_n_ = 0; double next_adc_ = 0;
+   uint8_t seq_fast_ = 0, seq_state_ = 0, seq_aux_ = 0, seq_fct_ = 0, seq_tlmr_ = 0;

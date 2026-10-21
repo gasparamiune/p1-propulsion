@@ -1,0 +1,454 @@
+{
+ "job": "js5b_in718_mu0_T3750_g078_cf",
+ "patch": false,
+ "mesh": "s5",
+ "seat": "spot",
+ "brk_r": 0.0,
+ "brk_c": 0.0,
+ "doc": "J-FWD TC-01 near-hole ligament station + TC-02 thread resultant per step, for seat patches and global runs (fea3d 2026-10-20 ~13:00Z;\nlead 12:52Z (2): in (b2), and later (b1), per step: the TC-01 ligament station 0.08 mm from the hole wall, the cell Mechanical carries\nas information on the sharp geometry and re-rules on the broken edge, and the TC-02 thread-tie resultant, axial and radial).\n\nStation (SIM stress field, DERIVED linearisation; the definition of jfwd_ligament.py's first station, so js5's ligament.json row is the\nsharp-geometry reference): the full-wall radial line on the hole-centre plane z = Z_SCREW - shift at the azimuth offset\ndelta_1 = 5.688 deg from the screw axis (the first of 40 stations from asin(2.76 / 28.627)), each side (- / +), from the bore r 28.627\nto the seat surface (spot face: x' 31.313 / cos delta; else the OD); it passes 0.087 mm from the hole wall at the bore and about\n0.37 mm at the seat.  Stresses in (r, theta, z); Pm = vM of the mean, Pm+Pb = max vM(mean +- bending) with the linear through-wall\nweight (as jfwd_ligament.station).  CLIPPED to the material: the line is sampled at 0.005 mm and only the contiguous run of points\ninside the TC-01 elements (best barycentric >= -0.02) is linearised.  On a sharp mesh this is the whole line (identical to\njfwd_ligament); on the broken-edge meshes (s6 / s9: R0.2 at the bore-side hole edge) the line enters the material where it crosses the\nR0.2 break, and the start radius, its distance from the hole wall and the clipped length are reported (re-ruling basis on the broken\nedge).  In a patch only the patch's own TC-01 elements are searched (the stations lie inside every patch box).\nThread resultant (from shank.json, jfwd_shank 'plane_exact'): the force TC-02 passes into the screw through the bonded thread =\nthe screw's exact shear-plane resultant (in a patch it includes the prescribed cut-boundary reactions of the screw at x' ~ xcut, i.e.\nthe thread force beyond the patch carried by the cut): N along the screw axis (= engine-radial at az 18 deg; + = tension),\nV_z engine-axial, V_t tangential.",
+ "delta_1_deg": 5.6882,
+ "d_hole_wall_at_bore_mm": 0.0874,
+ "steps": {
+  "PRELOAD": {
+   "side-": {
+    "r_start_mm": 28.627,
+    "r_end_mm": 31.462,
+    "length_mm": 2.835,
+    "d_hole_wall_at_start_mm": 0.0874,
+    "clipped_mm": 0.0,
+    "n_outside_samples": 0,
+    "Pm": 77.3,
+    "PmPb": 201.1,
+    "s_m_rtz": [
+     -40.2,
+     3.09,
+     48.18,
+     6.19,
+     1.63,
+     0.12
+    ],
+    "s_b_rtz": [
+     -27.22,
+     14.98,
+     112.89,
+     5.73,
+     1.37,
+     -0.61
+    ],
+    "min_bary_used": 0.0014
+   },
+   "side+": {
+    "r_start_mm": 28.627,
+    "r_end_mm": 31.462,
+    "length_mm": 2.835,
+    "d_hole_wall_at_start_mm": 0.0874,
+    "clipped_mm": 0.0,
+    "n_outside_samples": 0,
+    "Pm": 183.4,
+    "PmPb": 530.3,
+    "s_m_rtz": [
+     -154.21,
+     -0.97,
+     34.87,
+     -30.64,
+     0.32,
+     -13.64
+    ],
+    "s_b_rtz": [
+     -276.36,
+     6.76,
+     66.25,
+     -68.07,
+     1.22,
+     -46.49
+    ],
+    "min_bary_used": 0.0059
+   },
+   "TC02_thread_resultant": {
+    "N_along_screw_engine_radial_N": -3750.0,
+    "V_engine_axial_z_N": 0.2,
+    "V_tangential_N": 0.0,
+    "V_total_N": 0.2,
+    "source": "shank.json plane_exact (exact nodal internal forces)"
+   }
+  },
+  "FA1U": {
+   "side-": {
+    "r_start_mm": 28.627,
+    "r_end_mm": 31.462,
+    "length_mm": 2.835,
+    "d_hole_wall_at_start_mm": 0.0874,
+    "clipped_mm": 0.0,
+    "n_outside_samples": 0,
+    "Pm": 281.1,
+    "PmPb": 416.8,
+    "s_m_rtz": [
+     -29.34,
+     20.19,
+     271.39,
+     5.19,
+     16.16,
+     -7.07
+    ],
+    "s_b_rtz": [
+     -35.64,
+     3.91,
+     116.6,
+     9.95,
+     -7.02,
+     4.68
+    ],
+    "min_bary_used": 0.0014
+   },
+   "side+": {
+    "r_start_mm": 28.627,
+    "r_end_mm": 31.462,
+    "length_mm": 2.835,
+    "d_hole_wall_at_start_mm": 0.0874,
+    "clipped_mm": 0.0,
+    "n_outside_samples": 0,
+    "Pm": 338.9,
+    "PmPb": 619.8,
+    "s_m_rtz": [
+     -119.18,
+     18.14,
+     258.23,
+     -25.67,
+     -15.36,
+     -30.05
+    ],
+    "s_b_rtz": [
+     -225.28,
+     -0.44,
+     66.74,
+     -58.23,
+     6.56,
+     -62.88
+    ],
+    "min_bary_used": 0.0059
+   },
+   "TC02_thread_resultant": {
+    "N_along_screw_engine_radial_N": -3517.2,
+    "V_engine_axial_z_N": 3718.6,
+    "V_tangential_N": 6.2,
+    "V_total_N": 3718.6,
+    "source": "shank.json plane_exact (exact nodal internal forces)"
+   }
+  },
+  "FA1D": {
+   "side-": {
+    "r_start_mm": 28.627,
+    "r_end_mm": 31.462,
+    "length_mm": 2.835,
+    "d_hole_wall_at_start_mm": 0.0874,
+    "clipped_mm": 0.0,
+    "n_outside_samples": 0,
+    "Pm": 256.2,
+    "PmPb": 401.0,
+    "s_m_rtz": [
+     -40.25,
+     17.06,
+     232.2,
+     7.57,
+     9.71,
+     32.96
+    ],
+    "s_b_rtz": [
+     -51.05,
+     5.2,
+     114.66,
+     12.43,
+     4.69,
+     2.97
+    ],
+    "min_bary_used": 0.0014
+   },
+   "side+": {
+    "r_start_mm": 28.627,
+    "r_end_mm": 31.462,
+    "length_mm": 2.835,
+    "d_hole_wall_at_start_mm": 0.0874,
+    "clipped_mm": 0.0,
+    "n_outside_samples": 0,
+    "Pm": 347.2,
+    "PmPb": 734.0,
+    "s_m_rtz": [
+     -171.55,
+     10.25,
+     215.23,
+     -37.62,
+     -8.4,
+     35.35
+    ],
+    "s_b_rtz": [
+     -350.23,
+     -10.65,
+     56.77,
+     -87.13,
+     -4.69,
+     -1.07
+    ],
+    "min_bary_used": 0.0059
+   },
+   "TC02_thread_resultant": {
+    "N_along_screw_engine_radial_N": -3581.7,
+    "V_engine_axial_z_N": 2958.9,
+    "V_tangential_N": 3.7,
+    "V_total_N": 2958.9,
+    "source": "shank.json plane_exact (exact nodal internal forces)"
+   }
+  },
+  "LC2U": {
+   "side-": {
+    "r_start_mm": 28.627,
+    "r_end_mm": 31.462,
+    "length_mm": 2.835,
+    "d_hole_wall_at_start_mm": 0.0874,
+    "clipped_mm": 0.0,
+    "n_outside_samples": 0,
+    "Pm": 213.4,
+    "PmPb": 355.8,
+    "s_m_rtz": [
+     -45.72,
+     13.44,
+     183.93,
+     8.41,
+     6.78,
+     29.0
+    ],
+    "s_b_rtz": [
+     -52.59,
+     7.75,
+     111.11,
+     11.73,
+     4.57,
+     2.75
+    ],
+    "min_bary_used": 0.0014
+   },
+   "side+": {
+    "r_start_mm": 28.627,
+    "r_end_mm": 31.462,
+    "length_mm": 2.835,
+    "d_hole_wall_at_start_mm": 0.0874,
+    "clipped_mm": 0.0,
+    "n_outside_samples": 0,
+    "Pm": 316.7,
+    "PmPb": 724.1,
+    "s_m_rtz": [
+     -184.15,
+     5.89,
+     167.15,
+     -39.84,
+     -4.78,
+     30.17
+    ],
+    "s_b_rtz": [
+     -364.02,
+     -9.53,
+     55.67,
+     -90.24,
+     -2.56,
+     -2.95
+    ],
+    "min_bary_used": 0.0059
+   },
+   "TC02_thread_resultant": {
+    "N_along_screw_engine_radial_N": -3857.4,
+    "V_engine_axial_z_N": 2160.8,
+    "V_tangential_N": 0.9,
+    "V_total_N": 2160.8,
+    "source": "shank.json plane_exact (exact nodal internal forces)"
+   }
+  },
+  "LC2Y": {
+   "side-": {
+    "r_start_mm": 28.627,
+    "r_end_mm": 31.462,
+    "length_mm": 2.835,
+    "d_hole_wall_at_start_mm": 0.0874,
+    "clipped_mm": 0.0,
+    "n_outside_samples": 0,
+    "Pm": 179.4,
+    "PmPb": 318.1,
+    "s_m_rtz": [
+     -44.65,
+     10.72,
+     150.24,
+     8.22,
+     5.16,
+     23.36
+    ],
+    "s_b_rtz": [
+     -47.49,
+     9.05,
+     111.41,
+     10.21,
+     4.4,
+     1.27
+    ],
+    "min_bary_used": 0.0014
+   },
+   "side+": {
+    "r_start_mm": 28.627,
+    "r_end_mm": 31.462,
+    "length_mm": 2.835,
+    "d_hole_wall_at_start_mm": 0.0874,
+    "clipped_mm": 0.0,
+    "n_outside_samples": 0,
+    "Pm": 288.3,
+    "PmPb": 695.6,
+    "s_m_rtz": [
+     -184.98,
+     3.13,
+     133.42,
+     -39.42,
+     -3.11,
+     22.66
+    ],
+    "s_b_rtz": [
+     -359.18,
+     -8.04,
+     56.39,
+     -89.17,
+     -2.33,
+     -10.39
+    ],
+    "min_bary_used": 0.0059
+   },
+   "TC02_thread_resultant": {
+    "N_along_screw_engine_radial_N": -3911.9,
+    "V_engine_axial_z_N": 1611.2,
+    "V_tangential_N": 0.2,
+    "V_total_N": 1611.2,
+    "source": "shank.json plane_exact (exact nodal internal forces)"
+   }
+  },
+  "LC2N": {
+   "side-": {
+    "r_start_mm": 28.627,
+    "r_end_mm": 31.462,
+    "length_mm": 2.835,
+    "d_hole_wall_at_start_mm": 0.0874,
+    "clipped_mm": 0.0,
+    "n_outside_samples": 0,
+    "Pm": 147.5,
+    "PmPb": 282.2,
+    "s_m_rtz": [
+     -46.81,
+     8.16,
+     115.53,
+     8.25,
+     3.39,
+     18.79
+    ],
+    "s_b_rtz": [
+     -43.49,
+     11.18,
+     110.37,
+     8.94,
+     4.24,
+     1.47
+    ],
+    "min_bary_used": 0.0014
+   },
+   "side+": {
+    "r_start_mm": 28.627,
+    "r_end_mm": 31.462,
+    "length_mm": 2.835,
+    "d_hole_wall_at_start_mm": 0.0874,
+    "clipped_mm": 0.0,
+    "n_outside_samples": 0,
+    "Pm": 262.1,
+    "PmPb": 669.2,
+    "s_m_rtz": [
+     -187.1,
+     0.61,
+     99.13,
+     -39.02,
+     -1.48,
+     15.33
+    ],
+    "s_b_rtz": [
+     -353.96,
+     -5.79,
+     56.04,
+     -88.65,
+     -2.24,
+     -18.02
+    ],
+    "min_bary_used": 0.0059
+   },
+   "TC02_thread_resultant": {
+    "N_along_screw_engine_radial_N": -3984.2,
+    "V_engine_axial_z_N": 1062.6,
+    "V_tangential_N": 0.9,
+    "V_total_N": 1062.6,
+    "source": "shank.json plane_exact (exact nodal internal forces)"
+   }
+  },
+  "LC2M": {
+   "side-": {
+    "r_start_mm": 28.627,
+    "r_end_mm": 31.462,
+    "length_mm": 2.835,
+    "d_hole_wall_at_start_mm": 0.0874,
+    "clipped_mm": 0.0,
+    "n_outside_samples": 0,
+    "Pm": 133.0,
+    "PmPb": 233.8,
+    "s_m_rtz": [
+     -52.51,
+     7.61,
+     97.38,
+     7.58,
+     3.79,
+     11.63
+    ],
+    "s_b_rtz": [
+     -38.13,
+     9.97,
+     76.93,
+     9.58,
+     2.3,
+     0.15
+    ],
+    "min_bary_used": 0.0014
+   },
+   "side+": {
+    "r_start_mm": 28.627,
+    "r_end_mm": 31.462,
+    "length_mm": 2.835,
+    "d_hole_wall_at_start_mm": 0.0874,
+    "clipped_mm": 0.0,
+    "n_outside_samples": 0,
+    "Pm": 253.9,
+    "PmPb": 642.4,
+    "s_m_rtz": [
+     -193.79,
+     0.09,
+     81.25,
+     -38.55,
+     -1.91,
+     5.83
+    ],
+    "s_b_rtz": [
+     -351.89,
+     -7.33,
+     22.12,
+     -90.14,
+     -0.31,
+     -25.99
+    ],
+    "min_bary_used": 0.0059
+   },
+   "TC02_thread_resultant": {
+    "N_along_screw_engine_radial_N": -3366.0,
+    "V_engine_axial_z_N": 1065.2,
+    "V_tangential_N": 0.6,
+    "V_total_N": 1065.2,
+    "source": "shank.json plane_exact (exact nodal internal forces)"
+   }
+  }
+ }
+}

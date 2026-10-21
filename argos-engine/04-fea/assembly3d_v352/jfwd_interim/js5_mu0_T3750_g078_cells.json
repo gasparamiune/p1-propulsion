@@ -1,0 +1,1286 @@
+{
+ "job": "js5_mu0_T3750_g078",
+ "doc": "FEA3D J-FWD margin-matrix cells from the contact sub-model posts (fea3d 2026-10-20 ~06:50Z; lead 06:17Z item 3 classes, CHANGELOG 231 (1)\ncriterion (i)-(iii), 234 (1)(b) screw form, 234 (4) all-node rule).  DERIVED from SIM posts (jfwd/runs/<job>/post.json or post_partial.json\nand spotface.json); no new run.\n\nPer step and member:\n  TC-02  cell = lower of the band value (> 1 mm from the tap) and the A_n internal-thread shear check; the all-node value (tie edge of the\n         bonded thread) is information (class TIE-EDGE, node, distance).\n  TC-01  all-node at the hole / head edge = contact singularity (information, class CONTACT-EDGE); cell per 183 (1) / 231 (1):\n         soak / preload (secondary): P+Q on the SCLs <= 2 Fty(T) and the under-head band by the local-strain (Neuber) check (class DC\n         head seat, lead 06:36Z);  FA1 / LC2 (primary): SCL Pm and Pm+Pb <= Fty / Ftu at the case SF (no bending shape credit, S-AX\n         convention), hole bearing V / (D t) <= Fbry / Fbru (e/D 2.18, engmat e/D 2.0 ratios), and the hole-edge peaks of both members by\n         Neuber (231 (1)(iii), one-off abnormal FA-1); the band elastic value is reported beside.\n  SCREW  234 (1)(b): soak = tension on A_s against k_T Rp0.2 / k_Tu Rm; LC2 = combined vM (max preload on A_s + factored shear on A_3) and\n         Rt^2 + Rs^2; FA1 = ultimate interaction with the max preload (criterion) + shear-only yield on A_3 (with the preload-relaxation\n         argument and the 233 (4) replace rule) + the combined vM for information.  Tension = exact K u head resultant.\n07:15Z revision: the TC-01 net-ligament value is the ligament average of jfwd_ligament.py (ligament.json; ASME VIII-2 Table 5.6 typical\nligament: Pm through the ligament cross section, Pb across the width), the half-ligament (one side) averages taken (max of the two sides);\nthe jfwd_post 'TC01_net_ligament_hole_flank*' lines are SUPERSEDED (partly inside the hole, extrapolated; hole-edge in-plane Kt) and not\nused; soak P+Q = max over the full-wall ligament stations (CAD and spot-face seat) and the shear-out lines; FA1 / LC2 local check (iii) =\nNeuber on the band value of each member (the all-node value is the contact / tie edge: information); TC-02 cell given both by the lead\n06:17Z rule as written (lower of elastic band and A_n thread shear) and by 231 (1) ((i) SCL, (ii) thread / tap bearing, (iii) band Neuber).\n07:35Z (lead 07:21Z rulings): TC-02 'cell_ruled' = the 06:17Z rule (lower of band and A_n thread) where the band is a regular body\nstress; where the band node lies in a contact-edge field (<= 1.5 mm from the TC-01 hole-edge footprint on the TC-02 OD, as node 13503\nat FA1S: 1.05 mm, FIT CPRESS max 0.24 mm from it) the elastic band is information and the (iii) Neuber stands in its place; the cell\nrecord carries the through-wall SCL at the band node (Pm, Pm+Pb, radial, OD to the first free surface) as a check that must pass.\nTC-01 under-head (soak) cell class: 'DC adopted (d10.5 spot face, V352_R4_JFWD_SPOT), FE closure pending' with the [DERIVED] seat values.",
+ "mu": 0.0,
+ "preload_N": 3750.0,
+ "seat": "spot",
+ "FIT_clearance_mm": 0.078,
+ "steps": {
+  "PRELOAD": {
+   "kind": "soak",
+   "label": "preload at 20 C",
+   "SF_member": [
+    1.0,
+    1.0
+   ],
+   "SCREW": {
+    "N_exact_N": 3749.9,
+    "N_section_N": 3820.5,
+    "V_section_N": 4.8,
+    "V_bear_exact_N": 0.0,
+    "T_C": 20.0,
+    "kT_Rp_MPa": 600.0,
+    "kTu_Rm_MPa": 800.0,
+    "form": "tension on A_s (soak)",
+    "MS_y": 1.269,
+    "MS_u": 2.025
+   },
+   "TC-01": {
+    "all_node_info": {
+     "vm_MPa": 4073.3,
+     "node": 388,
+     "dist_hole_mm": -0.004,
+     "class": "CONTACT-EDGE (hole / head edge)",
+     "MS_y": -0.941,
+     "MS_u": -0.936
+    },
+    "band_elastic": {
+     "vm_MPa": 197.8,
+     "node": 4037,
+     "dist_hole_mm": 1.076,
+     "T_C": 20.0,
+     "MS_y": 0.213,
+     "MS_u": 0.314
+    },
+    "neuber_band": {
+     "sigma_el_MPa": 197.8,
+     "T_C": 20.0,
+     "E_MPa": 68900.0,
+     "Fty_MPa": 240.0,
+     "Ftu_MPa": 260.0,
+     "eps_limit": 0.0296,
+     "n15": {
+      "sigma_local_MPa": 194.8,
+      "eps_local": 0.00291,
+      "MS_strain": 9.155
+     },
+     "n30": {
+      "sigma_local_MPa": 197.6,
+      "eps_local": 0.00287,
+      "MS_strain": 9.3
+     }
+    },
+    "SCL_PQ_ligament_station_max_cad": {
+     "PmPb": 531.2,
+     "Pm": 183.9,
+     "delta_deg": 5.688,
+     "side": "+",
+     "t_mm": 2.839,
+     "min_bary": 0.0021,
+     "MS_PQ_2Fty": -0.096
+    },
+    "SCL_PQ_ligament_station_max_seat": {
+     "PmPb": 531.2,
+     "Pm": 183.9,
+     "delta_deg": 5.688,
+     "side": "+",
+     "t_mm": 2.839,
+     "min_bary": 0.0021,
+     "MS_PQ_2Fty": -0.096
+    },
+    "SCL_PQ_seat_DERIVED": -0.096,
+    "SUPERSEDED_hole_flank_lines_not_used": {
+     "TC01_net_ligament_hole_flank": {
+      "Pm": 330.5,
+      "PmPb": 1042.1,
+      "min_bary": -0.236
+     },
+     "TC01_net_ligament_hole_flank_-t1": {
+      "Pm": 94.1,
+      "PmPb": 220.5,
+      "min_bary": -0.282
+     }
+    },
+    "SCL_PQ_shakedown_2Fty": {
+     "TC01_shear_out_flank+": 4.981,
+     "TC01_shear_out_flank-": 4.995,
+     "ligament_station_max_cad": -0.096
+    },
+    "cell": {
+     "MS_strain_neuber": 9.155,
+     "MS_PQ_min": -0.096,
+     "governs": "under-head band local strain (class DC head seat, lead 06:36Z)",
+     "FE_spot_face": "spot-face mesh: the FE is the seat (no [DERIVED] scaling); mu 0.0; the mu 0.2 closure = local seat sub-model (lead 08:17Z)",
+     "class": "DC adopted (d10.5 spot face at r 31.313, wall 2.688 at the hole, V352_R4_JFWD_SPOT; lead 07:21Z), FE closure pending (mu 0.2 / 3750 N seat run)",
+     "seat_values_DERIVED": {
+      "flat_seat_bearing_MS_vs_Fbry": 3.222,
+      "PQ_seat_MS_2Fty": -0.096
+     },
+     "CAD_as_found": {
+      "neuber_band_MS_strain": 9.155,
+      "band_elastic_MS_y": 0.213
+     }
+    }
+   },
+   "TC-02": {
+    "all_node_info": {
+     "vm_MPa": 1779.6,
+     "node": 1660,
+     "x_prime": 28.516,
+     "dist_tap_mm": 0.0,
+     "class": "TIE-EDGE (bonded thread)",
+     "MS_y": -0.865,
+     "MS_u": -0.854
+    },
+    "band": {
+     "vm_MPa": 45.9,
+     "node": 69921,
+     "MS_y": 4.23,
+     "MS_u": 4.665
+    },
+    "thread_shear_An": {
+     "tau_MPa": 59.1,
+     "T_C": 20.0,
+     "MS_y": 1.345,
+     "MS_u": 1.642
+    },
+    "cell": {
+     "MS_y": 1.345,
+     "MS_u": 1.642,
+     "governs": "thread shear A_n"
+    },
+    "SCL_PQ_shakedown_2Fty": {
+     "TC02_shear_out_to_g2_x28.0": 9.187,
+     "TC02_shear_out_to_g2_x26.5": 10.588,
+     "TC02_shear_out_to_g2_x24.0": 13.491,
+     "TC02_net_ligament_r27.5_to_az0": 10.884,
+     "TC02_net_ligament_r27.5_to_az36": 10.657
+    },
+    "wall_SCL_band_node": {
+     "t_mm": 23.08,
+     "Pm": 12.43360162013145,
+     "PmPb": 23.97710679214145,
+     "peak_on_line": 45.56935603672939,
+     "min_bary": -0.0411493740960309,
+     "sm": [
+      7.043146248024403,
+      9.329292706138983,
+      -1.3244991849100398,
+      2.6577509877783356,
+      1.621565157730981,
+      3.22187776191689
+     ],
+     "sb": [
+      1.3072203341315687,
+      2.5806404776948857,
+      4.408836463082214,
+      5.7088005040177165,
+      3.6087146042319143,
+      5.413133496632435
+     ],
+     "from_mm": [
+      27.214,
+      6.412,
+      124.871
+     ],
+     "to_mm": [
+      4.749,
+      1.119,
+      124.871
+     ],
+     "dir": [
+      -0.9734,
+      -0.2293,
+      -0.0
+     ],
+     "node": 69921,
+     "T_C": 20.0,
+     "Fty_MPa": 240.0,
+     "Ftu_MPa": 260.0,
+     "MS_y_Pm_SF1": 18.303,
+     "MS_y_PmPb_SF1": 9.01,
+     "MS_u_Pm_SF1": 19.911,
+     "MS_u_PmPb_SF1": 9.844,
+     "MS_y_Pm": 18.303,
+     "MS_y_PmPb": 9.01,
+     "MS_u_Pm": 19.911,
+     "MS_u_PmPb": 9.844,
+     "pass": true
+    },
+    "band_node_d_TC01_hole_edge_mm": 0.908,
+    "neuber_band_iii": {
+     "sigma_el_MPa": 45.9,
+     "T_C": 20.0,
+     "E_MPa": 68900.0,
+     "Fty_MPa": 240.0,
+     "Ftu_MPa": 260.0,
+     "eps_limit": 0.0296,
+     "n15": {
+      "sigma_local_MPa": 45.9,
+      "eps_local": 0.00067,
+      "MS_strain": 43.432
+     },
+     "n30": {
+      "sigma_local_MPa": 45.9,
+      "eps_local": 0.00067,
+      "MS_strain": 43.432
+     }
+    },
+    "cell_ruled": {
+     "MS_y": 1.345,
+     "MS_u": 1.642,
+     "class": "band in a contact-edge field (0.91 mm from the TC-01 hole-edge footprint): elastic band = information (45.9 MPa, MS +4.230 / +4.665); (iii) Neuber MS_strain +43.432; wall SCL at node 69921 passes (Pm +18.303, Pm+Pb +9.010) (lead 07:21Z)",
+     "governs": "A_n thread shear"
+    }
+   },
+   "FIT_radial_N": 1118.7
+  },
+  "SOAK70": {
+   "kind": "soak",
+   "label": "soak GVLO B1_70.7 mapped (S-AX field), unpressurised",
+   "SF_member": [
+    1.0,
+    1.0
+   ],
+   "SCREW": {
+    "N_exact_N": 5694.7,
+    "N_section_N": 5780.1,
+    "V_section_N": 30.5,
+    "V_bear_exact_N": 4.3,
+    "T_C": 158.6,
+    "kT_Rp_MPa": 447.0,
+    "kTu_Rm_MPa": 759.2,
+    "form": "tension on A_s (soak)",
+    "MS_y": 0.113,
+    "MS_u": 0.89
+   },
+   "TC-01": {
+    "all_node_info": {
+     "vm_MPa": 3371.4,
+     "node": 398,
+     "dist_hole_mm": -0.004,
+     "class": "CONTACT-EDGE (hole / head edge)",
+     "MS_y": -0.95,
+     "MS_u": -0.946
+    },
+    "band_elastic": {
+     "vm_MPa": 377.0,
+     "node": 11688,
+     "dist_hole_mm": 1.013,
+     "T_C": 156.5,
+     "MS_y": -0.541,
+     "MS_u": -0.511
+    },
+    "neuber_band": {
+     "sigma_el_MPa": 377.0,
+     "T_C": 156.5,
+     "E_MPa": 62958.0,
+     "Fty_MPa": 172.9,
+     "Ftu_MPa": 184.5,
+     "eps_limit": 0.02217,
+     "n15": {
+      "sigma_local_MPa": 190.9,
+      "eps_local": 0.01183,
+      "MS_strain": 0.874
+     },
+     "n30": {
+      "sigma_local_MPa": 182.1,
+      "eps_local": 0.01239,
+      "MS_strain": 0.788
+     }
+    },
+    "SCL_PQ_ligament_station_max_cad": {
+     "PmPb": 571.6,
+     "Pm": 200.1,
+     "delta_deg": 5.688,
+     "side": "+",
+     "t_mm": 2.839,
+     "min_bary": 0.0021,
+     "MS_PQ_2Fty": -0.395
+    },
+    "SCL_PQ_ligament_station_max_seat": {
+     "PmPb": 571.6,
+     "Pm": 200.1,
+     "delta_deg": 5.688,
+     "side": "+",
+     "t_mm": 2.839,
+     "min_bary": 0.0021,
+     "MS_PQ_2Fty": -0.395
+    },
+    "SCL_PQ_seat_DERIVED": -0.395,
+    "SUPERSEDED_hole_flank_lines_not_used": {
+     "TC01_net_ligament_hole_flank": {
+      "Pm": 322.2,
+      "PmPb": 961.6,
+      "min_bary": -0.236
+     },
+     "TC01_net_ligament_hole_flank_-t1": {
+      "Pm": 151.5,
+      "PmPb": 387.7,
+      "min_bary": -0.282
+     }
+    },
+    "SCL_PQ_shakedown_2Fty": {
+     "TC01_shear_out_flank+": 1.516,
+     "TC01_shear_out_flank-": 1.53,
+     "ligament_station_max_cad": -0.395
+    },
+    "cell": {
+     "MS_strain_neuber": 0.788,
+     "MS_PQ_min": -0.395,
+     "governs": "under-head band local strain (class DC head seat, lead 06:36Z)",
+     "FE_spot_face": "spot-face mesh: the FE is the seat (no [DERIVED] scaling); mu 0.0; the mu 0.2 closure = local seat sub-model (lead 08:17Z)",
+     "class": "DC adopted (d10.5 spot face at r 31.313, wall 2.688 at the hole, V352_R4_JFWD_SPOT; lead 07:21Z), FE closure pending (mu 0.2 / 3750 N seat run)",
+     "seat_values_DERIVED": {
+      "flat_seat_bearing_MS_vs_Fbry": 1.003,
+      "PQ_seat_MS_2Fty": -0.395
+     },
+     "CAD_as_found": {
+      "neuber_band_MS_strain": 0.788,
+      "band_elastic_MS_y": -0.541
+     }
+    }
+   },
+   "TC-02": {
+    "all_node_info": {
+     "vm_MPa": 1034.8,
+     "node": 1660,
+     "x_prime": 28.516,
+     "dist_tap_mm": 0.0,
+     "class": "TIE-EDGE (bonded thread)",
+     "MS_y": -0.779,
+     "MS_u": -0.764
+    },
+    "band": {
+     "vm_MPa": 72.6,
+     "node": 69921,
+     "MS_y": 2.145,
+     "MS_u": 2.359
+    },
+    "thread_shear_An": {
+     "tau_MPa": 89.7,
+     "T_C": 97.7,
+     "MS_y": 0.468,
+     "MS_u": 0.631
+    },
+    "cell": {
+     "MS_y": 0.468,
+     "MS_u": 0.631,
+     "governs": "thread shear A_n"
+    },
+    "SCL_PQ_shakedown_2Fty": {
+     "TC02_shear_out_to_g2_x28.0": 4.542,
+     "TC02_shear_out_to_g2_x26.5": 6.015,
+     "TC02_shear_out_to_g2_x24.0": 6.798,
+     "TC02_net_ligament_r27.5_to_az0": 5.541,
+     "TC02_net_ligament_r27.5_to_az36": 5.858
+    },
+    "wall_SCL_band_node": {
+     "t_mm": 23.08,
+     "Pm": 20.8096941656006,
+     "PmPb": 47.98044478920918,
+     "peak_on_line": 72.16243086087772,
+     "min_bary": -0.0411493740960309,
+     "sm": [
+      7.960914703813712,
+      12.276794819289641,
+      -1.752820302251815,
+      3.9486242033949477,
+      7.463132586877993,
+      4.628413811809897
+     ],
+     "sb": [
+      -4.288829626135029,
+      -0.8036335887158776,
+      8.42737051026965,
+      6.933782142647331,
+      15.163994491480473,
+      6.3932771079881245
+     ],
+     "from_mm": [
+      27.214,
+      6.412,
+      124.871
+     ],
+     "to_mm": [
+      4.749,
+      1.119,
+      124.871
+     ],
+     "dir": [
+      -0.9734,
+      -0.2293,
+      -0.0
+     ],
+     "node": 69921,
+     "T_C": 97.6,
+     "Fty_MPa": 228.2,
+     "Ftu_MPa": 243.7,
+     "MS_y_Pm_SF1": 9.966,
+     "MS_y_PmPb_SF1": 3.756,
+     "MS_u_Pm_SF1": 10.712,
+     "MS_u_PmPb_SF1": 4.08,
+     "MS_y_Pm": 9.966,
+     "MS_y_PmPb": 3.756,
+     "MS_u_Pm": 10.711,
+     "MS_u_PmPb": 4.079,
+     "pass": true
+    },
+    "band_node_d_TC01_hole_edge_mm": 0.908,
+    "neuber_band_iii": {
+     "sigma_el_MPa": 72.6,
+     "T_C": 97.6,
+     "E_MPa": 66281.0,
+     "Fty_MPa": 228.2,
+     "Ftu_MPa": 243.7,
+     "eps_limit": 0.02275,
+     "n15": {
+      "sigma_local_MPa": 72.6,
+      "eps_local": 0.0011,
+      "MS_strain": 19.77
+     },
+     "n30": {
+      "sigma_local_MPa": 72.6,
+      "eps_local": 0.0011,
+      "MS_strain": 19.77
+     }
+    },
+    "cell_ruled": {
+     "MS_y": 0.468,
+     "MS_u": 0.631,
+     "class": "band in a contact-edge field (0.91 mm from the TC-01 hole-edge footprint): elastic band = information (72.6 MPa, MS +2.145 / +2.359); (iii) Neuber MS_strain +19.770; wall SCL at node 69921 passes (Pm +9.966, Pm+Pb +3.756) (lead 07:21Z)",
+     "governs": "A_n thread shear"
+    }
+   },
+   "FIT_radial_N": 1400.7
+  },
+  "FA1S": {
+   "kind": "FA1",
+   "label": "FA1S 151.04 bar abs, 45.6 C",
+   "SF_member": [
+    1.0,
+    1.0
+   ],
+   "SCREW": {
+    "N_exact_N": 3138.2,
+    "N_section_N": 3211.6,
+    "V_section_N": 3629.5,
+    "V_bear_exact_N": 3603.6,
+    "T_C": 45.6,
+    "kT_Rp_MPa": 567.4,
+    "kTu_Rm_MPa": 792.5,
+    "sigma_t_MPa": 221.3,
+    "tau_A3_MPa": 286.0,
+    "sigma_vm_MPa": 542.6,
+    "MS_y_combined": 0.046,
+    "Rt2_Rs2": 0.4398,
+    "MS_u_interaction": 0.508,
+    "MS_y_shear_only_A3": 0.145,
+    "form": "FA1 (234 (1)(b)): ultimate interaction = criterion; yield shear-only on A_3 (preload relaxation + 233 (4) replace rule)",
+    "MS_y": 0.145,
+    "MS_u": 0.508
+   },
+   "TC-01": {
+    "all_node_info": {
+     "vm_MPa": 4390.4,
+     "node": 388,
+     "dist_hole_mm": -0.004,
+     "class": "CONTACT-EDGE (hole / head edge)",
+     "MS_y": -0.946,
+     "MS_u": -0.942
+    },
+    "band_elastic": {
+     "vm_MPa": 556.9,
+     "node": 11688,
+     "dist_hole_mm": 1.013,
+     "T_C": 45.6,
+     "MS_y": -0.576,
+     "MS_u": -0.543
+    },
+    "neuber_band": {
+     "sigma_el_MPa": 556.9,
+     "T_C": 45.6,
+     "E_MPa": 68036.0,
+     "Fty_MPa": 236.1,
+     "Ftu_MPa": 254.6,
+     "eps_limit": 0.02744,
+     "n15": {
+      "sigma_local_MPa": 267.6,
+      "eps_local": 0.01703,
+      "MS_strain": 0.611
+     },
+     "n30": {
+      "sigma_local_MPa": 252.1,
+      "eps_local": 0.01808,
+      "MS_strain": 0.518
+     }
+    },
+    "SCL_ligament_seat_DERIVED": {
+     "Pm": 95.9,
+     "PmPb": 201.5,
+     "MS_y_Pm": 1.462,
+     "MS_y_PmPb": 0.172,
+     "MS_u_Pm": 1.655,
+     "MS_u_PmPb": 0.264,
+     "station_CAD": {
+      "Pm": 95.9,
+      "PmPb": 201.5
+     }
+    },
+    "hole_edge_station_local_info": {
+     "PmPb": 757.9,
+     "Pm": 379.3,
+     "delta_deg": 5.688,
+     "side": "+",
+     "t_mm": 2.839,
+     "min_bary": 0.0021
+    },
+    "SUPERSEDED_hole_flank_lines_not_used": {
+     "TC01_net_ligament_hole_flank": {
+      "Pm": 548.6,
+      "PmPb": 1336.3,
+      "min_bary": -0.236
+     },
+     "TC01_net_ligament_hole_flank_-t1": {
+      "Pm": 345.6,
+      "PmPb": 482.2,
+      "min_bary": -0.282
+     }
+    },
+    "SCL_primary": {
+     "TC01_shear_out_flank+": {
+      "Pm": 118.6,
+      "PmPb": 130.5,
+      "MS_y_Pm": 0.991,
+      "MS_y_PmPb": 0.809,
+      "MS_u_Pm": 1.147,
+      "MS_u_PmPb": 0.951
+     },
+     "TC01_shear_out_flank-": {
+      "Pm": 121.0,
+      "PmPb": 133.5,
+      "MS_y_Pm": 0.952,
+      "MS_y_PmPb": 0.769,
+      "MS_u_Pm": 1.105,
+      "MS_u_PmPb": 0.907
+     },
+     "TC01_net_ligament_avg_half": {
+      "Pm": 104.1,
+      "PmPb": 201.6,
+      "MS_y_Pm": 1.268,
+      "MS_y_PmPb": 0.171,
+      "MS_u_Pm": 1.446,
+      "MS_u_PmPb": 0.263,
+      "Fz_section_N": 3856.2,
+      "full_ligament_both_sides": {
+       "Pm": 98.5,
+       "PmPb": 195.2
+      }
+     }
+    },
+    "hole_bearing": {
+     "spot_t2.688": {
+      "V_N": 3603.6,
+      "sigma_br_MPa": 268.1,
+      "MS_y": 0.233,
+      "MS_u": 0.519
+     }
+    },
+    "neuber_all_node_info": {
+     "sigma_el_MPa": 4390.4,
+     "T_C": 45.6,
+     "E_MPa": 68036.0,
+     "Fty_MPa": 236.1,
+     "Ftu_MPa": 254.6,
+     "eps_limit": 0.02744,
+     "n15": {
+      "sigma_local_MPa": 352.0,
+      "eps_local": 0.80484,
+      "MS_strain": -0.966
+     },
+     "n30": {
+      "sigma_local_MPa": 290.2,
+      "eps_local": 0.97636,
+      "MS_strain": -0.972
+     }
+    },
+    "neuber_band_FE_spot": {
+     "k1": {
+      "sigma_el_MPa": 556.9,
+      "T_C": 45.6,
+      "E_MPa": 68036.0,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "eps_limit": 0.02744,
+      "n15": {
+       "sigma_local_MPa": 267.6,
+       "eps_local": 0.01703,
+       "MS_strain": 0.611
+      },
+      "n30": {
+       "sigma_local_MPa": 252.1,
+       "eps_local": 0.01808,
+       "MS_strain": 0.518
+      }
+     },
+     "k1sq_bound": {
+      "sigma_el_MPa": 556.9,
+      "T_C": 45.6,
+      "E_MPa": 68036.0,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "eps_limit": 0.02744,
+      "n15": {
+       "sigma_local_MPa": 267.6,
+       "eps_local": 0.01703,
+       "MS_strain": 0.611
+      },
+      "n30": {
+       "sigma_local_MPa": 252.1,
+       "eps_local": 0.01808,
+       "MS_strain": 0.518
+      }
+     }
+    },
+    "cell": {
+     "MS_y_primary_bearing": 0.171,
+     "MS_u_primary_bearing": 0.263,
+     "MS_strain_neuber_band_iii": 0.518,
+     "governs": "min of SCL primary (i: ligament average + shear-out), hole bearing (ii) and the band Neuber (iii); elastic band and all-node = information (contact edge)"
+    }
+   },
+   "TC-02": {
+    "all_node_info": {
+     "vm_MPa": 2148.3,
+     "node": 1660,
+     "x_prime": 28.516,
+     "dist_tap_mm": 0.0,
+     "class": "TIE-EDGE (bonded thread)",
+     "MS_y": -0.89,
+     "MS_u": -0.881
+    },
+    "band": {
+     "vm_MPa": 204.5,
+     "node": 18694,
+     "MS_y": 0.155,
+     "MS_u": 0.245
+    },
+    "thread_shear_An": {
+     "tau_MPa": 49.4,
+     "T_C": 45.6,
+     "MS_y": 1.757,
+     "MS_u": 2.091
+    },
+    "SCL_primary": {
+     "TC02_shear_out_to_g2_x28.0": {
+      "Pm": 51.4,
+      "PmPb": 119.2,
+      "MS_y_Pm": 3.593,
+      "MS_y_PmPb": 0.981,
+      "MS_u_Pm": 3.954,
+      "MS_u_PmPb": 1.136
+     },
+     "TC02_shear_out_to_g2_x26.5": {
+      "Pm": 51.3,
+      "PmPb": 74.9,
+      "MS_y_Pm": 3.598,
+      "MS_y_PmPb": 2.153,
+      "MS_u_Pm": 3.959,
+      "MS_u_PmPb": 2.401
+     },
+     "TC02_shear_out_to_g2_x24.0": {
+      "Pm": 25.0,
+      "PmPb": 33.6,
+      "MS_y_Pm": 8.448,
+      "MS_y_PmPb": 6.027,
+      "MS_u_Pm": 9.189,
+      "MS_u_PmPb": 6.578
+     },
+     "TC02_net_ligament_r27.5_to_az0": {
+      "Pm": 28.8,
+      "PmPb": 48.1,
+      "MS_y_Pm": 7.207,
+      "MS_y_PmPb": 3.906,
+      "MS_u_Pm": 7.851,
+      "MS_u_PmPb": 4.291
+     },
+     "TC02_net_ligament_r27.5_to_az36": {
+      "Pm": 22.2,
+      "PmPb": 52.6,
+      "MS_y_Pm": 9.638,
+      "MS_y_PmPb": 3.486,
+      "MS_u_Pm": 10.473,
+      "MS_u_PmPb": 3.838
+     }
+    },
+    "neuber_all_node_info": {
+     "sigma_el_MPa": 2148.3,
+     "T_C": 45.6,
+     "E_MPa": 68036.0,
+     "Fty_MPa": 236.1,
+     "Ftu_MPa": 254.6,
+     "eps_limit": 0.02744,
+     "n15": {
+      "sigma_local_MPa": 321.6,
+      "eps_local": 0.21093,
+      "MS_strain": -0.87
+     },
+     "n30": {
+      "sigma_local_MPa": 277.0,
+      "eps_local": 0.2449,
+      "MS_strain": -0.888
+     }
+    },
+    "tap_bearing_derived": {
+     "sigma_MPa": 106.0,
+     "L_e_mm": 6.85,
+     "MS_y": 2.119,
+     "MS_u": 2.845
+    },
+    "cell_SCL": {
+     "MS_y": 0.981,
+     "MS_u": 1.136
+    },
+    "neuber_band_iii": {
+     "sigma_el_MPa": 204.5,
+     "T_C": 45.6,
+     "E_MPa": 68036.0,
+     "Fty_MPa": 236.1,
+     "Ftu_MPa": 254.6,
+     "eps_limit": 0.02744,
+     "n15": {
+      "sigma_local_MPa": 199.2,
+      "eps_local": 0.00309,
+      "MS_strain": 7.893
+     },
+     "n30": {
+      "sigma_local_MPa": 203.7,
+      "eps_local": 0.00302,
+      "MS_strain": 8.092
+     }
+    },
+    "band_excl_TC01_hole_edge_footprint": {
+     "vm_MPa": 191.2,
+     "node": 54528,
+     "X_mm": [
+      26.591,
+      8.679,
+      131.115
+     ],
+     "x_prime": 27.972,
+     "d_tap_mm": 1.102,
+     "d_TC01_hole_edge_mm": 1.272
+    },
+    "FIT_CPRESS_max_info": {
+     "CPRESS_MPa": 10318.6,
+     "node": 1655,
+     "X_mm": [
+      26.327,
+      11.173,
+      127.291
+     ],
+     "d_tap_mm": 0.0,
+     "d_TC01_hole_edge_mm": 0.26
+    },
+    "cell_231_1": {
+     "MS_y": 0.981,
+     "MS_u": 1.136,
+     "MS_strain_neuber_band_iii": 7.893,
+     "governs": "(i) SCL shear-out / net ligament, (ii) A_n thread shear and tap bearing, (iii) band Neuber; elastic band = information"
+    },
+    "cell_rule_0617_as_written": {
+     "MS_y": 0.155,
+     "MS_u": 0.245,
+     "governs": "band"
+    },
+    "wall_SCL_band_node": {
+     "t_mm": 7.4,
+     "Pm": 83.90726606662035,
+     "PmPb": 175.348903513322,
+     "peak_on_line": 207.76229132289797,
+     "min_bary": -0.0492857263394714,
+     "sm": [
+      38.67005952133585,
+      8.016989147573788,
+      49.71613912065464,
+      7.860098115649301,
+      -11.273868668139526,
+      -41.12405084702848
+     ],
+     "sb": [
+      3.5256508124151944,
+      12.297440479788488,
+      100.68984955194989,
+      -5.334262447916379,
+      -6.5955649683745845,
+      -30.089511043061293
+     ],
+     "from_mm": [
+      27.153,
+      8.97,
+      131.015
+     ],
+     "to_mm": [
+      20.127,
+      6.649,
+      131.015
+     ],
+     "dir": [
+      -0.9495,
+      -0.3137,
+      -0.0
+     ],
+     "node": 18694,
+     "T_C": 45.6,
+     "Fty_MPa": 236.1,
+     "Ftu_MPa": 254.6,
+     "MS_y_Pm_SF1": 1.814,
+     "MS_y_PmPb_SF1": 0.346,
+     "MS_u_Pm_SF1": 2.035,
+     "MS_u_PmPb_SF1": 0.452,
+     "MS_y_Pm": 1.814,
+     "MS_y_PmPb": 0.346,
+     "MS_u_Pm": 2.034,
+     "MS_u_PmPb": 0.452,
+     "pass": true
+    },
+    "band_node_d_TC01_hole_edge_mm": 0.995,
+    "cell_ruled": {
+     "MS_y": 0.981,
+     "MS_u": 1.136,
+     "class": "band in a contact-edge field (0.99 mm from the TC-01 hole-edge footprint): elastic band = information (204.5 MPa, MS +0.155 / +0.245); (iii) Neuber MS_strain +7.893; wall SCL at node 18694 passes (Pm +1.814, Pm+Pb +0.346) (lead 07:21Z)",
+     "governs": "other (ii)/(i)"
+    }
+   },
+   "FIT_radial_N": 1153.9
+  },
+  "SOAK": {
+   "kind": "soak",
+   "label": "soak 64.7 s GVLO row means, unpressurised",
+   "SF_member": [
+    1.0,
+    1.0
+   ],
+   "SCREW": {
+    "N_exact_N": 7382.8,
+    "N_section_N": 7516.7,
+    "V_section_N": 26.3,
+    "V_bear_exact_N": 0.2,
+    "T_C": 127.0,
+    "kT_Rp_MPa": 474.5,
+    "kTu_Rm_MPa": 768.5,
+    "form": "tension on A_s (soak)",
+    "MS_y": -0.089,
+    "MS_u": 0.476
+   },
+   "TC-01": {
+    "all_node_info": {
+     "vm_MPa": 3842.7,
+     "node": 338,
+     "dist_hole_mm": -0.0,
+     "class": "CONTACT-EDGE (hole / head edge)",
+     "MS_y": -0.956,
+     "MS_u": -0.953
+    },
+    "band_elastic": {
+     "vm_MPa": 379.6,
+     "node": 11688,
+     "dist_hole_mm": 1.013,
+     "T_C": 158.0,
+     "MS_y": -0.551,
+     "MS_u": -0.52
+    },
+    "neuber_band": {
+     "sigma_el_MPa": 379.6,
+     "T_C": 158.0,
+     "E_MPa": 62856.0,
+     "Fty_MPa": 170.3,
+     "Ftu_MPa": 182.1,
+     "eps_limit": 0.02338,
+     "n15": {
+      "sigma_local_MPa": 188.5,
+      "eps_local": 0.01216,
+      "MS_strain": 0.922
+     },
+     "n30": {
+      "sigma_local_MPa": 179.6,
+      "eps_local": 0.01276,
+      "MS_strain": 0.832
+     }
+    },
+    "SCL_PQ_ligament_station_max_cad": {
+     "PmPb": 425.7,
+     "Pm": 193.6,
+     "delta_deg": 5.688,
+     "side": "+",
+     "t_mm": 2.839,
+     "min_bary": 0.0021,
+     "MS_PQ_2Fty": -0.2
+    },
+    "SCL_PQ_ligament_station_max_seat": {
+     "PmPb": 425.7,
+     "Pm": 193.6,
+     "delta_deg": 5.688,
+     "side": "+",
+     "t_mm": 2.839,
+     "min_bary": 0.0021,
+     "MS_PQ_2Fty": -0.2
+    },
+    "SCL_PQ_seat_DERIVED": -0.2,
+    "SUPERSEDED_hole_flank_lines_not_used": {
+     "TC01_net_ligament_hole_flank": {
+      "Pm": 261.2,
+      "PmPb": 589.2,
+      "min_bary": -0.236
+     },
+     "TC01_net_ligament_hole_flank_-t1": {
+      "Pm": 247.8,
+      "PmPb": 607.1,
+      "min_bary": -0.282
+     }
+    },
+    "SCL_PQ_shakedown_2Fty": {
+     "TC01_shear_out_flank+": 1.499,
+     "TC01_shear_out_flank-": 1.518,
+     "ligament_station_max_cad": -0.2
+    },
+    "cell": {
+     "MS_strain_neuber": 0.832,
+     "MS_PQ_min": -0.2,
+     "governs": "under-head band local strain (class DC head seat, lead 06:36Z)",
+     "FE_spot_face": "spot-face mesh: the FE is the seat (no [DERIVED] scaling); mu 0.0; the mu 0.2 closure = local seat sub-model (lead 08:17Z)",
+     "class": "DC adopted (d10.5 spot face at r 31.313, wall 2.688 at the hole, V352_R4_JFWD_SPOT; lead 07:21Z), FE closure pending (mu 0.2 / 3750 N seat run)",
+     "seat_values_DERIVED": {
+      "flat_seat_bearing_MS_vs_Fbry": 0.522,
+      "PQ_seat_MS_2Fty": -0.2
+     },
+     "CAD_as_found": {
+      "neuber_band_MS_strain": 0.832,
+      "band_elastic_MS_y": -0.551
+     }
+    }
+   },
+   "TC-02": {
+    "all_node_info": {
+     "vm_MPa": 2100.4,
+     "node": 1642,
+     "x_prime": 28.6,
+     "dist_tap_mm": 0.0,
+     "class": "TIE-EDGE (bonded thread)",
+     "MS_y": -0.891,
+     "MS_u": -0.884
+    },
+    "band": {
+     "vm_MPa": 78.2,
+     "node": 69921,
+     "MS_y": 1.92,
+     "MS_u": 2.12
+    },
+    "thread_shear_An": {
+     "tau_MPa": 116.3,
+     "T_C": 96.0,
+     "MS_y": 0.134,
+     "MS_u": 0.26
+    },
+    "cell": {
+     "MS_y": 0.134,
+     "MS_u": 0.26,
+     "governs": "thread shear A_n"
+    },
+    "SCL_PQ_shakedown_2Fty": {
+     "TC02_shear_out_to_g2_x28.0": 2.857,
+     "TC02_shear_out_to_g2_x26.5": 5.855,
+     "TC02_shear_out_to_g2_x24.0": 7.717,
+     "TC02_net_ligament_r27.5_to_az0": 5.194,
+     "TC02_net_ligament_r27.5_to_az36": 5.051
+    },
+    "wall_SCL_band_node": {
+     "t_mm": 23.08,
+     "Pm": 18.72118686773048,
+     "PmPb": 36.671016338755884,
+     "peak_on_line": 77.61089659339629,
+     "min_bary": -0.0411493740960309,
+     "sm": [
+      9.610480175936837,
+      13.531384160087768,
+      -1.6073646390660332,
+      3.2118295555553433,
+      3.720861120068606,
+      5.561871545172665
+     ],
+     "sb": [
+      -1.5744944858531729,
+      0.6677447669526829,
+      8.140530979200895,
+      6.379105473517244,
+      7.963553232236059,
+      8.694399909661575
+     ],
+     "from_mm": [
+      27.214,
+      6.412,
+      124.871
+     ],
+     "to_mm": [
+      4.749,
+      1.119,
+      124.871
+     ],
+     "dir": [
+      -0.9734,
+      -0.2293,
+      -0.0
+     ],
+     "node": 69921,
+     "T_C": 96.0,
+     "Fty_MPa": 228.4,
+     "Ftu_MPa": 244.1,
+     "MS_y_Pm_SF1": 11.202,
+     "MS_y_PmPb_SF1": 5.229,
+     "MS_u_Pm_SF1": 12.037,
+     "MS_u_PmPb_SF1": 5.656,
+     "MS_y_Pm": 11.2,
+     "MS_y_PmPb": 5.228,
+     "MS_u_Pm": 12.039,
+     "MS_u_PmPb": 5.656,
+     "pass": true
+    },
+    "band_node_d_TC01_hole_edge_mm": 0.908,
+    "neuber_band_iii": {
+     "sigma_el_MPa": 78.2,
+     "T_C": 96.0,
+     "E_MPa": 66335.0,
+     "Fty_MPa": 228.4,
+     "Ftu_MPa": 244.1,
+     "eps_limit": 0.0229,
+     "n15": {
+      "sigma_local_MPa": 78.2,
+      "eps_local": 0.00118,
+      "MS_strain": 18.426
+     },
+     "n30": {
+      "sigma_local_MPa": 78.2,
+      "eps_local": 0.00118,
+      "MS_strain": 18.426
+     }
+    },
+    "cell_ruled": {
+     "MS_y": 0.134,
+     "MS_u": 0.26,
+     "class": "band in a contact-edge field (0.91 mm from the TC-01 hole-edge footprint): elastic band = information (78.2 MPa, MS +1.920 / +2.120); (iii) Neuber MS_strain +18.426; wall SCL at node 69921 passes (Pm +11.200, Pm+Pb +5.228) (lead 07:21Z)",
+     "governs": "A_n thread shear"
+    }
+   },
+   "FIT_radial_N": 3126.1
+  },
+  "SOAK52": {
+   "kind": "soak",
+   "label": "soak GVLO B1_51.7 mapped (S-AX field), unpressurised",
+   "SF_member": [
+    1.0,
+    1.0
+   ],
+   "SCREW": {
+    "N_exact_N": 6559.9,
+    "N_section_N": 6658.7,
+    "V_section_N": 17.6,
+    "V_bear_exact_N": 5.0,
+    "T_C": 154.1,
+    "kT_Rp_MPa": 450.9,
+    "kTu_Rm_MPa": 760.5,
+    "form": "tension on A_s (soak)",
+    "MS_y": -0.025,
+    "MS_u": 0.644
+   },
+   "TC-01": {
+    "all_node_info": {
+     "vm_MPa": 5034.6,
+     "node": 395,
+     "dist_hole_mm": -0.004,
+     "class": "CONTACT-EDGE (hole / head edge)",
+     "MS_y": -0.964,
+     "MS_u": -0.962
+    },
+    "band_elastic": {
+     "vm_MPa": 384.5,
+     "node": 9512,
+     "dist_hole_mm": 1.028,
+     "T_C": 151.0,
+     "MS_y": -0.525,
+     "MS_u": -0.498
+    },
+    "neuber_band": {
+     "sigma_el_MPa": 384.5,
+     "T_C": 151.0,
+     "E_MPa": 63332.0,
+     "Fty_MPa": 182.6,
+     "Ftu_MPa": 193.1,
+     "eps_limit": 0.01798,
+     "n15": {
+      "sigma_local_MPa": 201.0,
+      "eps_local": 0.01162,
+      "MS_strain": 0.548
+     },
+     "n30": {
+      "sigma_local_MPa": 192.1,
+      "eps_local": 0.01215,
+      "MS_strain": 0.479
+     }
+    },
+    "SCL_PQ_ligament_station_max_cad": {
+     "PmPb": 461.3,
+     "Pm": 203.4,
+     "delta_deg": 5.688,
+     "side": "+",
+     "t_mm": 2.839,
+     "min_bary": 0.0021,
+     "MS_PQ_2Fty": -0.208
+    },
+    "SCL_PQ_ligament_station_max_seat": {
+     "PmPb": 461.3,
+     "Pm": 203.4,
+     "delta_deg": 5.688,
+     "side": "+",
+     "t_mm": 2.839,
+     "min_bary": 0.0021,
+     "MS_PQ_2Fty": -0.208
+    },
+    "SCL_PQ_seat_DERIVED": -0.208,
+    "SUPERSEDED_hole_flank_lines_not_used": {
+     "TC01_net_ligament_hole_flank": {
+      "Pm": 289.3,
+      "PmPb": 694.7,
+      "min_bary": -0.236
+     },
+     "TC01_net_ligament_hole_flank_-t1": {
+      "Pm": 234.3,
+      "PmPb": 593.4,
+      "min_bary": -0.282
+     }
+    },
+    "SCL_PQ_shakedown_2Fty": {
+     "TC01_shear_out_flank+": 1.653,
+     "TC01_shear_out_flank-": 1.673,
+     "ligament_station_max_cad": -0.208
+    },
+    "cell": {
+     "MS_strain_neuber": 0.479,
+     "MS_PQ_min": -0.208,
+     "governs": "under-head band local strain (class DC head seat, lead 06:36Z)",
+     "FE_spot_face": "spot-face mesh: the FE is the seat (no [DERIVED] scaling); mu 0.0; the mu 0.2 closure = local seat sub-model (lead 08:17Z)",
+     "class": "DC adopted (d10.5 spot face at r 31.313, wall 2.688 at the hole, V352_R4_JFWD_SPOT; lead 07:21Z), FE closure pending (mu 0.2 / 3750 N seat run)",
+     "seat_values_DERIVED": {
+      "flat_seat_bearing_MS_vs_Fbry": 0.836,
+      "PQ_seat_MS_2Fty": -0.208
+     },
+     "CAD_as_found": {
+      "neuber_band_MS_strain": 0.479,
+      "band_elastic_MS_y": -0.525
+     }
+    }
+   },
+   "TC-02": {
+    "all_node_info": {
+     "vm_MPa": 1298.7,
+     "node": 17845,
+     "x_prime": 28.477,
+     "dist_tap_mm": 0.251,
+     "class": "TIE-EDGE (bonded thread)",
+     "MS_y": -0.824,
+     "MS_u": -0.812
+    },
+    "band": {
+     "vm_MPa": 87.8,
+     "node": 69921,
+     "MS_y": 1.603,
+     "MS_u": 1.782
+    },
+    "thread_shear_An": {
+     "tau_MPa": 103.3,
+     "T_C": 94.9,
+     "MS_y": 0.277,
+     "MS_u": 0.419
+    },
+    "cell": {
+     "MS_y": 0.277,
+     "MS_u": 0.419,
+     "governs": "thread shear A_n"
+    },
+    "SCL_PQ_shakedown_2Fty": {
+     "TC02_shear_out_to_g2_x28.0": 3.551,
+     "TC02_shear_out_to_g2_x26.5": 5.598,
+     "TC02_shear_out_to_g2_x24.0": 6.774,
+     "TC02_net_ligament_r27.5_to_az0": 5.18,
+     "TC02_net_ligament_r27.5_to_az36": 5.398
+    },
+    "wall_SCL_band_node": {
+     "t_mm": 23.08,
+     "Pm": 19.699079131496234,
+     "PmPb": 46.22510716309218,
+     "peak_on_line": 87.3123777446336,
+     "min_bary": -0.0411493740960309,
+     "sm": [
+      6.585515450792143,
+      11.416156831768562,
+      -1.5747611116573887,
+      3.3046826805228813,
+      7.439974690037231,
+      4.467911004667143
+     ],
+     "sb": [
+      -7.001947724217445,
+      -2.0547473190118093,
+      8.169727057627792,
+      5.259486782673435,
+      15.104728021866029,
+      5.790827105754397
+     ],
+     "from_mm": [
+      27.214,
+      6.412,
+      124.871
+     ],
+     "to_mm": [
+      4.749,
+      1.119,
+      124.871
+     ],
+     "dir": [
+      -0.9734,
+      -0.2293,
+      -0.0
+     ],
+     "node": 69921,
+     "T_C": 94.6,
+     "Fty_MPa": 228.6,
+     "Ftu_MPa": 244.4,
+     "MS_y_Pm_SF1": 10.607,
+     "MS_y_PmPb_SF1": 3.946,
+     "MS_u_Pm_SF1": 11.405,
+     "MS_u_PmPb_SF1": 4.286,
+     "MS_y_Pm": 10.605,
+     "MS_y_PmPb": 3.945,
+     "MS_u_Pm": 11.407,
+     "MS_u_PmPb": 4.287,
+     "pass": true
+    },
+    "band_node_d_TC01_hole_edge_mm": 0.908,
+    "neuber_band_iii": {
+     "sigma_el_MPa": 87.8,
+     "T_C": 94.6,
+     "E_MPa": 66382.0,
+     "Fty_MPa": 228.6,
+     "Ftu_MPa": 244.4,
+     "eps_limit": 0.02303,
+     "n15": {
+      "sigma_local_MPa": 87.8,
+      "eps_local": 0.00132,
+      "MS_strain": 16.413
+     },
+     "n30": {
+      "sigma_local_MPa": 87.8,
+      "eps_local": 0.00132,
+      "MS_strain": 16.413
+     }
+    },
+    "cell_ruled": {
+     "MS_y": 0.277,
+     "MS_u": 0.419,
+     "class": "band in a contact-edge field (0.91 mm from the TC-01 hole-edge footprint): elastic band = information (87.8 MPa, MS +1.603 / +1.782); (iii) Neuber MS_strain +16.413; wall SCL at node 69921 passes (Pm +10.605, Pm+Pb +3.945) (lead 07:21Z)",
+     "governs": "A_n thread shear"
+    }
+   },
+   "FIT_radial_N": 2337.2
+  }
+ }
+}

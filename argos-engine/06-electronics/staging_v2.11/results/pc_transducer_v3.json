@@ -1,0 +1,932 @@
+{
+ "script": "calc/v2p11/pc_transducer_v3.py",
+ "version": "v3 (Electronics v2.11)",
+ "date": "2026-10-13",
+ "supersedes": "calc/pc_transducer_v2.py for the flight Pc / P_feed / P_mid channels (v2 kept: it describes the v2.10 070BG chain, which stays as the stand static-level reference and the v2.10 comparator in the SIL)",
+ "inputs": {
+  "mechanical_v351_pc": {
+   "pc_line_period_v1.json": {
+    "sha256_16": "7f5d8950516d98f2",
+    "expected": "7f5d8950516d98f2",
+    "match": true
+   },
+   "pc_space_v1.json": {
+    "sha256_16": "b336b6abf9821b68",
+    "expected": "b336b6abf9821b68",
+    "match": true
+   },
+   "pc_transducer_temperature_v1.json": {
+    "sha256_16": "774519536f26c762",
+    "expected": "774519536f26c762",
+    "match": true
+   }
+  },
+  "combustion_json": {
+   "file": "interfaces/combustion.json",
+   "sha256_16": "5237d4584bad38c4",
+   "version": "v2.4a"
+  },
+  "config_h_sha256_16": "0880af5a27880a5b",
+  "engine_params_h_sha256_16": "6b73317fcd7d07ac"
+ },
+ "A_requirements": {
+  "pc": {
+   "envelope": {
+    "v": "body within dia 12 x 30 mm above the 1/8-27 NPT seat (Mechanical cuts the CC-2 head detail to the named thread and body)",
+    "tag": "LEAD 205 / Mechanical pc_space_v1 (cyl_d12_h30 clear at neutral; nearest TC-04 1.0 mm)"
+   },
+   "front_dead_volume_mm3": {
+    "v": {
+     "CC-1": 20.0,
+     "CC-2": 60.0
+    },
+    "tag": "LEAD 205"
+   },
+   "proof_Pa_abs_min": {
+    "v": 11220000.0,
+    "tag": "LEAD 205: 1.1 x 102 bar abs (FA-1 ultimate, period domain T <= 1 ms, line 194 (1))"
+   },
+   "range": {
+    "v": "covers the 45 bar abs MEOP; 30 bar abort and 25 bar cap resolvable",
+    "tag": "LEAD 205"
+   },
+   "operating_temperature_C_min": {
+    "v": 120.0,
+    "tag": "LEAD 205 (B1 soak 118.3 C SIM, Mechanical pc_transducer_temperature_v1)"
+   },
+   "seat_temperature_SIM": {
+    "v": {
+     "A1_at_RELIGHT_C": 33.8,
+     "A1_soak_max_C": 83.8,
+     "B1_soak_max_C": 118.3
+    },
+    "tag": "SIM (Mechanical v351 thermal, 20 C start ASSUMED); hot-day re-run at T0 = 40 C and a seat thermocouple are the closures (LEAD 205)"
+   },
+   "diaphragm_gas_side_transient": {
+    "v": null,
+    "tag": "MISSING (LEAD 205): see E.margin"
+   },
+   "other": {
+    "v": "bandwidth and rise time stated; N2O/O2 compatibility; vibration rating; output vs ADC chain or conditioning change; DATASHEET values; mass; price TO-QUOTE delivered to Soenderborg DK-6400",
+    "tag": "LEAD 205"
+   }
+  },
+  "p_feed_p_mid": {
+   "proof_basis": {
+    "v": 10500000.0,
+    "tag": "LEAD 206 (3): 1.5 x tank MEOP 70.0 bar abs (combustion.json v2.4a operating_points.tank_MEOP_Pa, LEAD v0). Both channels see the tank-side pressure: P_feed always; P_mid whenever V1 is open with V2 closed (purge sequence step, V1 leak or stuck open)"
+   },
+   "credible_maximum_note": {
+    "v": 9975000.0,
+    "tag": "DERIVED: the feed segment is bounded by the secondary disc 9.5 MPa + 5 % = 99.75 bar (combustion.json relief_v2p4a; Mechanical SEGP 99.75 bar). The proposed part covers 1.5 x this too (see C)."
+   },
+   "locations": {
+    "v": {
+     "BL-08 (P_mid)": "port (12.58, 32.77), z 268 mm on the V1-V2 mid passage (mechanical.json v2.1 bleed topology)",
+     "EL-11 (P_feed)": "CG (10.8, 8.91, 304.5) mm (massprops via mechanical.json v2.1; FD-01 port)"
+    },
+    "tag": "mechanical.json v2.1; the v3.5.1 positions are Mechanical's"
+   },
+   "mass_carried": {
+    "v": 0.05,
+    "tag": "Mechanical: 2 x 50 g ASSUMED; expects about -0.07 kg in total (LEAD 206 (3))"
+   }
+  }
+ },
+ "B_candidates_datasheet": {
+  "C1": {
+   "id": "C1",
+   "maker": "Kulite Semiconductor Products",
+   "family": "XTL-190 (M) series, miniature ruggedized IS (leadless silicon) bridge",
+   "part_proposed": "XTL-190SM-2000A (M5 x 0.8, short body, 0-2000 psia = 140 bar abs; ordering code TO-VERIFY with Kulite)",
+   "source": "Kulite XTL-190 (M) series datasheet (distributor copy https://loadcell.jp/products/files/XTL-190.pdf; the Kulite aeroexpo listing pdf.aeroexpo.online 170074-8955 is the same sheet); retrieved 2026-10-13. Revision letter not visible in the extract: TO-VERIFY against the current kulite.com sheet before order.",
+   "ranges_bar": [
+    0.7,
+    1.0,
+    1.7,
+    3.5,
+    7,
+    17,
+    35,
+    70,
+    140
+   ],
+   "ranges_psi": [
+    10,
+    15,
+    25,
+    50,
+    100,
+    250,
+    500,
+    1000,
+    2000
+   ],
+   "modes": "A, G, SG, D (DATASHEET; which modes exist at 2000 psi is TO-VERIFY)",
+   "proof_rule": "2 x rated to 500 psi (35 bar), 1.5 x rated above 500 psi (DATASHEET \"over pressure\")",
+   "burst_rule": "3 x rated to a maximum of 5000 psi (350 bar) (DATASHEET)",
+   "excitation_V": {
+    "rated": 10.0,
+    "max": 12.0
+   },
+   "input_impedance_ohm_min": 1000.0,
+   "output_impedance_ohm_nom": 1000.0,
+   "fso_mV_at_rated": 100.0,
+   "residual_unbalance_mV_typ": 5.0,
+   "nonlin_hyst_rep_pctFSO": {
+    "typ_BFSL": 0.1,
+    "max": 0.5
+   },
+   "natural_frequency_kHz_no_screen_typ": [
+    175,
+    200,
+    240,
+    300,
+    380,
+    550,
+    700,
+    1000,
+    1400
+   ],
+   "accel_sens_pctFS_per_g_perp": [
+    0.001,
+    0.00065,
+    0.0005,
+    0.0003,
+    0.00015,
+    0.0001,
+    6e-05,
+    4.5e-05,
+    2e-05
+   ],
+   "mapping_note": "the extract lists the natural frequencies and accelerations in range order without row labels: mapping to the ranges is DERIVED from the order (TO-VERIFY)",
+   "operating_C": [
+    -55.0,
+    175.0
+   ],
+   "compensated_C": [
+    25.0,
+    80.0
+   ],
+   "compensated_note": "\"any 100 F range within the operating range is available on request\" (DATASHEET)",
+   "thermal_zero_pctFS_per_100F_typ": 1.0,
+   "thermal_sens_pct_per_100F_typ": 1.0,
+   "steady_accel_g_max": 10000.0,
+   "vibration": "100 g max, 10-2000 Hz sine (DATASHEET)",
+   "shock": "MISSING in this sheet (steady acceleration 10 000 g max only)",
+   "electrical": "4-conductor 30 AWG shielded cable, 36 in (914 mm); optional connector CMR-S1-E-04P",
+   "wiring": "red +input, black -input, green +output, white -output (XTEL-190 sheet; XTL-190 TO-VERIFY)",
+   "mass_g_excl_cable": 4.0,
+   "cable_mass_g_per_m": null,
+   "thread_options": {
+    "190S": "10-32 UNF-2A, T 0.437 in (11.1 mm)",
+    "190SM": "M5 x 0.8, T 0.437 in (11.1 mm)",
+    "190L": "10-32 UNF-2A, T 0.760 in (19.3 mm)",
+    "190LM": "M5 x 0.8, T 0.760 in (19.3 mm)"
+   },
+   "hex_in": 0.375,
+   "dims_in": {
+    "dia_0.148": 3.8,
+    "dia_0.190": 4.8,
+    "0.40": 10.2,
+    "0.15": 3.8,
+    "0.17": 4.3,
+    "0.630": 16.0
+   },
+   "dims_note": "the extract gives the dimension values without their drawing positions: the 16.0 mm (0.630 in) height of hex + strain relief above the thread is an INTERPRETATION (TO-VERIFY on the Kulite drawing)",
+   "mounting_torque_Nm_max": 1.7,
+   "o_ring": "silicone 4.5 ID x 1.0 CS (supplied)",
+   "screens": "B (standard), M (optional)",
+   "wetted": "\"will operate properly in any medium compatible with 15-5 SS or SiO2\" + the supplied silicone O-ring (DATASHEET)",
+   "media_note": "pressure media: \"consult factory; all media may not be suitable with the O-ring supplied\" (DATASHEET)",
+   "use_note": "no flight-heritage statement in the sheet; Kulite publishes the series for test and R&D (XTEL sheet wording)"
+  },
+  "C2": {
+   "id": "C2",
+   "maker": "Kistler Instrumente AG",
+   "family": "4007D high-temperature piezoresistive absolute pressure sensor, M5",
+   "part_proposed": "4007D100FDS1-x (0-100 bar abs, fine thread, PiezoSmart digital compensation, PTFE cable; ordering code pattern from the datasheet example 4007D050FDS1-2,0)",
+   "source": "Kistler data sheet 003-300e (https://assets.kistler.com.cn/SAPCommerce_Download_original/003-300e.pdf) and product page P0000218 (kistler.com), retrieved 2026-10-13",
+   "ranges_bar": [
+    5,
+    10,
+    20,
+    50,
+    100
+   ],
+   "overload_bar": [
+    15,
+    30,
+    40,
+    100,
+    200
+   ],
+   "modes": "absolute",
+   "natural_frequency_kHz": "> 100",
+   "accuracy": "max pressure deviation <= +/-1 %FSO (incl. linearity, hysteresis, thermal effects, compensation model) with the Kistler amplifier compensation; linearity <= +/-0.2 %FSO (+/-0.4 % for >= 100 bar)",
+   "accel_sens": "<= +/-0.1 mbar/g",
+   "operating_C": [
+    -40.0,
+    200.0
+   ],
+   "compensated_C": [
+    25.0,
+    180.0
+   ],
+   "compensation_note": "digital temperature compensation needs a Kistler amplifier 4665/4665B/4624A/4667A (power supply integrated in the amplifier): an ECU-side implementation (constant-current excitation, bridge-voltage temperature channel, PiezoSmart coefficients) is MISSING / TO-DESIGN",
+   "thread": "M5 x 0.5 (fine thread inlet); M14x1.25 adapter available",
+   "body_dia_mm": 6.2,
+   "mass_g_excl_cable_connector": 3.0,
+   "torque_Nm": [
+    1.5,
+    2.5
+   ],
+   "seal": "copper seal 1145A1 (fluoropolymer 1145A2 to 200 C)",
+   "cable": "PTFE dia 3.0 mm -40..180 C, bend radius 22.5 mm fixed / 45 mm moving (Fig. 3; page 1 says 21/42: CONFLICT kept); 5-pole Fischer connector",
+   "media": "compatible with most automotive fluids and gases; not water, hydrogen or helium (DATASHEET); N2O/O2 not stated",
+   "vibration": "MISSING (only acceleration sensitivity given)",
+   "ip": "IP67"
+  },
+  "C3": {
+   "id": "C3",
+   "maker": "Endevco (PCB Piezotronics / Amphenol)",
+   "family": "8530B piezoresistive absolute pressure transducer, 10-32",
+   "part_proposed": "8530B-1000 (0-1000 psia = 68.95 bar abs)",
+   "source": "Endevco datasheet EDV-DS-8530B (https://buy.endevco.com/ContentStore/mktg/Downloads/EDV-DS-8530B_lowres.pdf), retrieved 2026-10-13",
+   "ranges_psia": [
+    200,
+    500,
+    1000,
+    2000
+   ],
+   "sens_mV_per_psi": [
+    1.5,
+    0.6,
+    0.3,
+    0.3
+   ],
+   "fso_mV": 300.0,
+   "resonance_Hz": [
+    750000,
+    1000000,
+    ">1000000",
+    ">1000000"
+   ],
+   "burst_psia_min": [
+    800,
+    2000,
+    4000,
+    4000
+   ],
+   "case_pressure_psia_min": [
+    1000,
+    5000,
+    5000,
+    5000
+   ],
+   "nonlin_overrange": [
+    "1.5 % of 3X FSO",
+    "2 % of 3X FSO",
+    "2.0 % at 2.5X FSO",
+    "2.0 % at 1.5X FSO"
+   ],
+   "proof_note": "no proof value printed; for 1000 psia the sheet states the non-linearity at 2.5X FSO (2500 psia = 172 bar), taken as the DERIVED usable over-range (TO-VERIFY as a proof rating)",
+   "operating_C": [
+    -54.0,
+    121.0
+   ],
+   "compensated_C": [
+    -18.0,
+    93.0
+   ],
+   "thermal_zero_pctFSO": 3.0,
+   "thermal_sens_pct": 4.0,
+   "vibration": "1000 g pk",
+   "shock": "20 000 g, 100 us haversine",
+   "acceleration": "1000 g",
+   "excitation_V": {
+    "standard": 10.0,
+    "max": 18.0,
+    "-D option": 5.0
+   },
+   "thread": "10-32 UNF-2A",
+   "case_length_mm": 11.12,
+   "mass_g": 2.3,
+   "cable_g_per_m": 9.0,
+   "dead_volume_mm3": 5.0,
+   "wetted": "17-4 PH CRES case, epoxy internal seals, Parylene C, Viton O-ring; media: clean dry gas only (DATASHEET)",
+   "hex_or_dia": "MISSING in the sheet text (drawing not extracted)"
+  },
+  "rejected": [
+   {
+    "part": "Kulite XTL-190(M) 1000 psi (70 bar)",
+    "reason": "proof 1.5 x 1000 psi = 103.4 bar < 112 bar abs (Pc) and < 105 bar (1.5 x tank MEOP for P_feed/P_mid) (DATASHEET rule)"
+   },
+   {
+    "part": "Kulite XTEL-190(M) (high-temperature variant, kulite.com/assets/media/2017/06/XTEL-190.pdf)",
+    "reason": "linear vibration 20 g peak 10-2000 Hz and shock 20 g / 11 ms only (DATASHEET); operating media to 273 C would otherwise suit"
+   },
+   {
+    "part": "TE MEAS XP5 (EXP5-10BS-C00008, te.com product 10221204-00)",
+    "reason": "operating -40..120 C: 1.7 C above the B1 soak SIM, no margin for the diaphragm transient (DATASHEET page)"
+   },
+   {
+    "part": "KELLER Series M5 (keller-pressure.com)",
+    "reason": "ranges 0..3 to 0..30 bar (DATASHEET page): does not cover the 45 bar MEOP"
+   },
+   {
+    "part": "Endevco 8530C",
+    "reason": "ranges 15-100 psia only (DATASHEET EDV-DS-8530C)"
+   },
+   {
+    "part": "TE M3234-000005-070BG (current)",
+    "reason": "body dia 19 x 60 mm class does not fit the dia 12 x 30 envelope (Mechanical pc_space_v1); every mounting found gives T > 1 ms (pc_line_period_v1); kept as the stand static-level reference"
+   }
+  ]
+ },
+ "C_checks": [
+  {
+   "id": "C1",
+   "proposed": "XTL-190SM-2000A (M5 x 0.8, short body, 0-2000 psia = 140 bar abs; ordering code TO-VERIFY with Kulite)",
+   "rank": "PREFERRED (Pc, P_feed, P_mid: one family)",
+   "range": {
+    "v": {
+     "FS_Pa_abs": 13789514.0,
+     "FS_bar": 137.9,
+     "mode": "A (absolute)"
+    },
+    "tag": "DATASHEET (2000 psi = 140 bar range code)"
+   },
+   "checks": {
+    "proof_ge_112bar_abs": {
+     "pass": true,
+     "basis": "DATASHEET 1.5 x 2000 psi = 206.8 bar >= 112.2"
+    },
+    "proof_ge_1p5_tank_MEOP": {
+     "pass": true,
+     "basis": "206.8 >= 105.0 bar"
+    },
+    "proof_ge_1p5_disc_max": {
+     "pass": true,
+     "basis": "206.8 >= 149.6 bar (DERIVED bound)"
+    },
+    "burst_bar": {
+     "v": 344.7,
+     "tag": "DATASHEET 3 x rated capped at 5000 psi"
+    },
+    "range_covers_MEOP": {
+     "pass": true,
+     "basis": "137.9 bar abs FS >= 45.0"
+    },
+    "operating_temperature": {
+     "pass": true,
+     "basis": "DATASHEET -55..+175 C; margin 56.7 C over the B1 soak 118.3 C SIM"
+    },
+    "envelope_dia12": {
+     "pass": true,
+     "basis": "hex 3/8 in = 9.53 mm A/F, 11.00 mm across corners (DERIVED) <= 12; radial clearance 0.50 mm"
+    },
+    "envelope_height30": {
+     "pass": null,
+     "basis": "hex + strain relief 16.0 mm (0.630 in, INTERPRETATION of the extract) + cable bend: 30 AWG 4-core shielded cable dia MISSING; with a 10 x dia bend radius the exit fits 30 mm only if the cable dia <= 1.4 mm (DERIVED) -> TO-VERIFY (Kulite drawing, Mechanical CC-2 detail)"
+    },
+    "thread": {
+     "v": "M5 x 0.8 (190SM) or 10-32 UNF-2A (190S); proposal M5 x 0.8 SI; seal: replace the supplied silicone O-ring by an FKM ring of the same size or a metal seal on the hex shoulder (Mechanical / oxidiser-compatibility rule; Kulite to confirm)",
+     "tag": "DATASHEET / DESIGN"
+    },
+    "front_dead_volume": {
+     "pass": true,
+     "basis": "6 mm3 ASSUMED (B screen cavity, MISSING in the sheet); M screen or no screen TO-VERIFY with Kulite"
+    },
+    "natural_frequency": {
+     "v": {
+      "kHz_no_screen_typ": 1400,
+      "rise_10_90_us_DERIVED": 0.24
+     },
+     "tag": "DATASHEET (range mapping by order, TO-VERIFY); with the B screen MISSING"
+    },
+    "accuracy": {
+     "v": {
+      "nonlin_hyst_rep_max_bar": 0.69,
+      "thermal_zero_typ_bar_per_C": 0.0248,
+      "thermal_sens_typ_pct_per_C": 0.018
+     },
+     "tag": "DATASHEET (typ thermal values; max MISSING)"
+    },
+    "vibration": {
+     "v": "100 g max, 10-2000 Hz sine (DATASHEET); steady acceleration 10 000 g",
+     "tag": "DATASHEET; vehicle spectrum MISSING (no qualification spectrum in the ICD yet)"
+    },
+    "n2o_o2": {
+     "v": "wetted 15-5 SS and SiO2 per the sheet; silicone O-ring supplied (replace); oxygen cleaning (ASTM G93 level) and N2O service statement TO-VERIFY / TO-QUOTE with Kulite",
+     "tag": "DATASHEET + TO-VERIFY"
+    },
+    "output": {
+     "v": "passive bridge, 100 mV FSO at 10 V (nominal) -> 50 mV at the 5 V ratiometric excitation (DERIVED): needs the bridge conditioning of section E",
+     "tag": "DATASHEET + DERIVED"
+    },
+    "mass_g": {
+     "v": {
+      "body": 4.0,
+      "cable_0p9m": null
+     },
+     "tag": "DATASHEET body; cable mass MISSING"
+    },
+    "price": {
+     "v": "TO-QUOTE delivered to Soenderborg DK-6400 (Kulite Sensors Ltd, UK / Kulite GmbH, DE)",
+     "tag": "TO-QUOTE"
+    }
+   },
+   "passage_period_ms_CC1_at_volume": {
+    "N2O_vap_200K": 1.026,
+    "N2O_vap_250K": 0.93,
+    "N2O_vap_300K": 0.85,
+    "products_400K": 0.57
+   },
+   "passage_period_ms_CC1_at_20mm3": {
+    "N2O_vap_200K": 1.106,
+    "N2O_vap_250K": 1.002,
+    "N2O_vap_300K": 0.916,
+    "products_400K": 0.613
+   }
+  },
+  {
+   "id": "C2",
+   "proposed": "4007D100FDS1-x (0-100 bar abs, fine thread, PiezoSmart digital compensation, PTFE cable; ordering code pattern from the datasheet example 4007D050FDS1-2,0)",
+   "rank": "ALTERNATE (Pc), larger conditioning change",
+   "range": {
+    "v": {
+     "FS_Pa_abs": 10000000.0,
+     "FS_bar": 100.0,
+     "mode": "absolute"
+    },
+    "tag": "DATASHEET"
+   },
+   "checks": {
+    "proof_ge_112bar_abs": {
+     "pass": true,
+     "basis": "DATASHEET overload 200 bar (100 bar range)"
+    },
+    "proof_ge_1p5_tank_MEOP": {
+     "pass": true,
+     "basis": "200 >= 105.0 bar"
+    },
+    "range_covers_MEOP": {
+     "pass": true,
+     "basis": "100 bar abs FS"
+    },
+    "operating_temperature": {
+     "pass": true,
+     "basis": "DATASHEET sensor -40/200 C; margin 81.7 C over the B1 soak SIM"
+    },
+    "envelope_dia12": {
+     "pass": true,
+     "basis": "body dia 6.2 mm (DATASHEET)"
+    },
+    "envelope_height30": {
+     "pass": null,
+     "basis": "cable bend radius 22.5 mm fixed (DATASHEET Fig. 3; page 1 says 21 mm: CONFLICT) above the body: likely > 30 mm unless the cable leaves sideways through a channel: TO-VERIFY Mechanical"
+    },
+    "front_dead_volume": {
+     "pass": true,
+     "basis": "3 mm3 ASSUMED front-sealed; TO-VERIFY"
+    },
+    "natural_frequency": {
+     "v": "> 100 kHz",
+     "tag": "DATASHEET"
+    },
+    "accuracy": {
+     "v": "max pressure deviation <= +/-1 %FSO (incl. linearity, hysteresis, thermal effects, compensation model) with the Kistler amplifier compensation; linearity <= +/-0.2 %FSO (+/-0.4 % for >= 100 bar)",
+     "tag": "DATASHEET (with the Kistler amplifier compensation)"
+    },
+    "vibration": {
+     "v": "MISSING (acceleration sensitivity <= 0.1 mbar/g only)",
+     "tag": "DATASHEET"
+    },
+    "n2o_o2": {
+     "v": "not stated (automotive fluids and gases; not water/H2/He)",
+     "tag": "DATASHEET; TO-VERIFY"
+    },
+    "output": {
+     "v": "digital temperature compensation needs a Kistler amplifier 4665/4665B/4624A/4667A (power supply integrated in the amplifier): an ECU-side implementation (constant-current excitation, bridge-voltage temperature channel, PiezoSmart coefficients) is MISSING / TO-DESIGN",
+     "tag": "DATASHEET + MISSING"
+    },
+    "mass_g": {
+     "v": {
+      "body": 3.0,
+      "cable_connector": null
+     },
+     "tag": "DATASHEET body; cable + Fischer connector MISSING"
+    },
+    "price": {
+     "v": "TO-QUOTE delivered to Soenderborg DK-6400 (Kistler, Winterthur CH)",
+     "tag": "TO-QUOTE"
+    }
+   },
+   "passage_period_ms_CC1_at_volume": {
+    "N2O_vap_200K": 1.009,
+    "N2O_vap_250K": 0.915,
+    "N2O_vap_300K": 0.836,
+    "products_400K": 0.56
+   }
+  },
+  {
+   "id": "C3",
+   "proposed": "8530B-1000 (0-1000 psia = 68.95 bar abs)",
+   "rank": "NOT FOR FLIGHT (temperature margin); stand / B-PC-1 comparison only",
+   "range": {
+    "v": {
+     "FS_Pa_abs": 6894757.0,
+     "FS_bar": 68.95,
+     "mode": "absolute (psia)"
+    },
+    "tag": "DATASHEET"
+   },
+   "checks": {
+    "proof_ge_112bar_abs": {
+     "pass": true,
+     "basis": "no proof value printed; non-linearity stated at 2.5X FSO = 172 bar (DERIVED usable over-range, TO-VERIFY); burst 4000 psia = 276 bar"
+    },
+    "range_covers_MEOP": {
+     "pass": true,
+     "basis": "68.95 bar abs FS"
+    },
+    "operating_temperature": {
+     "pass": false,
+     "basis": "DATASHEET -54..+121 C: 2.7 C over the B1 soak SIM; no margin for the MISSING diaphragm transient"
+    },
+    "front_dead_volume": {
+     "pass": true,
+     "basis": "DATASHEET 0.005 cc = 5 mm3 (+ port)"
+    },
+    "natural_frequency": {
+     "v": "> 1 MHz (1000 psia)",
+     "tag": "DATASHEET"
+    },
+    "vibration": {
+     "v": "1000 g pk; shock 20 000 g 100 us",
+     "tag": "DATASHEET"
+    },
+    "n2o_o2": {
+     "v": "clean dry gas only; epoxy, Parylene C, Viton wetted",
+     "tag": "DATASHEET: organic wetted materials, not preferred"
+    },
+    "mass_g": {
+     "v": {
+      "body": 2.3,
+      "cable_g_per_m": 9.0
+     },
+     "tag": "DATASHEET"
+    },
+    "price": {
+     "v": "TO-QUOTE delivered to Soenderborg DK-6400",
+     "tag": "TO-QUOTE"
+    }
+   },
+   "passage_period_ms_CC1_at_volume": {
+    "N2O_vap_200K": 1.02,
+    "N2O_vap_250K": 0.925,
+    "N2O_vap_300K": 0.845,
+    "products_400K": 0.567
+   }
+  }
+ ],
+ "D_passage_period": {
+  "basis": "Mechanical pc_line_period_v1.json (lossless 1-D acoustics, DERIVED; passage gas sound speed MISSING, bounded 222-400 m/s; Combustion gives it at the FA-1 instant). Linear interpolation in the CC-1 V_end rows.",
+  "CC1_V_end_max_for_T_le_1ms": {
+   "N2O_vap_200K": 1.4,
+   "N2O_vap_250K": 19.6,
+   "N2O_vap_300K": 38.5,
+   "products_400K": 170.5
+  },
+  "C1_at_6mm3": {
+   "N2O_vap_200K": 1.026,
+   "N2O_vap_250K": 0.93,
+   "N2O_vap_300K": 0.85,
+   "products_400K": 0.57
+  },
+  "C1_at_20mm3": {
+   "N2O_vap_200K": 1.106,
+   "N2O_vap_250K": 1.002,
+   "N2O_vap_300K": 0.916,
+   "products_400K": 0.613
+  },
+  "CC2_rows": {
+   "CC-2 deeper seat: \u00d82.0 x 20 mm passage + disc": [
+    {
+     "V_end_mm3": 0.0,
+     "T_ms_N2O_vap_200K": 0.376,
+     "T_ms_N2O_vap_250K": 0.341,
+     "T_ms_N2O_vap_300K": 0.312,
+     "T_ms_products_400K": 0.209
+    },
+    {
+     "V_end_mm3": 30.0,
+     "T_ms_N2O_vap_200K": 0.536,
+     "T_ms_N2O_vap_250K": 0.485,
+     "T_ms_N2O_vap_300K": 0.444,
+     "T_ms_products_400K": 0.297
+    },
+    {
+     "V_end_mm3": 60.0,
+     "T_ms_N2O_vap_200K": 0.665,
+     "T_ms_N2O_vap_250K": 0.603,
+     "T_ms_N2O_vap_300K": 0.551,
+     "T_ms_products_400K": 0.369
+    }
+   ],
+   "CC-2 deeper seat: \u00d82.0 x 30 mm passage + disc": [
+    {
+     "V_end_mm3": 0.0,
+     "T_ms_N2O_vap_200K": 0.557,
+     "T_ms_N2O_vap_250K": 0.504,
+     "T_ms_N2O_vap_300K": 0.461,
+     "T_ms_products_400K": 0.309
+    },
+    {
+     "V_end_mm3": 30.0,
+     "T_ms_N2O_vap_200K": 0.721,
+     "T_ms_N2O_vap_250K": 0.654,
+     "T_ms_N2O_vap_300K": 0.597,
+     "T_ms_products_400K": 0.4
+    },
+    {
+     "V_end_mm3": 60.0,
+     "T_ms_N2O_vap_200K": 0.864,
+     "T_ms_N2O_vap_250K": 0.783,
+     "T_ms_N2O_vap_300K": 0.716,
+     "T_ms_products_400K": 0.48
+    }
+   ],
+   "CC-2 deeper seat: \u00d82.0 x 40 mm passage + disc": [
+    {
+     "V_end_mm3": 0.0,
+     "T_ms_N2O_vap_200K": 0.737,
+     "T_ms_N2O_vap_250K": 0.668,
+     "T_ms_N2O_vap_300K": 0.61,
+     "T_ms_products_400K": 0.409
+    },
+    {
+     "V_end_mm3": 30.0,
+     "T_ms_N2O_vap_200K": 0.904,
+     "T_ms_N2O_vap_250K": 0.819,
+     "T_ms_N2O_vap_300K": 0.749,
+     "T_ms_products_400K": 0.502
+    },
+    {
+     "V_end_mm3": 60.0,
+     "T_ms_N2O_vap_200K": 1.055,
+     "T_ms_N2O_vap_250K": 0.956,
+     "T_ms_N2O_vap_300K": 0.874,
+     "T_ms_products_400K": 0.585
+    }
+   ]
+  },
+  "finding": "with CC-1 a 6 mm3 front volume keeps T <= 1 ms except for N2O vapour at 200 K (1.03 ms) and 20 mm3 exceeds 1 ms below about 250 K; CC-2 (passage <= 30 mm) keeps T <= 0.86 ms up to 60 mm3 in every gas (DERIVED from Mechanical's table): CC-2 is the robust route, as the lead's 60 mm3 allowance implies"
+ },
+ "E_conditioning": {
+  "topology": {
+   "v": "per channel (Pc, P_feed, P_mid): bridge excitation = +5V_SNS (ratiometric with the existing 0.5-4.5 V scaling and the comparator references), RFI filter 2 x 1.00 k + 10 nF diff + 2 x 1 nF CM, TI INA333 (zero-drift, rail-to-rail output) on +5V_SNS, gain set by a select-on-test RG, REF from a buffered select-on-test divider of +5V_SNS (OPA2333 dual buffer per two channels), open-wire bias 10 M on each signal line (SIG+ to GND, SIG- to +5V_SNS). INA output = the existing PC_SIG / PFEED_SIG / P_MID_SIG net: divider, anti-alias RC, ADS131M04 and the U330 / U570 comparators are unchanged in topology.",
+   "tag": "DESIGN"
+  },
+  "transfer": {
+   "v": {
+    "zero_frac": 0.1,
+    "span_frac": 0.8,
+    "FS_Pa_abs": 13789514.0,
+    "equation": "V_SIG = V_exc x (0.10 + 0.80 x p_abs / FS) after the select-on-test trims"
+   },
+   "tag": "DESIGN"
+  },
+  "bridge_fso_at_5V_mV": {
+   "v": 50.0,
+   "tag": "DERIVED from the DATASHEET 100 mV at 10 V (ratiometric bridge)"
+  },
+  "gain": {
+   "v": {
+    "nominal": 80.0,
+    "RG_nominal_ohm": 1265.8,
+    "RG_E96_ohm": 1270.0,
+    "G_E96": 79.74,
+    "RG_select_range_ohm": [
+     946.0,
+     1911.0
+    ],
+    "for_FSO_ratio": [
+     0.75,
+     1.5
+    ]
+   },
+   "tag": "DESIGN; FSO spread per unit ASSUMED 0.75-1.5 x nominal (the sheet gives the nominal only): RG chosen from the unit calibration sheet, 0.1 % thin film"
+  },
+  "bandwidth_Hz": {
+   "v": 4389.0,
+   "tag": "DERIVED from DATASHEET INA333 3.5 kHz at G = 100 (SBOS445C), scaled by G"
+  },
+  "anti_alias_Hz": {
+   "v": 2369.0,
+   "tag": "DESIGN (unchanged 12.7k || 4.02k x 22 nF)"
+  },
+  "noise": {
+   "v": {
+    "rti_uV_rms": 3.09,
+    "bar_rms": 0.0085
+   },
+   "tag": "DERIVED (INA333 50 nV/rtHz DATASHEET + resistor thermal noise, noise bandwidth 1.57 x the AAF corner); EMI pickup on the 50 mV cable not modelled: the SIL keeps 3450 Pa rms ASSUMED and adds 2x as a sensitivity"
+  },
+  "resolution_bar_per_ADC_LSB": {
+   "v": 2.07e-05,
+   "tag": "DERIVED (24-bit, 1.2 V FS, 0.23822 divider)"
+  },
+  "zero_trim": {
+   "v": {
+    "residual_unbalance_at_5V_mV_typ": 2.5,
+    "bias_offset_mV": 0.5,
+    "output_trim_needed_V_typ": 0.239,
+    "REF_nominal_V": 0.5,
+    "REF_select_range_V": [
+     0.141,
+     0.859
+    ]
+   },
+   "tag": "DATASHEET unbalance (typ, max MISSING) + DESIGN: the REF divider bottom resistor is select-on-test at B-PC-1 so the comparator trip (analogue) sees the trimmed zero; the firmware auto-zero handles the remaining drift on the digital path"
+  },
+  "open_wire": {
+   "v": {
+    "SIG+ open": "IN+ pulled to GND -> output at the low rail (0.05 V) < 0.25 V: PC_SENSOR LOW (DERIVED)",
+    "SIG- open": "IN- pulled to +5V_SNS -> output at the low rail: LOW (DERIVED)",
+    "EXC+ open": "both signals fall to ~0 V through the bridge arms; INA333 common-mode limit (V-) + 0.1 V violated: output undefined (MISSING) - may read near zero pressure (not caught by the 0.25 V window). Firmware coverage: the light rule never confirms (no E1/E2: abort with the gate reason); in RUN a step to ~0 bar abs trips PC_BAND. B-PC-1 open-wire row measures it.",
+    "EXC- open": "both signals rise to ~5 V; INA333 CM limit (V+) - 0.1 V violated: output undefined (MISSING); if it reads HIGH the comparator trips (HW_OVERPRESSURE) - the same class as the v2.10 070BG open-ground case. B-PC-1 open-wire row.",
+    "cable short SIG+ to SIG-": "output = REF (reads the trimmed zero ~ 0 bar abs): same coverage as EXC+ open"
+   },
+   "tag": "DERIVED / MISSING (bench)"
+  },
+  "power": {
+   "v": {
+    "bridge_mA_max_each": 5.0,
+    "channels": 3,
+    "bridges_mA_max_total": 15.0,
+    "ina333_uA_each": 50,
+    "LT1761_5_mA_rating": 100
+   },
+   "tag": "DATASHEET (Kulite input impedance >= 1 k; INA333 50 uA typ; LT1761 100 mA); the +5V_SNS budget is re-summed in ecu_design.py"
+  },
+  "margin_statement": {
+   "v": {
+    "rating_C": 175.0,
+    "B1_soak_SIM_C": 118.3,
+    "A1_relight_seat_SIM_C": 33.8,
+    "margin_C": 56.7,
+    "compensated_range_C": [
+     25.0,
+     80.0
+    ]
+   },
+   "tag": "DERIVED: 56.7 C between the DATASHEET operating limit and the SIM soak maximum is the margin held for the MISSING diaphragm gas-side transient (adiabatic compression of the passage gas at the light and hot products entering the passage). Outside 25-80 C the thermal errors are not compensated: the compensated band should be ordered as 20-120 C (sheet: any 100 F band on request, TO-QUOTE). Closures: seat thermocouple + post-burn zero check in B-PC-1 / static fire, hot-day re-run (LEAD 205)."
+  }
+ },
+ "E_error_budget": {
+  "v": {
+   "dT_trim_to_relight_C": 13.799999999999997,
+   "levels": {
+    "cap_25bar": {
+     "level_bar_abs": 25.0,
+     "nonlin_hyst_rep_max_bar": 0.689,
+     "thermal_zero_typ_bar": 0.343,
+     "thermal_span_typ_bar": 0.062,
+     "ina_gain_drift_bar": 0.0172,
+     "rg_drift_bar": 0.0086,
+     "rss_bar": 0.773,
+     "linear_sum_bar": 1.12
+    },
+    "abort_30bar": {
+     "level_bar_abs": 30.0,
+     "nonlin_hyst_rep_max_bar": 0.689,
+     "thermal_zero_typ_bar": 0.343,
+     "thermal_span_typ_bar": 0.075,
+     "ina_gain_drift_bar": 0.0207,
+     "rg_drift_bar": 0.0103,
+     "rss_bar": 0.774,
+     "linear_sum_bar": 1.138
+    },
+    "MEOP_45bar": {
+     "level_bar_abs": 45.0,
+     "nonlin_hyst_rep_max_bar": 0.689,
+     "thermal_zero_typ_bar": 0.343,
+     "thermal_span_typ_bar": 0.112,
+     "ina_gain_drift_bar": 0.031,
+     "rg_drift_bar": 0.0155,
+     "rss_bar": 0.779,
+     "linear_sum_bar": 1.19
+    }
+   },
+   "digital_path_note": "the ARMED auto-zero and the coast re-zero remove the zero term on the firmware path; the hardware comparator keeps it"
+  },
+  "tag": "DERIVED (DATASHEET typ thermal terms; the max values are MISSING in the sheet)"
+ },
+ "F_hw_comparator_U330": {
+  "values": {
+   "v": {
+    "R330": 47500.0,
+    "R331": 47500.0,
+    "C330": 2.2e-07,
+    "R332": 174000.0,
+    "R333": 29400.0
+   },
+   "tag": "DESIGN (E96 0.1 %; C330 220 nF C0G kept)"
+  },
+  "tap_ratio": {
+   "v": 0.5,
+   "tag": "DESIGN 1/2 (v2.10: 0.2401): keeps the comparator sensitivity per bar of the 70 bar chain with the 140 bar span"
+  },
+  "tau_s": {
+   "v": 0.005225,
+   "tag": "DERIVED (R330 || R331) x C330 (v2.10: 0.005283 s)"
+  },
+  "pc_sig_trip_V": {
+   "v": 1.4454,
+   "tag": "DERIVED"
+  },
+  "trip_nominal_Pa_abs": {
+   "v": 3259247.0,
+   "tag": "DERIVED (absolute at every altitude; v2.10: 31.47 bar g)"
+  },
+  "band_circuit_Pa": {
+   "v": 151347.0,
+   "tag": "DERIVED worst-case linear sum (LMV331 Vio 9 mV and Iib 400 nA max DATASHEET, 0.1 % ratios)"
+  },
+  "trip_range_abs_Pa": {
+   "v": [
+    3107900.0,
+    3410594.0
+   ],
+   "tag": "DERIVED circuit terms"
+  },
+  "hardware_low_end_above_firmware_30bar": {
+   "v": true,
+   "tag": "DERIVED (transducer error common to both paths)"
+  },
+  "margin_high_end_to_MEOP_Pa": {
+   "v": 1089406.0,
+   "tag": "DERIVED"
+  },
+  "transducer_error_common_bar": {
+   "v": 0.774,
+   "tag": "DERIVED section E (after trims, A1 dT)"
+  }
+ },
+ "G_pmid_comparator_U570": {
+  "values": {
+   "v": {
+    "R573": 4750.0,
+    "R574": 806000.0,
+    "R576": 10500.0,
+    "R577": 2050.0
+   },
+   "tag": "DESIGN (E96)"
+  },
+  "trip_rise_Pa_abs": {
+   "v": 1108492.0,
+   "tag": "DERIVED (v2.9 levels 10.0 / 9.0 bar g kept as 11.01 / 10.01 bar abs)"
+  },
+  "release_Pa_abs": {
+   "v": 1006910.0,
+   "tag": "DERIVED"
+  },
+  "band_Pa": {
+   "v": 31026.0,
+   "tag": "DERIVED comparator Vio only; the transducer zero (after trim) adds the thermal term of section E at the BL-08 temperature (MISSING)"
+  },
+  "oi_bleed_detect_low_threshold_option": {
+   "v": "a threshold near 2.0 bar abs would separate a both-stuck-open bleed (P_mid 3-4 bar abs, Mechanical ESTIMATE) from a vented mid passage (~1 bar abs). With the 140 bar span: Vio band +/- 0.31 bar plus the thermal zero 0.025 bar/C typ (DATASHEET) x the MISSING BL-08 temperature excursion: for a 60 C excursion +/- 1.5 bar. NOT adopted: the separation is not shown; candidate only (see the v2.11 OI-BLEED-DETECT entry)",
+   "tag": "DERIVED"
+  }
+ },
+ "H_mass": {
+  "v": {
+   "per_channel_g": 13.1,
+   "body_g": 4.0,
+   "cable_g": 9.1,
+   "P_feed_plus_P_mid_g": 26.3,
+   "carried_g": 100.0,
+   "delta_kg": -0.074,
+   "note": "the ECU-side conditioning (2 x INA333 + RG/REF parts, < 1 g each, DERIVED) sits on the ECU board; the 0.9 m integral cable may be shortened to the harness break (TO-VERIFY with Kulite)"
+  },
+  "tag": "DATASHEET body 4 g; cable ASSUMED 10 g/m (MISSING)"
+ },
+ "summary": [
+  "A. Pc proof req 112.2 bar abs; P_feed/P_mid proof req 105.0 bar (1.5 x tank MEOP 70.0); disc max 99.75 bar; B1 soak 118.3 C SIM; Mechanical hashes match",
+  "C. C1 XTL-190SM-2000A (M5 x 0.8, short body, 0-2000 psia = 140 bar: PREFERRED (Pc, P_feed, P_mid: one family); fails none; open ['envelope_height30']",
+  "C. C2 4007D100FDS1-x (0-100 bar abs, fine thread, PiezoSmart digit: ALTERNATE (Pc), larger conditioning change; fails none; open ['envelope_height30']",
+  "C. C3 8530B-1000 (0-1000 psia = 68.95 bar abs): NOT FOR FLIGHT (temperature margin); stand / B-PC-1 comparison only; fails ['operating_temperature']; open none",
+  "D. C1 at 6 mm3 CC-1 period {'N2O_vap_200K': 1.026, 'N2O_vap_250K': 0.93, 'N2O_vap_300K': 0.85, 'products_400K': 0.57} ms; at 20 mm3 {'N2O_vap_200K': 1.106, 'N2O_vap_250K': 1.002, 'N2O_vap_300K': 0.916, 'products_400K': 0.613}",
+  "E. INA333 G 79.7 (RG 1270 E96), BW 4389 Hz, noise 0.0085 bar rms (DERIVED), REF trim range [0.141, 0.859] V; error RSS at 30 bar 0.77 bar",
+  "F. U330 tap 0.500 (R330/R331 47.5k), tau 5.225 ms, R332 174k / R333 29.4k: trip 32.59 bar abs, band +/- 1.51 bar -> 31.08..34.11 (firmware 30.0, MEOP 45.0)",
+  "G. U570 R574 806k, R576/R577 10.50k/2.05k: rise 11.08 bar abs, fall 10.07 bar abs",
+  "H. P_feed + P_mid 26.3 g vs 100 g carried -> -0.074 kg (cable mass ASSUMED)"
+ ],
+ "I_header": {
+  "file": "firmware/sil/ovp_hw_params.h",
+  "sha256_16": "1eaea6ad2d17f029"
+ }
+}

@@ -1,0 +1,259 @@
+{
+ "id": "hb_base_residue_v352",
+ "doc": "Hot-bound base residue (lead 22:54:03Z (3)): the OP-moment residue inside the LC3 / F2 hot-bound bases, report-only, no re-solve.\n\nlc3_bound: hot = A + D with A = base TH + OP x Pc_max + PM x 7 (R3 neutral base hbg3 / hbh3) and D = sub-case - OP x Pc_max of the\nSAME pose (post_lc3 / post_s3d: D = S - co['OP'] S_OP).  So the base OP rods (residue t_base Pc_max) enter through A, and each pose's own\nOP rods (t_pose Pc_max) are taken out of D.  Implied rod force of A + D:\n  * rods prescribed in the cold sub-case (LC3 runaway: fb_run, 609 N; GS: EAX / EAY at the +/-F_d corners, 441-552 N): prescribed +\n    (t_base - t_pose) Pc_max  -> the base residue is REPLACED by the prescribed rods, to within the pose difference;\n  * rods reacting inertia (TD, LC6): inertia reactions + t_base Pc_max -> the base residue ADDS (+86 / +66 N).\nGoverning pose of each GM-01 / GM-02 hot-bound cell = the pose whose increment envelope vmD is largest at the cell node (the bound uses the\nnode-wise maximum over the poses).  Estimate of the effect [DERIVED; ASSUMED linear in the lever rod force with the whole vmD rod-driven,\nan upper estimate]: dvm = vmD(n) |d_rod| / F_prescribed.  t_base = the R3 neutral OP rods (same R3 neutral mesh and OP load; ASSUMED).\nWrites results/v352/hb_base_residue_v352.json only.\n",
+ "evidence": "DERIVED (statics of the posted rods; envelope read-back); ASSUMED where stated",
+ "Pc_max_MPa": 2.501,
+ "t_base_N_per_MPa": [
+  34.456,
+  26.329
+ ],
+ "base_residue_N": [
+  86.2,
+  65.8
+ ],
+ "cells": {
+  "LC3 GM-01": {
+   "cell_MS_bound": [
+    0.2204,
+    0.0516
+   ],
+   "node": 79483,
+   "state": "B1_2",
+   "base": "h3",
+   "vmD_by_pose_MPa": {
+    "stop000": 184.31,
+    "stop045": 11.02,
+    "stop090": 130.47,
+    "stop135": 112.45,
+    "stop180": 124.17,
+    "stop225": 10.29,
+    "stop270": 175.58,
+    "stop315": 228.73
+   },
+   "governing_pose": "stop315",
+   "lever_rod": "ROD_1",
+   "d_rod_N": [
+    11.9,
+    0.93
+   ],
+   "sign_on_lever_rod": "+ (A + D carries more tension than prescribed)",
+   "F_prescribed_N": 609.0,
+   "d_rod_over_F": 0.0195,
+   "dvm_upper_estimate_MPa": 4.47
+  },
+  "LC3 GM-02": {
+   "cell_MS_bound": [
+    0.2829,
+    0.1055
+   ],
+   "node": 145697,
+   "state": "B1_2",
+   "base": "g3",
+   "vmD_by_pose_MPa": {
+    "stop000": 186.47,
+    "stop045": 225.19,
+    "stop090": 172.16,
+    "stop135": 9.36,
+    "stop180": 131.81,
+    "stop225": 120.5,
+    "stop270": 139.34,
+    "stop315": 11.71
+   },
+   "governing_pose": "stop045",
+   "lever_rod": "ROD_2",
+   "d_rod_N": [
+    0.21,
+    12.59
+   ],
+   "sign_on_lever_rod": "+ (A + D carries more tension than prescribed)",
+   "F_prescribed_N": 609.0,
+   "d_rod_over_F": 0.0207,
+   "dvm_upper_estimate_MPa": 4.66
+  },
+  "F2 GM-01": {
+   "cell_MS_bound": [
+    0.2891,
+    0.1108
+   ],
+   "node": 65042,
+   "state": "B1_21.65",
+   "base": "h3",
+   "vmD_by_pose_MPa": {
+    "neutral": 157.93,
+    "alpha+": 214.08,
+    "alpha-": 149.69,
+    "beta+": 195.91,
+    "beta-": 170.75,
+    "combined045": 174.21,
+    "combined135": 144.94,
+    "combined225": 200.59,
+    "combined315": 209.74
+   },
+   "governing_pose": "alpha+",
+   "lever_rod": "ROD_1",
+   "d_rod_N": [
+    10.09,
+    -13.78
+   ],
+   "sign_on_lever_rod": "+ (A + D carries more tension than prescribed)",
+   "F_prescribed_N": 552.0,
+   "d_rod_over_F": 0.0183,
+   "dvm_upper_estimate_MPa": 3.91
+  },
+  "F2 GM-02": {
+   "cell_MS_bound": [
+    0.3924,
+    0.1998
+   ],
+   "node": 156946,
+   "state": "B1_21.65",
+   "base": "h3",
+   "vmD_by_pose_MPa": {
+    "neutral": 148.68,
+    "alpha+": 141.46,
+    "alpha-": 202.83,
+    "beta+": 184.97,
+    "beta-": 162.51,
+    "combined045": 198.3,
+    "combined135": 190.61,
+    "combined225": 137.56,
+    "combined315": 164.4
+   },
+   "governing_pose": "alpha-",
+   "lever_rod": "ROD_2",
+   "d_rod_N": [
+    -14.78,
+    10.87
+   ],
+   "sign_on_lever_rod": "+ (A + D carries more tension than prescribed)",
+   "F_prescribed_N": 552.0,
+   "d_rod_over_F": 0.0197,
+   "dvm_upper_estimate_MPa": 3.99
+  }
+ },
+ "ranges": {
+  "LC3": {
+   "poses": [
+    "stop000",
+    "stop045",
+    "stop090",
+    "stop135",
+    "stop180",
+    "stop225",
+    "stop270",
+    "stop315"
+   ],
+   "d_rod_N": [
+    [
+     8.8,
+     9.2
+    ],
+    [
+     0.2,
+     12.6
+    ],
+    [
+     -17.7,
+     12.5
+    ],
+    [
+     -31.7,
+     1.8
+    ],
+    [
+     -20.4,
+     -20.1
+    ],
+    [
+     1.2,
+     -30.5
+    ],
+    [
+     11.5,
+     -16.3
+    ],
+    [
+     11.9,
+     0.9
+    ]
+   ],
+   "ROD_1_min_max_N": [
+    -31.70767799999999,
+    11.904760000000003
+   ],
+   "ROD_2_min_max_N": [
+    -30.547213999999997,
+    12.592535
+   ],
+   "rods": "LC3 runaway (fb_run, rods prescribed)"
+  },
+  "F2": {
+   "poses": [
+    "neutral",
+    "alpha+",
+    "alpha-",
+    "beta+",
+    "beta-",
+    "combined045",
+    "combined135",
+    "combined225",
+    "combined315"
+   ],
+   "d_rod_N": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     10.1,
+     -13.8
+    ],
+    [
+     -14.8,
+     10.9
+    ],
+    [
+     8.1,
+     8.4
+    ],
+    [
+     -16.8,
+     -16.6
+    ],
+    [
+     0.1,
+     11.6
+    ],
+    [
+     -25.7,
+     1.3
+    ],
+    [
+     0.8,
+     -24.8
+    ],
+    [
+     11.0,
+     0.7
+    ]
+   ],
+   "ROD_1_min_max_N": [
+    -25.67026399999999,
+    11.016905000000012
+   ],
+   "ROD_2_min_max_N": [
+    -24.839932000000005,
+    11.552119
+   ],
+   "rods": "GS (rods prescribed at +/-F_d) / TD, LC6 (inertia)"
+  }
+ },
+ "files_sha16": {
+  "f1_lc3_hot_bound_v352g3_x.json": "c86fc02b710164cc",
+  "f1_lc3_hot_bound_v352h3_x.json": "da16402c42f21245",
+  "f1_lc3_hot_bound_s3d_v352g3_x.json": "601c699e41394e72",
+  "f1_lc3_hot_bound_s3d_v352h3_x.json": "e4b908d18edbf9ec",
+  "v352/icd_momentfree_v352.json": "785b4e48f407ddfb",
+  "scripts/hb_base_residue_v352.py": "f7c2266242af1f1b"
+ }
+}

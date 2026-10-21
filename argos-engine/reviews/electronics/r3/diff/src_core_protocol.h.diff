@@ -1,0 +1,101 @@
+--- /dev/shm/rev_elec3/fw210/src/core/protocol.h	2026-10-13 15:14:37.000000000 +0000
++++ /dev/shm/rev_elec3/fw/src/core/protocol.h	2026-10-21 02:28:20.146021698 +0000
+@@ -1,3 +1,4 @@
++// [v2.11 2026-10-13 / 20, LEAD CHANGELOG 203 / 216: log v12 180 B (+ ovr_flags; ls_flags b7 above full scale), TLM_RELIGHT d6 may carry UNPURGED (16); EVENT R2_BACKSTOP 0x24, log tlm_flags b2 R2_BACKSTOP (216 (2)); ovr_flags b4 retired (216 (3), fixed RC)]
+ // [v2.10 2026-10-13, REV-ELEC-1 + LEAD CHANGELOG 164/166/168/172/175/181/186: TLM_FAST d4-d5 encoder lift, TLM_RELIGHT d6 b7 PC_VALID, d6 b6 DROGUE echo (186 (2)), EVENT PURGE_FLOW / FLAGS2 / SAFING_HOLD, log v11 179 B; full list in 06-electronics/REPORT-v2.10-HANDBACK.md] ARGOS engine ECU - FC<->ECU CAN protocol, binary log format and non-volatile jam / gimbal-notch records (v2.9: log v10 (+12 bytes: head-end
+ // bleed, light-rule baseline/rise, A3 ratio, lagged map Pc, A7 / E3 / re-zero flags), events 0x1D HBLEED, 0x1E REZERO, 0x1F PC_IMPLAUS,
+ // TLM_RELIGHT VALID/PRIMED through a PURGE, FC_THRUST valid-flag wording 'no drogue load'; v2.8.3: sat_flags b1 = tracker shaping, no layout change; v2.8.2: event 0x1C
+@@ -75,7 +76,7 @@
+ // v2.8 TLM_RELIGHT (0x102, len 8; LEAD 2026-10-13: the FC must know before T_fire whether the MV segment is primed; v2.8 final: GNC v3
+ // option (c) states and stale-flag rule, LEAD-accepted). The HAL sends it every 20 ms (50 Hz) in every state (requirement: >= 10 Hz in
+ // COAST). d0 seq (rolling, +1 per frame), d1 state, d2 flags (tlmr::), d3-d4 u16 relight_worst_ms (RELIGHT command -> Pc-confirm
+-// deadline of a RELIGHT sent now: 810 flight direct, 1370 flight prep path), d5 P_feed/P_tank absolute [%] (0xFF = not valid; 0-254),
++// deadline of a RELIGHT sent now: 810 flight direct, 1370 flight prep path; v2.11 flight with the bleed fitted, in COAST: 3710 = PURGE lead 2.90 s + gate + W), d5 P_feed/P_tank absolute [%] (0xFF = not valid; 0-254),
+ // d6 b0-b5 refuse:: reason a RELIGHT sent now would get (0 = accepted), d6 b6 (v2.10, LEAD CHANGELOG 186 (2)) DROGUE = echo of the FC
+ // drogue state held by the ECU (Cmd::DROGUE), d6 b7 (v2.10, LEAD CHANGELOG 175 (4)) PC_VALID = the pad launch-commit 'Pc channel valid'
+ // bit (Outputs::pc_commit_valid; 1 = valid), d7 CRC-8 over d0-d6. Decoders mask d6 & 0x3F for the reason (v2.9 decoders read d6 whole:
+@@ -86,10 +87,10 @@
+ // direct path; UNPRIMED/UNKNOWN = it runs the prep path. Invariants (decoder rejects otherwise): PRIMED or UNKNOWN only with VALID;
+ // never PRIMED and UNKNOWN together.
+ // v2.9 head-end bleed (A1 build, EngineEcu::hbleed_fitted): in PURGE the frame shows VALID 1 + PRIMED (the purge runs on the direct path
+-// only), READY when a RELIGHT would be accepted, and worst_ms = remaining purge + torch gate + W; in COAST on the direct path with the
+-// bleed fitted, worst_ms = 0 + gate + W = 810 ms flight (v2.10 LEAD 175 (3): a bare RELIGHT is UNPURGED; v2.9 integrated purge 3310 ms
+-// deleted). A
+-// RELIGHT sent at or after the end of a pre-scheduled PURGE (FC: PURGE at T_fire - t_purge) keeps the 0.81 s plan. GNC owns the FC use.
++// only), READY when a RELIGHT would be accepted, and worst_ms = remaining purge + torch gate + W; in COAST with the bleed fitted (flight)
++// v2.11 (LEAD 203 (7)) refuses a RELIGHT UNPURGED, worst_ms = kPurgeRelight_s + gate + W = 3710 ms (v2.10: 0 + gate + W = 810 ms, LEAD
++// 175 (3); v2.9 integrated purge 3310 ms deleted). A RELIGHT sent at the end of a pre-scheduled PURGE (FC: PURGE at T_fire - t_purge;
++// inside the post-flow hold kPurgeHoldMax_s) keeps the 0.81 s plan; after the purge expires (COAST) it is refused UNPURGED. GNC owns the FC use.
+ // FC rule (GNC v3, LEAD 2026-10-13): fresh = CRC good, sequence advancing, age <= 0.3 s (GNC ASSUMED; Electronics confirms: 15 frame
+ // periods; the fastest seat-leak unpriming is >= 6.1 min, MECH seat_leak_drain_v1). PRIMED -> plan 0.81 s; UNPRIMED or UNKNOWN -> plan
+ // 1.41 s; VALID 0 or stale -> hold the last valid state since the MECO valve closure, none -> 0.81 s. READY 0 -> a RELIGHT would be
+@@ -120,7 +121,7 @@
+ constexpr uint8_t BLOCK_MASK = 0x3Fu;  // b0-b5: refuse:: reason a RELIGHT sent now would get (0 = accepted)
+ constexpr uint8_t DROGUE = 1u << 6;    // b6: drogue attached as last reported by the FC (Cmd::DROGUE echo; the FC checks it before a RELIGHT)
+ constexpr uint8_t PC_VALID = 1u << 7;  // b7: pad launch-commit 'Pc channel valid' (Outputs::pc_commit_valid)
+-static_assert(refuse::SAFING_HOLD <= BLOCK_MASK, "refuse:: codes must fit d6 b0-b5");
++static_assert(refuse::UNPURGED <= BLOCK_MASK, "refuse:: codes must fit d6 b0-b5");   // v2.11: UNPURGED = 16 is the highest code
+ }  // namespace tlmr6
+ 
+ // EVENT (0x120) codes (v2.6: first enumeration; the HAL emits one frame per event, three times 10 ms apart)
+@@ -157,13 +158,15 @@
+ constexpr uint8_t LIGHT_SPIKE = 0x20;         // v2.10 (A5 deleted as an abort, LEAD CHANGELOG 160): LIGHT_SPIKE record of this start closed
+                                               //   (E2 + 0.45 s or exit from IGNITION/RUN); arg = raw peak abs [0.5 bar, 0..254; 255 = no
+                                               //   sample] (low byte) | time above 8 bar abs, raw, lift-masked [2 ms, 0..254; 255 = >= 510 ms]
+-                                              //   << 8. Record only (no action). Full record: log v11 ls_* fields. LOWER BOUNDS (1 kHz
++                                              //   << 8. Record only (no action). Full record: log ls_* fields (v11 on; v12 ls_flags b7). LOWER BOUNDS (1 kHz
+                                               //   record of 1-3 ms spikes and 1.1-1.8 kHz modes; LEAD 172 (5), config.h)
+ constexpr uint8_t PURGE_FLOW = 0x21;          // v2.10 (LEAD CHANGELOG 164): V1 close command of a purge; arg = achieved FLOW time [ms] (DERIVED:
+                                               //   V1 close cmd + kHbleedCloseTime_s - (V2 open cmd + kHbleedOpenTime_s)); FC: < 1900 -> T_fire rule
+ constexpr uint8_t FLAGS2 = 0x22;              // v2.10: a latched f2:: flag was set; arg = Outputs::fault2 (low byte) | newly set bits << 8
+ constexpr uint8_t SAFING_HOLD = 0x23;         // v2.10 (LEAD 172 (1)): ground no-light safing hold opened (or restarted at boot from NV b4);
+                                               //   arg = seconds before CLEAR_LOCKOUT can be accepted (960). Cleared: RELIGHT_LOCKOUT arg 0
++constexpr uint8_t R2_BACKSTOP = 0x24;         // v2.11 (LEAD CHANGELOG 216 (2)(b)): the ECU ended the R2 hold at E2 + cfg::kR2HoldBackstop_s
++                                              //   (DROGUE 0 not received); arg = R2 hold ticks of this start (saturated at 65535)
+ inline uint16_t lightSpikeArg(float peak_raw_abs_Pa, float t8_raw_s) {
+   const float u = peak_raw_abs_Pa * 2.0e-5f;                       // 0.5 bar units
+   const unsigned lo = !(u == u) ? 0xFFu : (u <= 0.0f ? 0u : (u >= 254.0f ? 254u : static_cast<unsigned>(u + 0.5f)));
+@@ -201,7 +204,7 @@
+ #pragma pack(push, 1)
+ struct LogRecord {
+   uint16_t magic;        // 0xA7E5
+-  uint8_t version;       // 10 (v2.9: + hbleed_flags .. seq4_flags, tlm_flags; 150 bytes); 9 (v2.8.2: seq3_flags b7 = coast pintle anomaly, layout unchanged); 8 (v2.8 final: + tank T, seq3_flags); 7 (v2.8 draft: + MSS-1/MSS-2 TCs, FC thrust estimate, S1 dp, seq2_flags, ign_rule, lift time, refusal, bay T; v6 (v2.7):
++  uint8_t version;       // 12 (v2.11: + ovr_flags; 180 bytes; kLogVersion); 11 (v2.10: + LIGHT_SPIKE, purge, FA-1, fault2 fields; 179 bytes); 10 (v2.9: + hbleed_flags .. seq4_flags, tlm_flags; 150 bytes); 9 (v2.8.2: seq3_flags b7 = coast pintle anomaly, layout unchanged); 8 (v2.8 final: + tank T, seq3_flags); 7 (v2.8 draft: + MSS-1/MSS-2 TCs, FC thrust estimate, S1 dp, seq2_flags, ign_rule, lift time, refusal, bay T; v6 (v2.7):
+                          //   + ptorch, prail, pintle current, bore TC, seq_flags, ign_check_cs; v5 (v2.6): sat_flags b5-b7
+                          //   pintle; v4: + sat_ms, sat_flags, sat_long; v3: + ibat_cA, vplug_pred_mV, flags b14/b15)
+   uint8_t state;
+@@ -262,7 +265,7 @@
+   uint8_t seq4_flags;                  // v10: b0-b1 a7:: phase b2 A7 flag (flight RUN) b3 A7 event this tick b4 E3 reached b5 re-zero accepted
+                                        //      this tick b6 last re-zero rejected b7 this start came from PURGE
+   uint8_t tlm_flags;                   // v10: tlmf:: drogue-release support bits (= TLM_FAST d1 b4-b7; v2.10: b6/b7 filtered-only); v11 b0 R2
+-                                       //   command hold active, b1 drogue attached (LEAD 186 (2), log only); b2-b3 zero
++                                       //   command hold active, b1 drogue attached (LEAD 186 (2), log only); v12 b2 R2_BACKSTOP (LEAD 216 (2)(b), log only); b3 zero
+   // v11 (v2.10): LIGHT_SPIKE record of the current/last start (types.h LightSpikeRec; A5 deleted as an abort, LEAD CHANGELOG 160)
+   uint16_t ls_raw_hPa;                 // v11: raw peak, absolute [hPa] (0xFFFF = no sample in this start)
+   uint16_t ls_filt_hPa;                // v11: filtered peak, absolute [hPa] (0xFFFF = no sample)
+@@ -274,7 +277,8 @@
+   uint8_t ls_t30r_ms;                  // v11: time above 30 bar abs, raw [ms] (255 = >= 255 ms)
+   uint8_t ls_t30f_ms;                  // v11: time above 30 bar abs, filtered [ms] (255 = >= 255 ms)
+   uint8_t ls_flags;                    // v11: b0 window open b1 record done b2 lit b3 closed this tick (EVENT LIGHT_SPIKE) b4 closed by exit
+-                                       //      b5 8 bar count masked (lit map >= 8 bar) b6 HIGH over-range sample counted
++                                       //      b5 8 bar count masked (lit map >= 8 bar) b6 HIGH over-range sample counted; v12 b7 a sample
++                                       //      above the transducer full scale (cfg::kPcAboveFs_V) counted
+   uint8_t hb2_flags;                   // v11: hb2:: purge / closure detail (fill, flow, flow done, confirmed, not confirmed, reasons)
+   uint16_t purge_flow_ms;              // v11: achieved FLOW time of the last purge [ms] (DERIVED; 0xFFFF none)
+   uint8_t fa1_flags;                   // v11: fa1:: flame sensing (photo valid/lit, P_torch lit, E1 2oo2, supervising, both dark, dark seen,
+@@ -286,10 +290,14 @@
+                                        //   applied, b6 second re-zero rejected (RE-07), b7 flight relight with the tank cold (RE-17)
+   uint8_t t_us_wraps;                  // v11 (RE-25): number of t_us wraps (2^32 us = 71.6 min); time = wraps * 2^32 + t_us [us]
+   uint16_t safing_left_s;              // v11 (LEAD 172 (1)): ground no-light safing hold, seconds before CLEAR_LOCKOUT is accepted (0 = none)
++  uint8_t ovr_flags;                   // v12 (v2.11, LEAD 203 (1)): ovr:: b0 HIGH over-range this tick (non-sticky) b1 above full scale this
++                                       //   tick b2 ride-through window open b3 30 bar persistence tolerated by the window b4 RETIRED (draft long
++                                       //   comparator RC request; RC FIXED, LEAD 216 (3): always 0) b5 T45 guard counting b6 ride-through enabled (build/config) b7 zero
+   uint16_t crc16;                      // CRC-16/CCITT-FALSE over all previous bytes
+ };
+ #pragma pack(pop)
+-static_assert(sizeof(LogRecord) == 179, "log record size changed: bump version and decoder (v11 = 179; v10 = 150; v8/v9 = 137 bytes; v7 = 134; v6 = 120; v4/v5 = 108)");
++static_assert(sizeof(LogRecord) == 180, "log record size changed: bump version and decoder (v12 = 180; v11 = 179; v10 = 150; v8/v9 = 137 bytes; v7 = 134; v6 = 120; v4/v5 = 108)");
++constexpr uint8_t kLogVersion = 12;    // v2.11: LogRecord::version (v12 = v11 + ovr_flags; ls_flags b7 = above full scale)
+ uint16_t crc16_ccitt(const uint8_t* p, int n);
+ 
+ // ----------------------------------------------------------------------------------- non-volatile pintle-jam record (v2.6)

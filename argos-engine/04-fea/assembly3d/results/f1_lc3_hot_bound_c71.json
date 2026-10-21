@@ -1,0 +1,3042 @@
+{
+ "lc1_run": "lc1v351_c71",
+ "poses": [
+  "pose_stop000_c71",
+  "pose_stop045_c71",
+  "pose_stop090_c71",
+  "pose_stop135_c71",
+  "pose_stop180_c71",
+  "pose_stop225_c71",
+  "pose_stop270_c71",
+  "pose_stop315_c71"
+ ],
+ "date": "2026-10-15",
+ "method": "FEA3D LC3 HOT BOUND: thermal + manifold stresses added to the cold LC3 stop-pose envelopes by sub-additivity (fea3d successor 2026-10-15).\n\n  von Mises is a semi-norm of the stress tensor:  vm(A + B) <= vm(A) + vm(B);  Weyl:  s1(A + B) <= s1(A) + s1(B),  s3(A + B) >= s3(A) + s3(B).\n  A = thermo-pressure field of the L1 neutral run (TH + OP x Pc_max + PM x 7 MPa, NO LC1 inertia) at each S-AX thermal state\n      B1_21.65 / B1_19 / B1_2 / B1_1  (so hot LC3 = A + D exactly, up to the pose-mesh mapping);\n  D = LC3 increment over the cold OP field (lateral, axial, angular, bumper / runaway), envelope over the 64 sub-cases and the 8 stop poses\n      (results/lc3_env_pose_stopXXX.npz from post_lc3.py).\n  Engine-group bodies meshed identically in both runs (TC-01, GM-01, GM-02): node-wise  vm <= vm_LC1(n) + vmD(n).\n  Engine pressure parts meshed coarser in the pose runs (level 2): vm <= vm_LC1(n) + max_part vmD  (maximum over the part's REGULAR\n      nodes of the pose model: conservative away from idealisation singularities, which are excluded in both runs).\n  Ring / fixed / horn bodies (thrust direction changes with the pose, so LC1 is not a base):  vm <= vm_LC3cold(n) + vm(TH + 7 x PM incr.)(n)\n      with the LC1-run thermal + manifold field at the state (identical L1 meshes).\n  Brittle parts: s1 <= s1_LC1(n) + max_part s1D ;  s3 >= s3_LC1(n) + min_part s3D ; char zone (T > T_char): primary s3 only.\n  Allowables at the node temperature of the state; SF 1.5 / 2.0 (LC3 nominal operating, 188 (9)); brittle SF 2.0.\nThe result is a LOWER BOUND on the hot LC3 margin (exact sum not available: the pose runs carry no TH step).  Units mm, N, MPa, K.",
+ "states": {
+  "B1_21.65": [
+   {
+    "part": "TC-01",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 1.2791210004666071,
+    "MS_ult_bound": 0.8322093177954244,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 79.02780000000052,
+    "r_theta_z": [
+     28.609,
+     -105.4,
+     125.588
+    ]
+   },
+   {
+    "part": "TC-01",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 0.779964702164013,
+    "MS_ult_bound": 0.43055450461046463,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 80.43059902764583,
+    "r_theta_z": [
+     31.75,
+     111.6,
+     124.805
+    ]
+   },
+   {
+    "part": "TC-02",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 0.4929535972905539,
+    "MS_ult_bound": 0.18778622181719862,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 152.92400000000004,
+    "r_theta_z": [
+     5.856,
+     -180.0,
+     107.513
+    ]
+   },
+   {
+    "part": "TC-02",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 0.3683147479930189,
+    "MS_ult_bound": 0.08862419282484657,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 152.92400000000004,
+    "r_theta_z": [
+     6.5,
+     -0.0,
+     107.513
+    ]
+   },
+   {
+    "part": "TC-03",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 0.3116596745008062,
+    "MS_ult_bound": 0.1927289175080502,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 147.48237636269585,
+    "r_theta_z": [
+     6.984,
+     52.9,
+     108.438
+    ]
+   },
+   {
+    "part": "TC-03",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 0.18328344941740982,
+    "MS_ult_bound": 0.07599358025021274,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 148.69400000000002,
+    "r_theta_z": [
+     10.0,
+     0.0,
+     105.513
+    ]
+   },
+   {
+    "part": "TC-04",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 0.5580486404619314,
+    "MS_ult_bound": 0.26591452037531926,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 19.119739130434823,
+    "r_theta_z": [
+     20.0,
+     -180.0,
+     183.163
+    ]
+   },
+   {
+    "part": "TC-04",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 0.23013965675876213,
+    "MS_ult_bound": -0.002461854789319484,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 31.238345977753056,
+    "r_theta_z": [
+     16.826,
+     -116.3,
+     174.503
+    ]
+   },
+   {
+    "part": "TC-09",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 1.1230300150239665,
+    "MS_ult_bound": 0.8414487129918251,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 388.7361040422966,
+    "r_theta_z": [
+     27.5,
+     -9.6,
+     -220.243
+    ]
+   },
+   {
+    "part": "TC-09",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 0.978174438067603,
+    "MS_ult_bound": 0.7179638338823293,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 377.62300000000016,
+    "r_theta_z": [
+     15.062,
+     99.0,
+     -232.105
+    ]
+   },
+   {
+    "part": "NZ-01",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": -0.272374921514303,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 1264.8167890667696,
+    "r_theta_z": [
+     21.978,
+     131.1,
+     -229.105
+    ]
+   },
+   {
+    "part": "NZ-01",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": -0.5135246865672174,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 1277.5942023712364,
+    "r_theta_z": [
+     21.872,
+     44.3,
+     -228.605
+    ]
+   },
+   {
+    "part": "NZ-02",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 2.112238194312239,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 1351.4150484937886,
+    "r_theta_z": [
+     22.01,
+     56.3,
+     -221.065
+    ]
+   },
+   {
+    "part": "NZ-02",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 1.7552845142081752,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 1246.179999999998,
+    "r_theta_z": [
+     21.921,
+     -138.9,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-03",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 0.23141549312430532,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 1277.1686956521821,
+    "r_theta_z": [
+     21.046,
+     140.3,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-03",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": -0.21611230852201346,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 1500.33,
+    "r_theta_z": [
+     15.231,
+     -136.4,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-04",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 4.386059408005053,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 378.6526866328146,
+    "r_theta_z": [
+     16.288,
+     25.3,
+     -232.105
+    ]
+   },
+   {
+    "part": "NZ-04",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 3.3319650221670054,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 419.94399999999735,
+    "r_theta_z": [
+     15.3,
+     -0.0,
+     -231.855
+    ]
+   },
+   {
+    "part": "GM-01",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 0.19015515097703273,
+    "MS_ult_bound": 0.02555922584191128,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 22.708477334310203,
+    "r_theta_z": [
+     32.5,
+     157.9,
+     -11.15
+    ]
+   },
+   {
+    "part": "GM-01",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": -0.3124368272393203,
+    "MS_ult_bound": -0.4075253511317547,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 22.75400000000002,
+    "r_theta_z": [
+     32.5,
+     158.2,
+     -10.616
+    ]
+   },
+   {
+    "part": "GM-02",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 0.12820889824436943,
+    "MS_ult_bound": -0.027819991938362487,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 22.708477334310203,
+    "r_theta_z": [
+     32.5,
+     -157.9,
+     -11.15
+    ]
+   },
+   {
+    "part": "GM-02",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": -0.34779149031073764,
+    "MS_ult_bound": -0.4379905395230824,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 22.75400000000002,
+    "r_theta_z": [
+     32.5,
+     -158.2,
+     -10.616
+    ]
+   },
+   {
+    "part": "PD-01R",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 1.8101117915473437,
+    "MS_ult_bound": 1.276764641015653,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 36.221151561572015,
+    "r_theta_z": [
+     22.554,
+     112.8,
+     225.253
+    ]
+   },
+   {
+    "part": "PD-01R",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 0.8970802300265093,
+    "MS_ult_bound": 0.5370225490267402,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 36.221151561572015,
+    "r_theta_z": [
+     20.068,
+     51.5,
+     226.4
+    ]
+   },
+   {
+    "part": "PD-01S",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 1.4297241304947845,
+    "MS_ult_bound": 0.9685729245265962,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 36.221151561572015,
+    "r_theta_z": [
+     22.041,
+     109.3,
+     250.4
+    ]
+   },
+   {
+    "part": "PD-01S",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 0.7945799993290752,
+    "MS_ult_bound": 0.45397642194744536,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 36.221151561572015,
+    "r_theta_z": [
+     25.749,
+     98.0,
+     248.4
+    ]
+   },
+   {
+    "part": "FD-01",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 1.1938308980012908,
+    "MS_ult_bound": 3.308615470074221,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 45.546340321390744,
+    "r_theta_z": [
+     33.712,
+     176.5,
+     148.206
+    ]
+   },
+   {
+    "part": "FD-01",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 0.2534462496011791,
+    "MS_ult_bound": 1.4218313521171462,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 36.731510356068725,
+    "r_theta_z": [
+     30.648,
+     -174.4,
+     168.013
+    ]
+   },
+   {
+    "part": "GM-03",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 1.3652337304173545,
+    "MS_ult_bound": 0.9081556447275154,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     40.989,
+     -6.9,
+     -1.216
+    ]
+   },
+   {
+    "part": "GM-03",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 1.2821105061149631,
+    "MS_ult_bound": 0.8410958663974593,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     41.0,
+     -5.6,
+     -0.0
+    ]
+   },
+   {
+    "part": "GM-08a",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 8.16315358027675,
+    "MS_ult_bound": 6.392387062155154,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     65.56,
+     10.5,
+     19.5
+    ]
+   },
+   {
+    "part": "GM-08a",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 5.345154885228632,
+    "MS_ult_bound": 4.118962644246987,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     67.469,
+     12.0,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-08b",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 17.378027913340123,
+    "MS_ult_bound": 13.826499914497623,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.365,
+     -166.8,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-08b",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 10.746951293403297,
+    "MS_ult_bound": 8.47686950789911,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.148,
+     -165.6,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-09",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 5.964857259112129,
+    "MS_ult_bound": 4.618908407564079,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     69.748,
+     -20.3,
+     26.091
+    ]
+   },
+   {
+    "part": "GM-09",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 4.873632932022071,
+    "MS_ult_bound": 3.7385616441034264,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     68.784,
+     20.9,
+     27.581
+    ]
+   },
+   {
+    "part": "GM-10",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 3.6359742634934005,
+    "MS_ult_bound": 2.7400787693550606,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     58.75,
+     -112.3,
+     -93.776
+    ]
+   },
+   {
+    "part": "GM-10",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 3.6359742634934005,
+    "MS_ult_bound": 2.7400787693550606,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     58.75,
+     -112.3,
+     -93.776
+    ]
+   },
+   {
+    "part": "GM-13",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 2.866548870626335,
+    "MS_ult_bound": 2.1193437495069753,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.574,
+     108.1,
+     -88.453
+    ]
+   },
+   {
+    "part": "GM-13",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 2.526740325367943,
+    "MS_ult_bound": 1.8452027268153057,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     57.501,
+     108.0,
+     -89.8
+    ]
+   },
+   {
+    "part": "GM-14",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 3.0621764370648403,
+    "MS_ult_bound": 2.2771665643786676,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.023,
+     -108.1,
+     -88.026
+    ]
+   },
+   {
+    "part": "GM-14",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 2.3534066577476116,
+    "MS_ult_bound": 1.7053655462282111,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     57.501,
+     -108.0,
+     -89.8
+    ]
+   },
+   {
+    "part": "GM-16a",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 1.0939609329058761,
+    "MS_ult_bound": 0.8043705911210208,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     55.956,
+     128.0,
+     -72.466
+    ]
+   },
+   {
+    "part": "GM-16a",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 0.37124796577983554,
+    "MS_ult_bound": 0.18160728966134743,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     53.717,
+     123.6,
+     -69.693
+    ]
+   },
+   {
+    "part": "GM-16b",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 1.0697237474790868,
+    "MS_ult_bound": 0.7834853568702771,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.534,
+     -124.9,
+     -74.3
+    ]
+   },
+   {
+    "part": "GM-16b",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 0.4488593778214467,
+    "MS_ult_bound": 0.24848520854826783,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     53.717,
+     -123.6,
+     -69.693
+    ]
+   }
+  ],
+  "B1_19": [
+   {
+    "part": "TC-01",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 1.3548509357401084,
+    "MS_ult_bound": 0.8957659651656975,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 71.47180000000054,
+    "r_theta_z": [
+     28.609,
+     -105.4,
+     125.588
+    ]
+   },
+   {
+    "part": "TC-01",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 0.8585083373713915,
+    "MS_ult_bound": 0.4958401269959569,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 72.71693930504256,
+    "r_theta_z": [
+     31.75,
+     111.6,
+     124.805
+    ]
+   },
+   {
+    "part": "TC-02",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 0.02150228150539557,
+    "MS_ult_bound": -0.1790379268691522,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 159.15900000000005,
+    "r_theta_z": [
+     5.856,
+     -180.0,
+     107.513
+    ]
+   },
+   {
+    "part": "TC-02",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": -0.0016690304216153695,
+    "MS_ult_bound": -0.19766027223359572,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 159.15900000000005,
+    "r_theta_z": [
+     6.5,
+     -0.0,
+     107.513
+    ]
+   },
+   {
+    "part": "TC-03",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 0.13295674452172945,
+    "MS_ult_bound": 0.0302308891888059,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 150.05885714285716,
+    "r_theta_z": [
+     9.8,
+     -180.0,
+     105.513
+    ]
+   },
+   {
+    "part": "TC-03",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": -0.05487729142258735,
+    "MS_ult_bound": -0.1405721240829193,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 150.05885714285716,
+    "r_theta_z": [
+     9.9,
+     -0.0,
+     105.513
+    ]
+   },
+   {
+    "part": "TC-04",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 0.6183491561633574,
+    "MS_ult_bound": 0.314908689382728,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 18.081652173913028,
+    "r_theta_z": [
+     20.0,
+     -180.0,
+     183.163
+    ]
+   },
+   {
+    "part": "TC-04",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 0.2196374496898661,
+    "MS_ult_bound": -0.010468100240237255,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 28.289000000000044,
+    "r_theta_z": [
+     12.982,
+     122.5,
+     169.513
+    ]
+   },
+   {
+    "part": "TC-09",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 1.4101373118292893,
+    "MS_ult_bound": 1.1050173503547045,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 326.3620898801936,
+    "r_theta_z": [
+     27.5,
+     -9.6,
+     -220.243
+    ]
+   },
+   {
+    "part": "TC-09",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 0.9762746420549073,
+    "MS_ult_bound": 0.7252591306463039,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 330.73500000000024,
+    "r_theta_z": [
+     15.062,
+     99.0,
+     -232.105
+    ]
+   },
+   {
+    "part": "NZ-01",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": -0.2570197228282932,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 1616.77,
+    "r_theta_z": [
+     15.0,
+     37.9,
+     -238.105
+    ]
+   },
+   {
+    "part": "NZ-01",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": -0.5451002902982648,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 1308.924095573077,
+    "r_theta_z": [
+     21.5,
+     45.0,
+     -210.75
+    ]
+   },
+   {
+    "part": "NZ-02",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 2.112702441683461,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 1271.817270563391,
+    "r_theta_z": [
+     22.01,
+     56.3,
+     -221.065
+    ]
+   },
+   {
+    "part": "NZ-02",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 1.7578135352108726,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 1177.860000000002,
+    "r_theta_z": [
+     21.921,
+     -138.9,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-03",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 0.2332900265485527,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 1206.4847826086857,
+    "r_theta_z": [
+     21.046,
+     140.3,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-03",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": -0.21802283751178964,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 1418.9,
+    "r_theta_z": [
+     15.231,
+     -136.4,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-04",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 4.781505145853683,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 331.76189974772717,
+    "r_theta_z": [
+     16.288,
+     25.3,
+     -232.105
+    ]
+   },
+   {
+    "part": "NZ-04",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 3.679524381847415,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 369.5460000000036,
+    "r_theta_z": [
+     15.3,
+     -0.0,
+     -231.855
+    ]
+   },
+   {
+    "part": "GM-01",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 0.19039631562176496,
+    "MS_ult_bound": 0.025767037929393277,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 21.479913978087893,
+    "r_theta_z": [
+     32.5,
+     157.9,
+     -11.15
+    ]
+   },
+   {
+    "part": "GM-01",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": -0.31267752798431436,
+    "MS_ult_bound": -0.4077327634758453,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 21.50600000000003,
+    "r_theta_z": [
+     32.5,
+     158.2,
+     -10.616
+    ]
+   },
+   {
+    "part": "GM-02",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 0.1278277330844413,
+    "MS_ult_bound": -0.028148442767662152,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 21.479913978087893,
+    "r_theta_z": [
+     32.5,
+     -157.9,
+     -11.15
+    ]
+   },
+   {
+    "part": "GM-02",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": -0.3481375778962599,
+    "MS_ult_bound": -0.43828876393188354,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 21.50600000000003,
+    "r_theta_z": [
+     32.5,
+     -158.2,
+     -10.616
+    ]
+   },
+   {
+    "part": "PD-01R",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 2.3489349812936906,
+    "MS_ult_bound": 1.7149114960996967,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 32.89387590852101,
+    "r_theta_z": [
+     22.554,
+     112.8,
+     225.253
+    ]
+   },
+   {
+    "part": "PD-01R",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 1.300684170027019,
+    "MS_ult_bound": 0.8651165033034056,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 32.89387590852101,
+    "r_theta_z": [
+     20.068,
+     51.5,
+     226.4
+    ]
+   },
+   {
+    "part": "PD-01S",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 1.91921118280766,
+    "MS_ult_bound": 1.3665434067895026,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 32.89387590852101,
+    "r_theta_z": [
+     22.041,
+     109.3,
+     250.4
+    ]
+   },
+   {
+    "part": "PD-01S",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 1.18247305404849,
+    "MS_ult_bound": 0.7692852257391853,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 32.89387590852101,
+    "r_theta_z": [
+     25.749,
+     98.0,
+     248.4
+    ]
+   },
+   {
+    "part": "FD-01",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 1.2760442652106478,
+    "MS_ult_bound": 3.43426764723106,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 41.232222164748066,
+    "r_theta_z": [
+     33.712,
+     176.5,
+     148.206
+    ]
+   },
+   {
+    "part": "FD-01",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 0.3105399829308322,
+    "MS_ult_bound": 1.516361803498885,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 33.304783050202275,
+    "r_theta_z": [
+     30.648,
+     -174.4,
+     168.013
+    ]
+   },
+   {
+    "part": "GM-03",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 1.3655250669627184,
+    "MS_ult_bound": 0.9083906808959932,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     40.989,
+     -6.9,
+     -1.216
+    ]
+   },
+   {
+    "part": "GM-03",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 1.2823894143542698,
+    "MS_ult_bound": 0.8413208760125135,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     41.0,
+     -5.6,
+     -0.0
+    ]
+   },
+   {
+    "part": "GM-08a",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 8.163668502010033,
+    "MS_ult_bound": 6.3928024759890265,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     65.56,
+     10.5,
+     19.5
+    ]
+   },
+   {
+    "part": "GM-08a",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 5.345452441328113,
+    "MS_ult_bound": 4.119202698049511,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     67.469,
+     12.0,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-08b",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 17.381347600975488,
+    "MS_ult_bound": 13.82917807717503,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.365,
+     -166.8,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-08b",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 10.749123171515077,
+    "MS_ult_bound": 8.478621673626055,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.148,
+     -165.6,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-09",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 5.9648152134067125,
+    "MS_ult_bound": 4.618874487131989,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     69.748,
+     -20.3,
+     26.091
+    ]
+   },
+   {
+    "part": "GM-09",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 4.873869607457887,
+    "MS_ult_bound": 3.738752582344757,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     68.784,
+     20.9,
+     27.581
+    ]
+   },
+   {
+    "part": "GM-10",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 3.636975933205515,
+    "MS_ult_bound": 2.740886867806703,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     58.75,
+     -112.3,
+     -93.776
+    ]
+   },
+   {
+    "part": "GM-10",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 3.636975933205515,
+    "MS_ult_bound": 2.740886867806703,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     58.75,
+     -112.3,
+     -93.776
+    ]
+   },
+   {
+    "part": "GM-13",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 2.865217166082667,
+    "MS_ult_bound": 2.1182693949899436,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.574,
+     108.1,
+     -88.453
+    ]
+   },
+   {
+    "part": "GM-13",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 2.5255375121561316,
+    "MS_ult_bound": 1.844232355561863,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     57.501,
+     108.0,
+     -89.8
+    ]
+   },
+   {
+    "part": "GM-14",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 3.0630322160564196,
+    "MS_ult_bound": 2.2778569652859524,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.023,
+     -108.1,
+     -88.026
+    ]
+   },
+   {
+    "part": "GM-14",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 2.35410194809583,
+    "MS_ult_bound": 1.70592647269633,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     57.501,
+     -108.0,
+     -89.8
+    ]
+   },
+   {
+    "part": "GM-16a",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 1.0934289927143133,
+    "MS_ult_bound": 0.8039122171261637,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     55.956,
+     128.0,
+     -72.466
+    ]
+   },
+   {
+    "part": "GM-16a",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 0.37115072037173946,
+    "MS_ult_bound": 0.18152349308628613,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     53.717,
+     123.6,
+     -69.693
+    ]
+   },
+   {
+    "part": "GM-16b",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 1.0701773653058932,
+    "MS_ult_bound": 0.7838762403167805,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.534,
+     -124.9,
+     -74.3
+    ]
+   },
+   {
+    "part": "GM-16b",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 0.4489336244930775,
+    "MS_ult_bound": 0.24854918706318396,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     53.717,
+     -123.6,
+     -69.693
+    ]
+   }
+  ],
+  "B1_2": [
+   {
+    "part": "TC-01",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 2.0742883429208776,
+    "MS_ult_bound": 1.497859278623213,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 19.984000000000037,
+    "r_theta_z": [
+     31.215,
+     -133.6,
+     -7.432
+    ]
+   },
+   {
+    "part": "TC-01",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 1.4659641820210303,
+    "MS_ult_bound": 1.0030026002569978,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 21.7158072696796,
+    "r_theta_z": [
+     30.193,
+     -162.7,
+     127.513
+    ]
+   },
+   {
+    "part": "TC-02",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 1.1650156200117934,
+    "MS_ult_bound": 0.7418648792769156,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 74.781,
+    "r_theta_z": [
+     5.856,
+     -180.0,
+     107.513
+    ]
+   },
+   {
+    "part": "TC-02",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 0.6316298374000124,
+    "MS_ult_bound": 0.32569924288751007,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 19.4648948894706,
+    "r_theta_z": [
+     16.017,
+     -125.0,
+     169.513
+    ]
+   },
+   {
+    "part": "TC-03",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 0.12748446169654581,
+    "MS_ult_bound": 0.025206734775556905,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 64.92128571428577,
+    "r_theta_z": [
+     9.8,
+     -180.0,
+     105.513
+    ]
+   },
+   {
+    "part": "TC-03",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 0.12748446169654581,
+    "MS_ult_bound": 0.025206734775556905,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 64.92128571428577,
+    "r_theta_z": [
+     9.8,
+     -180.0,
+     105.513
+    ]
+   },
+   {
+    "part": "TC-04",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 1.1538962133883812,
+    "MS_ult_bound": 0.7500406733780598,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 19.504380876667028,
+    "r_theta_z": [
+     18.019,
+     139.4,
+     170.818
+    ]
+   },
+   {
+    "part": "TC-04",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 0.5515405534533804,
+    "MS_ult_bound": 0.2606266996808715,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 19.42797236829449,
+    "r_theta_z": [
+     16.826,
+     -116.3,
+     174.503
+    ]
+   },
+   {
+    "part": "TC-09",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 7.233744240000657,
+    "MS_ult_bound": 6.411501744077618,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 20.094653061226722,
+    "r_theta_z": [
+     19.0,
+     -135.0,
+     -238.105
+    ]
+   },
+   {
+    "part": "TC-09",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 6.402107950991064,
+    "MS_ult_bound": 5.662896383560952,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 20.12559015210269,
+    "r_theta_z": [
+     16.721,
+     90.6,
+     -238.105
+    ]
+   },
+   {
+    "part": "NZ-01",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": -0.11371189304158746,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 1081.6,
+    "r_theta_z": [
+     6.481,
+     60.1,
+     -223.344
+    ]
+   },
+   {
+    "part": "NZ-01",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": -0.16660551474427232,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 1083.1799999999985,
+    "r_theta_z": [
+     6.876,
+     80.0,
+     -223.613
+    ]
+   },
+   {
+    "part": "NZ-02",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 0.8602950177885726,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 398.1959008523569,
+    "r_theta_z": [
+     21.987,
+     151.7,
+     -218.015
+    ]
+   },
+   {
+    "part": "NZ-02",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 0.6166898417677953,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 359.1679999999984,
+    "r_theta_z": [
+     21.921,
+     -87.4,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-03",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 0.38635436228611364,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 367.7549565217429,
+    "r_theta_z": [
+     21.166,
+     -53.0,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-03",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 0.1730689556268472,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 297.14799999999525,
+    "r_theta_z": [
+     22.221,
+     162.9,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-04",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 10.538454414438712,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 41.194000000000074,
+    "r_theta_z": [
+     16.381,
+     -103.5,
+     -231.605
+    ]
+   },
+   {
+    "part": "NZ-04",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 8.726114380374877,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 42.10900000000004,
+    "r_theta_z": [
+     15.3,
+     -27.7,
+     -231.605
+    ]
+   },
+   {
+    "part": "GM-01",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 0.1904863356054738,
+    "MS_ult_bound": 0.025844608340886754,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 19.984000000000037,
+    "r_theta_z": [
+     32.5,
+     157.9,
+     -11.15
+    ]
+   },
+   {
+    "part": "GM-01",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": -0.31303967157742596,
+    "MS_ult_bound": -0.4080448233805479,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 19.984000000000037,
+    "r_theta_z": [
+     32.5,
+     158.2,
+     -10.616
+    ]
+   },
+   {
+    "part": "GM-02",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 0.12767038198784197,
+    "MS_ult_bound": -0.028284032542391424,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 19.984000000000037,
+    "r_theta_z": [
+     32.5,
+     -157.9,
+     -11.15
+    ]
+   },
+   {
+    "part": "GM-02",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": -0.34840930560955297,
+    "MS_ult_bound": -0.43852291228057216,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 19.984000000000037,
+    "r_theta_z": [
+     32.5,
+     -158.2,
+     -10.616
+    ]
+   },
+   {
+    "part": "PD-01R",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 5.673907563948605,
+    "MS_ult_bound": 4.422549895708241,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 19.8118135941138,
+    "r_theta_z": [
+     27.057,
+     93.7,
+     220.45
+    ]
+   },
+   {
+    "part": "PD-01R",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 4.758388386859809,
+    "MS_ult_bound": 3.6786905643235945,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 19.8118135941138,
+    "r_theta_z": [
+     27.029,
+     92.7,
+     220.013
+    ]
+   },
+   {
+    "part": "PD-01S",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 4.9091942022000685,
+    "MS_ult_bound": 3.8012202892875555,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 19.8118135941138,
+    "r_theta_z": [
+     12.521,
+     -43.4,
+     248.9
+    ]
+   },
+   {
+    "part": "PD-01S",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 4.9091942022000685,
+    "MS_ult_bound": 3.8012202892875555,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 19.8118135941138,
+    "r_theta_z": [
+     12.521,
+     -43.4,
+     248.9
+    ]
+   },
+   {
+    "part": "FD-01",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 1.6255248039286667,
+    "MS_ult_bound": 3.9228590073662497,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 19.853242791865455,
+    "r_theta_z": [
+     31.973,
+     -175.5,
+     168.013
+    ]
+   },
+   {
+    "part": "FD-01",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 0.3879807636758883,
+    "MS_ult_bound": 1.6024639318922906,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 19.853242791865455,
+    "r_theta_z": [
+     30.648,
+     -174.4,
+     168.013
+    ]
+   },
+   {
+    "part": "GM-03",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 1.366497513716293,
+    "MS_ult_bound": 0.9091752036846572,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     40.989,
+     -6.9,
+     -1.216
+    ]
+   },
+   {
+    "part": "GM-03",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 1.283367578986395,
+    "MS_ult_bound": 0.8421100117077551,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     41.0,
+     -5.6,
+     -0.0
+    ]
+   },
+   {
+    "part": "GM-08a",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 8.165156503865525,
+    "MS_ult_bound": 6.394002923582601,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     65.56,
+     10.5,
+     19.5
+    ]
+   },
+   {
+    "part": "GM-08a",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 5.346293593985064,
+    "MS_ult_bound": 4.119881299140727,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     67.469,
+     12.0,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-08b",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 17.390986806590114,
+    "MS_ult_bound": 13.836954519886675,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.365,
+     -166.8,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-08b",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 10.755573648689106,
+    "MS_ult_bound": 8.483825605175195,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.148,
+     -165.6,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-09",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 5.9643448043991105,
+    "MS_ult_bound": 4.61849498400228,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     69.748,
+     -20.3,
+     26.091
+    ]
+   },
+   {
+    "part": "GM-09",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 4.874576541380706,
+    "MS_ult_bound": 3.7393229022830905,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     68.784,
+     20.9,
+     27.581
+    ]
+   },
+   {
+    "part": "GM-10",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 3.6429998213792656,
+    "MS_ult_bound": 2.745746648078787,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     58.75,
+     -112.3,
+     -93.776
+    ]
+   },
+   {
+    "part": "GM-10",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 3.6429998213792656,
+    "MS_ult_bound": 2.745746648078787,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     58.75,
+     -112.3,
+     -93.776
+    ]
+   },
+   {
+    "part": "GM-13",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 2.861294016743698,
+    "MS_ult_bound": 2.1151043887328487,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.574,
+     108.1,
+     -88.453
+    ]
+   },
+   {
+    "part": "GM-13",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 2.5219942926576113,
+    "MS_ult_bound": 1.841373858238887,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     57.501,
+     108.0,
+     -89.8
+    ]
+   },
+   {
+    "part": "GM-14",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 3.0681797966060866,
+    "MS_ult_bound": 2.282009783147553,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.023,
+     -108.1,
+     -88.026
+    ]
+   },
+   {
+    "part": "GM-14",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 2.358286491867471,
+    "MS_ult_bound": 1.7093023592802985,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     57.501,
+     -108.0,
+     -89.8
+    ]
+   },
+   {
+    "part": "GM-16a",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 1.0918608370087037,
+    "MS_ult_bound": 0.8025609340181383,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     55.956,
+     128.0,
+     -72.466
+    ]
+   },
+   {
+    "part": "GM-16a",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 0.3708638497699406,
+    "MS_ult_bound": 0.18127629607835294,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     53.717,
+     123.6,
+     -69.693
+    ]
+   },
+   {
+    "part": "GM-16b",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 1.0729059034676842,
+    "MS_ult_bound": 0.786227427456196,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.534,
+     -124.9,
+     -74.3
+    ]
+   },
+   {
+    "part": "GM-16b",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 0.4493796670450665,
+    "MS_ult_bound": 0.2489335428792594,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     53.717,
+     -123.6,
+     -69.693
+    ]
+   }
+  ],
+  "B1_1": [
+   {
+    "part": "TC-01",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 2.0742174690485835,
+    "MS_ult_bound": 1.497801693601974,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 19.99103489815377,
+    "r_theta_z": [
+     31.215,
+     -133.6,
+     -7.432
+    ]
+   },
+   {
+    "part": "TC-01",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 1.4610251713285578,
+    "MS_ult_bound": 0.9995186239044023,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 20.186589261461165,
+    "r_theta_z": [
+     30.193,
+     -162.7,
+     127.513
+    ]
+   },
+   {
+    "part": "TC-02",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 0.33983504854571156,
+    "MS_ult_bound": 0.07427342007426008,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 92.892,
+    "r_theta_z": [
+     5.856,
+     -180.0,
+     107.513
+    ]
+   },
+   {
+    "part": "TC-02",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 0.33983504854571156,
+    "MS_ult_bound": 0.07427342007426008,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 92.892,
+    "r_theta_z": [
+     5.856,
+     -180.0,
+     107.513
+    ]
+   },
+   {
+    "part": "TC-03",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": -0.35672387658665006,
+    "MS_ult_bound": -0.41507464160744645,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 74.37685714285709,
+    "r_theta_z": [
+     9.8,
+     -180.0,
+     105.513
+    ]
+   },
+   {
+    "part": "TC-03",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": -0.35672387658665006,
+    "MS_ult_bound": -0.41507464160744645,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 74.37685714285709,
+    "r_theta_z": [
+     9.8,
+     -180.0,
+     105.513
+    ]
+   },
+   {
+    "part": "TC-04",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 1.1616622990273426,
+    "MS_ult_bound": 0.7563506179597161,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 19.760687469400807,
+    "r_theta_z": [
+     18.019,
+     139.4,
+     170.818
+    ]
+   },
+   {
+    "part": "TC-04",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 0.5361381432294441,
+    "MS_ult_bound": 0.2481122413739234,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 19.702266010634276,
+    "r_theta_z": [
+     16.826,
+     -116.3,
+     174.503
+    ]
+   },
+   {
+    "part": "TC-09",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 8.172147258469197,
+    "MS_ult_bound": 7.256263114913157,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 19.99000000000052,
+    "r_theta_z": [
+     19.0,
+     -135.0,
+     -238.105
+    ]
+   },
+   {
+    "part": "TC-09",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 7.3790833388978605,
+    "MS_ult_bound": 6.542390539341571,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 19.990000000000407,
+    "r_theta_z": [
+     16.721,
+     90.6,
+     -238.105
+    ]
+   },
+   {
+    "part": "NZ-01",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": -0.4425222435363255,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 1330.1599999999999,
+    "r_theta_z": [
+     6.481,
+     60.1,
+     -223.344
+    ]
+   },
+   {
+    "part": "NZ-01",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": -0.474680926210033,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 1332.2299999999946,
+    "r_theta_z": [
+     6.876,
+     80.0,
+     -223.613
+    ]
+   },
+   {
+    "part": "NZ-02",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 2.1830960146803164,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 248.87417433364828,
+    "r_theta_z": [
+     21.987,
+     64.2,
+     -215.89
+    ]
+   },
+   {
+    "part": "NZ-02",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 2.1830960146803164,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 248.87417433364828,
+    "r_theta_z": [
+     21.987,
+     64.2,
+     -215.89
+    ]
+   },
+   {
+    "part": "NZ-03",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 0.6906776646171697,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 298.3256521739328,
+    "r_theta_z": [
+     16.316,
+     64.1,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-03",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": -0.005182867598892638,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 362.4,
+    "r_theta_z": [
+     15.231,
+     -136.4,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-04",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 11.66404270459553,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 23.36139999999989,
+    "r_theta_z": [
+     16.381,
+     -103.5,
+     -231.605
+    ]
+   },
+   {
+    "part": "NZ-04",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 10.257232153704521,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max LC3 increment (Weyl)",
+    "T_C": 23.672000000000025,
+    "r_theta_z": [
+     15.3,
+     -27.7,
+     -231.605
+    ]
+   },
+   {
+    "part": "GM-01",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 0.19058593607204166,
+    "MS_ult_bound": 0.025930434274844538,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 19.991000000000042,
+    "r_theta_z": [
+     32.5,
+     157.9,
+     -11.15
+    ]
+   },
+   {
+    "part": "GM-01",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": -0.3130850471403871,
+    "MS_ult_bound": -0.40808392359969525,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 19.991000000000042,
+    "r_theta_z": [
+     32.5,
+     158.2,
+     -10.616
+    ]
+   },
+   {
+    "part": "GM-02",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 0.12760991159938695,
+    "MS_ult_bound": -0.028336140004783572,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 19.991000000000042,
+    "r_theta_z": [
+     32.5,
+     -157.9,
+     -11.15
+    ]
+   },
+   {
+    "part": "GM-02",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": -0.34845892381701526,
+    "MS_ult_bound": -0.43856566839551314,
+    "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+    "T_C": 19.991000000000042,
+    "r_theta_z": [
+     32.5,
+     -158.2,
+     -10.616
+    ]
+   },
+   {
+    "part": "PD-01R",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 5.6692284416375385,
+    "MS_ult_bound": 4.418748108830499,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 19.953962530284116,
+    "r_theta_z": [
+     27.057,
+     93.7,
+     220.45
+    ]
+   },
+   {
+    "part": "PD-01R",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 4.752911895225964,
+    "MS_ult_bound": 3.6742409148710955,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 19.953962530284116,
+    "r_theta_z": [
+     27.029,
+     92.7,
+     220.013
+    ]
+   },
+   {
+    "part": "PD-01S",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 4.910493416892755,
+    "MS_ult_bound": 3.8022759012253626,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 19.953962530284116,
+    "r_theta_z": [
+     12.521,
+     -43.4,
+     248.9
+    ]
+   },
+   {
+    "part": "PD-01S",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 4.910493416892755,
+    "MS_ult_bound": 3.8022759012253626,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 19.953962530284116,
+    "r_theta_z": [
+     12.521,
+     -43.4,
+     248.9
+    ]
+   },
+   {
+    "part": "FD-01",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 1.6371517844701522,
+    "MS_ult_bound": 3.944659595881535,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 19.973000000000013,
+    "r_theta_z": [
+     31.973,
+     -175.5,
+     168.013
+    ]
+   },
+   {
+    "part": "FD-01",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 0.38550040088564597,
+    "MS_ult_bound": 1.597813251660586,
+    "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+    "T_C": 19.973000000000013,
+    "r_theta_z": [
+     30.648,
+     -174.4,
+     168.013
+    ]
+   },
+   {
+    "part": "GM-03",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 1.366416926828982,
+    "MS_ult_bound": 0.9091101900997693,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     40.989,
+     -6.9,
+     -1.216
+    ]
+   },
+   {
+    "part": "GM-03",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 1.2832747705900678,
+    "MS_ult_bound": 0.8420351384032472,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     41.0,
+     -5.6,
+     -0.0
+    ]
+   },
+   {
+    "part": "GM-08a",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 8.16499549706343,
+    "MS_ult_bound": 6.3938730311181455,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     65.56,
+     10.5,
+     19.5
+    ]
+   },
+   {
+    "part": "GM-08a",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 5.346201793660949,
+    "MS_ult_bound": 4.119807239099896,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     67.469,
+     12.0,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-08b",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 17.38995214302852,
+    "MS_ult_bound": 13.836119803600475,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.365,
+     -166.8,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-08b",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 10.754884468993119,
+    "MS_ult_bound": 8.483269608484376,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.148,
+     -165.6,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-09",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 5.964383127244783,
+    "MS_ult_bound": 4.618525901012024,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     69.748,
+     -20.3,
+     26.091
+    ]
+   },
+   {
+    "part": "GM-09",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 4.874500761983315,
+    "MS_ult_bound": 3.739261767147469,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     68.784,
+     20.9,
+     27.581
+    ]
+   },
+   {
+    "part": "GM-10",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 3.642516063723681,
+    "MS_ult_bound": 2.7453563759085093,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     58.75,
+     -112.3,
+     -93.776
+    ]
+   },
+   {
+    "part": "GM-10",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 3.642516063723681,
+    "MS_ult_bound": 2.7453563759085093,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     58.75,
+     -112.3,
+     -93.776
+    ]
+   },
+   {
+    "part": "GM-13",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 2.861751190330236,
+    "MS_ult_bound": 2.115473214167965,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.574,
+     108.1,
+     -88.453
+    ]
+   },
+   {
+    "part": "GM-13",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 2.5224072515283447,
+    "MS_ult_bound": 1.8417070133897275,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     57.501,
+     108.0,
+     -89.8
+    ]
+   },
+   {
+    "part": "GM-14",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 3.0677664427439373,
+    "MS_ult_bound": 2.2816763093368313,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.023,
+     -108.1,
+     -88.026
+    ]
+   },
+   {
+    "part": "GM-14",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 2.357950573945023,
+    "MS_ult_bound": 1.7090313570230413,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     57.501,
+     -108.0,
+     -89.8
+    ]
+   },
+   {
+    "part": "GM-16a",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 1.092043601530229,
+    "MS_ult_bound": 0.8027184225951971,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     55.956,
+     128.0,
+     -72.466
+    ]
+   },
+   {
+    "part": "GM-16a",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 0.3708972990293107,
+    "MS_ult_bound": 0.18130511937632088,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     53.717,
+     123.6,
+     -69.693
+    ]
+   },
+   {
+    "part": "GM-16b",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 1.0726867803716194,
+    "MS_ult_bound": 0.7860386086180975,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.534,
+     -124.9,
+     -74.3
+    ]
+   },
+   {
+    "part": "GM-16b",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 0.4493438781028165,
+    "MS_ult_bound": 0.24890270347157584,
+    "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     53.717,
+     -123.6,
+     -69.693
+    ]
+   }
+  ]
+ },
+ "part_max_increment": {
+  "TC-01": {
+   "vmD": 41.92023849487305,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "TC-02": {
+   "vmD": 7.416477203369141,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "TC-03": {
+   "vmD": 16.474380493164062,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "TC-04": {
+   "vmD": 23.10468292236328,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "TC-09": {
+   "vmD": 14.124015808105469,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "NZ-01": {
+   "vmD": 1.37820303440094,
+   "s1D": 1.3472354412078857,
+   "s3D": -0.9596896171569824
+  },
+  "NZ-02": {
+   "vmD": 0.5529154539108276,
+   "s1D": 0.4219907522201538,
+   "s3D": -0.47259485721588135
+  },
+  "NZ-03": {
+   "vmD": 2.0875232219696045,
+   "s1D": 1.8803790807724,
+   "s3D": -2.020253896713257
+  },
+  "NZ-04": {
+   "vmD": 0.7003002166748047,
+   "s1D": 0.7536222338676453,
+   "s3D": -0.6696574687957764
+  },
+  "GM-01": {
+   "vmD": 259.14617919921875,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "GM-02": {
+   "vmD": 275.3368835449219,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "PD-01R": {
+   "vmD": 12.35741138458252,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "PD-01S": {
+   "vmD": 12.261909484863281,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "FD-01": {
+   "vmD": 19.302204132080078,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "GM-03": {
+   "vmD": 67.89960479736328,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "GM-08a": {
+   "vmD": 16.74529457092285,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "GM-08b": {
+   "vmD": 7.320212364196777,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "GM-09": {
+   "vmD": 20.84563636779785,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "GM-10": {
+   "vmD": 33.701873779296875,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "GM-13": {
+   "vmD": 39.7723388671875,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "GM-14": {
+   "vmD": 37.69190979003906,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "GM-16a": {
+   "vmD": 149.08897399902344,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "GM-16b": {
+   "vmD": 154.30740356445312,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  }
+ },
+ "summary_min_over_states_regular": {
+  "TC-01": {
+   "part": "TC-01",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 1.2791210004666071,
+   "MS_ult_bound": 0.8322093177954244,
+   "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+   "T_C": 79.02780000000052,
+   "r_theta_z": [
+    28.609,
+    -105.4,
+    125.588
+   ]
+  },
+  "TC-02": {
+   "part": "TC-02",
+   "set": "regular",
+   "state": "B1_19",
+   "MS_bound": 0.02150228150539557,
+   "MS_ult_bound": -0.1790379268691522,
+   "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+   "T_C": 159.15900000000005,
+   "r_theta_z": [
+    5.856,
+    -180.0,
+    107.513
+   ]
+  },
+  "TC-03": {
+   "part": "TC-03",
+   "set": "regular",
+   "state": "B1_1",
+   "MS_bound": -0.35672387658665006,
+   "MS_ult_bound": -0.41507464160744645,
+   "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+   "T_C": 74.37685714285709,
+   "r_theta_z": [
+    9.8,
+    -180.0,
+    105.513
+   ]
+  },
+  "TC-04": {
+   "part": "TC-04",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 0.5580486404619314,
+   "MS_ult_bound": 0.26591452037531926,
+   "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+   "T_C": 19.119739130434823,
+   "r_theta_z": [
+    20.0,
+    -180.0,
+    183.163
+   ]
+  },
+  "TC-09": {
+   "part": "TC-09",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 1.1230300150239665,
+   "MS_ult_bound": 0.8414487129918251,
+   "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+   "T_C": 388.7361040422966,
+   "r_theta_z": [
+    27.5,
+    -9.6,
+    -220.243
+   ]
+  },
+  "NZ-01": {
+   "part": "NZ-01",
+   "set": "regular",
+   "state": "B1_1",
+   "MS_bound": -0.4425222435363255,
+   "MS_ult_bound": null,
+   "method": "LC1 principal + part-max LC3 increment (Weyl)",
+   "T_C": 1330.1599999999999,
+   "r_theta_z": [
+    6.481,
+    60.1,
+    -223.344
+   ]
+  },
+  "NZ-02": {
+   "part": "NZ-02",
+   "set": "regular",
+   "state": "B1_2",
+   "MS_bound": 0.8602950177885726,
+   "MS_ult_bound": null,
+   "method": "LC1 principal + part-max LC3 increment (Weyl)",
+   "T_C": 398.1959008523569,
+   "r_theta_z": [
+    21.987,
+    151.7,
+    -218.015
+   ]
+  },
+  "NZ-03": {
+   "part": "NZ-03",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 0.23141549312430532,
+   "MS_ult_bound": null,
+   "method": "LC1 principal + part-max LC3 increment (Weyl)",
+   "T_C": 1277.1686956521821,
+   "r_theta_z": [
+    21.046,
+    140.3,
+    -229.605
+   ]
+  },
+  "NZ-04": {
+   "part": "NZ-04",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 4.386059408005053,
+   "MS_ult_bound": null,
+   "method": "LC1 principal + part-max LC3 increment (Weyl)",
+   "T_C": 378.6526866328146,
+   "r_theta_z": [
+    16.288,
+    25.3,
+    -232.105
+   ]
+  },
+  "GM-01": {
+   "part": "GM-01",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 0.19015515097703273,
+   "MS_ult_bound": 0.02555922584191128,
+   "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+   "T_C": 22.708477334310203,
+   "r_theta_z": [
+    32.5,
+    157.9,
+    -11.15
+   ]
+  },
+  "GM-02": {
+   "part": "GM-02",
+   "set": "regular",
+   "state": "B1_1",
+   "MS_bound": 0.12760991159938695,
+   "MS_ult_bound": -0.028336140004783572,
+   "method": "LC1 vm + node-wise LC3 increment (same mesh)",
+   "T_C": 19.991000000000042,
+   "r_theta_z": [
+    32.5,
+    -157.9,
+    -11.15
+   ]
+  },
+  "PD-01R": {
+   "part": "PD-01R",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 1.8101117915473437,
+   "MS_ult_bound": 1.276764641015653,
+   "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+   "T_C": 36.221151561572015,
+   "r_theta_z": [
+    22.554,
+    112.8,
+    225.253
+   ]
+  },
+  "PD-01S": {
+   "part": "PD-01S",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 1.4297241304947845,
+   "MS_ult_bound": 0.9685729245265962,
+   "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+   "T_C": 36.221151561572015,
+   "r_theta_z": [
+    22.041,
+    109.3,
+    250.4
+   ]
+  },
+  "FD-01": {
+   "part": "FD-01",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 1.1938308980012908,
+   "MS_ult_bound": 3.308615470074221,
+   "method": "LC1 vm + part-max LC3 increment (pose mesh coarser)",
+   "T_C": 45.546340321390744,
+   "r_theta_z": [
+    33.712,
+    176.5,
+    148.206
+   ]
+  },
+  "GM-03": {
+   "part": "GM-03",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 1.3652337304173545,
+   "MS_ult_bound": 0.9081556447275154,
+   "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+   "T_C": 60.0,
+   "r_theta_z": [
+    40.989,
+    -6.9,
+    -1.216
+   ]
+  },
+  "GM-08a": {
+   "part": "GM-08a",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 8.16315358027675,
+   "MS_ult_bound": 6.392387062155154,
+   "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+   "T_C": 60.0,
+   "r_theta_z": [
+    65.56,
+    10.5,
+    19.5
+   ]
+  },
+  "GM-08b": {
+   "part": "GM-08b",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 17.378027913340123,
+   "MS_ult_bound": 13.826499914497623,
+   "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+   "T_C": 60.0,
+   "r_theta_z": [
+    54.365,
+    -166.8,
+    22.0
+   ]
+  },
+  "GM-09": {
+   "part": "GM-09",
+   "set": "regular",
+   "state": "B1_2",
+   "MS_bound": 5.9643448043991105,
+   "MS_ult_bound": 4.61849498400228,
+   "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+   "T_C": 60.0,
+   "r_theta_z": [
+    69.748,
+    -20.3,
+    26.091
+   ]
+  },
+  "GM-10": {
+   "part": "GM-10",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 3.6359742634934005,
+   "MS_ult_bound": 2.7400787693550606,
+   "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+   "T_C": 60.0,
+   "r_theta_z": [
+    58.75,
+    -112.3,
+    -93.776
+   ]
+  },
+  "GM-13": {
+   "part": "GM-13",
+   "set": "regular",
+   "state": "B1_2",
+   "MS_bound": 2.861294016743698,
+   "MS_ult_bound": 2.1151043887328487,
+   "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+   "T_C": 60.0,
+   "r_theta_z": [
+    56.574,
+    108.1,
+    -88.453
+   ]
+  },
+  "GM-14": {
+   "part": "GM-14",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 3.0621764370648403,
+   "MS_ult_bound": 2.2771665643786676,
+   "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+   "T_C": 60.0,
+   "r_theta_z": [
+    56.023,
+    -108.1,
+    -88.026
+   ]
+  },
+  "GM-16a": {
+   "part": "GM-16a",
+   "set": "regular",
+   "state": "B1_2",
+   "MS_bound": 1.0918608370087037,
+   "MS_ult_bound": 0.8025609340181383,
+   "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+   "T_C": 60.0,
+   "r_theta_z": [
+    55.956,
+    128.0,
+    -72.466
+   ]
+  },
+  "GM-16b": {
+   "part": "GM-16b",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 1.0697237474790868,
+   "MS_ult_bound": 0.7834853568702771,
+   "method": "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)",
+   "T_C": 60.0,
+   "r_theta_z": [
+    54.534,
+    -124.9,
+    -74.3
+   ]
+  }
+ }
+}

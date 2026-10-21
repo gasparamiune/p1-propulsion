@@ -1,0 +1,7678 @@
+{
+ "id": "sax_contact_tc0203_sub_v352r4",
+ "version": "v1",
+ "date": "2026-10-20",
+ "owner": "mechanical",
+ "status": "SIM / CALC (contact sub-model of a linear-elastic axisymmetric model); not physical approval; negatives SHOWN AS FOUND",
+ "script": "/home/claude/work/mechanical/v352/contact/sax_contact_tc0203_sub_v352r4.py",
+ "script_sha256_16": "1fce3b7d1f343be2",
+ "base_driver_sha256_16": "d856077b6adf78cb",
+ "global_run": "L1_thv352_NF2b_R4_GVHI_r10free_cad352r4_eh0p05",
+ "entry_h_mm": 0.05,
+ "thermal": "v352_NF2b_R4_GVHI",
+ "doc": "T-F2 rev 4: TC-02 / TC-03 seat contact SUB-MODEL of the S-AX v352r4 L1 model (Mechanical, 2026-10-20, v1).  CALC / SIM, not physical\napproval; negatives SHOWN AS FOUND.  Requests: lead CHANGELOG 212 (T-F2 / RM1-03), 234 (4) (all-node rule, refinement), 236 (9) (C5 / C7\nbracket, stick-edge class, seat-matrix rule, C7 active set), 236 (10)-(11) (rev 4 seat, rev-4 thermal), lead 06:05Z / 06:23Z / 08:25Z /\n08:40Z ('Proceed: T-F2 rev 4, then the (b) package').\n\nPort of v352/contact/sax_contact_tc0203_sub_v352.py (rev 3, sha256/16 d856077b6adf78cb; its deck writer, sub-model cut and face finder\nare imported and used unchanged).  Rev-4 changes:\n  * global model = S-AX v352r4 (SAX_CAD=v352r4, SAX_R10=free, SAX_ENTRY_H level tag, rev-4 thermal SAX_THERMAL_TAG=v352_NF2b_R4_<bound>);\n    trimmed global states read through sax.load_res_any (finite on every sub-model node, asserted);\n  * rev-4 interface (80 shared node pairs, all u_z-tied in S-AX): 57 pairs on the M14x1 band at r 7.0 (z thread start .. thread end,\n    smeared thread: the u_z tie is the thread interlock in every variant) and 23 pairs on the counterbore floor z_fl1 (TC-03 flange top =\n    datum A = S03 lands, r 7.5 .. 10.0).  The top gap (0.15 nominal), the flange-OD clearance (0.10 radial) and the seat-entry cavity\n    have no shared nodes (two-stage fragment): an unpaired-proximity check reports whether any of them closes;\n  * variants: C0 S-AX ties (sub-model check), C5 frictionless (floor normal contact, thread radial contact), C7 = C5 + radial stick tie\n    on the floor pairs CLOSED in the previous solution (active set, from the C5 solution, iterated to a stable set, cap 5 passes; if it\n    does not settle, the last two passes are kept and the lower value is taken per cell: lead 236 (9)(c)), C6 bonded (information),\n    C3n / C4n node-to-surface Coulomb mu 0.2 / 0.6;\n  * margins per part on the seat window, for every set: case SF (lead 188 (9) rule as sax.combos: LC1 / LC2 / TB70 1.5 / 2.0, TBS\n    1.0 / 1.5) AND SF 1.0 yield (line 106 'no yield at Fty(T)'); primary-only on the mechanical increment (step 2 - step 1);\n    nodal P+Q vs 2 Fty(T) on the total stress (stress-free at 20 C);\n  * singular set (234 (4)): BREP zero-radius concave corners (facet turn > 60 deg) of TC-02 / TC-03 and the named idealisation points\n    (thread tie ends; floor contact edge at the TC-03 flange OD zero-radius corner; in C0 / C6 the floor tie end at the entry tangent);\n    fillets (entry R0.5, undercut R0.6, relief R0.5, blend R0.25) are NOT excluded (S-AX's 10 deg detector flags the relief facets at\n    h 0.1; not used here); 'regular' = farther than 1.0 mm from the singular set; every cell carries the all-node minimum with node,\n    class and distance; the C7 stick-edge zone is set by the refinement post (tf2_r4_refine_v352.py) from the SAX_ENTRY_H levels;\n  * per-run fields (TC-02 / TC-03 sub-model nodes, float32) kept for the refinement post; decks gzipped; frd deleted after reading;\n  * caps (lead): <= 1 ccx of mine (sequential), <= 2 machine-wide, combined ccx RSS <= 9 GB, nice >= 10 (the caller), 1 solver thread,\n    no new ccx below the disk floor (SUB_DISK_FLOOR_MB, default 2048): HOLD = exit 3, never routed around.\nv1.1 (2026-10-20 ~09:00Z): the C7 loop stops when the active set alternates with period 2 (the closed set after pass k equals the stuck set\nof pass k-1, so pass k+1 would repeat pass k-1 exactly): reported as 'unsettled, period-2 cycle', lower of the two passes per cell (the\nlead 236 (9)(c) rule; results identical to running on to the cap); every run row records the script sha256/16 it ran with.\nUsage: python sax_contact_tc0203_sub_v352r4.py <variants,...> <case:state,...>   (variants from C0,C5,C7,C6,C3n,C4n)",
+ "mesh": {
+  "file": "/home/claude/work/mechanical/runs/structural/L1_thv352_NF2b_R4_GVHI_r10free_cad352r4_eh0p05/mesh.npz",
+  "sha256_16": "a4527d0b8fed6228",
+  "nodes": 63253,
+  "elements": 29755
+ },
+ "submodel": {
+  "n_elements": 11651,
+  "n_nodes": 24287,
+  "n_cut_nodes": 19,
+  "z_cut_mm": 97.513
+ },
+ "interface": {
+  "pairs": 100,
+  "thread_pairs": 71,
+  "floor_pairs": 29,
+  "z_thread_start_mm": 109.112,
+  "z_thread_end_mm": 116.5563,
+  "z_floor_mm": 107.5134,
+  "floor_r_mm": [
+   7.5,
+   7.5245,
+   7.549,
+   7.5736,
+   7.5981,
+   7.6226,
+   7.6471,
+   7.6716,
+   7.6962,
+   7.7248,
+   7.7535,
+   7.7936,
+   7.8338,
+   7.8898,
+   7.9459,
+   8.0243,
+   8.1027,
+   8.2123,
+   8.3219,
+   8.4744,
+   8.6269,
+   8.7986,
+   8.9702,
+   9.1418,
+   9.3135,
+   9.4851,
+   9.6567,
+   9.8284,
+   10.0
+  ]
+ },
+ "singular_set": {
+  "named": [
+   [
+    "thread start tie end (smeared M14x1 thread, u_z interlock tie)",
+    [
+     7.0,
+     109.112
+    ],
+    "all"
+   ],
+   [
+    "thread end tie end (smeared M14x1 thread, u_z interlock tie; relief run-out)",
+    [
+     7.0,
+     116.5563
+    ],
+    "all"
+   ],
+   [
+    "floor contact edge at the TC-03 flange OD corner (zero radius in the CAD, no edge break modelled)",
+    [
+     10.0,
+     107.5134
+    ],
+    "all"
+   ],
+   [
+    "floor tie end at the TC-02 entry R0.5 tangent point (S-AX tie idealisation)",
+    [
+     7.5,
+     107.5134
+    ],
+    "tied"
+   ]
+  ],
+  "corners60": [
+   [
+    "ENG-TC-02",
+    [
+     24.95,
+     105.5134
+    ]
+   ],
+   [
+    "ENG-TC-02",
+    [
+     28.6,
+     141.5134
+    ]
+   ],
+   [
+    "ENG-TC-02",
+    [
+     25.825,
+     114.3634
+    ]
+   ],
+   [
+    "ENG-TC-02",
+    [
+     25.825,
+     106.5134
+    ]
+   ],
+   [
+    "ENG-TC-02",
+    [
+     25.825,
+     119.2134
+    ]
+   ],
+   [
+    "ENG-TC-02",
+    [
+     25.825,
+     111.3634
+    ]
+   ],
+   [
+    "ENG-TC-02",
+    [
+     10.1,
+     107.5134
+    ]
+   ],
+   [
+    "ENG-TC-03",
+    [
+     7.6,
+     105.5134
+    ]
+   ]
+  ],
+  "exclusion_mm": 1.0,
+  "features_not_excluded": [
+   "TC-02 entry R0.5 tangent point on the floor (tangential parting; stick edge in C7)",
+   "TC-03 undercut R0.6 root (fillet, refined, not excluded)",
+   "TC-02 thread relief R0.5 / run-out (fillet, refined, not excluded)"
+  ]
+ },
+ "penalty": {
+  "K_MPa_per_mm": 500000.0,
+  "stick_slope_MPa_per_mm": 10000.0
+ },
+ "runs": {
+  "C0_LC2_B1_19": {
+   "variant": "C0",
+   "case": "LC2",
+   "state": "B1_19",
+   "script_sha256_16": "1fce3b7d1f343be2",
+   "coefficients": {
+    "OP": 4.5,
+    "PM": 7.0,
+    "G": 3.650584042460983
+   },
+   "SF": [
+    1.5,
+    2.0
+   ],
+   "ccx": {
+    "seconds": 4.3,
+    "returncode": 0,
+    "errors": [],
+    "warnings": [],
+    "n_increments_converged": 0,
+    "contact_spring_elements_last": null,
+    "guard": {
+     "disk_free_MiB": 2864,
+     "ccx_running": 1,
+     "ccx_rss_GB": 1.55
+    }
+   },
+   "n_slave_faces": 0,
+   "n_master_faces": 0,
+   "n_eq": 144,
+   "frd_block_times": [
+    1.0,
+    2.0
+   ],
+   "margins": {
+    "ENG-TC-02": {
+     "all": {
+      "MS_y": [
+       -0.4473,
+       132,
+       7.0,
+       109.112,
+       155.2,
+       211.4,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.5588,
+       132,
+       7.0,
+       109.112,
+       155.2,
+       211.4,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       -0.171,
+       132,
+       7.0,
+       109.112,
+       155.2,
+       211.4,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       8.916,
+       6584,
+       7.24,
+       116.916,
+       101.6,
+       134.59,
+       0.433,
+       "thread end tie end (smeared M14x1 thread, u_z interlock tie; relief run-out)"
+      ],
+      "MS_prim_u": [
+       6.9371,
+       6584,
+       7.24,
+       116.916,
+       101.6,
+       134.59,
+       0.433,
+       "thread end tie end (smeared M14x1 thread, u_z interlock tie; relief run-out)"
+      ],
+      "MS_PQ": [
+       0.658,
+       132,
+       7.0,
+       109.112,
+       155.2,
+       211.4,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       0.5609,
+       6325,
+       8.627,
+       107.513,
+       167.6,
+       65.52,
+       1.127,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_u": [
+       0.2745,
+       6325,
+       8.627,
+       107.513,
+       167.6,
+       65.52,
+       1.127,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_y_SF1": [
+       1.3413,
+       6325,
+       8.627,
+       107.513,
+       167.6,
+       65.52,
+       1.127,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_prim_y": [
+       18.2036,
+       6772,
+       5.0,
+       118.883,
+       78.8,
+       37.11,
+       3.068,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       14.4386,
+       6772,
+       5.0,
+       118.883,
+       78.8,
+       37.11,
+       3.068,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       3.6826,
+       6325,
+       8.627,
+       107.513,
+       167.6,
+       65.52,
+       1.127,
+       "floor / flange-top contact band (regular)"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.4473,
+       132,
+       7.0,
+       109.112,
+       155.2,
+       211.4,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.5588,
+       132,
+       7.0,
+       109.112,
+       155.2,
+       211.4,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    },
+    "ENG-TC-03": {
+     "all": {
+      "MS_y": [
+       -0.3996,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       259.69,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.454,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       259.69,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       -0.0993,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       259.69,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       6.8798,
+       7162,
+       4.0,
+       113.326,
+       122.0,
+       37.15,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       6.1652,
+       7162,
+       4.0,
+       113.326,
+       122.0,
+       37.15,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       0.8013,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       259.69,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       -0.0461,
+       7363,
+       6.328,
+       107.818,
+       177.2,
+       160.61,
+       1.211,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_u": [
+       -0.1325,
+       7363,
+       6.328,
+       107.818,
+       177.2,
+       160.61,
+       1.211,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_y_SF1": [
+       0.4309,
+       7363,
+       6.328,
+       107.818,
+       177.2,
+       160.61,
+       1.211,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_prim_y": [
+       6.8798,
+       7162,
+       4.0,
+       113.326,
+       122.0,
+       37.15,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       6.1652,
+       7162,
+       4.0,
+       113.326,
+       122.0,
+       37.15,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       1.8618,
+       7363,
+       6.328,
+       107.818,
+       177.2,
+       160.61,
+       1.211,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.3996,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       259.69,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.454,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       259.69,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    }
+   },
+   "check_vs_global": {
+    "max_abs_dvm_MPa": 0.89704,
+    "max_vm_MPa": 259.682,
+    "max_abs_du_mm": 1.3509e-05
+   },
+   "global_linear_same_nodes": {
+    "ENG-TC-02": {
+     "all": {
+      "MS_y": [
+       -0.4473,
+       132,
+       7.0,
+       109.112,
+       155.2,
+       211.4,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.5588,
+       132,
+       7.0,
+       109.112,
+       155.2,
+       211.4,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       -0.171,
+       132,
+       7.0,
+       109.112,
+       155.2,
+       211.4,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       -0.4495,
+       132,
+       7.0,
+       109.112,
+       155.2,
+       211.4,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_u": [
+       -0.5605,
+       132,
+       7.0,
+       109.112,
+       155.2,
+       211.4,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_PQ": [
+       0.658,
+       132,
+       7.0,
+       109.112,
+       155.2,
+       211.4,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       0.5609,
+       6325,
+       8.627,
+       107.513,
+       167.6,
+       65.52,
+       1.127,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_u": [
+       0.2745,
+       6325,
+       8.627,
+       107.513,
+       167.6,
+       65.52,
+       1.127,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_y_SF1": [
+       1.3413,
+       6325,
+       8.627,
+       107.513,
+       167.6,
+       65.52,
+       1.127,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_prim_y": [
+       0.4802,
+       6325,
+       8.627,
+       107.513,
+       167.6,
+       65.52,
+       1.127,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_prim_u": [
+       0.2086,
+       6325,
+       8.627,
+       107.513,
+       167.6,
+       65.52,
+       1.127,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_PQ": [
+       3.6826,
+       6325,
+       8.627,
+       107.513,
+       167.6,
+       65.52,
+       1.127,
+       "floor / flange-top contact band (regular)"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.4473,
+       132,
+       7.0,
+       109.112,
+       155.2,
+       211.4,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.5588,
+       132,
+       7.0,
+       109.112,
+       155.2,
+       211.4,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    },
+    "ENG-TC-03": {
+     "all": {
+      "MS_y": [
+       -0.3995,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       259.68,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.454,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       259.68,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       -0.0993,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       259.68,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       -0.4078,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       259.68,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_u": [
+       -0.4615,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       259.68,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_PQ": [
+       0.8014,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       259.68,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       -0.0461,
+       7363,
+       6.328,
+       107.818,
+       177.2,
+       160.61,
+       1.211,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_u": [
+       -0.1325,
+       7363,
+       6.328,
+       107.818,
+       177.2,
+       160.61,
+       1.211,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_y_SF1": [
+       0.4309,
+       7363,
+       6.328,
+       107.818,
+       177.2,
+       160.61,
+       1.211,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_prim_y": [
+       -0.0677,
+       7363,
+       6.328,
+       107.818,
+       177.2,
+       160.61,
+       1.211,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_prim_u": [
+       -0.1522,
+       7363,
+       6.328,
+       107.818,
+       177.2,
+       160.61,
+       1.211,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_PQ": [
+       1.8618,
+       7363,
+       6.328,
+       107.818,
+       177.2,
+       160.61,
+       1.211,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.3995,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       259.68,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.454,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       259.68,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    }
+   }
+  },
+  "C5_LC2_B1_19": {
+   "variant": "C5",
+   "case": "LC2",
+   "state": "B1_19",
+   "script_sha256_16": "1fce3b7d1f343be2",
+   "coefficients": {
+    "OP": 4.5,
+    "PM": 7.0,
+    "G": 3.650584042460983
+   },
+   "SF": [
+    1.5,
+    2.0
+   ],
+   "ccx": {
+    "seconds": 47.4,
+    "returncode": 0,
+    "errors": [],
+    "warnings": [],
+    "n_increments_converged": 2,
+    "contact_spring_elements_last": "2626",
+    "guard": {
+     "disk_free_MiB": 2862,
+     "ccx_running": 1,
+     "ccx_rss_GB": 1.55
+    }
+   },
+   "n_slave_faces": 49,
+   "n_master_faces": 49,
+   "n_eq": 115,
+   "frd_block_times": [
+    0.25,
+    0.5,
+    0.875,
+    1.0,
+    1.25,
+    1.5,
+    1.875,
+    2.0
+   ],
+   "margins": {
+    "ENG-TC-02": {
+     "all": {
+      "MS_y": [
+       -0.2942,
+       6435,
+       7.0,
+       109.087,
+       155.4,
+       165.21,
+       0.025,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.4363,
+       6435,
+       7.0,
+       109.087,
+       155.4,
+       165.21,
+       0.025,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       0.0587,
+       6435,
+       7.0,
+       109.087,
+       155.4,
+       165.21,
+       0.025,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       7.4191,
+       37570,
+       7.039,
+       109.137,
+       154.9,
+       99.32,
+       0.047,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_u": [
+       5.7186,
+       37570,
+       7.039,
+       109.137,
+       154.9,
+       99.32,
+       0.047,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_PQ": [
+       1.1174,
+       6435,
+       7.0,
+       109.087,
+       155.4,
+       165.21,
+       0.025,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       0.0773,
+       6376,
+       7.451,
+       107.516,
+       173.5,
+       88.55,
+       1.659,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_u": [
+       -0.1091,
+       6376,
+       7.451,
+       107.516,
+       173.5,
+       88.55,
+       1.659,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_y_SF1": [
+       0.616,
+       6376,
+       7.451,
+       107.516,
+       173.5,
+       88.55,
+       1.659,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_prim_y": [
+       15.8079,
+       6376,
+       7.451,
+       107.516,
+       173.5,
+       88.55,
+       1.659,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_prim_u": [
+       12.8994,
+       6376,
+       7.451,
+       107.516,
+       173.5,
+       88.55,
+       1.659,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_PQ": [
+       2.232,
+       6376,
+       7.451,
+       107.516,
+       173.5,
+       88.55,
+       1.659,
+       "floor / flange-top contact band (regular)"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.2942,
+       6435,
+       7.0,
+       109.087,
+       155.4,
+       165.21,
+       0.025,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.4363,
+       6435,
+       7.0,
+       109.087,
+       155.4,
+       165.21,
+       0.025,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    },
+    "ENG-TC-03": {
+     "all": {
+      "MS_y": [
+       -0.4262,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       271.75,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.4782,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       271.75,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       -0.1393,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       271.75,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       7.0812,
+       7135,
+       4.0,
+       113.497,
+       121.0,
+       31.03,
+       4.284,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       6.3483,
+       7135,
+       4.0,
+       113.497,
+       121.0,
+       31.03,
+       4.284,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       0.7214,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       271.75,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       -0.0828,
+       7392,
+       6.34,
+       107.797,
+       177.5,
+       167.0,
+       1.471,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_u": [
+       -0.166,
+       7392,
+       6.34,
+       107.797,
+       177.5,
+       167.0,
+       1.471,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_y_SF1": [
+       0.3758,
+       7392,
+       6.34,
+       107.797,
+       177.5,
+       167.0,
+       1.471,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_prim_y": [
+       7.0812,
+       7135,
+       4.0,
+       113.497,
+       121.0,
+       31.03,
+       4.284,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       6.3483,
+       7135,
+       4.0,
+       113.497,
+       121.0,
+       31.03,
+       4.284,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       1.7515,
+       7392,
+       6.34,
+       107.797,
+       177.5,
+       167.0,
+       1.471,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.4262,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       271.75,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.4782,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       271.75,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    }
+   },
+   "interfaces": {
+    "floor": {
+     "n_pairs": 29,
+     "n_closed": 26,
+     "opening_max_mm": 0.0003081,
+     "penetration_max_mm": 0.0002122,
+     "p_max_MPa_penalty": 106.1,
+     "open_r_mm": [
+      9.657,
+      9.828,
+      10.0
+     ],
+     "note": "u_z(TC-02 counterbore floor) - u_z(TC-03 flange top) per pair: > 0 open; closed = penalty overclosure (< 0); S03 lands: the S03 groove is not modelled (open item)"
+    },
+    "thread_radial": {
+     "overclosure_min_mm": -0.0030092,
+     "overclosure_max_mm": 0.0003397,
+     "n_in_contact": 21,
+     "n": 71,
+     "note": "u_r(TC-03 shank) - u_r(TC-02 bore) at the paired nodes: > 0 = overclosure (radial contact)"
+    },
+    "unpaired_proximity": {
+     "n_checked": 213,
+     "closest": [
+      {
+       "gap_mm": -0.001604,
+       "gap0_mm": 0.000762,
+       "tc03_node": 7429,
+       "at_r_z_mm": [
+        7.475,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.000962,
+       "gap0_mm": 0.002604,
+       "tc03_node": 7416,
+       "at_r_z_mm": [
+        7.45,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.004294,
+       "gap0_mm": 0.005653,
+       "tc03_node": 7428,
+       "at_r_z_mm": [
+        7.425,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.008683,
+       "gap0_mm": 0.009916,
+       "tc03_node": 7415,
+       "at_r_z_mm": [
+        7.4,
+        107.513
+       ]
+      }
+     ],
+     "note": "signed gap along the initial TC-02 -> TC-03 node vector, CAD clearances (top gap 0.15 nominal, drawing minimum 0.125; flange OD 0.10 radial; seat-entry cavity); < 0 = closes (contact not modelled there)"
+    },
+    "top_gap": {
+     "min_nominal_mm": 0.155311,
+     "min_at_drawing_minimum_0.125_mm": 0.130311
+    }
+   },
+   "global_linear_same_nodes": null
+  },
+  "C7_LC2_B1_19": {
+   "variant": "C7",
+   "case": "LC2",
+   "state": "B1_19",
+   "SF": [
+    1.5,
+    2.0
+   ],
+   "active_set": {
+    "rule": "stick only the floor pairs closed in the previous solution (pass 0 = C5), until the set is stable, cap 5 (lead 236 (9)(c))",
+    "n_passes": 2,
+    "stable": false,
+    "period_2_cycle": true,
+    "final": "lower of the last two passes per cell"
+   },
+   "passes": [
+    {
+     "pass": 1,
+     "n_stuck": 26,
+     "stuck_r_mm": [
+      7.5,
+      7.525,
+      7.549,
+      7.574,
+      7.598,
+      7.623,
+      7.647,
+      7.672,
+      7.696,
+      7.725,
+      7.754,
+      7.794,
+      7.834,
+      7.89,
+      7.946,
+      8.024,
+      8.103,
+      8.212,
+      8.322,
+      8.474,
+      8.627,
+      8.799,
+      8.97,
+      9.142,
+      9.313,
+      9.485
+     ],
+     "n_closed_after": 27,
+     "added_r_mm": [
+      9.657
+     ],
+     "removed_r_mm": [],
+     "ccx": {
+      "seconds": 52.7,
+      "returncode": 0,
+      "errors": [],
+      "warnings": [],
+      "n_increments_converged": 2,
+      "contact_spring_elements_last": "2032",
+      "guard": {
+       "disk_free_MiB": 2861,
+       "ccx_running": 1,
+       "ccx_rss_GB": 1.55
+      }
+     },
+     "interfaces": {
+      "floor": {
+       "n_pairs": 29,
+       "n_closed": 27,
+       "opening_max_mm": 0.0002248,
+       "penetration_max_mm": 0.0003144,
+       "p_max_MPa_penalty": 157.2,
+       "open_r_mm": [
+        9.828,
+        10.0
+       ],
+       "note": "u_z(TC-02 counterbore floor) - u_z(TC-03 flange top) per pair: > 0 open; closed = penalty overclosure (< 0); S03 lands: the S03 groove is not modelled (open item)"
+      },
+      "thread_radial": {
+       "overclosure_min_mm": -0.0030863,
+       "overclosure_max_mm": 0.0001888,
+       "n_in_contact": 21,
+       "n": 71,
+       "note": "u_r(TC-03 shank) - u_r(TC-02 bore) at the paired nodes: > 0 = overclosure (radial contact)"
+      },
+      "unpaired_proximity": {
+       "n_checked": 213,
+       "closest": [
+        {
+         "gap_mm": 0.000278,
+         "gap0_mm": 0.000762,
+         "tc03_node": 7429,
+         "at_r_z_mm": [
+          7.475,
+          107.513
+         ]
+        },
+        {
+         "gap_mm": 0.001981,
+         "gap0_mm": 0.002604,
+         "tc03_node": 7416,
+         "at_r_z_mm": [
+          7.45,
+          107.513
+         ]
+        },
+        {
+         "gap_mm": 0.004969,
+         "gap0_mm": 0.005653,
+         "tc03_node": 7428,
+         "at_r_z_mm": [
+          7.425,
+          107.513
+         ]
+        },
+        {
+         "gap_mm": 0.009186,
+         "gap0_mm": 0.009916,
+         "tc03_node": 7415,
+         "at_r_z_mm": [
+          7.4,
+          107.513
+         ]
+        }
+       ],
+       "note": "signed gap along the initial TC-02 -> TC-03 node vector, CAD clearances (top gap 0.15 nominal, drawing minimum 0.125; flange OD 0.10 radial; seat-entry cavity); < 0 = closes (contact not modelled there)"
+      },
+      "top_gap": {
+       "min_nominal_mm": 0.155486,
+       "min_at_drawing_minimum_0.125_mm": 0.130486
+      }
+     },
+     "margins": {
+      "ENG-TC-02": {
+       "all": {
+        "MS_y": [
+         -0.6493,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.03,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_u": [
+         -0.71,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.03,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_y_SF1": [
+         -0.4739,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.03,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_y": [
+         4.7442,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.03,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_u": [
+         3.7502,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.03,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_PQ": [
+         0.0521,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.03,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ]
+       },
+       "regular": {
+        "MS_y": [
+         0.4407,
+         6325,
+         8.627,
+         107.513,
+         167.6,
+         70.98,
+         1.373,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_u": [
+         0.1763,
+         6325,
+         8.627,
+         107.513,
+         167.6,
+         70.98,
+         1.373,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_y_SF1": [
+         1.161,
+         6325,
+         8.627,
+         107.513,
+         167.6,
+         70.98,
+         1.373,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_prim_y": [
+         18.2426,
+         6772,
+         5.0,
+         118.883,
+         78.8,
+         38.4,
+         3.068,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_prim_u": [
+         14.47,
+         6772,
+         5.0,
+         118.883,
+         78.8,
+         38.4,
+         3.068,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_PQ": [
+         3.322,
+         6325,
+         8.627,
+         107.513,
+         167.6,
+         70.98,
+         1.373,
+         "floor / flange-top contact band (regular)"
+        ]
+       },
+       "regular_incl_stick_edge": {
+        "MS_y": [
+         -0.6493,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.03,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_u": [
+         -0.71,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.03,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_y_SF1": [
+         -0.4739,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.03,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_y": [
+         4.7442,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.03,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_u": [
+         3.7502,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.03,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_PQ": [
+         0.0521,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.03,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ]
+       },
+       "part_all": {
+        "MS_y": [
+         -0.6493,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.03,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_u": [
+         -0.71,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.03,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ]
+       }
+      },
+      "ENG-TC-03": {
+       "all": {
+        "MS_y": [
+         -0.5105,
+         133,
+         7.0,
+         109.112,
+         155.2,
+         318.54,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_u": [
+         -0.5549,
+         133,
+         7.0,
+         109.112,
+         155.2,
+         318.54,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_y_SF1": [
+         -0.2657,
+         133,
+         7.0,
+         109.112,
+         155.2,
+         318.54,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_prim_y": [
+         6.2865,
+         7429,
+         7.475,
+         107.513,
+         173.9,
+         289.96,
+         1.668,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_u": [
+         5.626,
+         7429,
+         7.475,
+         107.513,
+         173.9,
+         289.96,
+         1.668,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_PQ": [
+         0.4685,
+         133,
+         7.0,
+         109.112,
+         155.2,
+         318.54,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ]
+       },
+       "regular": {
+        "MS_y": [
+         0.0179,
+         7361,
+         6.287,
+         107.907,
+         175.7,
+         150.69,
+         1.401,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ],
+        "MS_u": [
+         -0.0743,
+         7361,
+         6.287,
+         107.907,
+         175.7,
+         150.69,
+         1.401,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ],
+        "MS_y_SF1": [
+         0.5269,
+         7361,
+         6.287,
+         107.907,
+         175.7,
+         150.69,
+         1.401,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ],
+        "MS_prim_y": [
+         7.1972,
+         7163,
+         4.0,
+         113.669,
+         119.9,
+         31.87,
+         4.164,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_prim_u": [
+         6.4539,
+         7163,
+         4.0,
+         113.669,
+         119.9,
+         31.87,
+         4.164,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_PQ": [
+         2.0538,
+         7361,
+         6.287,
+         107.907,
+         175.7,
+         150.69,
+         1.401,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ]
+       },
+       "regular_incl_stick_edge": {
+        "MS_y": [
+         -0.4725,
+         128,
+         7.5,
+         107.513,
+         173.5,
+         291.3,
+         1.675,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_u": [
+         -0.5203,
+         128,
+         7.5,
+         107.513,
+         173.5,
+         291.3,
+         1.675,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_y_SF1": [
+         -0.2087,
+         128,
+         7.5,
+         107.513,
+         173.5,
+         291.3,
+         1.675,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_y": [
+         6.2865,
+         7429,
+         7.475,
+         107.513,
+         173.9,
+         289.96,
+         1.668,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_u": [
+         5.626,
+         7429,
+         7.475,
+         107.513,
+         173.9,
+         289.96,
+         1.668,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_PQ": [
+         0.5825,
+         128,
+         7.5,
+         107.513,
+         173.5,
+         291.3,
+         1.675,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ]
+       },
+       "part_all": {
+        "MS_y": [
+         -0.5105,
+         133,
+         7.0,
+         109.112,
+         155.2,
+         318.54,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_u": [
+         -0.5549,
+         133,
+         7.0,
+         109.112,
+         155.2,
+         318.54,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "pass": 2,
+     "n_stuck": 27,
+     "stuck_r_mm": [
+      7.5,
+      7.525,
+      7.549,
+      7.574,
+      7.598,
+      7.623,
+      7.647,
+      7.672,
+      7.696,
+      7.725,
+      7.754,
+      7.794,
+      7.834,
+      7.89,
+      7.946,
+      8.024,
+      8.103,
+      8.212,
+      8.322,
+      8.474,
+      8.627,
+      8.799,
+      8.97,
+      9.142,
+      9.313,
+      9.485,
+      9.657
+     ],
+     "n_closed_after": 26,
+     "added_r_mm": [],
+     "removed_r_mm": [
+      9.657
+     ],
+     "ccx": {
+      "seconds": 47.5,
+      "returncode": 0,
+      "errors": [],
+      "warnings": [],
+      "n_increments_converged": 2,
+      "contact_spring_elements_last": "1962",
+      "guard": {
+       "disk_free_MiB": 2859,
+       "ccx_running": 1,
+       "ccx_rss_GB": 2.05
+      }
+     },
+     "interfaces": {
+      "floor": {
+       "n_pairs": 29,
+       "n_closed": 26,
+       "opening_max_mm": 0.0002604,
+       "penetration_max_mm": 0.0003163,
+       "p_max_MPa_penalty": 158.15,
+       "open_r_mm": [
+        9.657,
+        9.828,
+        10.0
+       ],
+       "note": "u_z(TC-02 counterbore floor) - u_z(TC-03 flange top) per pair: > 0 open; closed = penalty overclosure (< 0); S03 lands: the S03 groove is not modelled (open item)"
+      },
+      "thread_radial": {
+       "overclosure_min_mm": -0.0030853,
+       "overclosure_max_mm": 0.0001895,
+       "n_in_contact": 21,
+       "n": 71,
+       "note": "u_r(TC-03 shank) - u_r(TC-02 bore) at the paired nodes: > 0 = overclosure (radial contact)"
+      },
+      "unpaired_proximity": {
+       "n_checked": 213,
+       "closest": [
+        {
+         "gap_mm": 0.000276,
+         "gap0_mm": 0.000762,
+         "tc03_node": 7429,
+         "at_r_z_mm": [
+          7.475,
+          107.513
+         ]
+        },
+        {
+         "gap_mm": 0.001978,
+         "gap0_mm": 0.002604,
+         "tc03_node": 7416,
+         "at_r_z_mm": [
+          7.45,
+          107.513
+         ]
+        },
+        {
+         "gap_mm": 0.004966,
+         "gap0_mm": 0.005653,
+         "tc03_node": 7428,
+         "at_r_z_mm": [
+          7.425,
+          107.513
+         ]
+        },
+        {
+         "gap_mm": 0.009183,
+         "gap0_mm": 0.009916,
+         "tc03_node": 7415,
+         "at_r_z_mm": [
+          7.4,
+          107.513
+         ]
+        }
+       ],
+       "note": "signed gap along the initial TC-02 -> TC-03 node vector, CAD clearances (top gap 0.15 nominal, drawing minimum 0.125; flange OD 0.10 radial; seat-entry cavity); < 0 = closes (contact not modelled there)"
+      },
+      "top_gap": {
+       "min_nominal_mm": 0.155484,
+       "min_at_drawing_minimum_0.125_mm": 0.130484
+      }
+     },
+     "margins": {
+      "ENG-TC-02": {
+       "all": {
+        "MS_y": [
+         -0.6498,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.44,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_u": [
+         -0.7104,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.44,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_y_SF1": [
+         -0.4747,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.44,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_y": [
+         4.7764,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.44,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_u": [
+         3.7768,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.44,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_PQ": [
+         0.0505,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.44,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ]
+       },
+       "regular": {
+        "MS_y": [
+         0.4424,
+         6325,
+         8.627,
+         107.513,
+         167.6,
+         70.9,
+         1.373,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_u": [
+         0.1778,
+         6325,
+         8.627,
+         107.513,
+         167.6,
+         70.9,
+         1.373,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_y_SF1": [
+         1.1636,
+         6325,
+         8.627,
+         107.513,
+         167.6,
+         70.9,
+         1.373,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_prim_y": [
+         18.244,
+         6772,
+         5.0,
+         118.883,
+         78.8,
+         38.39,
+         3.068,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_prim_u": [
+         14.4711,
+         6772,
+         5.0,
+         118.883,
+         78.8,
+         38.39,
+         3.068,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_PQ": [
+         3.3273,
+         6325,
+         8.627,
+         107.513,
+         167.6,
+         70.9,
+         1.373,
+         "floor / flange-top contact band (regular)"
+        ]
+       },
+       "regular_incl_stick_edge": {
+        "MS_y": [
+         -0.6498,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.44,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_u": [
+         -0.7104,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.44,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_y_SF1": [
+         -0.4747,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.44,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_y": [
+         4.7764,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.44,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_u": [
+         3.7768,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.44,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_PQ": [
+         0.0505,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.44,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ]
+       },
+       "part_all": {
+        "MS_y": [
+         -0.6498,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.44,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_u": [
+         -0.7104,
+         6392,
+         7.475,
+         107.514,
+         173.5,
+         272.44,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ]
+       }
+      },
+      "ENG-TC-03": {
+       "all": {
+        "MS_y": [
+         -0.512,
+         133,
+         7.0,
+         109.112,
+         155.2,
+         319.5,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_u": [
+         -0.5562,
+         133,
+         7.0,
+         109.112,
+         155.2,
+         319.5,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_y_SF1": [
+         -0.2679,
+         133,
+         7.0,
+         109.112,
+         155.2,
+         319.5,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_prim_y": [
+         6.3188,
+         7429,
+         7.475,
+         107.513,
+         173.9,
+         290.18,
+         1.668,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_u": [
+         5.6553,
+         7429,
+         7.475,
+         107.513,
+         173.9,
+         290.18,
+         1.668,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_PQ": [
+         0.4641,
+         133,
+         7.0,
+         109.112,
+         155.2,
+         319.5,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ]
+       },
+       "regular": {
+        "MS_y": [
+         0.0177,
+         7361,
+         6.287,
+         107.907,
+         175.7,
+         150.73,
+         1.401,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ],
+        "MS_u": [
+         -0.0746,
+         7361,
+         6.287,
+         107.907,
+         175.7,
+         150.73,
+         1.401,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ],
+        "MS_y_SF1": [
+         0.5266,
+         7361,
+         6.287,
+         107.907,
+         175.7,
+         150.73,
+         1.401,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ],
+        "MS_prim_y": [
+         7.203,
+         7163,
+         4.0,
+         113.669,
+         119.9,
+         31.83,
+         4.164,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_prim_u": [
+         6.4591,
+         7163,
+         4.0,
+         113.669,
+         119.9,
+         31.83,
+         4.164,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_PQ": [
+         2.0531,
+         7361,
+         6.287,
+         107.907,
+         175.7,
+         150.73,
+         1.401,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ]
+       },
+       "regular_incl_stick_edge": {
+        "MS_y": [
+         -0.4734,
+         128,
+         7.5,
+         107.513,
+         173.5,
+         291.8,
+         1.675,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_u": [
+         -0.5211,
+         128,
+         7.5,
+         107.513,
+         173.5,
+         291.8,
+         1.675,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_y_SF1": [
+         -0.2101,
+         128,
+         7.5,
+         107.513,
+         173.5,
+         291.8,
+         1.675,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_y": [
+         6.3188,
+         7429,
+         7.475,
+         107.513,
+         173.9,
+         290.18,
+         1.668,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_u": [
+         5.6553,
+         7429,
+         7.475,
+         107.513,
+         173.9,
+         290.18,
+         1.668,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_PQ": [
+         0.5798,
+         128,
+         7.5,
+         107.513,
+         173.5,
+         291.8,
+         1.675,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ]
+       },
+       "part_all": {
+        "MS_y": [
+         -0.512,
+         133,
+         7.0,
+         109.112,
+         155.2,
+         319.5,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_u": [
+         -0.5562,
+         133,
+         7.0,
+         109.112,
+         155.2,
+         319.5,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ]
+       }
+      }
+     }
+    }
+   ],
+   "margins": {
+    "ENG-TC-02": {
+     "all": {
+      "MS_y": [
+       -0.6498,
+       6392,
+       7.475,
+       107.514,
+       173.5,
+       272.44,
+       1.667,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_u": [
+       -0.7104,
+       6392,
+       7.475,
+       107.514,
+       173.5,
+       272.44,
+       1.667,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_y_SF1": [
+       -0.4747,
+       6392,
+       7.475,
+       107.514,
+       173.5,
+       272.44,
+       1.667,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_prim_y": [
+       4.7442,
+       6392,
+       7.475,
+       107.514,
+       173.5,
+       272.03,
+       1.667,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_prim_u": [
+       3.7502,
+       6392,
+       7.475,
+       107.514,
+       173.5,
+       272.03,
+       1.667,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_PQ": [
+       0.0505,
+       6392,
+       7.475,
+       107.514,
+       173.5,
+       272.44,
+       1.667,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       0.4407,
+       6325,
+       8.627,
+       107.513,
+       167.6,
+       70.98,
+       1.373,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_u": [
+       0.1763,
+       6325,
+       8.627,
+       107.513,
+       167.6,
+       70.98,
+       1.373,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_y_SF1": [
+       1.161,
+       6325,
+       8.627,
+       107.513,
+       167.6,
+       70.98,
+       1.373,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_prim_y": [
+       18.2426,
+       6772,
+       5.0,
+       118.883,
+       78.8,
+       38.4,
+       3.068,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       14.47,
+       6772,
+       5.0,
+       118.883,
+       78.8,
+       38.4,
+       3.068,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       3.322,
+       6325,
+       8.627,
+       107.513,
+       167.6,
+       70.98,
+       1.373,
+       "floor / flange-top contact band (regular)"
+      ]
+     },
+     "regular_incl_stick_edge": {
+      "MS_y": [
+       -0.6498,
+       6392,
+       7.475,
+       107.514,
+       173.5,
+       272.44,
+       1.667,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_u": [
+       -0.7104,
+       6392,
+       7.475,
+       107.514,
+       173.5,
+       272.44,
+       1.667,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_y_SF1": [
+       -0.4747,
+       6392,
+       7.475,
+       107.514,
+       173.5,
+       272.44,
+       1.667,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_prim_y": [
+       4.7442,
+       6392,
+       7.475,
+       107.514,
+       173.5,
+       272.03,
+       1.667,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_prim_u": [
+       3.7502,
+       6392,
+       7.475,
+       107.514,
+       173.5,
+       272.03,
+       1.667,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_PQ": [
+       0.0505,
+       6392,
+       7.475,
+       107.514,
+       173.5,
+       272.44,
+       1.667,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.6498,
+       6392,
+       7.475,
+       107.514,
+       173.5,
+       272.44,
+       1.667,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_u": [
+       -0.7104,
+       6392,
+       7.475,
+       107.514,
+       173.5,
+       272.44,
+       1.667,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ]
+     }
+    },
+    "ENG-TC-03": {
+     "all": {
+      "MS_y": [
+       -0.512,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       319.5,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.5562,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       319.5,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       -0.2679,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       319.5,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       6.2865,
+       7429,
+       7.475,
+       107.513,
+       173.9,
+       289.96,
+       1.668,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_prim_u": [
+       5.626,
+       7429,
+       7.475,
+       107.513,
+       173.9,
+       289.96,
+       1.668,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_PQ": [
+       0.4641,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       319.5,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       0.0177,
+       7361,
+       6.287,
+       107.907,
+       175.7,
+       150.73,
+       1.401,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_u": [
+       -0.0746,
+       7361,
+       6.287,
+       107.907,
+       175.7,
+       150.73,
+       1.401,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_y_SF1": [
+       0.5266,
+       7361,
+       6.287,
+       107.907,
+       175.7,
+       150.73,
+       1.401,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_prim_y": [
+       7.1972,
+       7163,
+       4.0,
+       113.669,
+       119.9,
+       31.87,
+       4.164,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       6.4539,
+       7163,
+       4.0,
+       113.669,
+       119.9,
+       31.87,
+       4.164,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       2.0531,
+       7361,
+       6.287,
+       107.907,
+       175.7,
+       150.73,
+       1.401,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ]
+     },
+     "regular_incl_stick_edge": {
+      "MS_y": [
+       -0.4734,
+       128,
+       7.5,
+       107.513,
+       173.5,
+       291.8,
+       1.675,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_u": [
+       -0.5211,
+       128,
+       7.5,
+       107.513,
+       173.5,
+       291.8,
+       1.675,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_y_SF1": [
+       -0.2101,
+       128,
+       7.5,
+       107.513,
+       173.5,
+       291.8,
+       1.675,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_prim_y": [
+       6.2865,
+       7429,
+       7.475,
+       107.513,
+       173.9,
+       289.96,
+       1.668,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_prim_u": [
+       5.626,
+       7429,
+       7.475,
+       107.513,
+       173.9,
+       289.96,
+       1.668,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_PQ": [
+       0.5798,
+       128,
+       7.5,
+       107.513,
+       173.5,
+       291.8,
+       1.675,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.512,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       319.5,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.5562,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       319.5,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    }
+   },
+   "interfaces": {
+    "floor": {
+     "n_pairs": 29,
+     "n_closed": 26,
+     "opening_max_mm": 0.0002604,
+     "penetration_max_mm": 0.0003163,
+     "p_max_MPa_penalty": 158.15,
+     "open_r_mm": [
+      9.657,
+      9.828,
+      10.0
+     ],
+     "note": "u_z(TC-02 counterbore floor) - u_z(TC-03 flange top) per pair: > 0 open; closed = penalty overclosure (< 0); S03 lands: the S03 groove is not modelled (open item)"
+    },
+    "thread_radial": {
+     "overclosure_min_mm": -0.0030853,
+     "overclosure_max_mm": 0.0001895,
+     "n_in_contact": 21,
+     "n": 71,
+     "note": "u_r(TC-03 shank) - u_r(TC-02 bore) at the paired nodes: > 0 = overclosure (radial contact)"
+    },
+    "unpaired_proximity": {
+     "n_checked": 213,
+     "closest": [
+      {
+       "gap_mm": 0.000276,
+       "gap0_mm": 0.000762,
+       "tc03_node": 7429,
+       "at_r_z_mm": [
+        7.475,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.001978,
+       "gap0_mm": 0.002604,
+       "tc03_node": 7416,
+       "at_r_z_mm": [
+        7.45,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.004966,
+       "gap0_mm": 0.005653,
+       "tc03_node": 7428,
+       "at_r_z_mm": [
+        7.425,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.009183,
+       "gap0_mm": 0.009916,
+       "tc03_node": 7415,
+       "at_r_z_mm": [
+        7.4,
+        107.513
+       ]
+      }
+     ],
+     "note": "signed gap along the initial TC-02 -> TC-03 node vector, CAD clearances (top gap 0.15 nominal, drawing minimum 0.125; flange OD 0.10 radial; seat-entry cavity); < 0 = closes (contact not modelled there)"
+    },
+    "top_gap": {
+     "min_nominal_mm": 0.155484,
+     "min_at_drawing_minimum_0.125_mm": 0.130484
+    }
+   }
+  },
+  "C3n_LC2_B1_19": {
+   "variant": "C3n",
+   "case": "LC2",
+   "state": "B1_19",
+   "script_sha256_16": "1fce3b7d1f343be2",
+   "coefficients": {
+    "OP": 4.5,
+    "PM": 7.0,
+    "G": 3.650584042460983
+   },
+   "SF": [
+    1.5,
+    2.0
+   ],
+   "ccx": {
+    "seconds": 166.3,
+    "returncode": 0,
+    "errors": [],
+    "warnings": [],
+    "n_increments_converged": 6,
+    "contact_spring_elements_last": "131",
+    "guard": {
+     "disk_free_MiB": 2846,
+     "ccx_running": 1,
+     "ccx_rss_GB": 2.47
+    }
+   },
+   "n_slave_faces": 49,
+   "n_master_faces": 49,
+   "n_eq": 115,
+   "frd_block_times": [
+    0.05,
+    0.1,
+    0.15,
+    0.2,
+    0.25,
+    0.3,
+    0.375,
+    0.475,
+    0.575,
+    0.675,
+    0.775,
+    0.875,
+    0.975,
+    1.0,
+    1.05,
+    1.1,
+    1.175,
+    1.275,
+    1.375,
+    1.475,
+    1.575,
+    1.675,
+    1.775,
+    1.875,
+    1.975,
+    2.0
+   ],
+   "margins": {
+    "ENG-TC-02": {
+     "all": {
+      "MS_y": [
+       -0.3189,
+       6435,
+       7.0,
+       109.087,
+       155.4,
+       171.22,
+       0.025,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.4561,
+       6435,
+       7.0,
+       109.087,
+       155.4,
+       171.22,
+       0.025,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       0.0216,
+       6435,
+       7.0,
+       109.087,
+       155.4,
+       171.22,
+       0.025,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       9.5332,
+       6584,
+       7.24,
+       116.916,
+       101.6,
+       140.82,
+       0.433,
+       "thread end tie end (smeared M14x1 thread, u_z interlock tie; relief run-out)"
+      ],
+      "MS_prim_u": [
+       7.4311,
+       6584,
+       7.24,
+       116.916,
+       101.6,
+       140.82,
+       0.433,
+       "thread end tie end (smeared M14x1 thread, u_z interlock tie; relief run-out)"
+      ],
+      "MS_PQ": [
+       1.0432,
+       6435,
+       7.0,
+       109.087,
+       155.4,
+       171.22,
+       0.025,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       0.0756,
+       6376,
+       7.451,
+       107.516,
+       173.5,
+       88.69,
+       1.659,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_u": [
+       -0.1105,
+       6376,
+       7.451,
+       107.516,
+       173.5,
+       88.69,
+       1.659,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_y_SF1": [
+       0.6135,
+       6376,
+       7.451,
+       107.516,
+       173.5,
+       88.69,
+       1.659,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_prim_y": [
+       14.749,
+       45740,
+       7.538,
+       107.535,
+       172.9,
+       73.99,
+       1.666,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_prim_u": [
+       12.0069,
+       45740,
+       7.538,
+       107.535,
+       172.9,
+       73.99,
+       1.666,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_PQ": [
+       2.2269,
+       6376,
+       7.451,
+       107.516,
+       173.5,
+       88.69,
+       1.659,
+       "floor / flange-top contact band (regular)"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.3189,
+       6435,
+       7.0,
+       109.087,
+       155.4,
+       171.22,
+       0.025,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.4561,
+       6435,
+       7.0,
+       109.087,
+       155.4,
+       171.22,
+       0.025,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    },
+    "ENG-TC-03": {
+     "all": {
+      "MS_y": [
+       -0.4164,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       267.17,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.4693,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       267.17,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       -0.1245,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       267.17,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       7.1616,
+       7163,
+       4.0,
+       113.669,
+       119.9,
+       30.36,
+       4.164,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       6.4214,
+       7163,
+       4.0,
+       113.669,
+       119.9,
+       30.36,
+       4.164,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       0.7509,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       267.17,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       -0.0625,
+       7363,
+       6.328,
+       107.818,
+       177.2,
+       163.42,
+       1.458,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_u": [
+       -0.1475,
+       7363,
+       6.328,
+       107.818,
+       177.2,
+       163.42,
+       1.458,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_y_SF1": [
+       0.4063,
+       7363,
+       6.328,
+       107.818,
+       177.2,
+       163.42,
+       1.458,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_prim_y": [
+       7.1616,
+       7163,
+       4.0,
+       113.669,
+       119.9,
+       30.36,
+       4.164,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       6.4214,
+       7163,
+       4.0,
+       113.669,
+       119.9,
+       30.36,
+       4.164,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       1.8126,
+       7363,
+       6.328,
+       107.818,
+       177.2,
+       163.42,
+       1.458,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.4164,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       267.17,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.4693,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       267.17,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    }
+   },
+   "interfaces": {
+    "floor": {
+     "n_pairs": 29,
+     "n_closed": 26,
+     "opening_max_mm": 0.0002548,
+     "penetration_max_mm": 0.0002114,
+     "p_max_MPa_penalty": 105.7,
+     "open_r_mm": [
+      9.657,
+      9.828,
+      10.0
+     ],
+     "note": "u_z(TC-02 counterbore floor) - u_z(TC-03 flange top) per pair: > 0 open; closed = penalty overclosure (< 0); S03 lands: the S03 groove is not modelled (open item)"
+    },
+    "thread_radial": {
+     "overclosure_min_mm": -0.0030214,
+     "overclosure_max_mm": 0.000298,
+     "n_in_contact": 22,
+     "n": 71,
+     "note": "u_r(TC-03 shank) - u_r(TC-02 bore) at the paired nodes: > 0 = overclosure (radial contact)"
+    },
+    "unpaired_proximity": {
+     "n_checked": 213,
+     "closest": [
+      {
+       "gap_mm": -0.001343,
+       "gap0_mm": 0.000762,
+       "tc03_node": 7429,
+       "at_r_z_mm": [
+        7.475,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.00111,
+       "gap0_mm": 0.002604,
+       "tc03_node": 7416,
+       "at_r_z_mm": [
+        7.45,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.004397,
+       "gap0_mm": 0.005653,
+       "tc03_node": 7428,
+       "at_r_z_mm": [
+        7.425,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.008763,
+       "gap0_mm": 0.009916,
+       "tc03_node": 7415,
+       "at_r_z_mm": [
+        7.4,
+        107.513
+       ]
+      }
+     ],
+     "note": "signed gap along the initial TC-02 -> TC-03 node vector, CAD clearances (top gap 0.15 nominal, drawing minimum 0.125; flange OD 0.10 radial; seat-entry cavity); < 0 = closes (contact not modelled there)"
+    },
+    "top_gap": {
+     "min_nominal_mm": 0.155342,
+     "min_at_drawing_minimum_0.125_mm": 0.130342
+    }
+   },
+   "global_linear_same_nodes": null
+  },
+  "C4n_LC2_B1_19": {
+   "variant": "C4n",
+   "case": "LC2",
+   "state": "B1_19",
+   "script_sha256_16": "1fce3b7d1f343be2",
+   "coefficients": {
+    "OP": 4.5,
+    "PM": 7.0,
+    "G": 3.650584042460983
+   },
+   "SF": [
+    1.5,
+    2.0
+   ],
+   "ccx": {
+    "seconds": 158.2,
+    "returncode": 0,
+    "errors": [],
+    "warnings": [],
+    "n_increments_converged": 6,
+    "contact_spring_elements_last": "127",
+    "guard": {
+     "disk_free_MiB": 2970,
+     "ccx_running": 1,
+     "ccx_rss_GB": 1.48
+    }
+   },
+   "n_slave_faces": 49,
+   "n_master_faces": 49,
+   "n_eq": 115,
+   "frd_block_times": [
+    0.05,
+    0.1,
+    0.15,
+    0.2,
+    0.275,
+    0.35,
+    0.425,
+    0.525,
+    0.625,
+    0.725,
+    0.825,
+    0.925,
+    1.0,
+    1.05,
+    1.1,
+    1.175,
+    1.275,
+    1.375,
+    1.475,
+    1.575,
+    1.675,
+    1.775,
+    1.875,
+    1.975,
+    2.0
+   ],
+   "margins": {
+    "ENG-TC-02": {
+     "all": {
+      "MS_y": [
+       -0.3954,
+       6435,
+       7.0,
+       109.087,
+       155.4,
+       192.86,
+       0.025,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.5171,
+       6435,
+       7.0,
+       109.087,
+       155.4,
+       192.86,
+       0.025,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       -0.093,
+       6435,
+       7.0,
+       109.087,
+       155.4,
+       192.86,
+       0.025,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       9.5186,
+       6584,
+       7.24,
+       116.916,
+       101.6,
+       143.77,
+       0.433,
+       "thread end tie end (smeared M14x1 thread, u_z interlock tie; relief run-out)"
+      ],
+      "MS_prim_u": [
+       7.4194,
+       6584,
+       7.24,
+       116.916,
+       101.6,
+       143.77,
+       0.433,
+       "thread end tie end (smeared M14x1 thread, u_z interlock tie; relief run-out)"
+      ],
+      "MS_PQ": [
+       0.8139,
+       6435,
+       7.0,
+       109.087,
+       155.4,
+       192.86,
+       0.025,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       0.1022,
+       6376,
+       7.451,
+       107.516,
+       173.5,
+       86.55,
+       1.659,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_u": [
+       -0.0885,
+       6376,
+       7.451,
+       107.516,
+       173.5,
+       86.55,
+       1.659,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_y_SF1": [
+       0.6534,
+       6376,
+       7.451,
+       107.516,
+       173.5,
+       86.55,
+       1.659,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_prim_y": [
+       14.8303,
+       45740,
+       7.538,
+       107.535,
+       172.9,
+       78.4,
+       1.666,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_prim_u": [
+       12.074,
+       45740,
+       7.538,
+       107.535,
+       172.9,
+       78.4,
+       1.666,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_PQ": [
+       2.3067,
+       6376,
+       7.451,
+       107.516,
+       173.5,
+       86.55,
+       1.659,
+       "floor / flange-top contact band (regular)"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.3954,
+       6435,
+       7.0,
+       109.087,
+       155.4,
+       192.86,
+       0.025,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.5171,
+       6435,
+       7.0,
+       109.087,
+       155.4,
+       192.86,
+       0.025,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    },
+    "ENG-TC-03": {
+     "all": {
+      "MS_y": [
+       -0.4433,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       280.11,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.4938,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       280.11,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       -0.165,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       280.11,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       7.1417,
+       7163,
+       4.0,
+       113.669,
+       119.9,
+       31.19,
+       4.164,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       6.4033,
+       7163,
+       4.0,
+       113.669,
+       119.9,
+       31.19,
+       4.164,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       0.67,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       280.11,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       -0.0232,
+       7362,
+       6.305,
+       107.861,
+       176.5,
+       156.93,
+       1.43,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_u": [
+       -0.1117,
+       7362,
+       6.305,
+       107.861,
+       176.5,
+       156.93,
+       1.43,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_y_SF1": [
+       0.4652,
+       7362,
+       6.305,
+       107.861,
+       176.5,
+       156.93,
+       1.43,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_prim_y": [
+       7.1417,
+       7163,
+       4.0,
+       113.669,
+       119.9,
+       31.19,
+       4.164,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       6.4033,
+       7163,
+       4.0,
+       113.669,
+       119.9,
+       31.19,
+       4.164,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       1.9305,
+       7362,
+       6.305,
+       107.861,
+       176.5,
+       156.93,
+       1.43,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.4433,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       280.11,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.4938,
+       133,
+       7.0,
+       109.112,
+       155.2,
+       280.11,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    }
+   },
+   "interfaces": {
+    "floor": {
+     "n_pairs": 29,
+     "n_closed": 27,
+     "opening_max_mm": 0.00016,
+     "penetration_max_mm": 0.0002269,
+     "p_max_MPa_penalty": 113.45,
+     "open_r_mm": [
+      9.828,
+      10.0
+     ],
+     "note": "u_z(TC-02 counterbore floor) - u_z(TC-03 flange top) per pair: > 0 open; closed = penalty overclosure (< 0); S03 lands: the S03 groove is not modelled (open item)"
+    },
+    "thread_radial": {
+     "overclosure_min_mm": -0.0030537,
+     "overclosure_max_mm": 0.000243,
+     "n_in_contact": 21,
+     "n": 71,
+     "note": "u_r(TC-03 shank) - u_r(TC-02 bore) at the paired nodes: > 0 = overclosure (radial contact)"
+    },
+    "unpaired_proximity": {
+     "n_checked": 213,
+     "closest": [
+      {
+       "gap_mm": -0.000792,
+       "gap0_mm": 0.000762,
+       "tc03_node": 7429,
+       "at_r_z_mm": [
+        7.475,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.001432,
+       "gap0_mm": 0.002604,
+       "tc03_node": 7416,
+       "at_r_z_mm": [
+        7.45,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.004625,
+       "gap0_mm": 0.005653,
+       "tc03_node": 7428,
+       "at_r_z_mm": [
+        7.425,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.008945,
+       "gap0_mm": 0.009916,
+       "tc03_node": 7415,
+       "at_r_z_mm": [
+        7.4,
+        107.513
+       ]
+      }
+     ],
+     "note": "signed gap along the initial TC-02 -> TC-03 node vector, CAD clearances (top gap 0.15 nominal, drawing minimum 0.125; flange OD 0.10 radial; seat-entry cavity); < 0 = closes (contact not modelled there)"
+    },
+    "top_gap": {
+     "min_nominal_mm": 0.155416,
+     "min_at_drawing_minimum_0.125_mm": 0.130416
+    }
+   },
+   "global_linear_same_nodes": null
+  },
+  "C0_TBS_TB": {
+   "variant": "C0",
+   "case": "TBS",
+   "state": "TB",
+   "script_sha256_16": "1fce3b7d1f343be2",
+   "coefficients": {
+    "BL": 6.31,
+    "PM": 7.0
+   },
+   "SF": [
+    1.0,
+    1.5
+   ],
+   "ccx": {
+    "seconds": 4.6,
+    "returncode": 0,
+    "errors": [],
+    "warnings": [],
+    "n_increments_converged": 0,
+    "contact_spring_elements_last": null,
+    "guard": {
+     "disk_free_MiB": 2960,
+     "ccx_running": 1,
+     "ccx_rss_GB": 0.96
+    }
+   },
+   "n_slave_faces": 0,
+   "n_master_faces": 0,
+   "n_eq": 144,
+   "frd_block_times": [
+    1.0,
+    2.0
+   ],
+   "margins": {
+    "ENG-TC-02": {
+     "all": {
+      "MS_y": [
+       -0.6704,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       251.27,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.7285,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       251.27,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       -0.6704,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       251.27,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       7.6789,
+       6361,
+       10.05,
+       107.513,
+       211.3,
+       42.1,
+       0.05,
+       "BREP zero-radius concave corner of TC-02 (turn > 60 deg)"
+      ],
+      "MS_prim_u": [
+       6.1574,
+       6361,
+       10.05,
+       107.513,
+       211.3,
+       42.1,
+       0.05,
+       "BREP zero-radius concave corner of TC-02 (turn > 60 deg)"
+      ],
+      "MS_PQ": [
+       -0.3409,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       251.27,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       0.1915,
+       6454,
+       7.0,
+       110.252,
+       203.6,
+       75.76,
+       1.14,
+       "TC-02 thread band (regular)"
+      ],
+      "MS_u": [
+       -0.0276,
+       6454,
+       7.0,
+       110.252,
+       203.6,
+       75.76,
+       1.14,
+       "TC-02 thread band (regular)"
+      ],
+      "MS_y_SF1": [
+       0.1915,
+       6454,
+       7.0,
+       110.252,
+       203.6,
+       75.76,
+       1.14,
+       "TC-02 thread band (regular)"
+      ],
+      "MS_prim_y": [
+       17.6717,
+       47323,
+       8.084,
+       109.232,
+       207.6,
+       43.98,
+       1.091,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       14.3304,
+       47323,
+       8.084,
+       109.232,
+       207.6,
+       43.98,
+       1.091,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       1.383,
+       6454,
+       7.0,
+       110.252,
+       203.6,
+       75.76,
+       1.14,
+       "TC-02 thread band (regular)"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.6704,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       251.27,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.7285,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       251.27,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    },
+    "ENG-TC-03": {
+     "all": {
+      "MS_y": [
+       -0.3163,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       327.14,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.4474,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       327.14,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       -0.3163,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       327.14,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       9.6911,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       35.6,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       7.6417,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       35.6,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       0.3674,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       327.14,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       0.2755,
+       7392,
+       6.34,
+       107.797,
+       224.2,
+       173.32,
+       1.194,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_u": [
+       0.031,
+       7392,
+       6.34,
+       107.797,
+       224.2,
+       173.32,
+       1.194,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_y_SF1": [
+       0.2755,
+       7392,
+       6.34,
+       107.797,
+       224.2,
+       173.32,
+       1.194,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_prim_y": [
+       9.6911,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       35.6,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       7.6417,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       35.6,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       1.551,
+       7392,
+       6.34,
+       107.797,
+       224.2,
+       173.32,
+       1.194,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.3163,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       327.14,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.4474,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       327.14,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    }
+   },
+   "check_vs_global": {
+    "max_abs_dvm_MPa": 2.762737,
+    "max_vm_MPa": 327.139,
+    "max_abs_du_mm": 2.7657e-05
+   },
+   "global_linear_same_nodes": {
+    "ENG-TC-02": {
+     "all": {
+      "MS_y": [
+       -0.6704,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       251.27,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.7285,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       251.27,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       -0.6704,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       251.27,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       -0.671,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       251.27,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_u": [
+       -0.729,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       251.27,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_PQ": [
+       -0.3409,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       251.27,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       0.1915,
+       6454,
+       7.0,
+       110.252,
+       203.6,
+       75.76,
+       1.14,
+       "TC-02 thread band (regular)"
+      ],
+      "MS_u": [
+       -0.0276,
+       6454,
+       7.0,
+       110.252,
+       203.6,
+       75.76,
+       1.14,
+       "TC-02 thread band (regular)"
+      ],
+      "MS_y_SF1": [
+       0.1915,
+       6454,
+       7.0,
+       110.252,
+       203.6,
+       75.76,
+       1.14,
+       "TC-02 thread band (regular)"
+      ],
+      "MS_prim_y": [
+       0.2151,
+       6454,
+       7.0,
+       110.252,
+       203.6,
+       75.76,
+       1.14,
+       "TC-02 thread band (regular)"
+      ],
+      "MS_prim_u": [
+       -0.0083,
+       6454,
+       7.0,
+       110.252,
+       203.6,
+       75.76,
+       1.14,
+       "TC-02 thread band (regular)"
+      ],
+      "MS_PQ": [
+       1.383,
+       6454,
+       7.0,
+       110.252,
+       203.6,
+       75.76,
+       1.14,
+       "TC-02 thread band (regular)"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.6704,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       251.27,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.7285,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       251.27,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    },
+    "ENG-TC-03": {
+     "all": {
+      "MS_y": [
+       -0.3163,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       327.14,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.4474,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       327.14,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       -0.3163,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       327.14,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       -0.3244,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       327.14,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_u": [
+       -0.4539,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       327.14,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_PQ": [
+       0.3674,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       327.14,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       0.2755,
+       7392,
+       6.34,
+       107.797,
+       224.2,
+       173.31,
+       1.194,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_u": [
+       0.0311,
+       7392,
+       6.34,
+       107.797,
+       224.2,
+       173.31,
+       1.194,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_y_SF1": [
+       0.2755,
+       7392,
+       6.34,
+       107.797,
+       224.2,
+       173.31,
+       1.194,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_prim_y": [
+       0.2188,
+       7392,
+       6.34,
+       107.797,
+       224.2,
+       173.31,
+       1.194,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_prim_u": [
+       -0.0148,
+       7392,
+       6.34,
+       107.797,
+       224.2,
+       173.31,
+       1.194,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_PQ": [
+       1.5511,
+       7392,
+       6.34,
+       107.797,
+       224.2,
+       173.31,
+       1.194,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.3163,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       327.14,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.4474,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       327.14,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    }
+   }
+  },
+  "C5_TBS_TB": {
+   "variant": "C5",
+   "case": "TBS",
+   "state": "TB",
+   "script_sha256_16": "1fce3b7d1f343be2",
+   "coefficients": {
+    "BL": 6.31,
+    "PM": 7.0
+   },
+   "SF": [
+    1.0,
+    1.5
+   ],
+   "ccx": {
+    "seconds": 51.0,
+    "returncode": 0,
+    "errors": [],
+    "warnings": [],
+    "n_increments_converged": 2,
+    "contact_spring_elements_last": "1820",
+    "guard": {
+     "disk_free_MiB": 2959,
+     "ccx_running": 1,
+     "ccx_rss_GB": 0.89
+    }
+   },
+   "n_slave_faces": 49,
+   "n_master_faces": 49,
+   "n_eq": 115,
+   "frd_block_times": [
+    0.25,
+    0.5,
+    0.875,
+    1.0,
+    1.25,
+    1.5,
+    1.875,
+    2.0
+   ],
+   "margins": {
+    "ENG-TC-02": {
+     "all": {
+      "MS_y": [
+       -0.682,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       260.42,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.7381,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       260.42,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       -0.682,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       260.42,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       9.1122,
+       35145,
+       9.381,
+       107.876,
+       213.1,
+       37.23,
+       0.717,
+       "floor contact edge at the TC-03 flange OD corner (zero radius in the CAD, no edge break modelled)"
+      ],
+      "MS_prim_u": [
+       7.3586,
+       35145,
+       9.381,
+       107.876,
+       213.1,
+       37.23,
+       0.717,
+       "floor contact edge at the TC-03 flange OD corner (zero radius in the CAD, no edge break modelled)"
+      ],
+      "MS_PQ": [
+       -0.364,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       260.42,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       -0.1291,
+       37642,
+       7.526,
+       107.556,
+       221.8,
+       80.97,
+       1.642,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_u": [
+       -0.2708,
+       37642,
+       7.526,
+       107.556,
+       221.8,
+       80.97,
+       1.642,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_y_SF1": [
+       -0.1291,
+       37642,
+       7.526,
+       107.556,
+       221.8,
+       80.97,
+       1.642,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_prim_y": [
+       9.7622,
+       6327,
+       8.97,
+       107.513,
+       217.8,
+       46.16,
+       1.03,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_prim_u": [
+       7.9558,
+       6327,
+       8.97,
+       107.513,
+       217.8,
+       46.16,
+       1.03,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_PQ": [
+       0.7417,
+       37642,
+       7.526,
+       107.556,
+       221.8,
+       80.97,
+       1.642,
+       "floor / flange-top contact band (regular)"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.682,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       260.42,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.7381,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       260.42,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    },
+    "ENG-TC-03": {
+     "all": {
+      "MS_y": [
+       -0.3377,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       337.67,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.4646,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       337.67,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       -0.3377,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       337.67,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       9.7774,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       36.04,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       7.7115,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       36.04,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       0.3247,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       337.67,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       0.2947,
+       7392,
+       6.34,
+       107.797,
+       224.2,
+       170.75,
+       1.471,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_u": [
+       0.0466,
+       7392,
+       6.34,
+       107.797,
+       224.2,
+       170.75,
+       1.471,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_y_SF1": [
+       0.2947,
+       7392,
+       6.34,
+       107.797,
+       224.2,
+       170.75,
+       1.471,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_prim_y": [
+       9.7774,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       36.04,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       7.7115,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       36.04,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       1.5895,
+       7392,
+       6.34,
+       107.797,
+       224.2,
+       170.75,
+       1.471,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.3377,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       337.67,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.4646,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       337.67,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    }
+   },
+   "interfaces": {
+    "floor": {
+     "n_pairs": 29,
+     "n_closed": 25,
+     "opening_max_mm": 0.000427,
+     "penetration_max_mm": 0.000349,
+     "p_max_MPa_penalty": 174.5,
+     "open_r_mm": [
+      9.485,
+      9.657,
+      9.828,
+      10.0
+     ],
+     "note": "u_z(TC-02 counterbore floor) - u_z(TC-03 flange top) per pair: > 0 open; closed = penalty overclosure (< 0); S03 lands: the S03 groove is not modelled (open item)"
+    },
+    "thread_radial": {
+     "overclosure_min_mm": -0.0057323,
+     "overclosure_max_mm": -0.0026662,
+     "n_in_contact": 0,
+     "n": 71,
+     "note": "u_r(TC-03 shank) - u_r(TC-02 bore) at the paired nodes: > 0 = overclosure (radial contact)"
+    },
+    "unpaired_proximity": {
+     "n_checked": 213,
+     "closest": [
+      {
+       "gap_mm": 0.001368,
+       "gap0_mm": 0.000762,
+       "tc03_node": 7429,
+       "at_r_z_mm": [
+        7.475,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.002677,
+       "gap0_mm": 0.002604,
+       "tc03_node": 7416,
+       "at_r_z_mm": [
+        7.45,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.005496,
+       "gap0_mm": 0.005653,
+       "tc03_node": 7428,
+       "at_r_z_mm": [
+        7.425,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.009639,
+       "gap0_mm": 0.009916,
+       "tc03_node": 7415,
+       "at_r_z_mm": [
+        7.4,
+        107.513
+       ]
+      }
+     ],
+     "note": "signed gap along the initial TC-02 -> TC-03 node vector, CAD clearances (top gap 0.15 nominal, drawing minimum 0.125; flange OD 0.10 radial; seat-entry cavity); < 0 = closes (contact not modelled there)"
+    },
+    "top_gap": {
+     "min_nominal_mm": 0.156293,
+     "min_at_drawing_minimum_0.125_mm": 0.131293
+    }
+   },
+   "global_linear_same_nodes": null
+  },
+  "C7_TBS_TB": {
+   "variant": "C7",
+   "case": "TBS",
+   "state": "TB",
+   "SF": [
+    1.0,
+    1.5
+   ],
+   "active_set": {
+    "rule": "stick only the floor pairs closed in the previous solution (pass 0 = C5), until the set is stable, cap 5 (lead 236 (9)(c))",
+    "n_passes": 3,
+    "stable": true,
+    "period_2_cycle": false,
+    "final": "last pass"
+   },
+   "passes": [
+    {
+     "pass": 1,
+     "n_stuck": 25,
+     "stuck_r_mm": [
+      7.5,
+      7.525,
+      7.549,
+      7.574,
+      7.598,
+      7.623,
+      7.647,
+      7.672,
+      7.696,
+      7.725,
+      7.754,
+      7.794,
+      7.834,
+      7.89,
+      7.946,
+      8.024,
+      8.103,
+      8.212,
+      8.322,
+      8.474,
+      8.627,
+      8.799,
+      8.97,
+      9.142,
+      9.313
+     ],
+     "n_closed_after": 22,
+     "added_r_mm": [],
+     "removed_r_mm": [
+      8.97,
+      9.313,
+      9.142
+     ],
+     "ccx": {
+      "seconds": 51.8,
+      "returncode": 0,
+      "errors": [],
+      "warnings": [],
+      "n_increments_converged": 2,
+      "contact_spring_elements_last": "636",
+      "guard": {
+       "disk_free_MiB": 2943,
+       "ccx_running": 1,
+       "ccx_rss_GB": 1.48
+      }
+     },
+     "interfaces": {
+      "floor": {
+       "n_pairs": 29,
+       "n_closed": 22,
+       "opening_max_mm": 0.001384,
+       "penetration_max_mm": 0.00042,
+       "p_max_MPa_penalty": 210.0,
+       "open_r_mm": [
+        8.97,
+        9.142,
+        9.313,
+        9.485,
+        9.657,
+        9.828,
+        10.0
+       ],
+       "note": "u_z(TC-02 counterbore floor) - u_z(TC-03 flange top) per pair: > 0 open; closed = penalty overclosure (< 0); S03 lands: the S03 groove is not modelled (open item)"
+      },
+      "thread_radial": {
+       "overclosure_min_mm": -0.0055777,
+       "overclosure_max_mm": -0.0013862,
+       "n_in_contact": 0,
+       "n": 71,
+       "note": "u_r(TC-03 shank) - u_r(TC-02 bore) at the paired nodes: > 0 = overclosure (radial contact)"
+      },
+      "unpaired_proximity": {
+       "n_checked": 213,
+       "closest": [
+        {
+         "gap_mm": 0.000192,
+         "gap0_mm": 0.000762,
+         "tc03_node": 7429,
+         "at_r_z_mm": [
+          7.475,
+          107.513
+         ]
+        },
+        {
+         "gap_mm": 0.001848,
+         "gap0_mm": 0.002604,
+         "tc03_node": 7416,
+         "at_r_z_mm": [
+          7.45,
+          107.513
+         ]
+        },
+        {
+         "gap_mm": 0.004809,
+         "gap0_mm": 0.005653,
+         "tc03_node": 7428,
+         "at_r_z_mm": [
+          7.425,
+          107.513
+         ]
+        },
+        {
+         "gap_mm": 0.009007,
+         "gap0_mm": 0.009916,
+         "tc03_node": 7415,
+         "at_r_z_mm": [
+          7.4,
+          107.513
+         ]
+        }
+       ],
+       "note": "signed gap along the initial TC-02 -> TC-03 node vector, CAD clearances (top gap 0.15 nominal, drawing minimum 0.125; flange OD 0.10 radial; seat-entry cavity); < 0 = closes (contact not modelled there)"
+      },
+      "top_gap": {
+       "min_nominal_mm": 0.156013,
+       "min_at_drawing_minimum_0.125_mm": 0.131013
+      }
+     },
+     "margins": {
+      "ENG-TC-02": {
+       "all": {
+        "MS_y": [
+         -0.6861,
+         132,
+         7.0,
+         109.112,
+         210.3,
+         263.78,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_u": [
+         -0.7414,
+         132,
+         7.0,
+         109.112,
+         210.3,
+         263.78,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_y_SF1": [
+         -0.6861,
+         132,
+         7.0,
+         109.112,
+         210.3,
+         263.78,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_prim_y": [
+         4.849,
+         6361,
+         10.05,
+         107.513,
+         211.3,
+         91.86,
+         0.05,
+         "BREP zero-radius concave corner of TC-02 (turn > 60 deg)"
+        ],
+        "MS_prim_u": [
+         3.8235,
+         6361,
+         10.05,
+         107.513,
+         211.3,
+         91.86,
+         0.05,
+         "BREP zero-radius concave corner of TC-02 (turn > 60 deg)"
+        ],
+        "MS_PQ": [
+         -0.3721,
+         132,
+         7.0,
+         109.112,
+         210.3,
+         263.78,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ]
+       },
+       "regular": {
+        "MS_y": [
+         -0.2718,
+         6327,
+         8.97,
+         107.513,
+         217.8,
+         102.62,
+         1.03,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_u": [
+         -0.394,
+         6327,
+         8.97,
+         107.513,
+         217.8,
+         102.62,
+         1.03,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_y_SF1": [
+         -0.2718,
+         6327,
+         8.97,
+         107.513,
+         217.8,
+         102.62,
+         1.03,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_prim_y": [
+         7.3718,
+         37786,
+         8.788,
+         107.855,
+         215.5,
+         46.19,
+         1.259,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_prim_u": [
+         5.9435,
+         37786,
+         8.788,
+         107.855,
+         215.5,
+         46.19,
+         1.259,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_PQ": [
+         0.4564,
+         6327,
+         8.97,
+         107.513,
+         217.8,
+         102.62,
+         1.03,
+         "floor / flange-top contact band (regular)"
+        ]
+       },
+       "regular_incl_stick_edge": {
+        "MS_y": [
+         -0.6283,
+         6392,
+         7.475,
+         107.514,
+         222.3,
+         188.12,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_u": [
+         -0.6885,
+         6392,
+         7.475,
+         107.514,
+         222.3,
+         188.12,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_y_SF1": [
+         -0.6283,
+         6392,
+         7.475,
+         107.514,
+         222.3,
+         188.12,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_y": [
+         7.0109,
+         127,
+         7.5,
+         107.513,
+         222.3,
+         158.75,
+         1.675,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_u": [
+         5.714,
+         127,
+         7.5,
+         107.513,
+         222.3,
+         158.75,
+         1.675,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_PQ": [
+         -0.2566,
+         6392,
+         7.475,
+         107.514,
+         222.3,
+         188.12,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ]
+       },
+       "part_all": {
+        "MS_y": [
+         -0.6861,
+         132,
+         7.0,
+         109.112,
+         210.3,
+         263.78,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_u": [
+         -0.7414,
+         132,
+         7.0,
+         109.112,
+         210.3,
+         263.78,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ]
+       }
+      },
+      "ENG-TC-03": {
+       "all": {
+        "MS_y": [
+         -0.3428,
+         133,
+         7.0,
+         109.112,
+         210.3,
+         340.3,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_u": [
+         -0.4687,
+         133,
+         7.0,
+         109.112,
+         210.3,
+         340.3,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_y_SF1": [
+         -0.3428,
+         133,
+         7.0,
+         109.112,
+         210.3,
+         340.3,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_prim_y": [
+         9.9358,
+         7135,
+         4.0,
+         113.497,
+         188.2,
+         34.09,
+         4.284,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_prim_u": [
+         7.8395,
+         7135,
+         4.0,
+         113.497,
+         188.2,
+         34.09,
+         4.284,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_PQ": [
+         0.3145,
+         133,
+         7.0,
+         109.112,
+         210.3,
+         340.3,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ]
+       },
+       "regular": {
+        "MS_y": [
+         0.1157,
+         7395,
+         6.432,
+         107.683,
+         225.5,
+         197.94,
+         1.537,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ],
+        "MS_u": [
+         -0.0982,
+         7395,
+         6.432,
+         107.683,
+         225.5,
+         197.94,
+         1.537,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ],
+        "MS_y_SF1": [
+         0.1157,
+         7395,
+         6.432,
+         107.683,
+         225.5,
+         197.94,
+         1.537,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ],
+        "MS_prim_y": [
+         9.9358,
+         7135,
+         4.0,
+         113.497,
+         188.2,
+         34.09,
+         4.284,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_prim_u": [
+         7.8395,
+         7135,
+         4.0,
+         113.497,
+         188.2,
+         34.09,
+         4.284,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_PQ": [
+         1.2314,
+         7395,
+         6.432,
+         107.683,
+         225.5,
+         197.94,
+         1.537,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ]
+       },
+       "regular_incl_stick_edge": {
+        "MS_y": [
+         0.0545,
+         128,
+         7.5,
+         107.513,
+         222.3,
+         209.98,
+         1.675,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_u": [
+         -0.1476,
+         128,
+         7.5,
+         107.513,
+         222.3,
+         209.98,
+         1.675,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_y_SF1": [
+         0.0545,
+         128,
+         7.5,
+         107.513,
+         222.3,
+         209.98,
+         1.675,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_y": [
+         9.9358,
+         7135,
+         4.0,
+         113.497,
+         188.2,
+         34.09,
+         4.284,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_prim_u": [
+         7.8395,
+         7135,
+         4.0,
+         113.497,
+         188.2,
+         34.09,
+         4.284,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_PQ": [
+         1.109,
+         128,
+         7.5,
+         107.513,
+         222.3,
+         209.98,
+         1.675,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ]
+       },
+       "part_all": {
+        "MS_y": [
+         -0.3428,
+         133,
+         7.0,
+         109.112,
+         210.3,
+         340.3,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_u": [
+         -0.4687,
+         133,
+         7.0,
+         109.112,
+         210.3,
+         340.3,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "pass": 2,
+     "n_stuck": 22,
+     "stuck_r_mm": [
+      7.5,
+      7.525,
+      7.549,
+      7.574,
+      7.598,
+      7.623,
+      7.647,
+      7.672,
+      7.696,
+      7.725,
+      7.754,
+      7.794,
+      7.834,
+      7.89,
+      7.946,
+      8.024,
+      8.103,
+      8.212,
+      8.322,
+      8.474,
+      8.627,
+      8.799
+     ],
+     "n_closed_after": 23,
+     "added_r_mm": [
+      8.97
+     ],
+     "removed_r_mm": [],
+     "ccx": {
+      "seconds": 50.9,
+      "returncode": 0,
+      "errors": [],
+      "warnings": [],
+      "n_increments_converged": 2,
+      "contact_spring_elements_last": "740",
+      "guard": {
+       "disk_free_MiB": 2931,
+       "ccx_running": 1,
+       "ccx_rss_GB": 2.54
+      }
+     },
+     "interfaces": {
+      "floor": {
+       "n_pairs": 29,
+       "n_closed": 23,
+       "opening_max_mm": 0.001048,
+       "penetration_max_mm": 0.000385,
+       "p_max_MPa_penalty": 192.5,
+       "open_r_mm": [
+        9.142,
+        9.313,
+        9.485,
+        9.657,
+        9.828,
+        10.0
+       ],
+       "note": "u_z(TC-02 counterbore floor) - u_z(TC-03 flange top) per pair: > 0 open; closed = penalty overclosure (< 0); S03 lands: the S03 groove is not modelled (open item)"
+      },
+      "thread_radial": {
+       "overclosure_min_mm": -0.0056016,
+       "overclosure_max_mm": -0.0015673,
+       "n_in_contact": 0,
+       "n": 71,
+       "note": "u_r(TC-03 shank) - u_r(TC-02 bore) at the paired nodes: > 0 = overclosure (radial contact)"
+      },
+      "unpaired_proximity": {
+       "n_checked": 213,
+       "closest": [
+        {
+         "gap_mm": 0.000241,
+         "gap0_mm": 0.000762,
+         "tc03_node": 7429,
+         "at_r_z_mm": [
+          7.475,
+          107.513
+         ]
+        },
+        {
+         "gap_mm": 0.001914,
+         "gap0_mm": 0.002604,
+         "tc03_node": 7416,
+         "at_r_z_mm": [
+          7.45,
+          107.513
+         ]
+        },
+        {
+         "gap_mm": 0.004884,
+         "gap0_mm": 0.005653,
+         "tc03_node": 7428,
+         "at_r_z_mm": [
+          7.425,
+          107.513
+         ]
+        },
+        {
+         "gap_mm": 0.009092,
+         "gap0_mm": 0.009916,
+         "tc03_node": 7415,
+         "at_r_z_mm": [
+          7.4,
+          107.513
+         ]
+        }
+       ],
+       "note": "signed gap along the initial TC-02 -> TC-03 node vector, CAD clearances (top gap 0.15 nominal, drawing minimum 0.125; flange OD 0.10 radial; seat-entry cavity); < 0 = closes (contact not modelled there)"
+      },
+      "top_gap": {
+       "min_nominal_mm": 0.156058,
+       "min_at_drawing_minimum_0.125_mm": 0.131058
+      }
+     },
+     "margins": {
+      "ENG-TC-02": {
+       "all": {
+        "MS_y": [
+         -0.6696,
+         132,
+         7.0,
+         109.112,
+         210.3,
+         250.67,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_u": [
+         -0.7279,
+         132,
+         7.0,
+         109.112,
+         210.3,
+         250.67,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_y_SF1": [
+         -0.6696,
+         132,
+         7.0,
+         109.112,
+         210.3,
+         250.67,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_prim_y": [
+         5.5214,
+         6361,
+         10.05,
+         107.513,
+         211.3,
+         69.11,
+         0.05,
+         "BREP zero-radius concave corner of TC-02 (turn > 60 deg)"
+        ],
+        "MS_prim_u": [
+         4.3781,
+         6361,
+         10.05,
+         107.513,
+         211.3,
+         69.11,
+         0.05,
+         "BREP zero-radius concave corner of TC-02 (turn > 60 deg)"
+        ],
+        "MS_PQ": [
+         -0.3393,
+         132,
+         7.0,
+         109.112,
+         210.3,
+         250.67,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ]
+       },
+       "regular": {
+        "MS_y": [
+         -0.5239,
+         6327,
+         8.97,
+         107.513,
+         217.8,
+         156.96,
+         1.03,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_u": [
+         -0.6038,
+         6327,
+         8.97,
+         107.513,
+         217.8,
+         156.96,
+         1.03,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_y_SF1": [
+         -0.5239,
+         6327,
+         8.97,
+         107.513,
+         217.8,
+         156.96,
+         1.03,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_prim_y": [
+         5.7404,
+         45904,
+         8.879,
+         107.684,
+         216.7,
+         98.27,
+         1.134,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_prim_u": [
+         4.5996,
+         45904,
+         8.879,
+         107.684,
+         216.7,
+         98.27,
+         1.134,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_PQ": [
+         -0.0478,
+         6327,
+         8.97,
+         107.513,
+         217.8,
+         156.96,
+         1.03,
+         "floor / flange-top contact band (regular)"
+        ]
+       },
+       "regular_incl_stick_edge": {
+        "MS_y": [
+         -0.5927,
+         6392,
+         7.475,
+         107.514,
+         222.3,
+         171.69,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_u": [
+         -0.6587,
+         6392,
+         7.475,
+         107.514,
+         222.3,
+         171.69,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_y_SF1": [
+         -0.5927,
+         6392,
+         7.475,
+         107.514,
+         222.3,
+         171.69,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_y": [
+         5.723,
+         6392,
+         7.475,
+         107.514,
+         222.3,
+         171.69,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_u": [
+         4.5996,
+         45904,
+         8.879,
+         107.684,
+         216.7,
+         98.27,
+         1.134,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_PQ": [
+         -0.1855,
+         6392,
+         7.475,
+         107.514,
+         222.3,
+         171.69,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ]
+       },
+       "part_all": {
+        "MS_y": [
+         -0.6696,
+         132,
+         7.0,
+         109.112,
+         210.3,
+         250.67,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_u": [
+         -0.7279,
+         132,
+         7.0,
+         109.112,
+         210.3,
+         250.67,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ]
+       }
+      },
+      "ENG-TC-03": {
+       "all": {
+        "MS_y": [
+         -0.313,
+         133,
+         7.0,
+         109.112,
+         210.3,
+         325.55,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_u": [
+         -0.4447,
+         133,
+         7.0,
+         109.112,
+         210.3,
+         325.55,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_y_SF1": [
+         -0.313,
+         133,
+         7.0,
+         109.112,
+         210.3,
+         325.55,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_prim_y": [
+         9.8913,
+         7162,
+         4.0,
+         113.326,
+         188.9,
+         35.41,
+         4.409,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_prim_u": [
+         7.8036,
+         7162,
+         4.0,
+         113.326,
+         188.9,
+         35.41,
+         4.409,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_PQ": [
+         0.374,
+         133,
+         7.0,
+         109.112,
+         210.3,
+         325.55,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ]
+       },
+       "regular": {
+        "MS_y": [
+         0.1458,
+         7366,
+         6.414,
+         107.701,
+         225.3,
+         192.76,
+         1.528,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ],
+        "MS_u": [
+         -0.0738,
+         7366,
+         6.414,
+         107.701,
+         225.3,
+         192.76,
+         1.528,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ],
+        "MS_y_SF1": [
+         0.1458,
+         7366,
+         6.414,
+         107.701,
+         225.3,
+         192.76,
+         1.528,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ],
+        "MS_prim_y": [
+         9.8913,
+         7162,
+         4.0,
+         113.326,
+         188.9,
+         35.41,
+         4.409,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_prim_u": [
+         7.8036,
+         7162,
+         4.0,
+         113.326,
+         188.9,
+         35.41,
+         4.409,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_PQ": [
+         1.2917,
+         7366,
+         6.414,
+         107.701,
+         225.3,
+         192.76,
+         1.528,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ]
+       },
+       "regular_incl_stick_edge": {
+        "MS_y": [
+         0.1458,
+         7366,
+         6.414,
+         107.701,
+         225.3,
+         192.76,
+         1.528,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ],
+        "MS_u": [
+         -0.0738,
+         7366,
+         6.414,
+         107.701,
+         225.3,
+         192.76,
+         1.528,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ],
+        "MS_y_SF1": [
+         0.1458,
+         7366,
+         6.414,
+         107.701,
+         225.3,
+         192.76,
+         1.528,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ],
+        "MS_prim_y": [
+         9.8913,
+         7162,
+         4.0,
+         113.326,
+         188.9,
+         35.41,
+         4.409,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_prim_u": [
+         7.8036,
+         7162,
+         4.0,
+         113.326,
+         188.9,
+         35.41,
+         4.409,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_PQ": [
+         1.2917,
+         7366,
+         6.414,
+         107.701,
+         225.3,
+         192.76,
+         1.528,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ]
+       },
+       "part_all": {
+        "MS_y": [
+         -0.313,
+         133,
+         7.0,
+         109.112,
+         210.3,
+         325.55,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_u": [
+         -0.4447,
+         133,
+         7.0,
+         109.112,
+         210.3,
+         325.55,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "pass": 3,
+     "n_stuck": 23,
+     "stuck_r_mm": [
+      7.5,
+      7.525,
+      7.549,
+      7.574,
+      7.598,
+      7.623,
+      7.647,
+      7.672,
+      7.696,
+      7.725,
+      7.754,
+      7.794,
+      7.834,
+      7.89,
+      7.946,
+      8.024,
+      8.103,
+      8.212,
+      8.322,
+      8.474,
+      8.627,
+      8.799,
+      8.97
+     ],
+     "n_closed_after": 23,
+     "added_r_mm": [],
+     "removed_r_mm": [],
+     "ccx": {
+      "seconds": 49.1,
+      "returncode": 0,
+      "errors": [],
+      "warnings": [],
+      "n_increments_converged": 2,
+      "contact_spring_elements_last": "654",
+      "guard": {
+       "disk_free_MiB": 2910,
+       "ccx_running": 1,
+       "ccx_rss_GB": 1.64
+      }
+     },
+     "interfaces": {
+      "floor": {
+       "n_pairs": 29,
+       "n_closed": 23,
+       "opening_max_mm": 0.001123,
+       "penetration_max_mm": 0.000395,
+       "p_max_MPa_penalty": 197.5,
+       "open_r_mm": [
+        9.142,
+        9.313,
+        9.485,
+        9.657,
+        9.828,
+        10.0
+       ],
+       "note": "u_z(TC-02 counterbore floor) - u_z(TC-03 flange top) per pair: > 0 open; closed = penalty overclosure (< 0); S03 lands: the S03 groove is not modelled (open item)"
+      },
+      "thread_radial": {
+       "overclosure_min_mm": -0.0055948,
+       "overclosure_max_mm": -0.0015143,
+       "n_in_contact": 0,
+       "n": 71,
+       "note": "u_r(TC-03 shank) - u_r(TC-02 bore) at the paired nodes: > 0 = overclosure (radial contact)"
+      },
+      "unpaired_proximity": {
+       "n_checked": 213,
+       "closest": [
+        {
+         "gap_mm": 0.000227,
+         "gap0_mm": 0.000762,
+         "tc03_node": 7429,
+         "at_r_z_mm": [
+          7.475,
+          107.513
+         ]
+        },
+        {
+         "gap_mm": 0.001895,
+         "gap0_mm": 0.002604,
+         "tc03_node": 7416,
+         "at_r_z_mm": [
+          7.45,
+          107.513
+         ]
+        },
+        {
+         "gap_mm": 0.004863,
+         "gap0_mm": 0.005653,
+         "tc03_node": 7428,
+         "at_r_z_mm": [
+          7.425,
+          107.513
+         ]
+        },
+        {
+         "gap_mm": 0.009068,
+         "gap0_mm": 0.009916,
+         "tc03_node": 7415,
+         "at_r_z_mm": [
+          7.4,
+          107.513
+         ]
+        }
+       ],
+       "note": "signed gap along the initial TC-02 -> TC-03 node vector, CAD clearances (top gap 0.15 nominal, drawing minimum 0.125; flange OD 0.10 radial; seat-entry cavity); < 0 = closes (contact not modelled there)"
+      },
+      "top_gap": {
+       "min_nominal_mm": 0.156045,
+       "min_at_drawing_minimum_0.125_mm": 0.131045
+      }
+     },
+     "margins": {
+      "ENG-TC-02": {
+       "all": {
+        "MS_y": [
+         -0.6737,
+         132,
+         7.0,
+         109.112,
+         210.3,
+         253.76,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_u": [
+         -0.7312,
+         132,
+         7.0,
+         109.112,
+         210.3,
+         253.76,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_y_SF1": [
+         -0.6737,
+         132,
+         7.0,
+         109.112,
+         210.3,
+         253.76,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_prim_y": [
+         5.3976,
+         6361,
+         10.05,
+         107.513,
+         211.3,
+         73.42,
+         0.05,
+         "BREP zero-radius concave corner of TC-02 (turn > 60 deg)"
+        ],
+        "MS_prim_u": [
+         4.276,
+         6361,
+         10.05,
+         107.513,
+         211.3,
+         73.42,
+         0.05,
+         "BREP zero-radius concave corner of TC-02 (turn > 60 deg)"
+        ],
+        "MS_PQ": [
+         -0.3473,
+         132,
+         7.0,
+         109.112,
+         210.3,
+         253.76,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ]
+       },
+       "regular": {
+        "MS_y": [
+         -0.4736,
+         6327,
+         8.97,
+         107.513,
+         217.8,
+         141.98,
+         1.03,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_u": [
+         -0.562,
+         6327,
+         8.97,
+         107.513,
+         217.8,
+         141.98,
+         1.03,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_y_SF1": [
+         -0.4736,
+         6327,
+         8.97,
+         107.513,
+         217.8,
+         141.98,
+         1.03,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_prim_y": [
+         6.4768,
+         37786,
+         8.788,
+         107.855,
+         215.5,
+         56.07,
+         1.259,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_prim_u": [
+         5.2011,
+         37786,
+         8.788,
+         107.855,
+         215.5,
+         56.07,
+         1.259,
+         "floor / flange-top contact band (regular)"
+        ],
+        "MS_PQ": [
+         0.0527,
+         6327,
+         8.97,
+         107.513,
+         217.8,
+         141.98,
+         1.03,
+         "floor / flange-top contact band (regular)"
+        ]
+       },
+       "regular_incl_stick_edge": {
+        "MS_y": [
+         -0.6056,
+         6392,
+         7.475,
+         107.514,
+         222.3,
+         177.28,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_u": [
+         -0.6694,
+         6392,
+         7.475,
+         107.514,
+         222.3,
+         177.28,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_y_SF1": [
+         -0.6056,
+         6392,
+         7.475,
+         107.514,
+         222.3,
+         177.28,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_y": [
+         6.021,
+         6392,
+         7.475,
+         107.514,
+         222.3,
+         177.28,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_u": [
+         4.8844,
+         6392,
+         7.475,
+         107.514,
+         222.3,
+         177.28,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_PQ": [
+         -0.2112,
+         6392,
+         7.475,
+         107.514,
+         222.3,
+         177.28,
+         1.667,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ]
+       },
+       "part_all": {
+        "MS_y": [
+         -0.6737,
+         132,
+         7.0,
+         109.112,
+         210.3,
+         253.76,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_u": [
+         -0.7312,
+         132,
+         7.0,
+         109.112,
+         210.3,
+         253.76,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ]
+       }
+      },
+      "ENG-TC-03": {
+       "all": {
+        "MS_y": [
+         -0.3202,
+         133,
+         7.0,
+         109.112,
+         210.3,
+         329.0,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_u": [
+         -0.4505,
+         133,
+         7.0,
+         109.112,
+         210.3,
+         329.0,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_y_SF1": [
+         -0.3202,
+         133,
+         7.0,
+         109.112,
+         210.3,
+         329.0,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_prim_y": [
+         9.9009,
+         7162,
+         4.0,
+         113.326,
+         188.9,
+         35.35,
+         4.409,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_prim_u": [
+         7.8113,
+         7162,
+         4.0,
+         113.326,
+         188.9,
+         35.35,
+         4.409,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_PQ": [
+         0.3596,
+         133,
+         7.0,
+         109.112,
+         210.3,
+         329.0,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ]
+       },
+       "regular": {
+        "MS_y": [
+         0.1381,
+         7395,
+         6.432,
+         107.683,
+         225.5,
+         194.04,
+         1.537,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ],
+        "MS_u": [
+         -0.08,
+         7395,
+         6.432,
+         107.683,
+         225.5,
+         194.04,
+         1.537,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ],
+        "MS_y_SF1": [
+         0.1381,
+         7395,
+         6.432,
+         107.683,
+         225.5,
+         194.04,
+         1.537,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ],
+        "MS_prim_y": [
+         9.9009,
+         7162,
+         4.0,
+         113.326,
+         188.9,
+         35.35,
+         4.409,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_prim_u": [
+         7.8113,
+         7162,
+         4.0,
+         113.326,
+         188.9,
+         35.35,
+         4.409,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_PQ": [
+         1.2762,
+         7395,
+         6.432,
+         107.683,
+         225.5,
+         194.04,
+         1.537,
+         "TC-03 undercut R0.6 (regular, refined fillet)"
+        ]
+       },
+       "regular_incl_stick_edge": {
+        "MS_y": [
+         0.1255,
+         128,
+         7.5,
+         107.513,
+         222.3,
+         196.74,
+         1.675,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_u": [
+         -0.0902,
+         128,
+         7.5,
+         107.513,
+         222.3,
+         196.74,
+         1.675,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_y_SF1": [
+         0.1255,
+         128,
+         7.5,
+         107.513,
+         222.3,
+         196.74,
+         1.675,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ],
+        "MS_prim_y": [
+         9.9009,
+         7162,
+         4.0,
+         113.326,
+         188.9,
+         35.35,
+         4.409,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_prim_u": [
+         7.8113,
+         7162,
+         4.0,
+         113.326,
+         188.9,
+         35.35,
+         4.409,
+         "regular (> 1.0 mm from every singular point)"
+        ],
+        "MS_PQ": [
+         1.251,
+         128,
+         7.5,
+         107.513,
+         222.3,
+         196.74,
+         1.675,
+         "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+        ]
+       },
+       "part_all": {
+        "MS_y": [
+         -0.3202,
+         133,
+         7.0,
+         109.112,
+         210.3,
+         329.0,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ],
+        "MS_u": [
+         -0.4505,
+         133,
+         7.0,
+         109.112,
+         210.3,
+         329.0,
+         0.0,
+         "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+        ]
+       }
+      }
+     }
+    }
+   ],
+   "margins": {
+    "ENG-TC-02": {
+     "all": {
+      "MS_y": [
+       -0.6737,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       253.76,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.7312,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       253.76,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       -0.6737,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       253.76,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       5.3976,
+       6361,
+       10.05,
+       107.513,
+       211.3,
+       73.42,
+       0.05,
+       "BREP zero-radius concave corner of TC-02 (turn > 60 deg)"
+      ],
+      "MS_prim_u": [
+       4.276,
+       6361,
+       10.05,
+       107.513,
+       211.3,
+       73.42,
+       0.05,
+       "BREP zero-radius concave corner of TC-02 (turn > 60 deg)"
+      ],
+      "MS_PQ": [
+       -0.3473,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       253.76,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       -0.4736,
+       6327,
+       8.97,
+       107.513,
+       217.8,
+       141.98,
+       1.03,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_u": [
+       -0.562,
+       6327,
+       8.97,
+       107.513,
+       217.8,
+       141.98,
+       1.03,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_y_SF1": [
+       -0.4736,
+       6327,
+       8.97,
+       107.513,
+       217.8,
+       141.98,
+       1.03,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_prim_y": [
+       6.4768,
+       37786,
+       8.788,
+       107.855,
+       215.5,
+       56.07,
+       1.259,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_prim_u": [
+       5.2011,
+       37786,
+       8.788,
+       107.855,
+       215.5,
+       56.07,
+       1.259,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_PQ": [
+       0.0527,
+       6327,
+       8.97,
+       107.513,
+       217.8,
+       141.98,
+       1.03,
+       "floor / flange-top contact band (regular)"
+      ]
+     },
+     "regular_incl_stick_edge": {
+      "MS_y": [
+       -0.6056,
+       6392,
+       7.475,
+       107.514,
+       222.3,
+       177.28,
+       1.667,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_u": [
+       -0.6694,
+       6392,
+       7.475,
+       107.514,
+       222.3,
+       177.28,
+       1.667,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_y_SF1": [
+       -0.6056,
+       6392,
+       7.475,
+       107.514,
+       222.3,
+       177.28,
+       1.667,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_prim_y": [
+       6.021,
+       6392,
+       7.475,
+       107.514,
+       222.3,
+       177.28,
+       1.667,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_prim_u": [
+       4.8844,
+       6392,
+       7.475,
+       107.514,
+       222.3,
+       177.28,
+       1.667,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_PQ": [
+       -0.2112,
+       6392,
+       7.475,
+       107.514,
+       222.3,
+       177.28,
+       1.667,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.6737,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       253.76,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.7312,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       253.76,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    },
+    "ENG-TC-03": {
+     "all": {
+      "MS_y": [
+       -0.3202,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       329.0,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.4505,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       329.0,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       -0.3202,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       329.0,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       9.9009,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       35.35,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       7.8113,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       35.35,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       0.3596,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       329.0,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       0.1381,
+       7395,
+       6.432,
+       107.683,
+       225.5,
+       194.04,
+       1.537,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_u": [
+       -0.08,
+       7395,
+       6.432,
+       107.683,
+       225.5,
+       194.04,
+       1.537,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_y_SF1": [
+       0.1381,
+       7395,
+       6.432,
+       107.683,
+       225.5,
+       194.04,
+       1.537,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_prim_y": [
+       9.9009,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       35.35,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       7.8113,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       35.35,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       1.2762,
+       7395,
+       6.432,
+       107.683,
+       225.5,
+       194.04,
+       1.537,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ]
+     },
+     "regular_incl_stick_edge": {
+      "MS_y": [
+       0.1255,
+       128,
+       7.5,
+       107.513,
+       222.3,
+       196.74,
+       1.675,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_u": [
+       -0.0902,
+       128,
+       7.5,
+       107.513,
+       222.3,
+       196.74,
+       1.675,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_y_SF1": [
+       0.1255,
+       128,
+       7.5,
+       107.513,
+       222.3,
+       196.74,
+       1.675,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ],
+      "MS_prim_y": [
+       9.9009,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       35.35,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       7.8113,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       35.35,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       1.251,
+       128,
+       7.5,
+       107.513,
+       222.3,
+       196.74,
+       1.675,
+       "within 1.0 mm of the C7 stick edge (entry tangent point): zone set by the refinement post"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.3202,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       329.0,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.4505,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       329.0,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    }
+   },
+   "interfaces": {
+    "floor": {
+     "n_pairs": 29,
+     "n_closed": 23,
+     "opening_max_mm": 0.001123,
+     "penetration_max_mm": 0.000395,
+     "p_max_MPa_penalty": 197.5,
+     "open_r_mm": [
+      9.142,
+      9.313,
+      9.485,
+      9.657,
+      9.828,
+      10.0
+     ],
+     "note": "u_z(TC-02 counterbore floor) - u_z(TC-03 flange top) per pair: > 0 open; closed = penalty overclosure (< 0); S03 lands: the S03 groove is not modelled (open item)"
+    },
+    "thread_radial": {
+     "overclosure_min_mm": -0.0055948,
+     "overclosure_max_mm": -0.0015143,
+     "n_in_contact": 0,
+     "n": 71,
+     "note": "u_r(TC-03 shank) - u_r(TC-02 bore) at the paired nodes: > 0 = overclosure (radial contact)"
+    },
+    "unpaired_proximity": {
+     "n_checked": 213,
+     "closest": [
+      {
+       "gap_mm": 0.000227,
+       "gap0_mm": 0.000762,
+       "tc03_node": 7429,
+       "at_r_z_mm": [
+        7.475,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.001895,
+       "gap0_mm": 0.002604,
+       "tc03_node": 7416,
+       "at_r_z_mm": [
+        7.45,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.004863,
+       "gap0_mm": 0.005653,
+       "tc03_node": 7428,
+       "at_r_z_mm": [
+        7.425,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.009068,
+       "gap0_mm": 0.009916,
+       "tc03_node": 7415,
+       "at_r_z_mm": [
+        7.4,
+        107.513
+       ]
+      }
+     ],
+     "note": "signed gap along the initial TC-02 -> TC-03 node vector, CAD clearances (top gap 0.15 nominal, drawing minimum 0.125; flange OD 0.10 radial; seat-entry cavity); < 0 = closes (contact not modelled there)"
+    },
+    "top_gap": {
+     "min_nominal_mm": 0.156045,
+     "min_at_drawing_minimum_0.125_mm": 0.131045
+    }
+   }
+  },
+  "C3n_TBS_TB": {
+   "variant": "C3n",
+   "case": "TBS",
+   "state": "TB",
+   "script_sha256_16": "1fce3b7d1f343be2",
+   "coefficients": {
+    "BL": 6.31,
+    "PM": 7.0
+   },
+   "SF": [
+    1.0,
+    1.5
+   ],
+   "ccx": {
+    "seconds": 140.8,
+    "returncode": 0,
+    "errors": [],
+    "warnings": [],
+    "n_increments_converged": 4,
+    "contact_spring_elements_last": "63",
+    "guard": {
+     "disk_free_MiB": 2909,
+     "ccx_running": 1,
+     "ccx_rss_GB": 1.56
+    }
+   },
+   "n_slave_faces": 49,
+   "n_master_faces": 49,
+   "n_eq": 115,
+   "frd_block_times": [
+    0.05,
+    0.1,
+    0.15,
+    0.2,
+    0.275,
+    0.375,
+    0.475,
+    0.575,
+    0.675,
+    0.775,
+    0.875,
+    0.975,
+    1.0,
+    1.05,
+    1.1,
+    1.175,
+    1.275,
+    1.375,
+    1.475,
+    1.575,
+    1.675,
+    1.775,
+    1.875,
+    1.975,
+    2.0
+   ],
+   "margins": {
+    "ENG-TC-02": {
+     "all": {
+      "MS_y": [
+       -0.6707,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       251.45,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.7287,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       251.45,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       -0.6707,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       251.45,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       6.5585,
+       6361,
+       10.05,
+       107.513,
+       211.3,
+       43.47,
+       0.05,
+       "BREP zero-radius concave corner of TC-02 (turn > 60 deg)"
+      ],
+      "MS_prim_u": [
+       5.2334,
+       6361,
+       10.05,
+       107.513,
+       211.3,
+       43.47,
+       0.05,
+       "BREP zero-radius concave corner of TC-02 (turn > 60 deg)"
+      ],
+      "MS_PQ": [
+       -0.3413,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       251.45,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       -0.1937,
+       37642,
+       7.526,
+       107.556,
+       221.8,
+       87.46,
+       1.642,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_u": [
+       -0.3249,
+       37642,
+       7.526,
+       107.556,
+       221.8,
+       87.46,
+       1.642,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_y_SF1": [
+       -0.1937,
+       37642,
+       7.526,
+       107.556,
+       221.8,
+       87.46,
+       1.642,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_prim_y": [
+       7.6801,
+       6327,
+       8.97,
+       107.513,
+       217.8,
+       55.32,
+       1.03,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_prim_u": [
+       6.2232,
+       6327,
+       8.97,
+       107.513,
+       217.8,
+       55.32,
+       1.03,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_PQ": [
+       0.6126,
+       37642,
+       7.526,
+       107.556,
+       221.8,
+       87.46,
+       1.642,
+       "floor / flange-top contact band (regular)"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.6707,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       251.45,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.7287,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       251.45,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    },
+    "ENG-TC-03": {
+     "all": {
+      "MS_y": [
+       -0.3168,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       327.38,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.4478,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       327.38,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       -0.3168,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       327.38,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       9.8278,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       35.88,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       7.7522,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       35.88,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       0.3663,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       327.38,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       0.2494,
+       7364,
+       6.353,
+       107.777,
+       224.5,
+       176.92,
+       1.484,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_u": [
+       0.0099,
+       7364,
+       6.353,
+       107.777,
+       224.5,
+       176.92,
+       1.484,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_y_SF1": [
+       0.2494,
+       7364,
+       6.353,
+       107.777,
+       224.5,
+       176.92,
+       1.484,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_prim_y": [
+       9.8278,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       35.88,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       7.7522,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       35.88,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       1.4987,
+       7364,
+       6.353,
+       107.777,
+       224.5,
+       176.92,
+       1.484,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.3168,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       327.38,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.4478,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       327.38,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    }
+   },
+   "interfaces": {
+    "floor": {
+     "n_pairs": 29,
+     "n_closed": 25,
+     "opening_max_mm": 0.000522,
+     "penetration_max_mm": 0.000428,
+     "p_max_MPa_penalty": 214.0,
+     "open_r_mm": [
+      9.485,
+      9.657,
+      9.828,
+      10.0
+     ],
+     "note": "u_z(TC-02 counterbore floor) - u_z(TC-03 flange top) per pair: > 0 open; closed = penalty overclosure (< 0); S03 lands: the S03 groove is not modelled (open item)"
+    },
+    "thread_radial": {
+     "overclosure_min_mm": -0.0056895,
+     "overclosure_max_mm": -0.0023052,
+     "n_in_contact": 0,
+     "n": 71,
+     "note": "u_r(TC-03 shank) - u_r(TC-02 bore) at the paired nodes: > 0 = overclosure (radial contact)"
+    },
+    "unpaired_proximity": {
+     "n_checked": 213,
+     "closest": [
+      {
+       "gap_mm": 0.00075,
+       "gap0_mm": 0.000762,
+       "tc03_node": 7429,
+       "at_r_z_mm": [
+        7.475,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.002296,
+       "gap0_mm": 0.002604,
+       "tc03_node": 7416,
+       "at_r_z_mm": [
+        7.45,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.005214,
+       "gap0_mm": 0.005653,
+       "tc03_node": 7428,
+       "at_r_z_mm": [
+        7.425,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.009404,
+       "gap0_mm": 0.009916,
+       "tc03_node": 7415,
+       "at_r_z_mm": [
+        7.4,
+        107.513
+       ]
+      }
+     ],
+     "note": "signed gap along the initial TC-02 -> TC-03 node vector, CAD clearances (top gap 0.15 nominal, drawing minimum 0.125; flange OD 0.10 radial; seat-entry cavity); < 0 = closes (contact not modelled there)"
+    },
+    "top_gap": {
+     "min_nominal_mm": 0.156218,
+     "min_at_drawing_minimum_0.125_mm": 0.131218
+    }
+   },
+   "global_linear_same_nodes": null
+  },
+  "C4n_TBS_TB": {
+   "variant": "C4n",
+   "case": "TBS",
+   "state": "TB",
+   "script_sha256_16": "1fce3b7d1f343be2",
+   "coefficients": {
+    "BL": 6.31,
+    "PM": 7.0
+   },
+   "SF": [
+    1.0,
+    1.5
+   ],
+   "ccx": {
+    "seconds": 134.5,
+    "returncode": 0,
+    "errors": [],
+    "warnings": [],
+    "n_increments_converged": 3,
+    "contact_spring_elements_last": "63",
+    "guard": {
+     "disk_free_MiB": 2894,
+     "ccx_running": 1,
+     "ccx_rss_GB": 1.42
+    }
+   },
+   "n_slave_faces": 49,
+   "n_master_faces": 49,
+   "n_eq": 115,
+   "frd_block_times": [
+    0.05,
+    0.1,
+    0.15,
+    0.225,
+    0.325,
+    0.425,
+    0.525,
+    0.625,
+    0.725,
+    0.825,
+    0.925,
+    1.0,
+    1.05,
+    1.1,
+    1.175,
+    1.275,
+    1.375,
+    1.475,
+    1.575,
+    1.675,
+    1.775,
+    1.875,
+    1.975,
+    2.0
+   ],
+   "margins": {
+    "ENG-TC-02": {
+     "all": {
+      "MS_y": [
+       -0.6662,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       248.06,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.725,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       248.06,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       -0.6662,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       248.06,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       6.4378,
+       6361,
+       10.05,
+       107.513,
+       211.3,
+       48.24,
+       0.05,
+       "BREP zero-radius concave corner of TC-02 (turn > 60 deg)"
+      ],
+      "MS_prim_u": [
+       5.1339,
+       6361,
+       10.05,
+       107.513,
+       211.3,
+       48.24,
+       0.05,
+       "BREP zero-radius concave corner of TC-02 (turn > 60 deg)"
+      ],
+      "MS_PQ": [
+       -0.3323,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       248.06,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       -0.1905,
+       37642,
+       7.526,
+       107.556,
+       221.8,
+       87.11,
+       1.642,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_u": [
+       -0.3222,
+       37642,
+       7.526,
+       107.556,
+       221.8,
+       87.11,
+       1.642,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_y_SF1": [
+       -0.1905,
+       37642,
+       7.526,
+       107.556,
+       221.8,
+       87.11,
+       1.642,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_prim_y": [
+       7.4527,
+       6327,
+       8.97,
+       107.513,
+       217.8,
+       62.43,
+       1.03,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_prim_u": [
+       6.034,
+       6327,
+       8.97,
+       107.513,
+       217.8,
+       62.43,
+       1.03,
+       "floor / flange-top contact band (regular)"
+      ],
+      "MS_PQ": [
+       0.619,
+       37642,
+       7.526,
+       107.556,
+       221.8,
+       87.11,
+       1.642,
+       "floor / flange-top contact band (regular)"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.6662,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       248.06,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.725,
+       132,
+       7.0,
+       109.112,
+       210.3,
+       248.06,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    },
+    "ENG-TC-03": {
+     "all": {
+      "MS_y": [
+       -0.3084,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       323.39,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.441,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       323.39,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_y_SF1": [
+       -0.3084,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       323.39,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_prim_y": [
+       9.8383,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       35.79,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       7.7608,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       35.79,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       0.3832,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       323.39,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     },
+     "regular": {
+      "MS_y": [
+       0.2253,
+       7365,
+       6.382,
+       107.738,
+       224.9,
+       180.33,
+       1.507,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_u": [
+       -0.0096,
+       7365,
+       6.382,
+       107.738,
+       224.9,
+       180.33,
+       1.507,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_y_SF1": [
+       0.2253,
+       7365,
+       6.382,
+       107.738,
+       224.9,
+       180.33,
+       1.507,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ],
+      "MS_prim_y": [
+       9.8383,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       35.79,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_prim_u": [
+       7.7608,
+       7162,
+       4.0,
+       113.326,
+       188.9,
+       35.79,
+       4.409,
+       "regular (> 1.0 mm from every singular point)"
+      ],
+      "MS_PQ": [
+       1.4505,
+       7365,
+       6.382,
+       107.738,
+       224.9,
+       180.33,
+       1.507,
+       "TC-03 undercut R0.6 (regular, refined fillet)"
+      ]
+     },
+     "part_all": {
+      "MS_y": [
+       -0.3084,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       323.39,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ],
+      "MS_u": [
+       -0.441,
+       133,
+       7.0,
+       109.112,
+       210.3,
+       323.39,
+       0.0,
+       "thread start tie end (smeared M14x1 thread, u_z interlock tie)"
+      ]
+     }
+    }
+   },
+   "interfaces": {
+    "floor": {
+     "n_pairs": 29,
+     "n_closed": 25,
+     "opening_max_mm": 0.000591,
+     "penetration_max_mm": 0.000429,
+     "p_max_MPa_penalty": 214.5,
+     "open_r_mm": [
+      9.485,
+      9.657,
+      9.828,
+      10.0
+     ],
+     "note": "u_z(TC-02 counterbore floor) - u_z(TC-03 flange top) per pair: > 0 open; closed = penalty overclosure (< 0); S03 lands: the S03 groove is not modelled (open item)"
+    },
+    "thread_radial": {
+     "overclosure_min_mm": -0.0056691,
+     "overclosure_max_mm": -0.0021316,
+     "n_in_contact": 0,
+     "n": 71,
+     "note": "u_r(TC-03 shank) - u_r(TC-02 bore) at the paired nodes: > 0 = overclosure (radial contact)"
+    },
+    "unpaired_proximity": {
+     "n_checked": 213,
+     "closest": [
+      {
+       "gap_mm": 0.000521,
+       "gap0_mm": 0.000762,
+       "tc03_node": 7429,
+       "at_r_z_mm": [
+        7.475,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.002153,
+       "gap0_mm": 0.002604,
+       "tc03_node": 7416,
+       "at_r_z_mm": [
+        7.45,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.005106,
+       "gap0_mm": 0.005653,
+       "tc03_node": 7428,
+       "at_r_z_mm": [
+        7.425,
+        107.513
+       ]
+      },
+      {
+       "gap_mm": 0.009313,
+       "gap0_mm": 0.009916,
+       "tc03_node": 7415,
+       "at_r_z_mm": [
+        7.4,
+        107.513
+       ]
+      }
+     ],
+     "note": "signed gap along the initial TC-02 -> TC-03 node vector, CAD clearances (top gap 0.15 nominal, drawing minimum 0.125; flange OD 0.10 radial; seat-entry cavity); < 0 = closes (contact not modelled there)"
+    },
+    "top_gap": {
+     "min_nominal_mm": 0.156181,
+     "min_at_drawing_minimum_0.125_mm": 0.131181
+    }
+   },
+   "global_linear_same_nodes": null
+  }
+ }
+}

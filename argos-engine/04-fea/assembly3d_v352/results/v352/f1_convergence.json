@@ -1,0 +1,529 @@
+{
+ "date": "2026-10-15",
+ "revised": "2026-10-20 RM2-03: gci() returns no order / GCI when |e32/e21| < 1",
+ "R_M_mm": 3.0,
+ "method": "FEA3D mesh-convergence study at the governing locations (RM1-05 / brief F1; fea3d successor 2026-10-15).\n\nLevels: L1 (global level 1.0; runs lc1v351_design_rigid for B1_*, fa1_v351 for A1_22.2), R2 = conv_r2, R3 = conv_r3 (same model, local\ngmsh Ball refinement around each point; balls in run_f1 'refine').  Same thermal map, loads and connectors at every level.\nCombinations (no lateral sub-cases; they change these values by < 1 %, see the L1 post):\n  B1_*  : LC1-core  = TH + OP x 2.501 MPa + PM x 7 MPa + GZ x 4.04 g\n  A1_22.2: FA1S-core = TH + OP x 15.104 MPa (151.04 bar abs) + PM x 7 MPa\nMetrics per point (sphere R_M = 3 mm around the L1 governing node, nodes of the governing part only):\n  q_max_reg : maximum over REGULAR nodes (outside 1.0 mm of every idealisation singularity: tie patch edges, RBE3 / rigid patches,\n              re-entrant CAD edges, bad tets) of the governing quantity (von Mises for metals, s1 for the graphite insert)\n  q_max_all : same over all nodes (singular points included: grows without bound at a true singularity)\n  MS_min_reg: the part criterion (as post_f1) minimum over the regular nodes in the sphere\n  h_loc     : mean tet edge length of the elements within 1 mm of the point (mm)\nRichardson / GCI (Celik et al. 2008, J. Fluids Eng. 130 078001, procedure as recalled) on q_max_reg with the measured h ratios.",
+ "points": {
+  "NZ-01 throat (B1_1)": {
+   "part": "NZ-01",
+   "state": "B1_1",
+   "point_mm": [
+    3.231,
+    5.618,
+    -223.344
+   ],
+   "levels": [
+    {
+     "level": "L1",
+     "run": "lc1v351_design_rigid",
+     "state": "B1_1",
+     "n_nodes_model": 171123,
+     "n_nodes_part": 4099,
+     "n_nodes_sphere": 71,
+     "n_regular_sphere": 23,
+     "h_loc_mm": 3.6307567544585417,
+     "q": "-s3",
+     "q_max_reg_MPa": 68.99825640259587,
+     "q_max_all_MPa": 73.28145873798645,
+     "MS_min_reg": -0.43476832555825673,
+     "MS_min_all": -0.46780535388300326,
+     "MS_u_min_reg": null,
+     "xyz_qmax_reg": [
+      3.234,
+      5.617,
+      -223.344
+     ],
+     "T_C_at_qmax": 1330.1599999999999,
+     "combination": {
+      "OP": 2.501007,
+      "PM": 7.0,
+      "GZ": 4.04
+     },
+     "MSgov_xyz": [
+      3.234,
+      5.617,
+      -223.344
+     ],
+     "MSgov_q_MPa": 68.99825640259587,
+     "MSgov_T_C": 1330.1599999999999,
+     "MSgov_dist_to_point_mm": 0.003698189874828271
+    },
+    {
+     "level": "R2",
+     "run": "conv_r2",
+     "state": "B1_1",
+     "n_nodes_model": 178989,
+     "n_nodes_part": 5188,
+     "n_nodes_sphere": 907,
+     "n_regular_sphere": 759,
+     "h_loc_mm": 0.7218422555537958,
+     "q": "-s3",
+     "q_max_reg_MPa": 71.43827289391966,
+     "q_max_all_MPa": 71.914438953114,
+     "MS_min_reg": -0.45407414793031176,
+     "MS_min_all": -0.4576888790660413,
+     "MS_u_min_reg": null,
+     "xyz_qmax_reg": [
+      3.455,
+      5.97,
+      -223.344
+     ],
+     "T_C_at_qmax": 1330.1599999999999,
+     "combination": {
+      "OP": 2.501007,
+      "PM": 7.0,
+      "GZ": 4.04
+     },
+     "MSgov_xyz": [
+      3.455,
+      5.97,
+      -223.344
+     ],
+     "MSgov_q_MPa": 71.43827289391966,
+     "MSgov_T_C": 1330.1599999999999,
+     "MSgov_dist_to_point_mm": 0.4168079193092422
+    },
+    {
+     "level": "R3",
+     "run": "conv_r3",
+     "state": "B1_1",
+     "n_nodes_model": 184302,
+     "n_nodes_part": 5882,
+     "n_nodes_sphere": 1682,
+     "n_regular_sphere": 1217,
+     "h_loc_mm": 0.39592207594946077,
+     "q": "-s3",
+     "q_max_reg_MPa": 75.07853547763531,
+     "q_max_all_MPa": 76.9615880758505,
+     "MS_min_reg": -0.4805439430605639,
+     "MS_min_all": -0.4932536999943006,
+     "MS_u_min_reg": null,
+     "xyz_qmax_reg": [
+      4.404,
+      5.285,
+      -224.445
+     ],
+     "T_C_at_qmax": 1325.5800000000004,
+     "combination": {
+      "OP": 2.501007,
+      "PM": 7.0,
+      "GZ": 4.04
+     },
+     "MSgov_xyz": [
+      4.404,
+      5.285,
+      -224.445
+     ],
+     "MSgov_q_MPa": 75.07853547763531,
+     "MSgov_T_C": 1325.5800000000004,
+     "MSgov_dist_to_point_mm": 1.6431187569394314
+    }
+   ],
+   "gci_q_max_reg": {
+    "p": null,
+    "q_ext": null,
+    "GCI_fine": null,
+    "oscillatory": false,
+    "r21": 1.8231927427202583,
+    "r32": 5.029847901704,
+    "e21": -3.6402625837156535,
+    "e32": -2.4400164913237887,
+    "ratio_e32_e21": 0.6702858475756545,
+    "note": "|e32/e21| < 1: the change grows with refinement (not in the asymptotic range): no order, no GCI (RM2-03)"
+   },
+   "change_R2_to_R3_pct": 5.095675519929155,
+   "change_L1_to_R2_pct": 3.536345146298503,
+   "q_all_growth_L1_to_R3": 1.0502191059135726
+  },
+  "TC-03 flange corner (B1_1)": {
+   "part": "TC-03",
+   "state": "B1_1",
+   "point_mm": [
+    -9.8,
+    0.0,
+    105.513
+   ],
+   "levels": [
+    {
+     "level": "L1",
+     "run": "lc1v351_design_rigid",
+     "state": "B1_1",
+     "n_nodes_model": 171123,
+     "n_nodes_part": 3602,
+     "n_nodes_sphere": 262,
+     "n_regular_sphere": 36,
+     "h_loc_mm": 0.9827479329030676,
+     "q": "vm",
+     "q_max_reg_MPa": 241.24492219040633,
+     "q_max_all_MPa": 241.24492219040633,
+     "MS_min_reg": -0.3121749781469606,
+     "MS_min_all": -0.3121749781469606,
+     "MS_u_min_reg": -0.3745667175023808,
+     "xyz_qmax_reg": [
+      -9.8,
+      -0.0,
+      105.513
+     ],
+     "T_C_at_qmax": 74.37685714285709,
+     "combination": {
+      "OP": 2.501007,
+      "PM": 7.0,
+      "GZ": 4.04
+     },
+     "MSgov_xyz": [
+      -9.8,
+      -0.0,
+      105.513
+     ],
+     "MSgov_q_MPa": 241.24492219040633,
+     "MSgov_T_C": 74.37685714285709,
+     "MSgov_dist_to_point_mm": 0.00042601772999262266
+    },
+    {
+     "level": "R2",
+     "run": "conv_r2",
+     "state": "B1_1",
+     "n_nodes_model": 178989,
+     "n_nodes_part": 8971,
+     "n_nodes_sphere": 5352,
+     "n_regular_sphere": 825,
+     "h_loc_mm": 0.3349376324759895,
+     "q": "vm",
+     "q_max_reg_MPa": 225.92140913476527,
+     "q_max_all_MPa": 225.92140913476527,
+     "MS_min_reg": -0.26552204807394364,
+     "MS_min_all": -0.26552204807394364,
+     "MS_u_min_reg": -0.33214561581711366,
+     "xyz_qmax_reg": [
+      -9.789,
+      0.0,
+      105.513
+     ],
+     "T_C_at_qmax": 74.37685714285709,
+     "combination": {
+      "OP": 2.501007,
+      "PM": 7.0,
+      "GZ": 4.04
+     },
+     "MSgov_xyz": [
+      -9.789,
+      0.0,
+      105.513
+     ],
+     "MSgov_q_MPa": 225.92140913476527,
+     "MSgov_T_C": 74.37685714285709,
+     "MSgov_dist_to_point_mm": 0.011177295465340775
+    },
+    {
+     "level": "R3",
+     "run": "conv_r3",
+     "state": "B1_1",
+     "n_nodes_model": 184302,
+     "n_nodes_part": 10563,
+     "n_nodes_sphere": 7259,
+     "n_regular_sphere": 1046,
+     "h_loc_mm": 0.2116526182811165,
+     "q": "vm",
+     "q_max_reg_MPa": 252.2537801863595,
+     "q_max_all_MPa": 252.2537801863595,
+     "MS_min_reg": -0.34225168979074316,
+     "MS_min_all": -0.34225168979074316,
+     "MS_u_min_reg": -0.4019151712163678,
+     "xyz_qmax_reg": [
+      -9.797,
+      -0.002,
+      105.642
+     ],
+     "T_C_at_qmax": 74.49636504193052,
+     "combination": {
+      "OP": 2.501007,
+      "PM": 7.0,
+      "GZ": 4.04
+     },
+     "MSgov_xyz": [
+      -9.797,
+      -0.002,
+      105.642
+     ],
+     "MSgov_q_MPa": 252.2537801863595,
+     "MSgov_T_C": 74.49636504193052,
+     "MSgov_dist_to_point_mm": 0.1292473168456047
+    }
+   ],
+   "gci_q_max_reg": {
+    "p": null,
+    "q_ext": null,
+    "GCI_fine": null,
+    "oscillatory": true,
+    "r21": 1.582487545848009,
+    "r32": 2.9341221696654745,
+    "e21": -26.332371051594237,
+    "e32": 15.323513055641058,
+    "ratio_e32_e21": -0.5819268240454681,
+    "note": "|e32/e21| < 1: the change grows with refinement (not in the asymptotic range): no order, no GCI (RM2-03)"
+   },
+   "change_R2_to_R3_pct": 11.655544798716534,
+   "change_L1_to_R2_pct": -6.351848949403682,
+   "q_all_growth_L1_to_R3": 1.045633532494683
+  },
+  "TC-02 TB1 tie end (B1_19)": {
+   "part": "TC-02",
+   "state": "B1_19",
+   "point_mm": [
+    -5.856,
+    0.0,
+    107.513
+   ],
+   "levels": [
+    {
+     "level": "L1",
+     "run": "lc1v351_design_rigid",
+     "state": "B1_19",
+     "n_nodes_model": 171123,
+     "n_nodes_part": 18724,
+     "n_nodes_sphere": 9,
+     "n_regular_sphere": 4,
+     "h_loc_mm": 4.838795988069516,
+     "q": "vm",
+     "q_max_reg_MPa": 102.37103491894726,
+     "q_max_all_MPa": 102.37103491894726,
+     "MS_min_reg": 0.09574297695444445,
+     "MS_min_all": 0.09574297695444445,
+     "MS_u_min_reg": -0.11937208338546812,
+     "xyz_qmax_reg": [
+      -5.856,
+      -0.0,
+      107.513
+     ],
+     "T_C_at_qmax": 159.15900000000005,
+     "combination": {
+      "OP": 2.501007,
+      "PM": 7.0,
+      "GZ": 4.04
+     },
+     "MSgov_xyz": [
+      -5.856,
+      -0.0,
+      107.513
+     ],
+     "MSgov_q_MPa": 102.37103491894726,
+     "MSgov_T_C": 159.15900000000005,
+     "MSgov_dist_to_point_mm": 0.0005196936490463264
+    },
+    {
+     "level": "R2",
+     "run": "conv_r2",
+     "state": "B1_19",
+     "n_nodes_model": 178989,
+     "n_nodes_part": 19490,
+     "n_nodes_sphere": 156,
+     "n_regular_sphere": 53,
+     "h_loc_mm": 1.2092295898140364,
+     "q": "vm",
+     "q_max_reg_MPa": 102.0868018825538,
+     "q_max_all_MPa": 147.34499142762604,
+     "MS_min_reg": 0.21301952508510302,
+     "MS_min_all": -0.23870949755973025,
+     "MS_u_min_reg": -0.04024605526212033,
+     "xyz_qmax_reg": [
+      -6.437,
+      0.9,
+      108.585
+     ],
+     "T_C_at_qmax": 149.19204672499143,
+     "combination": {
+      "OP": 2.501007,
+      "PM": 7.0,
+      "GZ": 4.04
+     },
+     "MSgov_xyz": [
+      -6.437,
+      0.9,
+      108.585
+     ],
+     "MSgov_q_MPa": 102.0868018825538,
+     "MSgov_T_C": 149.19204672499143,
+     "MSgov_dist_to_point_mm": 1.5152685965065187
+    },
+    {
+     "level": "R3",
+     "run": "conv_r3",
+     "state": "B1_19",
+     "n_nodes_model": 184302,
+     "n_nodes_part": 21919,
+     "n_nodes_sphere": 2499,
+     "n_regular_sphere": 44,
+     "h_loc_mm": 0.4294595163668114,
+     "q": "vm",
+     "q_max_reg_MPa": 83.00493948052059,
+     "q_max_all_MPa": 142.82961940944966,
+     "MS_min_reg": 0.46918044079652144,
+     "MS_min_all": -0.2146422918454315,
+     "MS_u_min_reg": 0.1651540325008869,
+     "xyz_qmax_reg": [
+      -6.521,
+      2.311,
+      108.501
+     ],
+     "T_C_at_qmax": 150.80240058234415,
+     "combination": {
+      "OP": 2.501007,
+      "PM": 7.0,
+      "GZ": 4.04
+     },
+     "MSgov_xyz": [
+      -6.521,
+      2.311,
+      108.501
+     ],
+     "MSgov_q_MPa": 83.00493948052059,
+     "MSgov_T_C": 150.80240058234415,
+     "MSgov_dist_to_point_mm": 2.599737942830213
+    }
+   ],
+   "gci_q_max_reg": {
+    "p": null,
+    "q_ext": null,
+    "GCI_fine": null,
+    "oscillatory": false,
+    "r21": 2.81570100028056,
+    "r32": 4.001552747988626,
+    "e21": 19.08186240203321,
+    "e32": 0.2842330363934593,
+    "ratio_e32_e21": 0.014895455716270847,
+    "note": "|e32/e21| < 1: the change grows with refinement (not in the asymptotic range): no order, no GCI (RM2-03)"
+   },
+   "change_R2_to_R3_pct": -18.691801535702947,
+   "change_L1_to_R2_pct": -0.277649861231255,
+   "q_all_growth_L1_to_R3": 1.3952151555616847
+  },
+  "TC-01 J-FWD hole / bore (FA1S, A1_22.2)": {
+   "part": "TC-01",
+   "state": "A1_22.2",
+   "point_mm": [
+    13.952,
+    24.965,
+    125.492
+   ],
+   "levels": [
+    {
+     "level": "L1",
+     "run": "fa1_v351",
+     "state": "A1_22.2",
+     "n_nodes_model": 171123,
+     "n_nodes_part": 25880,
+     "n_nodes_sphere": 40,
+     "n_regular_sphere": 16,
+     "h_loc_mm": 3.0406323420731063,
+     "q": "vm",
+     "q_max_reg_MPa": 303.01463618287204,
+     "q_max_all_MPa": 356.57986186831386,
+     "MS_min_reg": -0.2209600014282288,
+     "MS_min_all": -0.33776887631443886,
+     "MS_u_min_reg": -0.1598693905527866,
+     "xyz_qmax_reg": [
+      13.932,
+      24.976,
+      125.492
+     ],
+     "T_C_at_qmax": 45.88800000000015,
+     "combination": {
+      "OP": 15.103800000000001,
+      "PM": 7.0
+     },
+     "MSgov_xyz": [
+      13.932,
+      24.976,
+      125.492
+     ],
+     "MSgov_q_MPa": 303.01463618287204,
+     "MSgov_T_C": 45.88800000000015,
+     "MSgov_dist_to_point_mm": 0.022743316313604895
+    },
+    {
+     "level": "R2",
+     "run": "conv_r2",
+     "state": "A1_22.2",
+     "n_nodes_model": 178989,
+     "n_nodes_part": 26522,
+     "n_nodes_sphere": 379,
+     "n_regular_sphere": 234,
+     "h_loc_mm": 1.2760833306892225,
+     "q": "vm",
+     "q_max_reg_MPa": 302.63656821000114,
+     "q_max_all_MPa": 381.73990129190656,
+     "MS_min_reg": -0.2200392828310952,
+     "MS_min_all": -0.3813344904023913,
+     "MS_u_min_reg": -0.15889219154597456,
+     "xyz_qmax_reg": [
+      13.708,
+      25.129,
+      125.053
+     ],
+     "T_C_at_qmax": 45.992400000000146,
+     "combination": {
+      "OP": 15.103800000000001,
+      "PM": 7.0
+     },
+     "MSgov_xyz": [
+      13.708,
+      25.129,
+      125.053
+     ],
+     "MSgov_q_MPa": 302.63656821000114,
+     "MSgov_T_C": 45.992400000000146,
+     "MSgov_dist_to_point_mm": 0.5279493122185499
+    },
+    {
+     "level": "R3",
+     "run": "conv_r3",
+     "state": "A1_22.2",
+     "n_nodes_model": 184302,
+     "n_nodes_part": 27120,
+     "n_nodes_sphere": 1112,
+     "n_regular_sphere": 568,
+     "h_loc_mm": 0.6752984045253505,
+     "q": "vm",
+     "q_max_reg_MPa": 295.90574687029425,
+     "q_max_all_MPa": 398.61203251649533,
+     "MS_min_reg": -0.2022979030343901,
+     "MS_min_all": -0.4075025739258916,
+     "MS_u_min_reg": -0.1397599291752204,
+     "xyz_qmax_reg": [
+      13.589,
+      25.192,
+      125.091
+     ],
+     "T_C_at_qmax": 45.992400000000146,
+     "combination": {
+      "OP": 15.103800000000001,
+      "PM": 7.0
+     },
+     "MSgov_xyz": [
+      13.589,
+      25.192,
+      125.091
+     ],
+     "MSgov_q_MPa": 295.90574687029425,
+     "MSgov_T_C": 45.992400000000146,
+     "MSgov_dist_to_point_mm": 0.5861931915586616
+    }
+   ],
+   "gci_q_max_reg": {
+    "p": null,
+    "q_ext": null,
+    "GCI_fine": null,
+    "oscillatory": false,
+    "r21": 1.8896584415687283,
+    "r32": 2.382785096354826,
+    "e21": 6.730821339706893,
+    "e32": 0.37806797287089466,
+    "ratio_e32_e21": 0.05616966396665023,
+    "note": "|e32/e21| < 1: the change grows with refinement (not in the asymptotic range): no order, no GCI (RM2-03)"
+   },
+   "change_R2_to_R3_pct": -2.2240608197210077,
+   "change_L1_to_R2_pct": -0.1247688816730097,
+   "q_all_growth_L1_to_R3": 1.117875895817426
+  }
+ }
+}

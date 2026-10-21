@@ -1,0 +1,8025 @@
+{
+ "doc": "Hot-bound all-node rows on lc3_bound's part-max branch: is the added increment an upper bound at singular nodes?  (fea3d 2026-10-20,\nfound while answering lead 21:15:29Z (4) on TC-04 n42993.)  Python only, no solve; reads the published hot-bound files, the pose\nenvelopes and the base temperatures.\n\nlc3_bound (results/f1_lc3_hot_bound_v352{g3,h3}.json, _s3d_ for F2) bounds an engine part that is not in its SAME_MESH_ENGINE list\n(TC-01, GM-01, GM-02) by  vb(n) = vm_LC1(n) + max over the part's REGULAR nodes of vmD  (the method text: 'conservative away from\nidealisation singularities').  At a singular node the node's own increment envelope can exceed that regular maximum, so the stored\nall-node row is then not a bound at that node.  Per hot-bound file, part on that branch and state this script records:\n  reg_max   the part's regular maximum of the increment envelope over the poses (reproduces the file's part_max_increment; checked),\n  all_max   the maximum over ALL the part's nodes,\n  delta     all_max - reg_max (>= 0): the most the stored bound can understate the increment at any node of the part,\n  node      the stored all-node minimum node: its own increment envelope and the node-wise vM sum there (base vM back-computed from\n            the stored MS and the allowables at the node temperature: vm_LC1(n) = vb(n) - reg_max),\n  at_node   min(stored, node-wise at the stored node) per slot, unrounded, with 'at_node_lowered' per slot (1e-9 tolerance): the bound AT\n            the stored all-node minimum node (used by the matrix:\n            it only ever lowers a stored value); brittle: the stored MS with the node's own excess increment (s1 / s3 beyond the\n            regular extremes) on the lower brittle allowable at the node temperature, SF 2.0,\n  corrected the rigorous corrected all-node bound for the whole part (information): every node m has MS_stored(m) >= MS_min, so with the corrected\n            stress <= vb(m) + delta,  MS(m) >= 1 / (1 / (1 + MS_min) + SF delta / a_min) - 1  (a_min = the lowest allowable over the\n            part's nodes at that state, base T.npz).  Brittle parts (Weyl s1 / s3 part maxima): delta' = max(delta_s1, -delta_s3) on the\n            lower of the two brittle allowables, SF 2.0.\nThe regular rows are unaffected (the regular maximum bounds every regular node's own increment).  Tags: DERIVED on SIM inputs.",
+ "files_sha16": {
+  "f1_lc3_hot_bound_v352g3.json": "486f7618f9579500",
+  "f1_lc3_hot_bound_v352h3.json": "4ea22ef168f7dd10",
+  "f1_lc3_hot_bound_s3d_v352g3.json": "ba7cf78f9cc8a88f",
+  "f1_lc3_hot_bound_s3d_v352h3.json": "f65f15226f0a7d09"
+ },
+ "rows": [
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "TC-02",
+   "node": 26731,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 165.0,
+   "stored_MS": [
+    0.35806070118754163,
+    0.10312581149819011
+   ],
+   "brittle": false,
+   "reg_max": 0.9841,
+   "all_max": 1.7499,
+   "delta": 0.7659,
+   "reg_check": true,
+   "node_increment": 0.0488,
+   "vm_bound_stored_MPa": 77.561,
+   "vm_base_MPa": 76.577,
+   "nodewise_at_node_MS": [
+    0.3746,
+    0.1166
+   ],
+   "at_node_MS": [
+    0.35806070118754163,
+    0.10312581149819011
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    127.42,
+    143.75
+   ],
+   "corrected_all_node_MS": [
+    0.3416,
+    0.0903
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "TC-03",
+   "node": 38421,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 112.8,
+   "stored_MS": [
+    -0.13031276176124684,
+    -0.20918463371434148
+   ],
+   "brittle": false,
+   "reg_max": 0.1876,
+   "all_max": 0.2642,
+   "delta": 0.0766,
+   "reg_check": true,
+   "node_increment": 0.2107,
+   "vm_bound_stored_MPa": 185.328,
+   "vm_base_MPa": 185.141,
+   "nodewise_at_node_MS": [
+    -0.1304,
+    -0.2093
+   ],
+   "at_node_MS": [
+    -0.13042149223216382,
+    -0.2092835034268128
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    227.92,
+    276.35
+   ],
+   "corrected_all_node_MS": [
+    -0.1307,
+    -0.2095
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "TC-04",
+   "node": 42993,
+   "class": "BT",
+   "class_detail": "bad_tets",
+   "d_class_mm": 0.0,
+   "T_C": 32.7,
+   "stored_MS": [
+    0.2477097535558217,
+    0.011519724310232515
+   ],
+   "brittle": false,
+   "reg_max": 0.3285,
+   "all_max": 0.5152,
+   "delta": 0.1867,
+   "reg_check": true,
+   "node_increment": 0.5152,
+   "vm_bound_stored_MPa": 127.199,
+   "vm_base_MPa": 126.871,
+   "nodewise_at_node_MS": [
+    0.2459,
+    0.01
+   ],
+   "at_node_MS": [
+    0.24588112383293703,
+    0.010037252102343963
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    237.56,
+    256.64
+   ],
+   "corrected_all_node_MS": [
+    0.2459,
+    0.01
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "TC-09",
+   "node": 45080,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 376.5,
+   "stored_MS": [
+    1.0483171722900368,
+    0.7791085645841729
+   ],
+   "brittle": false,
+   "reg_max": 11.9769,
+   "all_max": 11.9769,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 0.4823,
+   "vm_bound_stored_MPa": 304.81,
+   "vm_base_MPa": 292.833,
+   "nodewise_at_node_MS": [
+    1.1286,
+    0.8488
+   ],
+   "at_node_MS": [
+    1.0483171722900368,
+    0.7791085645841729
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    925.03,
+    1066.15
+   ],
+   "corrected_all_node_MS": [
+    1.0483,
+    0.7791
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "NZ-01",
+   "node": 52809,
+   "class": "RE",
+   "class_detail": "reentrant_edges",
+   "d_class_mm": 0.2789,
+   "T_C": 1308.6,
+   "stored_MS": [
+    -0.2899287304558543,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.0923592746257782,
+   "reg_min_s3D": -0.09955503791570663,
+   "delta_s1D": 0.0318,
+   "delta_s3D": -0.0219,
+   "node_s1D": 0.0543953999876976,
+   "node_s3D": -0.05275033414363861,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    -0.2899,
+    null
+   ],
+   "at_node_MS": [
+    -0.2899287304558543,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 25.0,
+   "corrected_all_node_MS": [
+    -0.2912,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "NZ-02",
+   "node": 54334,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 1271.9,
+   "stored_MS": [
+    1.2825162746158134,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.07211247831583023,
+   "reg_min_s3D": -0.06864379346370697,
+   "delta_s1D": 0.0,
+   "delta_s3D": 0.0,
+   "node_s1D": 0.03587255999445915,
+   "node_s3D": -0.038903720676898956,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    1.2825,
+    null
+   ],
+   "at_node_MS": [
+    1.2825162746158134,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 20.0,
+   "corrected_all_node_MS": [
+    1.2825,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "NZ-03",
+   "node": 55225,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 1447.0,
+   "stored_MS": [
+    0.17864112717990488,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.09041835367679596,
+   "reg_min_s3D": -0.10935946553945541,
+   "delta_s1D": 0.0272,
+   "delta_s3D": -0.0199,
+   "node_s1D": 0.02871369756758213,
+   "node_s3D": -0.027402793988585472,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    0.1786,
+    null
+   ],
+   "at_node_MS": [
+    0.17864112717990488,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 20.0,
+   "corrected_all_node_MS": [
+    0.1749,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "NZ-04",
+   "node": 56424,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.25,
+   "T_C": 418.0,
+   "stored_MS": [
+    3.0041501755989968,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.04973939433693886,
+   "reg_min_s3D": -0.05525076761841774,
+   "delta_s1D": 0.0029,
+   "delta_s3D": 0.0,
+   "node_s1D": 0.030704831704497337,
+   "node_s3D": -0.029311787337064743,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    3.0042,
+    null
+   ],
+   "at_node_MS": [
+    3.0041501755989968,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 150.0,
+   "corrected_all_node_MS": [
+    3.0035,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "PD-01R",
+   "node": 203406,
+   "class": "ID",
+   "class_detail": "rigid_connectors",
+   "d_class_mm": 0.0,
+   "T_C": 38.7,
+   "stored_MS": [
+    0.3136057009571509,
+    0.06381755054124127
+   ],
+   "brittle": false,
+   "reg_max": 14.7184,
+   "all_max": 14.7184,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 8.7718,
+   "vm_bound_stored_MPa": 120.356,
+   "vm_base_MPa": 105.638,
+   "nodewise_at_node_MS": [
+    0.3819,
+    0.1191
+   ],
+   "at_node_MS": [
+    0.3136057009571509,
+    0.06381755054124127
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    237.15,
+    256.07
+   ],
+   "corrected_all_node_MS": [
+    0.3136,
+    0.0638
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "PD-01S",
+   "node": 206164,
+   "class": "ID",
+   "class_detail": "rigid_connectors",
+   "d_class_mm": 0.0,
+   "T_C": 38.7,
+   "stored_MS": [
+    0.738457963911088,
+    0.4078822066159209
+   ],
+   "brittle": false,
+   "reg_max": 12.2587,
+   "all_max": 12.2587,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 0.002,
+   "vm_bound_stored_MPa": 90.943,
+   "vm_base_MPa": 78.684,
+   "nodewise_at_node_MS": [
+    1.0093,
+    0.6272
+   ],
+   "at_node_MS": [
+    0.738457963911088,
+    0.4078822066159209
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    237.15,
+    256.07
+   ],
+   "corrected_all_node_MS": [
+    0.7385,
+    0.4079
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "FD-01",
+   "node": 209549,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 47.1,
+   "stored_MS": [
+    0.8479828308454966,
+    2.640090132425475
+   ],
+   "brittle": false,
+   "reg_max": 1.9045,
+   "all_max": 2.2884,
+   "delta": 0.3838,
+   "reg_check": true,
+   "node_increment": 1.249,
+   "vm_bound_stored_MPa": 67.994,
+   "vm_base_MPa": 66.089,
+   "nodewise_at_node_MS": [
+    0.866,
+    2.6755
+   ],
+   "at_node_MS": [
+    0.8479828308454966,
+    2.640090132425475
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    186.48,
+    494.14
+   ],
+   "corrected_all_node_MS": [
+    0.8375,
+    2.6196
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "TC-02",
+   "node": 26731,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 173.0,
+   "stored_MS": [
+    -0.1067270716538341,
+    -0.2620756718619295
+   ],
+   "brittle": false,
+   "reg_max": 0.9841,
+   "all_max": 1.7499,
+   "delta": 0.7659,
+   "reg_check": true,
+   "node_increment": 0.0488,
+   "vm_bound_stored_MPa": 107.401,
+   "vm_base_MPa": 106.416,
+   "nodewise_at_node_MS": [
+    -0.0989,
+    -0.2556
+   ],
+   "at_node_MS": [
+    -0.1067270716538341,
+    -0.2620756718619295
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    125.29,
+    141.84
+   ],
+   "corrected_all_node_MS": [
+    -0.114,
+    -0.2679
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "TC-03",
+   "node": 38421,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 100.9,
+   "stored_MS": [
+    -0.1659695776315111,
+    -0.24161269889277248
+   ],
+   "brittle": false,
+   "reg_max": 0.1876,
+   "all_max": 0.2642,
+   "delta": 0.0766,
+   "reg_check": true,
+   "node_increment": 0.2107,
+   "vm_bound_stored_MPa": 195.02,
+   "vm_base_MPa": 194.833,
+   "nodewise_at_node_MS": [
+    -0.1661,
+    -0.2417
+   ],
+   "at_node_MS": [
+    -0.16606866885202132,
+    -0.24170280294805713
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    222.57,
+    269.87
+   ],
+   "corrected_all_node_MS": [
+    -0.1663,
+    -0.2419
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "TC-04",
+   "node": 42993,
+   "class": "BT",
+   "class_detail": "bad_tets",
+   "d_class_mm": 0.0,
+   "T_C": 30.0,
+   "stored_MS": [
+    0.22949625425305942,
+    -0.002763748618345274
+   ],
+   "brittle": false,
+   "reg_max": 0.3285,
+   "all_max": 0.5152,
+   "delta": 0.1867,
+   "reg_check": true,
+   "node_increment": 0.5152,
+   "vm_bound_stored_MPa": 129.311,
+   "vm_base_MPa": 128.983,
+   "nodewise_at_node_MS": [
+    0.2277,
+    -0.0042
+   ],
+   "at_node_MS": [
+    0.22772370656525331,
+    -0.00420145028312735
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    238.03,
+    257.29
+   ],
+   "corrected_all_node_MS": [
+    0.2277,
+    -0.0042
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "TC-09",
+   "node": 45080,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 329.8,
+   "stored_MS": [
+    1.03139875297803,
+    0.773568501443973
+   ],
+   "brittle": false,
+   "reg_max": 11.9769,
+   "all_max": 11.9769,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 0.4823,
+   "vm_bound_stored_MPa": 311.54,
+   "vm_base_MPa": 299.563,
+   "nodewise_at_node_MS": [
+    1.1092,
+    0.8415
+   ],
+   "at_node_MS": [
+    1.03139875297803,
+    0.773568501443973
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    942.28,
+    1093.82
+   ],
+   "corrected_all_node_MS": [
+    1.0314,
+    0.7736
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "NZ-01",
+   "node": 51720,
+   "class": "RE",
+   "class_detail": "reentrant_edges",
+   "d_class_mm": 0.5,
+   "T_C": 1311.6,
+   "stored_MS": [
+    -0.3734886742257426,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.0923592746257782,
+   "reg_min_s3D": -0.09955503791570663,
+   "delta_s1D": 0.0318,
+   "delta_s3D": -0.0219,
+   "node_s1D": 0.008827568031847477,
+   "node_s3D": -0.01042079832404852,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    -0.3735,
+    null
+   ],
+   "at_node_MS": [
+    -0.3734886742257426,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 25.0,
+   "corrected_all_node_MS": [
+    -0.3745,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "NZ-02",
+   "node": 54334,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 1200.9,
+   "stored_MS": [
+    1.2839169450822228,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.07211247831583023,
+   "reg_min_s3D": -0.06864379346370697,
+   "delta_s1D": 0.0,
+   "delta_s3D": 0.0,
+   "node_s1D": 0.03587255999445915,
+   "node_s3D": -0.038903720676898956,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    1.2839,
+    null
+   ],
+   "at_node_MS": [
+    1.2839169450822228,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 20.0,
+   "corrected_all_node_MS": [
+    1.2839,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "NZ-03",
+   "node": 55225,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 1368.3,
+   "stored_MS": [
+    0.1767752458930183,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.09041835367679596,
+   "reg_min_s3D": -0.10935946553945541,
+   "delta_s1D": 0.0272,
+   "delta_s3D": -0.0199,
+   "node_s1D": 0.02871369756758213,
+   "node_s3D": -0.027402793988585472,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    0.1768,
+    null
+   ],
+   "at_node_MS": [
+    0.1767752458930183,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 20.0,
+   "corrected_all_node_MS": [
+    0.173,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "NZ-04",
+   "node": 56424,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.25,
+   "T_C": 367.9,
+   "stored_MS": [
+    3.329981606886668,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.04973939433693886,
+   "reg_min_s3D": -0.05525076761841774,
+   "delta_s1D": 0.0029,
+   "delta_s3D": 0.0,
+   "node_s1D": 0.030704831704497337,
+   "node_s3D": -0.029311787337064743,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    3.33,
+    null
+   ],
+   "at_node_MS": [
+    3.329981606886668,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 150.0,
+   "corrected_all_node_MS": [
+    3.3293,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "PD-01R",
+   "node": 203406,
+   "class": "ID",
+   "class_detail": "rigid_connectors",
+   "d_class_mm": 0.0,
+   "T_C": 35.2,
+   "stored_MS": [
+    0.5605353030913764,
+    0.2645788782303147
+   ],
+   "brittle": false,
+   "reg_max": 14.7184,
+   "all_max": 14.7184,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 8.7718,
+   "vm_bound_stored_MPa": 101.54,
+   "vm_base_MPa": 86.822,
+   "nodewise_at_node_MS": [
+    0.6576,
+    0.3432
+   ],
+   "at_node_MS": [
+    0.5605353030913764,
+    0.2645788782303147
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    237.69,
+    256.81
+   ],
+   "corrected_all_node_MS": [
+    0.5605,
+    0.2646
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "PD-01S",
+   "node": 206164,
+   "class": "ID",
+   "class_detail": "rigid_connectors",
+   "d_class_mm": 0.0,
+   "T_C": 35.2,
+   "stored_MS": [
+    1.0791749638226888,
+    0.6848582266526877
+   ],
+   "brittle": false,
+   "reg_max": 12.2587,
+   "all_max": 12.2587,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 0.002,
+   "vm_bound_stored_MPa": 76.212,
+   "vm_base_MPa": 63.953,
+   "nodewise_at_node_MS": [
+    1.4776,
+    1.0078
+   ],
+   "at_node_MS": [
+    1.0791749638226888,
+    0.6848582266526877
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    237.69,
+    256.81
+   ],
+   "corrected_all_node_MS": [
+    1.0792,
+    0.6849
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "FD-01",
+   "node": 209549,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 43.0,
+   "stored_MS": [
+    1.1733075963064699,
+    3.2478096391459825
+   ],
+   "brittle": false,
+   "reg_max": 1.9045,
+   "all_max": 2.2884,
+   "delta": 0.3838,
+   "reg_check": true,
+   "node_increment": 1.249,
+   "vm_bound_stored_MPa": 58.356,
+   "vm_base_MPa": 56.451,
+   "nodewise_at_node_MS": [
+    1.198,
+    3.2961
+   ],
+   "at_node_MS": [
+    1.1733075963064699,
+    3.2478096391459825
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    188.36,
+    494.95
+   ],
+   "corrected_all_node_MS": [
+    1.159,
+    3.22
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "TC-02",
+   "node": 26731,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 77.9,
+   "stored_MS": [
+    1.1834590247055092,
+    0.7556858806545717
+   ],
+   "brittle": false,
+   "reg_max": 0.9841,
+   "all_max": 1.7499,
+   "delta": 0.7659,
+   "reg_check": true,
+   "node_increment": 0.0488,
+   "vm_bound_stored_MPa": 70.589,
+   "vm_base_MPa": 69.605,
+   "nodewise_at_node_MS": [
+    1.2128,
+    0.7793
+   ],
+   "at_node_MS": [
+    1.1834590247055092,
+    0.7556858806545717
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    231.19,
+    247.86
+   ],
+   "corrected_all_node_MS": [
+    1.16,
+    0.7368
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "TC-03",
+   "node": 38065,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 73.5,
+   "stored_MS": [
+    0.9052005887750443,
+    0.7323814727645186
+   ],
+   "brittle": false,
+   "reg_max": 0.1876,
+   "all_max": 0.2642,
+   "delta": 0.0766,
+   "reg_check": true,
+   "node_increment": 0.1876,
+   "vm_bound_stored_MPa": 87.151,
+   "vm_base_MPa": 86.964,
+   "nodewise_at_node_MS": [
+    0.9052,
+    0.7324
+   ],
+   "at_node_MS": [
+    0.9052005887750443,
+    0.7323814727645186
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    242.82,
+    294.4
+   ],
+   "corrected_all_node_MS": [
+    0.9035,
+    0.7308
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "TC-04",
+   "node": 42993,
+   "class": "BT",
+   "class_detail": "bad_tets",
+   "d_class_mm": 0.0,
+   "T_C": 19.4,
+   "stored_MS": [
+    1.2575977858489007,
+    0.8342982010022317
+   ],
+   "brittle": false,
+   "reg_max": 0.3285,
+   "all_max": 0.5152,
+   "delta": 0.1867,
+   "reg_check": true,
+   "node_increment": 0.5152,
+   "vm_bound_stored_MPa": 70.872,
+   "vm_base_MPa": 70.543,
+   "nodewise_at_node_MS": [
+    1.2517,
+    0.8295
+   ],
+   "at_node_MS": [
+    1.2516662919804649,
+    0.8294788622341276
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    1.2517,
+    0.8295
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "TC-09",
+   "node": 44943,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 20.1,
+   "stored_MS": [
+    7.980245513912747,
+    7.083454974651131
+   ],
+   "brittle": false,
+   "reg_max": 11.9769,
+   "all_max": 11.9769,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 1.4428,
+   "vm_bound_stored_MPa": 76.759,
+   "vm_base_MPa": 64.782,
+   "nodewise_at_node_MS": [
+    9.4087,
+    8.3693
+   ],
+   "at_node_MS": [
+    7.980245513912747,
+    7.083454974651131
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    1030.97,
+    1236.14
+   ],
+   "corrected_all_node_MS": [
+    7.9802,
+    7.0835
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "NZ-01",
+   "node": 52195,
+   "class": "BT",
+   "class_detail": "bad_tets",
+   "d_class_mm": 0.5389,
+   "T_C": 1083.9,
+   "stored_MS": [
+    -0.027990304323335602,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.0923592746257782,
+   "reg_min_s3D": -0.09955503791570663,
+   "delta_s1D": 0.0318,
+   "delta_s3D": -0.0219,
+   "node_s1D": 0.01660785637795925,
+   "node_s3D": -0.01817280799150467,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    -0.028,
+    null
+   ],
+   "at_node_MS": [
+    -0.027990304323335602,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 25.0,
+   "corrected_all_node_MS": [
+    -0.0304,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "NZ-02",
+   "node": 54332,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 367.7,
+   "stored_MS": [
+    0.7809684562681836,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.07211247831583023,
+   "reg_min_s3D": -0.06864379346370697,
+   "delta_s1D": 0.0,
+   "delta_s3D": 0.0,
+   "node_s1D": 0.025444677099585533,
+   "node_s3D": -0.026185158640146255,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    0.781,
+    null
+   ],
+   "at_node_MS": [
+    0.7809684562681836,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 87.38,
+   "corrected_all_node_MS": [
+    0.781,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "NZ-03",
+   "node": 55340,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 374.1,
+   "stored_MS": [
+    0.43589629856588186,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.09041835367679596,
+   "reg_min_s3D": -0.10935946553945541,
+   "delta_s1D": 0.0272,
+   "delta_s3D": -0.0199,
+   "node_s1D": 0.11766541004180908,
+   "node_s3D": -0.1292394995689392,
+   "node_excess_MPa": 0.0272,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    0.4347,
+    null
+   ],
+   "at_node_MS": [
+    0.4346698388024517,
+    null
+   ],
+   "at_node_lowered": [
+    true,
+    false
+   ],
+   "a_min_MPa": 76.45,
+   "corrected_all_node_MS": [
+    0.4344,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "NZ-04",
+   "node": 56424,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.25,
+   "T_C": 36.2,
+   "stored_MS": [
+    7.845170878541468,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.04973939433693886,
+   "reg_min_s3D": -0.05525076761841774,
+   "delta_s1D": 0.0029,
+   "delta_s3D": 0.0,
+   "node_s1D": 0.030704831704497337,
+   "node_s3D": -0.029311787337064743,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    7.8452,
+    null
+   ],
+   "at_node_MS": [
+    7.845170878541468,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 150.0,
+   "corrected_all_node_MS": [
+    7.8421,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "PD-01R",
+   "node": 203514,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 19.8,
+   "stored_MS": [
+    4.402327461356981,
+    3.389391062352547
+   ],
+   "brittle": false,
+   "reg_max": 14.7184,
+   "all_max": 14.7184,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 14.7184,
+   "vm_bound_stored_MPa": 29.617,
+   "vm_base_MPa": 14.898,
+   "nodewise_at_node_MS": [
+    4.4023,
+    3.3894
+   ],
+   "at_node_MS": [
+    4.402327461356981,
+    3.389391062352547
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    4.4023,
+    3.3894
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "PD-01S",
+   "node": 207131,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 19.8,
+   "stored_MS": [
+    5.3166415312488295,
+    4.132271244139674
+   ],
+   "brittle": false,
+   "reg_max": 12.2587,
+   "all_max": 12.2587,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 11.0104,
+   "vm_bound_stored_MPa": 25.33,
+   "vm_base_MPa": 13.071,
+   "nodewise_at_node_MS": [
+    5.6441,
+    4.3983
+   ],
+   "at_node_MS": [
+    5.3166415312488295,
+    4.132271244139674
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    5.3166,
+    4.1323
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "FD-01",
+   "node": 208807,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 19.9,
+   "stored_MS": [
+    2.7954659910722692,
+    6.116498733260505
+   ],
+   "brittle": false,
+   "reg_max": 1.9045,
+   "all_max": 2.2884,
+   "delta": 0.3838,
+   "reg_check": true,
+   "node_increment": 2.2793,
+   "vm_bound_stored_MPa": 35.13,
+   "vm_base_MPa": 33.225,
+   "nodewise_at_node_MS": [
+    2.7554,
+    6.0414
+   ],
+   "at_node_MS": [
+    2.755400604551701,
+    6.04137613353444
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    199.99,
+    500.0
+   ],
+   "corrected_all_node_MS": [
+    2.7544,
+    6.0396
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "TC-02",
+   "node": 26731,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 97.7,
+   "stored_MS": [
+    0.28287451787122553,
+    0.027654146486896902
+   ],
+   "brittle": false,
+   "reg_max": 0.9841,
+   "all_max": 1.7499,
+   "delta": 0.7659,
+   "reg_check": true,
+   "node_increment": 0.0488,
+   "vm_bound_stored_MPa": 118.577,
+   "vm_base_MPa": 117.593,
+   "nodewise_at_node_MS": [
+    0.2931,
+    0.0358
+   ],
+   "at_node_MS": [
+    0.28287451787122553,
+    0.027654146486896902
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    228.18,
+    243.71
+   ],
+   "corrected_all_node_MS": [
+    0.2746,
+    0.0211
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "TC-03",
+   "node": 38065,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 88.9,
+   "stored_MS": [
+    -0.09527548126235952,
+    -0.1773355904937748
+   ],
+   "brittle": false,
+   "reg_max": 0.1876,
+   "all_max": 0.2642,
+   "delta": 0.0766,
+   "reg_check": true,
+   "node_increment": 0.1876,
+   "vm_bound_stored_MPa": 181.424,
+   "vm_base_MPa": 181.236,
+   "nodewise_at_node_MS": [
+    -0.0953,
+    -0.1773
+   ],
+   "at_node_MS": [
+    -0.09527548126235952,
+    -0.1773355904937748
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    233.74,
+    283.4
+   ],
+   "corrected_all_node_MS": [
+    -0.0957,
+    -0.1777
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "TC-04",
+   "node": 42993,
+   "class": "BT",
+   "class_detail": "bad_tets",
+   "d_class_mm": 0.0,
+   "T_C": 19.6,
+   "stored_MS": [
+    1.2451282660159801,
+    0.824166716137984
+   ],
+   "brittle": false,
+   "reg_max": 0.3285,
+   "all_max": 0.5152,
+   "delta": 0.1867,
+   "reg_check": true,
+   "node_increment": 0.5152,
+   "vm_bound_stored_MPa": 71.265,
+   "vm_base_MPa": 70.937,
+   "nodewise_at_node_MS": [
+    1.2393,
+    0.8194
+   ],
+   "at_node_MS": [
+    1.2392620295862744,
+    0.8194003990388481
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    1.2393,
+    0.8194
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "TC-09",
+   "node": 45384,
+   "class": "RE",
+   "class_detail": "reentrant_edges",
+   "d_class_mm": 0.0,
+   "T_C": 20.0,
+   "stored_MS": [
+    8.943933949751598,
+    7.950983098386169
+   ],
+   "brittle": false,
+   "reg_max": 11.9769,
+   "all_max": 11.9769,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 1.8614,
+   "vm_bound_stored_MPa": 69.322,
+   "vm_base_MPa": 57.345,
+   "nodewise_at_node_MS": [
+    10.6429,
+    9.4803
+   ],
+   "at_node_MS": [
+    8.943933949751598,
+    7.950983098386169
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    1033.63,
+    1240.41
+   ],
+   "corrected_all_node_MS": [
+    8.9439,
+    7.951
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "NZ-01",
+   "node": 51953,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 610.6,
+   "stored_MS": [
+    -0.40245234768316696,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.0923592746257782,
+   "reg_min_s3D": -0.09955503791570663,
+   "delta_s1D": 0.0318,
+   "delta_s3D": -0.0219,
+   "node_s1D": 0.0078034293837845325,
+   "node_s3D": -0.007345236837863922,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    -0.4025,
+    null
+   ],
+   "at_node_MS": [
+    -0.40245234768316696,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 25.0,
+   "corrected_all_node_MS": [
+    -0.4034,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "NZ-02",
+   "node": 54754,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 243.2,
+   "stored_MS": [
+    2.3623066284977763,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.07211247831583023,
+   "reg_min_s3D": -0.06864379346370697,
+   "delta_s1D": 0.0,
+   "delta_s3D": 0.0,
+   "node_s1D": 0.04511275514960289,
+   "node_s3D": -0.04846351593732834,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    2.3623,
+    null
+   ],
+   "at_node_MS": [
+    2.3623066284977763,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 113.05,
+   "corrected_all_node_MS": [
+    2.3623,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "NZ-03",
+   "node": 55225,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 325.7,
+   "stored_MS": [
+    0.6543108949194123,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.09041835367679596,
+   "reg_min_s3D": -0.10935946553945541,
+   "delta_s1D": 0.0272,
+   "delta_s3D": -0.0199,
+   "node_s1D": 0.02871369756758213,
+   "node_s3D": -0.027402793988585472,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    0.6543,
+    null
+   ],
+   "at_node_MS": [
+    0.6543108949194123,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 97.06,
+   "corrected_all_node_MS": [
+    0.6528,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "NZ-04",
+   "node": 56424,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.25,
+   "T_C": 22.4,
+   "stored_MS": [
+    9.000623650864346,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.04973939433693886,
+   "reg_min_s3D": -0.05525076761841774,
+   "delta_s1D": 0.0029,
+   "delta_s3D": 0.0,
+   "node_s1D": 0.030704831704497337,
+   "node_s3D": -0.029311787337064743,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    9.0006,
+    null
+   ],
+   "at_node_MS": [
+    9.000623650864346,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 150.0,
+   "corrected_all_node_MS": [
+    8.9967,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "PD-01R",
+   "node": 203514,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 20.0,
+   "stored_MS": [
+    4.394951149956524,
+    3.3833978093396766
+   ],
+   "brittle": false,
+   "reg_max": 14.7184,
+   "all_max": 14.7184,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 14.7184,
+   "vm_bound_stored_MPa": 29.657,
+   "vm_base_MPa": 14.939,
+   "nodewise_at_node_MS": [
+    4.395,
+    3.3834
+   ],
+   "at_node_MS": [
+    4.394951149956524,
+    3.3833978093396766
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    4.395,
+    3.3834
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "PD-01S",
+   "node": 207131,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 20.0,
+   "stored_MS": [
+    5.318623062343876,
+    4.1338812381544
+   ],
+   "brittle": false,
+   "reg_max": 12.2587,
+   "all_max": 12.2587,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 11.0104,
+   "vm_bound_stored_MPa": 25.322,
+   "vm_base_MPa": 13.063,
+   "nodewise_at_node_MS": [
+    5.6463,
+    4.4001
+   ],
+   "at_node_MS": [
+    5.318623062343876,
+    4.1338812381544
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    5.3186,
+    4.1339
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "FD-01",
+   "node": 208807,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 20.0,
+   "stored_MS": [
+    2.785430895226219,
+    6.097682928549161
+   ],
+   "brittle": false,
+   "reg_max": 1.9045,
+   "all_max": 2.2884,
+   "delta": 0.3838,
+   "reg_check": true,
+   "node_increment": 2.2793,
+   "vm_bound_stored_MPa": 35.223,
+   "vm_base_MPa": 33.318,
+   "nodewise_at_node_MS": [
+    2.7456,
+    6.023
+   ],
+   "at_node_MS": [
+    2.745575979582766,
+    6.022954961717686
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    200.0,
+    500.0
+   ],
+   "corrected_all_node_MS": [
+    2.7446,
+    6.0212
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "TC-02",
+   "node": 26731,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 162.9,
+   "stored_MS": [
+    0.35258208348302134,
+    0.09433577043522723
+   ],
+   "brittle": false,
+   "reg_max": 0.9841,
+   "all_max": 1.7499,
+   "delta": 0.7659,
+   "reg_check": true,
+   "node_increment": 0.0488,
+   "vm_bound_stored_MPa": 79.688,
+   "vm_base_MPa": 78.704,
+   "nodewise_at_node_MS": [
+    0.3686,
+    0.1073
+   ],
+   "at_node_MS": [
+    0.35258208348302134,
+    0.09433577043522723
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    138.69,
+    153.84
+   ],
+   "corrected_all_node_MS": [
+    0.3376,
+    0.0825
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "TC-03",
+   "node": 38421,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 110.1,
+   "stored_MS": [
+    -0.10494283606083721,
+    -0.18611671898898619
+   ],
+   "brittle": false,
+   "reg_max": 0.1876,
+   "all_max": 0.2642,
+   "delta": 0.0766,
+   "reg_check": true,
+   "node_increment": 0.2107,
+   "vm_bound_stored_MPa": 180.448,
+   "vm_base_MPa": 180.261,
+   "nodewise_at_node_MS": [
+    -0.1051,
+    -0.1862
+   ],
+   "at_node_MS": [
+    -0.10505776420416979,
+    -0.18622122415149933
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    227.86,
+    276.27
+   ],
+   "corrected_all_node_MS": [
+    -0.1053,
+    -0.1865
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "TC-04",
+   "node": 42993,
+   "class": "BT",
+   "class_detail": "bad_tets",
+   "d_class_mm": 0.0,
+   "T_C": 31.8,
+   "stored_MS": [
+    0.26760377377241285,
+    0.027817523930139698
+   ],
+   "brittle": false,
+   "reg_max": 0.3285,
+   "all_max": 0.5152,
+   "delta": 0.1867,
+   "reg_check": true,
+   "node_increment": 0.5152,
+   "vm_bound_stored_MPa": 125.278,
+   "vm_base_MPa": 124.95,
+   "nodewise_at_node_MS": [
+    0.2657,
+    0.0263
+   ],
+   "at_node_MS": [
+    0.2657175431614107,
+    0.02628810210584831
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    237.72,
+    256.86
+   ],
+   "corrected_all_node_MS": [
+    0.2657,
+    0.0263
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "TC-09",
+   "node": 45080,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 376.5,
+   "stored_MS": [
+    1.0483171770037525,
+    0.7791085686783685
+   ],
+   "brittle": false,
+   "reg_max": 11.9769,
+   "all_max": 11.9769,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 0.4823,
+   "vm_bound_stored_MPa": 304.81,
+   "vm_base_MPa": 292.833,
+   "nodewise_at_node_MS": [
+    1.1286,
+    0.8488
+   ],
+   "at_node_MS": [
+    1.0483171770037525,
+    0.7791085686783685
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    925.03,
+    1066.15
+   ],
+   "corrected_all_node_MS": [
+    1.0483,
+    0.7791
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "NZ-01",
+   "node": 52809,
+   "class": "RE",
+   "class_detail": "reentrant_edges",
+   "d_class_mm": 0.2789,
+   "T_C": 1308.6,
+   "stored_MS": [
+    -0.2899287304558543,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.0923592746257782,
+   "reg_min_s3D": -0.09955503791570663,
+   "delta_s1D": 0.0318,
+   "delta_s3D": -0.0219,
+   "node_s1D": 0.0543953999876976,
+   "node_s3D": -0.05275033414363861,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    -0.2899,
+    null
+   ],
+   "at_node_MS": [
+    -0.2899287304558543,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 25.0,
+   "corrected_all_node_MS": [
+    -0.2912,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "NZ-02",
+   "node": 54334,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 1271.9,
+   "stored_MS": [
+    1.2825162746158134,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.07211247831583023,
+   "reg_min_s3D": -0.06864379346370697,
+   "delta_s1D": 0.0,
+   "delta_s3D": 0.0,
+   "node_s1D": 0.03587255999445915,
+   "node_s3D": -0.038903720676898956,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    1.2825,
+    null
+   ],
+   "at_node_MS": [
+    1.2825162746158134,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 20.0,
+   "corrected_all_node_MS": [
+    1.2825,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "NZ-03",
+   "node": 55225,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 1447.0,
+   "stored_MS": [
+    0.17864112717990488,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.09041835367679596,
+   "reg_min_s3D": -0.10935946553945541,
+   "delta_s1D": 0.0272,
+   "delta_s3D": -0.0199,
+   "node_s1D": 0.02871369756758213,
+   "node_s3D": -0.027402793988585472,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    0.1786,
+    null
+   ],
+   "at_node_MS": [
+    0.17864112717990488,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 20.0,
+   "corrected_all_node_MS": [
+    0.1749,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "NZ-04",
+   "node": 56424,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.25,
+   "T_C": 418.0,
+   "stored_MS": [
+    3.0041501757163402,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.04973939433693886,
+   "reg_min_s3D": -0.05525076761841774,
+   "delta_s1D": 0.0029,
+   "delta_s3D": 0.0,
+   "node_s1D": 0.030704831704497337,
+   "node_s3D": -0.029311787337064743,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    3.0042,
+    null
+   ],
+   "at_node_MS": [
+    3.0041501757163402,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 150.0,
+   "corrected_all_node_MS": [
+    3.0035,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "PD-01R",
+   "node": 203406,
+   "class": "ID",
+   "class_detail": "rigid_connectors",
+   "d_class_mm": 0.0,
+   "T_C": 37.6,
+   "stored_MS": [
+    0.3861137151262586,
+    0.12276887543282755
+   ],
+   "brittle": false,
+   "reg_max": 14.7184,
+   "all_max": 14.7184,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 8.7718,
+   "vm_bound_stored_MPa": 114.145,
+   "vm_base_MPa": 99.427,
+   "nodewise_at_node_MS": [
+    0.4623,
+    0.1845
+   ],
+   "at_node_MS": [
+    0.3861137151262586,
+    0.12276887543282755
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    237.33,
+    256.32
+   ],
+   "corrected_all_node_MS": [
+    0.3861,
+    0.1228
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "PD-01S",
+   "node": 206164,
+   "class": "ID",
+   "class_detail": "rigid_connectors",
+   "d_class_mm": 0.0,
+   "T_C": 37.6,
+   "stored_MS": [
+    0.8380245179391177,
+    0.48882209194250126
+   ],
+   "brittle": false,
+   "reg_max": 12.2587,
+   "all_max": 12.2587,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 0.002,
+   "vm_bound_stored_MPa": 86.081,
+   "vm_base_MPa": 73.822,
+   "nodewise_at_node_MS": [
+    1.1432,
+    0.736
+   ],
+   "at_node_MS": [
+    0.8380245179391177,
+    0.48882209194250126
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    237.33,
+    256.32
+   ],
+   "corrected_all_node_MS": [
+    0.838,
+    0.4888
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "FD-01",
+   "node": 209549,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 45.6,
+   "stored_MS": [
+    0.9178635231845338,
+    2.7671855435560406
+   ],
+   "brittle": false,
+   "reg_max": 1.9045,
+   "all_max": 2.2884,
+   "delta": 0.3838,
+   "reg_check": true,
+   "node_increment": 1.249,
+   "vm_bound_stored_MPa": 65.736,
+   "vm_base_MPa": 63.831,
+   "nodewise_at_node_MS": [
+    0.9372,
+    2.8051
+   ],
+   "at_node_MS": [
+    0.9178635231845338,
+    2.7671855435560406
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    187.18,
+    494.44
+   ],
+   "corrected_all_node_MS": [
+    0.9066,
+    2.7453
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "TC-02",
+   "node": 26731,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 171.0,
+   "stored_MS": [
+    -0.10466790798444348,
+    -0.26368018810349525
+   ],
+   "brittle": false,
+   "reg_max": 0.9841,
+   "all_max": 1.7499,
+   "delta": 0.7659,
+   "reg_check": true,
+   "node_increment": 0.0488,
+   "vm_bound_stored_MPa": 109.771,
+   "vm_base_MPa": 108.787,
+   "nodewise_at_node_MS": [
+    -0.097,
+    -0.2574
+   ],
+   "at_node_MS": [
+    -0.10466790798444348,
+    -0.26368018810349525
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    137.1,
+    152.42
+   ],
+   "corrected_all_node_MS": [
+    -0.1113,
+    -0.2691
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "TC-03",
+   "node": 38421,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 98.3,
+   "stored_MS": [
+    -0.14140537828902355,
+    -0.21927744642880276
+   ],
+   "brittle": false,
+   "reg_max": 0.1876,
+   "all_max": 0.2642,
+   "delta": 0.0766,
+   "reg_check": true,
+   "node_increment": 0.2107,
+   "vm_bound_stored_MPa": 189.806,
+   "vm_base_MPa": 189.619,
+   "nodewise_at_node_MS": [
+    -0.1415,
+    -0.2194
+   ],
+   "at_node_MS": [
+    -0.14151018982923114,
+    -0.21937275186310823
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    222.49,
+    269.76
+   ],
+   "corrected_all_node_MS": [
+    -0.1418,
+    -0.2196
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "TC-04",
+   "node": 42993,
+   "class": "BT",
+   "class_detail": "bad_tets",
+   "d_class_mm": 0.0,
+   "T_C": 29.2,
+   "stored_MS": [
+    0.2509920402720136,
+    0.014805604242398074
+   ],
+   "brittle": false,
+   "reg_max": 0.3285,
+   "all_max": 0.5152,
+   "delta": 0.1867,
+   "reg_check": true,
+   "node_increment": 0.5152,
+   "vm_bound_stored_MPa": 127.151,
+   "vm_base_MPa": 126.822,
+   "nodewise_at_node_MS": [
+    0.2492,
+    0.0133
+   ],
+   "at_node_MS": [
+    0.24915790124724868,
+    0.01331774940290087
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    238.17,
+    257.47
+   ],
+   "corrected_all_node_MS": [
+    0.2492,
+    0.0133
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "TC-09",
+   "node": 45080,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 329.8,
+   "stored_MS": [
+    1.0313972197283903,
+    0.7735671627982437
+   ],
+   "brittle": false,
+   "reg_max": 11.9769,
+   "all_max": 11.9769,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 0.4823,
+   "vm_bound_stored_MPa": 311.54,
+   "vm_base_MPa": 299.564,
+   "nodewise_at_node_MS": [
+    1.1092,
+    0.8415
+   ],
+   "at_node_MS": [
+    1.0313972197283903,
+    0.7735671627982437
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    942.28,
+    1093.82
+   ],
+   "corrected_all_node_MS": [
+    1.0314,
+    0.7736
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "NZ-01",
+   "node": 51720,
+   "class": "RE",
+   "class_detail": "reentrant_edges",
+   "d_class_mm": 0.5,
+   "T_C": 1311.6,
+   "stored_MS": [
+    -0.37348867407392394,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.0923592746257782,
+   "reg_min_s3D": -0.09955503791570663,
+   "delta_s1D": 0.0318,
+   "delta_s3D": -0.0219,
+   "node_s1D": 0.008827568031847477,
+   "node_s3D": -0.01042079832404852,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    -0.3735,
+    null
+   ],
+   "at_node_MS": [
+    -0.37348867407392394,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 25.0,
+   "corrected_all_node_MS": [
+    -0.3745,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "NZ-02",
+   "node": 54334,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 1200.9,
+   "stored_MS": [
+    1.2839169450822228,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.07211247831583023,
+   "reg_min_s3D": -0.06864379346370697,
+   "delta_s1D": 0.0,
+   "delta_s3D": 0.0,
+   "node_s1D": 0.03587255999445915,
+   "node_s3D": -0.038903720676898956,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    1.2839,
+    null
+   ],
+   "at_node_MS": [
+    1.2839169450822228,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 20.0,
+   "corrected_all_node_MS": [
+    1.2839,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "NZ-03",
+   "node": 55225,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 1368.3,
+   "stored_MS": [
+    0.1767752458930183,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.09041835367679596,
+   "reg_min_s3D": -0.10935946553945541,
+   "delta_s1D": 0.0272,
+   "delta_s3D": -0.0199,
+   "node_s1D": 0.02871369756758213,
+   "node_s3D": -0.027402793988585472,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    0.1768,
+    null
+   ],
+   "at_node_MS": [
+    0.1767752458930183,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 20.0,
+   "corrected_all_node_MS": [
+    0.173,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "NZ-04",
+   "node": 56424,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.25,
+   "T_C": 367.9,
+   "stored_MS": [
+    3.329981606886668,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.04973939433693886,
+   "reg_min_s3D": -0.05525076761841774,
+   "delta_s1D": 0.0029,
+   "delta_s3D": 0.0,
+   "node_s1D": 0.030704831704497337,
+   "node_s3D": -0.029311787337064743,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    3.33,
+    null
+   ],
+   "at_node_MS": [
+    3.329981606886668,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 150.0,
+   "corrected_all_node_MS": [
+    3.3293,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "PD-01R",
+   "node": 203406,
+   "class": "ID",
+   "class_detail": "rigid_connectors",
+   "d_class_mm": 0.0,
+   "T_C": 34.2,
+   "stored_MS": [
+    0.6449994237303966,
+    0.33325057050257056
+   ],
+   "brittle": false,
+   "reg_max": 14.7184,
+   "all_max": 14.7184,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 8.7718,
+   "vm_bound_stored_MPa": 96.386,
+   "vm_base_MPa": 81.668,
+   "nodewise_at_node_MS": [
+    0.7532,
+    0.4209
+   ],
+   "at_node_MS": [
+    0.6449994237303966,
+    0.33325057050257056
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    237.83,
+    257.01
+   ],
+   "corrected_all_node_MS": [
+    0.645,
+    0.3333
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "PD-01S",
+   "node": 206164,
+   "class": "ID",
+   "class_detail": "rigid_connectors",
+   "d_class_mm": 0.0,
+   "T_C": 34.2,
+   "stored_MS": [
+    1.1968456073672251,
+    0.7805147023616534
+   ],
+   "brittle": false,
+   "reg_max": 12.2587,
+   "all_max": 12.2587,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 0.002,
+   "vm_bound_stored_MPa": 72.174,
+   "vm_base_MPa": 59.915,
+   "nodewise_at_node_MS": [
+    1.6462,
+    1.1447
+   ],
+   "at_node_MS": [
+    1.1968456073672251,
+    0.7805147023616534
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    237.83,
+    257.01
+   ],
+   "corrected_all_node_MS": [
+    1.1968,
+    0.7805
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "FD-01",
+   "node": 209549,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 41.6,
+   "stored_MS": [
+    1.2547754295104938,
+    3.396055431735805
+   ],
+   "brittle": false,
+   "reg_max": 1.9045,
+   "all_max": 2.2884,
+   "delta": 0.3838,
+   "reg_check": true,
+   "node_increment": 1.249,
+   "vm_bound_stored_MPa": 56.416,
+   "vm_base_MPa": 54.511,
+   "nodewise_at_node_MS": [
+    1.2813,
+    3.4477
+   ],
+   "at_node_MS": [
+    1.2547754295104938,
+    3.396055431735805
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    189.02,
+    495.24
+   ],
+   "corrected_all_node_MS": [
+    1.2394,
+    3.3663
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "TC-02",
+   "node": 26731,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 79.1,
+   "stored_MS": [
+    1.1176514056861522,
+    0.7023682134683182
+   ],
+   "brittle": false,
+   "reg_max": 0.9841,
+   "all_max": 1.7499,
+   "delta": 0.7659,
+   "reg_check": true,
+   "node_increment": 0.0488,
+   "vm_bound_stored_MPa": 72.722,
+   "vm_base_MPa": 71.738,
+   "nodewise_at_node_MS": [
+    1.1452,
+    0.7245
+   ],
+   "at_node_MS": [
+    1.1176514056861522,
+    0.7023682134683182
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    231.0,
+    247.6
+   ],
+   "corrected_all_node_MS": [
+    1.0956,
+    0.6846
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "TC-03",
+   "node": 38065,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 74.7,
+   "stored_MS": [
+    0.8461055320403195,
+    0.6786478882471823
+   ],
+   "brittle": false,
+   "reg_max": 0.1876,
+   "all_max": 0.2642,
+   "delta": 0.0766,
+   "reg_check": true,
+   "node_increment": 0.1876,
+   "vm_bound_stored_MPa": 89.864,
+   "vm_base_MPa": 89.676,
+   "nodewise_at_node_MS": [
+    0.8461,
+    0.6786
+   ],
+   "at_node_MS": [
+    0.8461055320403195,
+    0.6786478882471823
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    242.27,
+    293.73
+   ],
+   "corrected_all_node_MS": [
+    0.8445,
+    0.6772
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "TC-04",
+   "node": 42993,
+   "class": "BT",
+   "class_detail": "bad_tets",
+   "d_class_mm": 0.0,
+   "T_C": 19.4,
+   "stored_MS": [
+    1.2578461391149238,
+    0.8344999880308759
+   ],
+   "brittle": false,
+   "reg_max": 0.3285,
+   "all_max": 0.5152,
+   "delta": 0.1867,
+   "reg_check": true,
+   "node_increment": 0.5152,
+   "vm_bound_stored_MPa": 70.864,
+   "vm_base_MPa": 70.535,
+   "nodewise_at_node_MS": [
+    1.2519,
+    0.8297
+   ],
+   "at_node_MS": [
+    1.2519133418687964,
+    0.8296795902683971
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    1.2519,
+    0.8297
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "TC-09",
+   "node": 44943,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 20.1,
+   "stored_MS": [
+    7.980245513912747,
+    7.083454974651131
+   ],
+   "brittle": false,
+   "reg_max": 11.9769,
+   "all_max": 11.9769,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 1.4428,
+   "vm_bound_stored_MPa": 76.759,
+   "vm_base_MPa": 64.782,
+   "nodewise_at_node_MS": [
+    9.4087,
+    8.3693
+   ],
+   "at_node_MS": [
+    7.980245513912747,
+    7.083454974651131
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    1030.97,
+    1236.14
+   ],
+   "corrected_all_node_MS": [
+    7.9802,
+    7.0835
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "NZ-01",
+   "node": 52195,
+   "class": "BT",
+   "class_detail": "bad_tets",
+   "d_class_mm": 0.5389,
+   "T_C": 1083.9,
+   "stored_MS": [
+    -0.02799030447230877,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.0923592746257782,
+   "reg_min_s3D": -0.09955503791570663,
+   "delta_s1D": 0.0318,
+   "delta_s3D": -0.0219,
+   "node_s1D": 0.01660785637795925,
+   "node_s3D": -0.01817280799150467,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    -0.028,
+    null
+   ],
+   "at_node_MS": [
+    -0.02799030447230888,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 25.0,
+   "corrected_all_node_MS": [
+    -0.0304,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "NZ-02",
+   "node": 54332,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 367.7,
+   "stored_MS": [
+    0.7809684562681836,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.07211247831583023,
+   "reg_min_s3D": -0.06864379346370697,
+   "delta_s1D": 0.0,
+   "delta_s3D": 0.0,
+   "node_s1D": 0.025444677099585533,
+   "node_s3D": -0.026185158640146255,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    0.781,
+    null
+   ],
+   "at_node_MS": [
+    0.7809684562681836,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 87.38,
+   "corrected_all_node_MS": [
+    0.781,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "NZ-03",
+   "node": 55340,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 374.1,
+   "stored_MS": [
+    0.43589629856588186,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.09041835367679596,
+   "reg_min_s3D": -0.10935946553945541,
+   "delta_s1D": 0.0272,
+   "delta_s3D": -0.0199,
+   "node_s1D": 0.11766541004180908,
+   "node_s3D": -0.1292394995689392,
+   "node_excess_MPa": 0.0272,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    0.4347,
+    null
+   ],
+   "at_node_MS": [
+    0.4346698388024517,
+    null
+   ],
+   "at_node_lowered": [
+    true,
+    false
+   ],
+   "a_min_MPa": 76.45,
+   "corrected_all_node_MS": [
+    0.4344,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "NZ-04",
+   "node": 56424,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.25,
+   "T_C": 36.2,
+   "stored_MS": [
+    7.845170878541468,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.04973939433693886,
+   "reg_min_s3D": -0.05525076761841774,
+   "delta_s1D": 0.0029,
+   "delta_s3D": 0.0,
+   "node_s1D": 0.030704831704497337,
+   "node_s3D": -0.029311787337064743,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    7.8452,
+    null
+   ],
+   "at_node_MS": [
+    7.845170878541468,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 150.0,
+   "corrected_all_node_MS": [
+    7.8421,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "PD-01R",
+   "node": 203514,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 19.8,
+   "stored_MS": [
+    4.402333541783508,
+    3.389396002699101
+   ],
+   "brittle": false,
+   "reg_max": 14.7184,
+   "all_max": 14.7184,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 14.7184,
+   "vm_bound_stored_MPa": 29.617,
+   "vm_base_MPa": 14.898,
+   "nodewise_at_node_MS": [
+    4.4023,
+    3.3894
+   ],
+   "at_node_MS": [
+    4.402333541783508,
+    3.389396002699101
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    4.4023,
+    3.3894
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "PD-01S",
+   "node": 207131,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 19.8,
+   "stored_MS": [
+    5.3166409115948685,
+    4.1322707406708306
+   ],
+   "brittle": false,
+   "reg_max": 12.2587,
+   "all_max": 12.2587,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 11.0104,
+   "vm_bound_stored_MPa": 25.33,
+   "vm_base_MPa": 13.071,
+   "nodewise_at_node_MS": [
+    5.6441,
+    4.3983
+   ],
+   "at_node_MS": [
+    5.3166409115948685,
+    4.1322707406708306
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    5.3166,
+    4.1323
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "FD-01",
+   "node": 208807,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 19.9,
+   "stored_MS": [
+    2.7957022874469835,
+    6.116941788963094
+   ],
+   "brittle": false,
+   "reg_max": 1.9045,
+   "all_max": 2.2884,
+   "delta": 0.3838,
+   "reg_check": true,
+   "node_increment": 2.2793,
+   "vm_bound_stored_MPa": 35.127,
+   "vm_base_MPa": 33.223,
+   "nodewise_at_node_MS": [
+    2.7556,
+    6.0418
+   ],
+   "at_node_MS": [
+    2.7556319383604864,
+    6.041809884425912
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    199.99,
+    500.0
+   ],
+   "corrected_all_node_MS": [
+    2.7547,
+    6.04
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "TC-02",
+   "node": 26731,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 98.5,
+   "stored_MS": [
+    0.26735321433965753,
+    0.015061359479103809
+   ],
+   "brittle": false,
+   "reg_max": 0.9841,
+   "all_max": 1.7499,
+   "delta": 0.7659,
+   "reg_check": true,
+   "node_increment": 0.0488,
+   "vm_bound_stored_MPa": 119.964,
+   "vm_base_MPa": 118.98,
+   "nodewise_at_node_MS": [
+    0.2773,
+    0.023
+   ],
+   "at_node_MS": [
+    0.26735321433965753,
+    0.015061359479103809
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    228.06,
+    243.54
+   ],
+   "corrected_all_node_MS": [
+    0.2593,
+    0.0086
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "TC-03",
+   "node": 38065,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 89.6,
+   "stored_MS": [
+    -0.1073806871805506,
+    -0.18834252163617693
+   ],
+   "brittle": false,
+   "reg_max": 0.1876,
+   "all_max": 0.2642,
+   "delta": 0.0766,
+   "reg_check": true,
+   "node_increment": 0.1876,
+   "vm_bound_stored_MPa": 183.785,
+   "vm_base_MPa": 183.597,
+   "nodewise_at_node_MS": [
+    -0.1074,
+    -0.1883
+   ],
+   "at_node_MS": [
+    -0.1073806871805506,
+    -0.18834252163617693
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    233.36,
+    282.93
+   ],
+   "corrected_all_node_MS": [
+    -0.1078,
+    -0.1887
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "TC-04",
+   "node": 42993,
+   "class": "BT",
+   "class_detail": "bad_tets",
+   "d_class_mm": 0.0,
+   "T_C": 19.6,
+   "stored_MS": [
+    1.245008837265258,
+    0.8240696802780221
+   ],
+   "brittle": false,
+   "reg_max": 0.3285,
+   "all_max": 0.5152,
+   "delta": 0.1867,
+   "reg_check": true,
+   "node_increment": 0.5152,
+   "vm_bound_stored_MPa": 71.269,
+   "vm_base_MPa": 70.941,
+   "nodewise_at_node_MS": [
+    1.2391,
+    0.8193
+   ],
+   "at_node_MS": [
+    1.239143224108152,
+    0.8193038695878734
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    1.2391,
+    0.8193
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "TC-09",
+   "node": 45384,
+   "class": "RE",
+   "class_detail": "reentrant_edges",
+   "d_class_mm": 0.0,
+   "T_C": 20.0,
+   "stored_MS": [
+    8.94393455347819,
+    7.950983641827683
+   ],
+   "brittle": false,
+   "reg_max": 11.9769,
+   "all_max": 11.9769,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 1.8614,
+   "vm_bound_stored_MPa": 69.322,
+   "vm_base_MPa": 57.345,
+   "nodewise_at_node_MS": [
+    10.6429,
+    9.4803
+   ],
+   "at_node_MS": [
+    8.94393455347819,
+    7.950983641827683
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    1033.63,
+    1240.41
+   ],
+   "corrected_all_node_MS": [
+    8.9439,
+    7.951
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "NZ-01",
+   "node": 51953,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 610.6,
+   "stored_MS": [
+    -0.40245234768316696,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.0923592746257782,
+   "reg_min_s3D": -0.09955503791570663,
+   "delta_s1D": 0.0318,
+   "delta_s3D": -0.0219,
+   "node_s1D": 0.0078034293837845325,
+   "node_s3D": -0.007345236837863922,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    -0.4025,
+    null
+   ],
+   "at_node_MS": [
+    -0.40245234768316696,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 25.0,
+   "corrected_all_node_MS": [
+    -0.4034,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "NZ-02",
+   "node": 54754,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 243.2,
+   "stored_MS": [
+    2.3623066284977763,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.07211247831583023,
+   "reg_min_s3D": -0.06864379346370697,
+   "delta_s1D": 0.0,
+   "delta_s3D": 0.0,
+   "node_s1D": 0.04511275514960289,
+   "node_s3D": -0.04846351593732834,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    2.3623,
+    null
+   ],
+   "at_node_MS": [
+    2.3623066284977763,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 113.05,
+   "corrected_all_node_MS": [
+    2.3623,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "NZ-03",
+   "node": 55225,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 325.7,
+   "stored_MS": [
+    0.6543108949194123,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.09041835367679596,
+   "reg_min_s3D": -0.10935946553945541,
+   "delta_s1D": 0.0272,
+   "delta_s3D": -0.0199,
+   "node_s1D": 0.02871369756758213,
+   "node_s3D": -0.027402793988585472,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    0.6543,
+    null
+   ],
+   "at_node_MS": [
+    0.6543108949194123,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 97.06,
+   "corrected_all_node_MS": [
+    0.6528,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "NZ-04",
+   "node": 56424,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.25,
+   "T_C": 22.4,
+   "stored_MS": [
+    9.000623650864346,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.04973939433693886,
+   "reg_min_s3D": -0.05525076761841774,
+   "delta_s1D": 0.0029,
+   "delta_s3D": 0.0,
+   "node_s1D": 0.030704831704497337,
+   "node_s3D": -0.029311787337064743,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    9.0006,
+    null
+   ],
+   "at_node_MS": [
+    9.000623650864346,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 150.0,
+   "corrected_all_node_MS": [
+    8.9967,
+    null
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "PD-01R",
+   "node": 203514,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 20.0,
+   "stored_MS": [
+    4.394948632845246,
+    3.383395764186761
+   ],
+   "brittle": false,
+   "reg_max": 14.7184,
+   "all_max": 14.7184,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 14.7184,
+   "vm_bound_stored_MPa": 29.657,
+   "vm_base_MPa": 14.939,
+   "nodewise_at_node_MS": [
+    4.3949,
+    3.3834
+   ],
+   "at_node_MS": [
+    4.394948632845245,
+    3.383395764186761
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    4.3949,
+    3.3834
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "PD-01S",
+   "node": 207131,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 20.0,
+   "stored_MS": [
+    5.31862162009484,
+    4.133880066327056
+   ],
+   "brittle": false,
+   "reg_max": 12.2587,
+   "all_max": 12.2587,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 11.0104,
+   "vm_bound_stored_MPa": 25.322,
+   "vm_base_MPa": 13.063,
+   "nodewise_at_node_MS": [
+    5.6463,
+    4.4001
+   ],
+   "at_node_MS": [
+    5.31862162009484,
+    4.133880066327056
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    5.3186,
+    4.1339
+   ]
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "FD-01",
+   "node": 208807,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 20.0,
+   "stored_MS": [
+    2.7852661877448313,
+    6.097374102021558
+   ],
+   "brittle": false,
+   "reg_max": 1.9045,
+   "all_max": 2.2884,
+   "delta": 0.3838,
+   "reg_check": true,
+   "node_increment": 2.2793,
+   "vm_bound_stored_MPa": 35.224,
+   "vm_base_MPa": 33.32,
+   "nodewise_at_node_MS": [
+    2.7454,
+    6.0227
+   ],
+   "at_node_MS": [
+    2.7454147220157865,
+    6.0226526037795995
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    200.0,
+    500.0
+   ],
+   "corrected_all_node_MS": [
+    2.7445,
+    6.0209
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "TC-02",
+   "node": 26731,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 165.0,
+   "stored_MS": [
+    0.3474134239669495,
+    0.09447723907875294
+   ],
+   "brittle": false,
+   "reg_max": 1.597,
+   "all_max": 2.9685,
+   "delta": 1.3715,
+   "reg_check": true,
+   "node_increment": 0.0531,
+   "vm_bound_stored_MPa": 78.174,
+   "vm_base_MPa": 76.577,
+   "nodewise_at_node_MS": [
+    0.3746,
+    0.1165
+   ],
+   "at_node_MS": [
+    0.3474134239669495,
+    0.09447723907875294
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    127.42,
+    143.75
+   ],
+   "corrected_all_node_MS": [
+    0.3187,
+    0.0721
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "TC-03",
+   "node": 38421,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 112.8,
+   "stored_MS": [
+    -0.13034123911997342,
+    -0.20921052846349042
+   ],
+   "brittle": false,
+   "reg_max": 0.1936,
+   "all_max": 0.2223,
+   "delta": 0.0287,
+   "reg_check": true,
+   "node_increment": 0.0933,
+   "vm_bound_stored_MPa": 185.335,
+   "vm_base_MPa": 185.141,
+   "nodewise_at_node_MS": [
+    -0.1299,
+    -0.2088
+   ],
+   "at_node_MS": [
+    -0.13034123911997342,
+    -0.20921052846349042
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    227.92,
+    276.35
+   ],
+   "corrected_all_node_MS": [
+    -0.1305,
+    -0.2093
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "TC-04",
+   "node": 42993,
+   "class": "BT",
+   "class_detail": "bad_tets",
+   "d_class_mm": 0.0,
+   "T_C": 32.7,
+   "stored_MS": [
+    0.24504432539509868,
+    0.009358858651677071
+   ],
+   "brittle": false,
+   "reg_max": 0.6008,
+   "all_max": 0.9928,
+   "delta": 0.392,
+   "reg_check": true,
+   "node_increment": 0.9928,
+   "vm_bound_stored_MPa": 127.471,
+   "vm_base_MPa": 126.871,
+   "nodewise_at_node_MS": [
+    0.2412,
+    0.0063
+   ],
+   "at_node_MS": [
+    0.24122737095013624,
+    0.00626444931739889
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    237.56,
+    256.64
+   ],
+   "corrected_all_node_MS": [
+    0.2412,
+    0.0063
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "TC-09",
+   "node": 45080,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 376.5,
+   "stored_MS": [
+    1.1110905515006113,
+    0.8336316912230823
+   ],
+   "brittle": false,
+   "reg_max": 2.9134,
+   "all_max": 3.0566,
+   "delta": 0.1432,
+   "reg_check": true,
+   "node_increment": 0.1408,
+   "vm_bound_stored_MPa": 295.746,
+   "vm_base_MPa": 292.833,
+   "nodewise_at_node_MS": [
+    1.1311,
+    0.851
+   ],
+   "at_node_MS": [
+    1.1110905515006113,
+    0.8336316912230823
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    925.03,
+    1066.15
+   ],
+   "corrected_all_node_MS": [
+    1.1101,
+    0.8327
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "NZ-01",
+   "node": 52809,
+   "class": "RE",
+   "class_detail": "reentrant_edges",
+   "d_class_mm": 0.2789,
+   "T_C": 1308.6,
+   "stored_MS": [
+    -0.28741873923280037,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.030351538211107254,
+   "reg_min_s3D": -0.041808076202869415,
+   "delta_s1D": 0.0117,
+   "delta_s3D": -0.0059,
+   "node_s1D": 0.03276136890053749,
+   "node_s3D": -0.04179413989186287,
+   "node_excess_MPa": 0.0024,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    -0.2875,
+    null
+   ],
+   "at_node_MS": [
+    -0.28751661736085543,
+    null
+   ],
+   "at_node_lowered": [
+    true,
+    false
+   ],
+   "a_min_MPa": 25.0,
+   "corrected_all_node_MS": [
+    -0.2879,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "NZ-02",
+   "node": 54334,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 1271.9,
+   "stored_MS": [
+    1.304998850755465,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.028849761933088303,
+   "reg_min_s3D": -0.025910980999469757,
+   "delta_s1D": 0.0014,
+   "delta_s3D": -0.0023,
+   "node_s1D": 0.025686614215373993,
+   "node_s3D": -0.025751691311597824,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    1.305,
+    null
+   ],
+   "at_node_MS": [
+    1.304998850755465,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 20.0,
+   "corrected_all_node_MS": [
+    1.3038,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "NZ-03",
+   "node": 55225,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 1447.0,
+   "stored_MS": [
+    0.1869901656417321,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.0538405105471611,
+   "reg_min_s3D": -0.049682360142469406,
+   "delta_s1D": 0.0006,
+   "delta_s3D": -0.0116,
+   "node_s1D": 0.03551886975765228,
+   "node_s3D": -0.037516869604587555,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    0.187,
+    null
+   ],
+   "at_node_MS": [
+    0.1869901656417321,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 20.0,
+   "corrected_all_node_MS": [
+    0.1854,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "NZ-04",
+   "node": 56424,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.25,
+   "T_C": 418.0,
+   "stored_MS": [
+    3.008579768950785,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.028071541339159012,
+   "reg_min_s3D": -0.03455296531319618,
+   "delta_s1D": 0.0097,
+   "delta_s3D": -0.0095,
+   "node_s1D": 0.03386117145419121,
+   "node_s3D": -0.04402143508195877,
+   "node_excess_MPa": 0.0095,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    3.0066,
+    null
+   ],
+   "at_node_MS": [
+    3.0065521802281863,
+    null
+   ],
+   "at_node_lowered": [
+    true,
+    false
+   ],
+   "a_min_MPa": 150.0,
+   "corrected_all_node_MS": [
+    3.0065,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "PD-01R",
+   "node": 203406,
+   "class": "ID",
+   "class_detail": "rigid_connectors",
+   "d_class_mm": 0.0,
+   "T_C": 38.7,
+   "stored_MS": [
+    0.15956165852610926,
+    -0.0609343105195439
+   ],
+   "brittle": false,
+   "reg_max": 30.7073,
+   "all_max": 30.7073,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 18.157,
+   "vm_bound_stored_MPa": 136.345,
+   "vm_base_MPa": 105.638,
+   "nodewise_at_node_MS": [
+    0.2771,
+    0.0343
+   ],
+   "at_node_MS": [
+    0.15956165852610926,
+    -0.0609343105195439
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    237.15,
+    256.07
+   ],
+   "corrected_all_node_MS": [
+    0.1596,
+    -0.0609
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "PD-01S",
+   "node": 206164,
+   "class": "ID",
+   "class_detail": "rigid_connectors",
+   "d_class_mm": 0.0,
+   "T_C": 38.7,
+   "stored_MS": [
+    0.5333840921393529,
+    0.2418040723711823
+   ],
+   "brittle": false,
+   "reg_max": 24.4213,
+   "all_max": 24.4213,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 0.0051,
+   "vm_bound_stored_MPa": 103.105,
+   "vm_base_MPa": 78.684,
+   "nodewise_at_node_MS": [
+    1.0092,
+    0.6271
+   ],
+   "at_node_MS": [
+    0.5333840921393529,
+    0.2418040723711823
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    237.15,
+    256.07
+   ],
+   "corrected_all_node_MS": [
+    0.5334,
+    0.2418
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "FD-01",
+   "node": 209549,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 47.1,
+   "stored_MS": [
+    0.8404904971992209,
+    2.6253320030102953
+   ],
+   "brittle": false,
+   "reg_max": 2.1813,
+   "all_max": 2.5536,
+   "delta": 0.3723,
+   "reg_check": true,
+   "node_increment": 1.3928,
+   "vm_bound_stored_MPa": 68.27,
+   "vm_base_MPa": 66.089,
+   "nodewise_at_node_MS": [
+    0.862,
+    2.6677
+   ],
+   "at_node_MS": [
+    0.8404904971992209,
+    2.6253320030102953
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    186.48,
+    494.14
+   ],
+   "corrected_all_node_MS": [
+    0.8304,
+    2.6056
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "TC-02",
+   "node": 26731,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 173.0,
+   "stored_MS": [
+    -0.1117956769540237,
+    -0.26626279882173154
+   ],
+   "brittle": false,
+   "reg_max": 1.597,
+   "all_max": 2.9685,
+   "delta": 1.3715,
+   "reg_check": true,
+   "node_increment": 0.0531,
+   "vm_bound_stored_MPa": 108.013,
+   "vm_base_MPa": 106.416,
+   "nodewise_at_node_MS": [
+    -0.0989,
+    -0.2556
+   ],
+   "at_node_MS": [
+    -0.1117956769540237,
+    -0.26626279882173154
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    125.29,
+    141.84
+   ],
+   "corrected_all_node_MS": [
+    -0.1246,
+    -0.2765
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "TC-03",
+   "node": 38421,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 100.9,
+   "stored_MS": [
+    -0.1659955302763273,
+    -0.2416362977396861
+   ],
+   "brittle": false,
+   "reg_max": 0.1936,
+   "all_max": 0.2223,
+   "delta": 0.0287,
+   "reg_check": true,
+   "node_increment": 0.0933,
+   "vm_bound_stored_MPa": 195.026,
+   "vm_base_MPa": 194.833,
+   "nodewise_at_node_MS": [
+    -0.1656,
+    -0.2412
+   ],
+   "at_node_MS": [
+    -0.1659955302763273,
+    -0.2416362977396861
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    222.57,
+    269.87
+   ],
+   "corrected_all_node_MS": [
+    -0.1661,
+    -0.2418
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "TC-04",
+   "node": 42993,
+   "class": "BT",
+   "class_detail": "bad_tets",
+   "d_class_mm": 0.0,
+   "T_C": 30.0,
+   "stored_MS": [
+    0.22691254350003875,
+    -0.004859379261451191
+   ],
+   "brittle": false,
+   "reg_max": 0.6008,
+   "all_max": 0.9928,
+   "delta": 0.392,
+   "reg_check": true,
+   "node_increment": 0.9928,
+   "vm_bound_stored_MPa": 129.584,
+   "vm_base_MPa": 128.983,
+   "nodewise_at_node_MS": [
+    0.2232,
+    -0.0079
+   ],
+   "at_node_MS": [
+    0.2232122962720844,
+    -0.00786062522867248
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    238.03,
+    257.29
+   ],
+   "corrected_all_node_MS": [
+    0.2232,
+    -0.0079
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "TC-09",
+   "node": 45080,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 329.8,
+   "stored_MS": [
+    1.0922683578010646,
+    0.8267123825511227
+   ],
+   "brittle": false,
+   "reg_max": 2.9134,
+   "all_max": 3.0566,
+   "delta": 0.1432,
+   "reg_check": true,
+   "node_increment": 0.1408,
+   "vm_bound_stored_MPa": 302.477,
+   "vm_base_MPa": 299.563,
+   "nodewise_at_node_MS": [
+    1.1116,
+    0.8436
+   ],
+   "at_node_MS": [
+    1.0922683578010646,
+    0.8267123825511227
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    942.28,
+    1093.82
+   ],
+   "corrected_all_node_MS": [
+    1.0913,
+    0.8258
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "NZ-01",
+   "node": 51720,
+   "class": "RE",
+   "class_detail": "reentrant_edges",
+   "d_class_mm": 0.5,
+   "T_C": 1311.6,
+   "stored_MS": [
+    -0.37153547944049303,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.030351538211107254,
+   "reg_min_s3D": -0.041808076202869415,
+   "delta_s1D": 0.0117,
+   "delta_s3D": -0.0059,
+   "node_s1D": 0.006211652886122465,
+   "node_s3D": -0.005851587746292353,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    -0.3715,
+    null
+   ],
+   "at_node_MS": [
+    -0.37153547944049303,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 25.0,
+   "corrected_all_node_MS": [
+    -0.3719,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "NZ-02",
+   "node": 54334,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 1200.9,
+   "stored_MS": [
+    1.3064272587012655,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.028849761933088303,
+   "reg_min_s3D": -0.025910980999469757,
+   "delta_s1D": 0.0014,
+   "delta_s3D": -0.0023,
+   "node_s1D": 0.025686614215373993,
+   "node_s3D": -0.025751691311597824,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    1.3064,
+    null
+   ],
+   "at_node_MS": [
+    1.3064272587012655,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 20.0,
+   "corrected_all_node_MS": [
+    1.3052,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "NZ-03",
+   "node": 55225,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 1368.3,
+   "stored_MS": [
+    0.18509777758593704,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.0538405105471611,
+   "reg_min_s3D": -0.049682360142469406,
+   "delta_s1D": 0.0006,
+   "delta_s3D": -0.0116,
+   "node_s1D": 0.03551886975765228,
+   "node_s3D": -0.037516869604587555,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    0.1851,
+    null
+   ],
+   "at_node_MS": [
+    0.18509777758593704,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 20.0,
+   "corrected_all_node_MS": [
+    0.1835,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "NZ-04",
+   "node": 56424,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.25,
+   "T_C": 367.9,
+   "stored_MS": [
+    3.335161900118747,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.028071541339159012,
+   "reg_min_s3D": -0.03455296531319618,
+   "delta_s1D": 0.0097,
+   "delta_s3D": -0.0095,
+   "node_s1D": 0.03386117145419121,
+   "node_s3D": -0.04402143508195877,
+   "node_excess_MPa": 0.0095,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    3.3328,
+    null
+   ],
+   "at_node_MS": [
+    3.332790572538988,
+    null
+   ],
+   "at_node_lowered": [
+    true,
+    false
+   ],
+   "a_min_MPa": 150.0,
+   "corrected_all_node_MS": [
+    3.3327,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "PD-01R",
+   "node": 203406,
+   "class": "ID",
+   "class_detail": "rigid_connectors",
+   "d_class_mm": 0.0,
+   "T_C": 35.2,
+   "stored_MS": [
+    0.34823735216564145,
+    0.09254335676506265
+   ],
+   "brittle": false,
+   "reg_max": 30.7073,
+   "all_max": 30.7073,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 18.157,
+   "vm_bound_stored_MPa": 117.529,
+   "vm_base_MPa": 86.822,
+   "nodewise_at_node_MS": [
+    0.5094,
+    0.2232
+   ],
+   "at_node_MS": [
+    0.34823735216564145,
+    0.09254335676506265
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    237.69,
+    256.81
+   ],
+   "corrected_all_node_MS": [
+    0.3482,
+    0.0925
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "PD-01S",
+   "node": 206164,
+   "class": "ID",
+   "class_detail": "rigid_connectors",
+   "d_class_mm": 0.0,
+   "T_C": 35.2,
+   "stored_MS": [
+    0.7930257475338465,
+    0.452977375111427
+   ],
+   "brittle": false,
+   "reg_max": 24.4213,
+   "all_max": 24.4213,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 0.0051,
+   "vm_bound_stored_MPa": 88.374,
+   "vm_base_MPa": 63.953,
+   "nodewise_at_node_MS": [
+    1.4775,
+    1.0077
+   ],
+   "at_node_MS": [
+    0.7930257475338465,
+    0.452977375111427
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    237.69,
+    256.81
+   ],
+   "corrected_all_node_MS": [
+    0.793,
+    0.453
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "FD-01",
+   "node": 209549,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 43.0,
+   "stored_MS": [
+    1.163047928190792,
+    3.2277567404259484
+   ],
+   "brittle": false,
+   "reg_max": 2.1813,
+   "all_max": 2.5536,
+   "delta": 0.3723,
+   "reg_check": true,
+   "node_increment": 1.3928,
+   "vm_bound_stored_MPa": 58.633,
+   "vm_base_MPa": 56.451,
+   "nodewise_at_node_MS": [
+    1.1925,
+    3.2854
+   ],
+   "at_node_MS": [
+    1.163047928190792,
+    3.2277567404259484
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    188.36,
+    494.95
+   ],
+   "corrected_all_node_MS": [
+    1.1493,
+    3.201
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "TC-02",
+   "node": 26731,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 77.9,
+   "stored_MS": [
+    1.1646643737514997,
+    0.7405733903635137
+   ],
+   "brittle": false,
+   "reg_max": 1.597,
+   "all_max": 2.9685,
+   "delta": 1.3715,
+   "reg_check": true,
+   "node_increment": 0.0531,
+   "vm_bound_stored_MPa": 71.202,
+   "vm_base_MPa": 69.605,
+   "nodewise_at_node_MS": [
+    1.2126,
+    0.7792
+   ],
+   "at_node_MS": [
+    1.1646643737514997,
+    0.7405733903635137
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    231.19,
+    247.86
+   ],
+   "corrected_all_node_MS": [
+    1.1238,
+    0.7077
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "TC-03",
+   "node": 38065,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 73.5,
+   "stored_MS": [
+    0.9050679317087966,
+    0.732260848907297
+   ],
+   "brittle": false,
+   "reg_max": 0.1936,
+   "all_max": 0.2223,
+   "delta": 0.0287,
+   "reg_check": true,
+   "node_increment": 0.1936,
+   "vm_bound_stored_MPa": 87.157,
+   "vm_base_MPa": 86.964,
+   "nodewise_at_node_MS": [
+    0.9051,
+    0.7323
+   ],
+   "at_node_MS": [
+    0.9050679317087966,
+    0.732260848907297
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    242.82,
+    294.4
+   ],
+   "corrected_all_node_MS": [
+    0.9044,
+    0.7317
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "TC-04",
+   "node": 42993,
+   "class": "BT",
+   "class_detail": "bad_tets",
+   "d_class_mm": 0.0,
+   "T_C": 19.4,
+   "stored_MS": [
+    1.2489565843775599,
+    0.8272772248067672
+   ],
+   "brittle": false,
+   "reg_max": 0.6008,
+   "all_max": 0.9928,
+   "delta": 0.392,
+   "reg_check": true,
+   "node_increment": 0.9928,
+   "vm_bound_stored_MPa": 71.144,
+   "vm_base_MPa": 70.543,
+   "nodewise_at_node_MS": [
+    1.2366,
+    0.8173
+   ],
+   "at_node_MS": [
+    1.2366330714859335,
+    0.8172643705823208
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    1.2366,
+    0.8173
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "TC-09",
+   "node": 44943,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 20.1,
+   "stored_MS": [
+    9.182578945863822,
+    8.165720280943368
+   ],
+   "brittle": false,
+   "reg_max": 2.9134,
+   "all_max": 3.0566,
+   "delta": 0.1432,
+   "reg_check": true,
+   "node_increment": 0.463,
+   "vm_bound_stored_MPa": 67.696,
+   "vm_base_MPa": 64.782,
+   "nodewise_at_node_MS": [
+    9.565,
+    8.51
+   ],
+   "at_node_MS": [
+    9.182578945863822,
+    8.165720280943368
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    1030.97,
+    1236.14
+   ],
+   "corrected_all_node_MS": [
+    9.161,
+    8.1463
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "NZ-01",
+   "node": 52195,
+   "class": "BT",
+   "class_detail": "bad_tets",
+   "d_class_mm": 0.5389,
+   "T_C": 1083.9,
+   "stored_MS": [
+    -0.026589326588769224,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.030351538211107254,
+   "reg_min_s3D": -0.041808076202869415,
+   "delta_s1D": 0.0117,
+   "delta_s3D": -0.0059,
+   "node_s1D": 0.005230652634054422,
+   "node_s3D": -0.004268092103302479,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    -0.0266,
+    null
+   ],
+   "at_node_MS": [
+    -0.026589326588769224,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 25.0,
+   "corrected_all_node_MS": [
+    -0.0275,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "NZ-02",
+   "node": 54332,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 367.7,
+   "stored_MS": [
+    0.7839113581386454,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.028849761933088303,
+   "reg_min_s3D": -0.025910980999469757,
+   "delta_s1D": 0.0014,
+   "delta_s3D": -0.0023,
+   "node_s1D": 0.028874648734927177,
+   "node_s3D": -0.02176453173160553,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    0.7839,
+    null
+   ],
+   "at_node_MS": [
+    0.7839096414164619,
+    null
+   ],
+   "at_node_lowered": [
+    true,
+    false
+   ],
+   "a_min_MPa": 87.38,
+   "corrected_all_node_MS": [
+    0.7837,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "NZ-03",
+   "node": 55340,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 374.1,
+   "stored_MS": [
+    0.4385898575505982,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.0538405105471611,
+   "reg_min_s3D": -0.049682360142469406,
+   "delta_s1D": 0.0006,
+   "delta_s3D": -0.0116,
+   "node_s1D": 0.05444948747754097,
+   "node_s3D": -0.0612923763692379,
+   "node_excess_MPa": 0.0116,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    0.4381,
+    null
+   ],
+   "at_node_MS": [
+    0.43806504160682125,
+    null
+   ],
+   "at_node_lowered": [
+    true,
+    false
+   ],
+   "a_min_MPa": 76.45,
+   "corrected_all_node_MS": [
+    0.438,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "NZ-04",
+   "node": 56424,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.25,
+   "T_C": 36.2,
+   "stored_MS": [
+    7.8668148442981085,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.028071541339159012,
+   "reg_min_s3D": -0.03455296531319618,
+   "delta_s1D": 0.0097,
+   "delta_s3D": -0.0095,
+   "node_s1D": 0.03386117145419121,
+   "node_s3D": -0.04402143508195877,
+   "node_excess_MPa": 0.0095,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    7.8569,
+    null
+   ],
+   "at_node_MS": [
+    7.856900410104336,
+    null
+   ],
+   "at_node_lowered": [
+    true,
+    false
+   ],
+   "a_min_MPa": 150.0,
+   "corrected_all_node_MS": [
+    7.8567,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "PD-01R",
+   "node": 203514,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 19.8,
+   "stored_MS": [
+    2.5083290048433136,
+    1.8505173164351922
+   ],
+   "brittle": false,
+   "reg_max": 30.7073,
+   "all_max": 30.7073,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 30.7073,
+   "vm_bound_stored_MPa": 45.606,
+   "vm_base_MPa": 14.898,
+   "nodewise_at_node_MS": [
+    2.5083,
+    1.8505
+   ],
+   "at_node_MS": [
+    2.5083290048433136,
+    1.8505173164351922
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    2.5083,
+    1.8505
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "PD-01S",
+   "node": 207131,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 19.8,
+   "stored_MS": [
+    3.2675148060290846,
+    2.4673557798986314
+   ],
+   "brittle": false,
+   "reg_max": 24.4213,
+   "all_max": 24.4213,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 21.8877,
+   "vm_bound_stored_MPa": 37.493,
+   "vm_base_MPa": 13.071,
+   "nodewise_at_node_MS": [
+    3.5768,
+    2.7186
+   ],
+   "at_node_MS": [
+    3.2675148060290846,
+    2.4673557798986314
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    3.2675,
+    2.4674
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "FD-01",
+   "node": 208807,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 19.9,
+   "stored_MS": [
+    2.7657948529722725,
+    6.060865349323011
+   ],
+   "brittle": false,
+   "reg_max": 2.1813,
+   "all_max": 2.5536,
+   "delta": 0.3723,
+   "reg_check": true,
+   "node_increment": 2.5154,
+   "vm_bound_stored_MPa": 35.406,
+   "vm_base_MPa": 33.225,
+   "nodewise_at_node_MS": [
+    2.7306,
+    5.9949
+   ],
+   "at_node_MS": [
+    2.7305934282832784,
+    5.994862678031147
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    199.99,
+    500.0
+   ],
+   "corrected_all_node_MS": [
+    2.7266,
+    5.9874
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "TC-02",
+   "node": 26731,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 97.7,
+   "stored_MS": [
+    0.2762778229756495,
+    0.022369825403181665
+   ],
+   "brittle": false,
+   "reg_max": 1.597,
+   "all_max": 2.9685,
+   "delta": 1.3715,
+   "reg_check": true,
+   "node_increment": 0.0531,
+   "vm_bound_stored_MPa": 119.19,
+   "vm_base_MPa": 117.593,
+   "nodewise_at_node_MS": [
+    0.293,
+    0.0358
+   ],
+   "at_node_MS": [
+    0.2762778229756495,
+    0.022369825403181665
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    228.18,
+    243.71
+   ],
+   "corrected_all_node_MS": [
+    0.2618,
+    0.0107
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "TC-03",
+   "node": 38065,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 88.9,
+   "stored_MS": [
+    -0.09530574348927123,
+    -0.17736310788334142
+   ],
+   "brittle": false,
+   "reg_max": 0.1936,
+   "all_max": 0.2223,
+   "delta": 0.0287,
+   "reg_check": true,
+   "node_increment": 0.1936,
+   "vm_bound_stored_MPa": 181.43,
+   "vm_base_MPa": 181.236,
+   "nodewise_at_node_MS": [
+    -0.0953,
+    -0.1774
+   ],
+   "at_node_MS": [
+    -0.09530574348927123,
+    -0.17736310788334142
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    233.74,
+    283.4
+   ],
+   "corrected_all_node_MS": [
+    -0.0955,
+    -0.1775
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "TC-04",
+   "node": 42993,
+   "class": "BT",
+   "class_detail": "bad_tets",
+   "d_class_mm": 0.0,
+   "T_C": 19.6,
+   "stored_MS": [
+    1.2365820771374443,
+    0.8172229376741735
+   ],
+   "brittle": false,
+   "reg_max": 0.6008,
+   "all_max": 0.9928,
+   "delta": 0.392,
+   "reg_check": true,
+   "node_increment": 0.9928,
+   "vm_bound_stored_MPa": 71.538,
+   "vm_base_MPa": 70.937,
+   "nodewise_at_node_MS": [
+    1.2244,
+    0.8073
+   ],
+   "at_node_MS": [
+    1.2243934397795417,
+    0.8073196698208776
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    1.2244,
+    0.8073
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "TC-09",
+   "node": 45384,
+   "class": "RE",
+   "class_detail": "reentrant_edges",
+   "d_class_mm": 0.0,
+   "T_C": 20.0,
+   "stored_MS": [
+    10.439609523984236,
+    9.29730808940844
+   ],
+   "brittle": false,
+   "reg_max": 2.9134,
+   "all_max": 3.0566,
+   "delta": 0.1432,
+   "reg_check": true,
+   "node_increment": 0.9987,
+   "vm_bound_stored_MPa": 60.258,
+   "vm_base_MPa": 57.345,
+   "nodewise_at_node_MS": [
+    10.815,
+    9.6352
+   ],
+   "at_node_MS": [
+    10.439609523984236,
+    9.29730808940844
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    1033.63,
+    1240.41
+   ],
+   "corrected_all_node_MS": [
+    10.4125,
+    9.2729
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "NZ-01",
+   "node": 51953,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 610.6,
+   "stored_MS": [
+    -0.40067582726315765,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.030351538211107254,
+   "reg_min_s3D": -0.041808076202869415,
+   "delta_s1D": 0.0117,
+   "delta_s3D": -0.0059,
+   "node_s1D": 0.005677227396517992,
+   "node_s3D": -0.005080976523458958,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    -0.4007,
+    null
+   ],
+   "at_node_MS": [
+    -0.40067582726315765,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 25.0,
+   "corrected_all_node_MS": [
+    -0.401,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "NZ-02",
+   "node": 54754,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 243.2,
+   "stored_MS": [
+    2.370358140892017,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.028849761933088303,
+   "reg_min_s3D": -0.025910980999469757,
+   "delta_s1D": 0.0014,
+   "delta_s3D": -0.0023,
+   "node_s1D": 0.009830789640545845,
+   "node_s3D": -0.008286310359835625,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    2.3704,
+    null
+   ],
+   "at_node_MS": [
+    2.370358140892017,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 113.05,
+   "corrected_all_node_MS": [
+    2.3699,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "NZ-03",
+   "node": 55225,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 325.7,
+   "stored_MS": [
+    0.6576831125153646,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.0538405105471611,
+   "reg_min_s3D": -0.049682360142469406,
+   "delta_s1D": 0.0006,
+   "delta_s3D": -0.0116,
+   "node_s1D": 0.03551886975765228,
+   "node_s3D": -0.037516869604587555,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    0.6577,
+    null
+   ],
+   "at_node_MS": [
+    0.6576831125153646,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 97.06,
+   "corrected_all_node_MS": [
+    0.657,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "NZ-04",
+   "node": 56424,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.25,
+   "T_C": 22.4,
+   "stored_MS": [
+    9.028300547788172,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.028071541339159012,
+   "reg_min_s3D": -0.03455296531319618,
+   "delta_s1D": 0.0097,
+   "delta_s3D": -0.0095,
+   "node_s1D": 0.03386117145419121,
+   "node_s3D": -0.04402143508195877,
+   "node_excess_MPa": 0.0095,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    9.0156,
+    null
+   ],
+   "at_node_MS": [
+    9.015620417043566,
+    null
+   ],
+   "at_node_lowered": [
+    true,
+    false
+   ],
+   "a_min_MPa": 150.0,
+   "corrected_all_node_MS": [
+    9.0153,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "PD-01R",
+   "node": 203514,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 20.0,
+   "stored_MS": [
+    2.5052166722311613,
+    1.8479885461878185
+   ],
+   "brittle": false,
+   "reg_max": 30.7073,
+   "all_max": 30.7073,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 30.7073,
+   "vm_bound_stored_MPa": 45.646,
+   "vm_base_MPa": 14.939,
+   "nodewise_at_node_MS": [
+    2.5052,
+    1.848
+   ],
+   "at_node_MS": [
+    2.5052166722311613,
+    1.8479885461878185
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    2.5052,
+    1.848
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "PD-01S",
+   "node": 207131,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 20.0,
+   "stored_MS": [
+    3.2684191513763166,
+    2.4680905604932577
+   ],
+   "brittle": false,
+   "reg_max": 24.4213,
+   "all_max": 24.4213,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 21.8877,
+   "vm_bound_stored_MPa": 37.485,
+   "vm_base_MPa": 13.063,
+   "nodewise_at_node_MS": [
+    3.5778,
+    2.7195
+   ],
+   "at_node_MS": [
+    3.2684191513763166,
+    2.4680905604932577
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    3.2684,
+    2.4681
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "FD-01",
+   "node": 208807,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 20.0,
+   "stored_MS": [
+    2.75591583881367,
+    6.042342197775631
+   ],
+   "brittle": false,
+   "reg_max": 2.1813,
+   "all_max": 2.5536,
+   "delta": 0.3723,
+   "reg_check": true,
+   "node_increment": 2.5154,
+   "vm_bound_stored_MPa": 35.5,
+   "vm_base_MPa": 33.318,
+   "nodewise_at_node_MS": [
+    2.7209,
+    5.9767
+   ],
+   "at_node_MS": [
+    2.7208980047707487,
+    5.976683758945153
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    200.0,
+    500.0
+   ],
+   "corrected_all_node_MS": [
+    2.7169,
+    5.9693
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "TC-02",
+   "node": 26731,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 162.9,
+   "stored_MS": [
+    0.34225866564494245,
+    0.08598338609470169
+   ],
+   "brittle": false,
+   "reg_max": 1.597,
+   "all_max": 2.9685,
+   "delta": 1.3715,
+   "reg_check": true,
+   "node_increment": 0.0531,
+   "vm_bound_stored_MPa": 80.301,
+   "vm_base_MPa": 78.704,
+   "nodewise_at_node_MS": [
+    0.3686,
+    0.1073
+   ],
+   "at_node_MS": [
+    0.34225866564494245,
+    0.08598338609470169
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    138.69,
+    153.84
+   ],
+   "corrected_all_node_MS": [
+    0.3161,
+    0.0654
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "TC-03",
+   "node": 38421,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 110.1,
+   "stored_MS": [
+    -0.10497293671344532,
+    -0.1861440897747777
+   ],
+   "brittle": false,
+   "reg_max": 0.1936,
+   "all_max": 0.2223,
+   "delta": 0.0287,
+   "reg_check": true,
+   "node_increment": 0.0933,
+   "vm_bound_stored_MPa": 180.455,
+   "vm_base_MPa": 180.261,
+   "nodewise_at_node_MS": [
+    -0.1045,
+    -0.1857
+   ],
+   "at_node_MS": [
+    -0.10497293671344532,
+    -0.1861440897747777
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    227.86,
+    276.27
+   ],
+   "corrected_all_node_MS": [
+    -0.1051,
+    -0.1863
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "TC-04",
+   "node": 42993,
+   "class": "BT",
+   "class_detail": "bad_tets",
+   "d_class_mm": 0.0,
+   "T_C": 31.8,
+   "stored_MS": [
+    0.26485441428001666,
+    0.02558824698703077
+   ],
+   "brittle": false,
+   "reg_max": 0.6008,
+   "all_max": 0.9928,
+   "delta": 0.392,
+   "reg_check": true,
+   "node_increment": 0.9928,
+   "vm_bound_stored_MPa": 125.551,
+   "vm_base_MPa": 124.95,
+   "nodewise_at_node_MS": [
+    0.2609,
+    0.0224
+   ],
+   "at_node_MS": [
+    0.26091758186626857,
+    0.022396125420853563
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    237.72,
+    256.86
+   ],
+   "corrected_all_node_MS": [
+    0.2609,
+    0.0224
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "TC-09",
+   "node": 45080,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 376.5,
+   "stored_MS": [
+    1.1110905565076696,
+    0.8336316955720673
+   ],
+   "brittle": false,
+   "reg_max": 2.9134,
+   "all_max": 3.0566,
+   "delta": 0.1432,
+   "reg_check": true,
+   "node_increment": 0.1408,
+   "vm_bound_stored_MPa": 295.746,
+   "vm_base_MPa": 292.833,
+   "nodewise_at_node_MS": [
+    1.1311,
+    0.851
+   ],
+   "at_node_MS": [
+    1.1110905565076696,
+    0.8336316955720673
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    925.03,
+    1066.15
+   ],
+   "corrected_all_node_MS": [
+    1.1101,
+    0.8327
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "NZ-01",
+   "node": 52809,
+   "class": "RE",
+   "class_detail": "reentrant_edges",
+   "d_class_mm": 0.2789,
+   "T_C": 1308.6,
+   "stored_MS": [
+    -0.28741873923280037,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.030351538211107254,
+   "reg_min_s3D": -0.041808076202869415,
+   "delta_s1D": 0.0117,
+   "delta_s3D": -0.0059,
+   "node_s1D": 0.03276136890053749,
+   "node_s3D": -0.04179413989186287,
+   "node_excess_MPa": 0.0024,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    -0.2875,
+    null
+   ],
+   "at_node_MS": [
+    -0.28751661736085543,
+    null
+   ],
+   "at_node_lowered": [
+    true,
+    false
+   ],
+   "a_min_MPa": 25.0,
+   "corrected_all_node_MS": [
+    -0.2879,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "NZ-02",
+   "node": 54334,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 1271.9,
+   "stored_MS": [
+    1.304998850755465,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.028849761933088303,
+   "reg_min_s3D": -0.025910980999469757,
+   "delta_s1D": 0.0014,
+   "delta_s3D": -0.0023,
+   "node_s1D": 0.025686614215373993,
+   "node_s3D": -0.025751691311597824,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    1.305,
+    null
+   ],
+   "at_node_MS": [
+    1.304998850755465,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 20.0,
+   "corrected_all_node_MS": [
+    1.3038,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "NZ-03",
+   "node": 55225,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 1447.0,
+   "stored_MS": [
+    0.1869901656417321,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.0538405105471611,
+   "reg_min_s3D": -0.049682360142469406,
+   "delta_s1D": 0.0006,
+   "delta_s3D": -0.0116,
+   "node_s1D": 0.03551886975765228,
+   "node_s3D": -0.037516869604587555,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    0.187,
+    null
+   ],
+   "at_node_MS": [
+    0.1869901656417321,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 20.0,
+   "corrected_all_node_MS": [
+    0.1854,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "NZ-04",
+   "node": 56424,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.25,
+   "T_C": 418.0,
+   "stored_MS": [
+    3.0085797690683886,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.028071541339159012,
+   "reg_min_s3D": -0.03455296531319618,
+   "delta_s1D": 0.0097,
+   "delta_s3D": -0.0095,
+   "node_s1D": 0.03386117145419121,
+   "node_s3D": -0.04402143508195877,
+   "node_excess_MPa": 0.0095,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    3.0066,
+    null
+   ],
+   "at_node_MS": [
+    3.006552180345671,
+    null
+   ],
+   "at_node_lowered": [
+    true,
+    false
+   ],
+   "a_min_MPa": 150.0,
+   "corrected_all_node_MS": [
+    3.0065,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "PD-01R",
+   "node": 203406,
+   "class": "ID",
+   "class_detail": "rigid_connectors",
+   "d_class_mm": 0.0,
+   "T_C": 37.6,
+   "stored_MS": [
+    0.21580911706342643,
+    -0.015179908971652889
+   ],
+   "brittle": false,
+   "reg_max": 30.7073,
+   "all_max": 30.7073,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 18.157,
+   "vm_bound_stored_MPa": 130.134,
+   "vm_base_MPa": 99.427,
+   "nodewise_at_node_MS": [
+    0.3456,
+    0.0899
+   ],
+   "at_node_MS": [
+    0.21580911706342643,
+    -0.015179908971652889
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    237.33,
+    256.32
+   ],
+   "corrected_all_node_MS": [
+    0.2158,
+    -0.0152
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "PD-01S",
+   "node": 206164,
+   "class": "ID",
+   "class_detail": "rigid_connectors",
+   "d_class_mm": 0.0,
+   "T_C": 37.6,
+   "stored_MS": [
+    0.6104747092745608,
+    0.30450399452291976
+   ],
+   "brittle": false,
+   "reg_max": 24.4213,
+   "all_max": 24.4213,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 0.0051,
+   "vm_bound_stored_MPa": 98.243,
+   "vm_base_MPa": 73.822,
+   "nodewise_at_node_MS": [
+    1.1431,
+    0.7359
+   ],
+   "at_node_MS": [
+    0.6104747092745608,
+    0.30450399452291976
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    237.33,
+    256.32
+   ],
+   "corrected_all_node_MS": [
+    0.6105,
+    0.3045
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "FD-01",
+   "node": 209549,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 45.6,
+   "stored_MS": [
+    0.909821954894986,
+    2.751389800302318
+   ],
+   "brittle": false,
+   "reg_max": 2.1813,
+   "all_max": 2.5536,
+   "delta": 0.3723,
+   "reg_check": true,
+   "node_increment": 1.3928,
+   "vm_bound_stored_MPa": 66.013,
+   "vm_base_MPa": 63.831,
+   "nodewise_at_node_MS": [
+    0.9329,
+    2.7967
+   ],
+   "at_node_MS": [
+    0.909821954894986,
+    2.751389800302318
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    187.18,
+    494.44
+   ],
+   "corrected_all_node_MS": [
+    0.899,
+    2.7303
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "TC-02",
+   "node": 26731,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 171.0,
+   "stored_MS": [
+    -0.10963910339435279,
+    -0.26776849198734787
+   ],
+   "brittle": false,
+   "reg_max": 1.597,
+   "all_max": 2.9685,
+   "delta": 1.3715,
+   "reg_check": true,
+   "node_increment": 0.0531,
+   "vm_bound_stored_MPa": 110.384,
+   "vm_base_MPa": 108.787,
+   "nodewise_at_node_MS": [
+    -0.097,
+    -0.2574
+   ],
+   "at_node_MS": [
+    -0.10963910339435279,
+    -0.26776849198734787
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    137.1,
+    152.42
+   ],
+   "corrected_all_node_MS": [
+    -0.1214,
+    -0.2773
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "TC-03",
+   "node": 38421,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 98.3,
+   "stored_MS": [
+    -0.14143282918945854,
+    -0.21930240761134856
+   ],
+   "brittle": false,
+   "reg_max": 0.1936,
+   "all_max": 0.2223,
+   "delta": 0.0287,
+   "reg_check": true,
+   "node_increment": 0.0933,
+   "vm_bound_stored_MPa": 189.812,
+   "vm_base_MPa": 189.619,
+   "nodewise_at_node_MS": [
+    -0.141,
+    -0.2189
+   ],
+   "at_node_MS": [
+    -0.14143282918945854,
+    -0.21930240761134856
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    222.49,
+    269.76
+   ],
+   "corrected_all_node_MS": [
+    -0.1416,
+    -0.2194
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "TC-04",
+   "node": 42993,
+   "class": "BT",
+   "class_detail": "bad_tets",
+   "d_class_mm": 0.0,
+   "T_C": 29.2,
+   "stored_MS": [
+    0.24831858238462456,
+    0.012636893363759283
+   ],
+   "brittle": false,
+   "reg_max": 0.6008,
+   "all_max": 0.9928,
+   "delta": 0.392,
+   "reg_check": true,
+   "node_increment": 0.9928,
+   "vm_bound_stored_MPa": 127.423,
+   "vm_base_MPa": 126.822,
+   "nodewise_at_node_MS": [
+    0.2445,
+    0.0095
+   ],
+   "at_node_MS": [
+    0.2444901367787391,
+    0.009531255652791115
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    238.17,
+    257.47
+   ],
+   "corrected_all_node_MS": [
+    0.2445,
+    0.0095
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "TC-09",
+   "node": 45080,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 329.8,
+   "stored_MS": [
+    1.0922667312890617,
+    0.8267109624801239
+   ],
+   "brittle": false,
+   "reg_max": 2.9134,
+   "all_max": 3.0566,
+   "delta": 0.1432,
+   "reg_check": true,
+   "node_increment": 0.1408,
+   "vm_bound_stored_MPa": 302.477,
+   "vm_base_MPa": 299.564,
+   "nodewise_at_node_MS": [
+    1.1116,
+    0.8436
+   ],
+   "at_node_MS": [
+    1.0922667312890617,
+    0.8267109624801239
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    942.28,
+    1093.82
+   ],
+   "corrected_all_node_MS": [
+    1.0913,
+    0.8258
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "NZ-01",
+   "node": 51720,
+   "class": "RE",
+   "class_detail": "reentrant_edges",
+   "d_class_mm": 0.5,
+   "T_C": 1311.6,
+   "stored_MS": [
+    -0.37153547928772623,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.030351538211107254,
+   "reg_min_s3D": -0.041808076202869415,
+   "delta_s1D": 0.0117,
+   "delta_s3D": -0.0059,
+   "node_s1D": 0.006211652886122465,
+   "node_s3D": -0.005851587746292353,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    -0.3715,
+    null
+   ],
+   "at_node_MS": [
+    -0.37153547928772623,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 25.0,
+   "corrected_all_node_MS": [
+    -0.3719,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "NZ-02",
+   "node": 54334,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 1200.9,
+   "stored_MS": [
+    1.3064272587012655,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.028849761933088303,
+   "reg_min_s3D": -0.025910980999469757,
+   "delta_s1D": 0.0014,
+   "delta_s3D": -0.0023,
+   "node_s1D": 0.025686614215373993,
+   "node_s3D": -0.025751691311597824,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    1.3064,
+    null
+   ],
+   "at_node_MS": [
+    1.3064272587012655,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 20.0,
+   "corrected_all_node_MS": [
+    1.3052,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "NZ-03",
+   "node": 55225,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 1368.3,
+   "stored_MS": [
+    0.18509777758593704,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.0538405105471611,
+   "reg_min_s3D": -0.049682360142469406,
+   "delta_s1D": 0.0006,
+   "delta_s3D": -0.0116,
+   "node_s1D": 0.03551886975765228,
+   "node_s3D": -0.037516869604587555,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    0.1851,
+    null
+   ],
+   "at_node_MS": [
+    0.18509777758593704,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 20.0,
+   "corrected_all_node_MS": [
+    0.1835,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "NZ-04",
+   "node": 56424,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.25,
+   "T_C": 367.9,
+   "stored_MS": [
+    3.335161900118747,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.028071541339159012,
+   "reg_min_s3D": -0.03455296531319618,
+   "delta_s1D": 0.0097,
+   "delta_s3D": -0.0095,
+   "node_s1D": 0.03386117145419121,
+   "node_s3D": -0.04402143508195877,
+   "node_excess_MPa": 0.0095,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    3.3328,
+    null
+   ],
+   "at_node_MS": [
+    3.332790572538988,
+    null
+   ],
+   "at_node_lowered": [
+    true,
+    false
+   ],
+   "a_min_MPa": 150.0,
+   "corrected_all_node_MS": [
+    3.3327,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "PD-01R",
+   "node": 203406,
+   "class": "ID",
+   "class_detail": "rigid_connectors",
+   "d_class_mm": 0.0,
+   "T_C": 34.2,
+   "stored_MS": [
+    0.4109463982510986,
+    0.14355364705898532
+   ],
+   "brittle": false,
+   "reg_max": 30.7073,
+   "all_max": 30.7073,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 18.157,
+   "vm_bound_stored_MPa": 112.375,
+   "vm_base_MPa": 81.668,
+   "nodewise_at_node_MS": [
+    0.5883,
+    0.2873
+   ],
+   "at_node_MS": [
+    0.4109463982510986,
+    0.14355364705898532
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    237.83,
+    257.01
+   ],
+   "corrected_all_node_MS": [
+    0.4109,
+    0.1436
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "PD-01S",
+   "node": 206164,
+   "class": "ID",
+   "class_detail": "rigid_connectors",
+   "d_class_mm": 0.0,
+   "T_C": 34.2,
+   "stored_MS": [
+    0.880026947541019,
+    0.5237373121293409
+   ],
+   "brittle": false,
+   "reg_max": 24.4213,
+   "all_max": 24.4213,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 0.0051,
+   "vm_bound_stored_MPa": 84.337,
+   "vm_base_MPa": 59.915,
+   "nodewise_at_node_MS": [
+    1.6461,
+    1.1446
+   ],
+   "at_node_MS": [
+    0.880026947541019,
+    0.5237373121293409
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    237.83,
+    257.01
+   ],
+   "corrected_all_node_MS": [
+    0.88,
+    0.5237
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "FD-01",
+   "node": 209549,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 41.6,
+   "stored_MS": [
+    1.2437669723664113,
+    3.3745926345144515
+   ],
+   "brittle": false,
+   "reg_max": 2.1813,
+   "all_max": 2.5536,
+   "delta": 0.3723,
+   "reg_check": true,
+   "node_increment": 1.3928,
+   "vm_bound_stored_MPa": 56.693,
+   "vm_base_MPa": 54.511,
+   "nodewise_at_node_MS": [
+    1.2754,
+    3.4363
+   ],
+   "at_node_MS": [
+    1.2437669723664113,
+    3.3745926345144515
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    189.02,
+    495.24
+   ],
+   "corrected_all_node_MS": [
+    1.229,
+    3.346
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "TC-02",
+   "node": 26731,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 79.1,
+   "stored_MS": [
+    1.0999534609844983,
+    0.6881409339345304
+   ],
+   "brittle": false,
+   "reg_max": 1.597,
+   "all_max": 2.9685,
+   "delta": 1.3715,
+   "reg_check": true,
+   "node_increment": 0.0531,
+   "vm_bound_stored_MPa": 73.335,
+   "vm_base_MPa": 71.738,
+   "nodewise_at_node_MS": [
+    1.1451,
+    0.7244
+   ],
+   "at_node_MS": [
+    1.0999534609844983,
+    0.6881409339345304
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    231.0,
+    247.6
+   ],
+   "corrected_all_node_MS": [
+    1.0614,
+    0.6571
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "TC-03",
+   "node": 38065,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 74.7,
+   "stored_MS": [
+    0.845980869541058,
+    0.6785345337083997
+   ],
+   "brittle": false,
+   "reg_max": 0.1936,
+   "all_max": 0.2223,
+   "delta": 0.0287,
+   "reg_check": true,
+   "node_increment": 0.1936,
+   "vm_bound_stored_MPa": 89.87,
+   "vm_base_MPa": 89.676,
+   "nodewise_at_node_MS": [
+    0.846,
+    0.6785
+   ],
+   "at_node_MS": [
+    0.845980869541058,
+    0.6785345337083997
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    242.27,
+    293.73
+   ],
+   "corrected_all_node_MS": [
+    0.8454,
+    0.678
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "TC-04",
+   "node": 42993,
+   "class": "BT",
+   "class_detail": "bad_tets",
+   "d_class_mm": 0.0,
+   "T_C": 19.4,
+   "stored_MS": [
+    1.2492030399799674,
+    0.8274774699837237
+   ],
+   "brittle": false,
+   "reg_max": 0.6008,
+   "all_max": 0.9928,
+   "delta": 0.392,
+   "reg_check": true,
+   "node_increment": 0.9928,
+   "vm_bound_stored_MPa": 71.136,
+   "vm_base_MPa": 70.535,
+   "nodewise_at_node_MS": [
+    1.2369,
+    0.8175
+   ],
+   "at_node_MS": [
+    1.2368768333573827,
+    0.8174624271028736
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    1.2369,
+    0.8175
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "TC-09",
+   "node": 44943,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 20.1,
+   "stored_MS": [
+    9.182578945863822,
+    8.165720280943368
+   ],
+   "brittle": false,
+   "reg_max": 2.9134,
+   "all_max": 3.0566,
+   "delta": 0.1432,
+   "reg_check": true,
+   "node_increment": 0.463,
+   "vm_bound_stored_MPa": 67.696,
+   "vm_base_MPa": 64.782,
+   "nodewise_at_node_MS": [
+    9.565,
+    8.51
+   ],
+   "at_node_MS": [
+    9.182578945863822,
+    8.165720280943368
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    1030.97,
+    1236.14
+   ],
+   "corrected_all_node_MS": [
+    9.161,
+    8.1463
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "NZ-01",
+   "node": 52195,
+   "class": "BT",
+   "class_detail": "bad_tets",
+   "d_class_mm": 0.5389,
+   "T_C": 1083.9,
+   "stored_MS": [
+    -0.02658932673817227,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.030351538211107254,
+   "reg_min_s3D": -0.041808076202869415,
+   "delta_s1D": 0.0117,
+   "delta_s3D": -0.0059,
+   "node_s1D": 0.005230652634054422,
+   "node_s3D": -0.004268092103302479,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    -0.0266,
+    null
+   ],
+   "at_node_MS": [
+    -0.02658932673817227,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 25.0,
+   "corrected_all_node_MS": [
+    -0.0275,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "NZ-02",
+   "node": 54332,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 367.7,
+   "stored_MS": [
+    0.7839113581386454,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.028849761933088303,
+   "reg_min_s3D": -0.025910980999469757,
+   "delta_s1D": 0.0014,
+   "delta_s3D": -0.0023,
+   "node_s1D": 0.028874648734927177,
+   "node_s3D": -0.02176453173160553,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    0.7839,
+    null
+   ],
+   "at_node_MS": [
+    0.7839096414164619,
+    null
+   ],
+   "at_node_lowered": [
+    true,
+    false
+   ],
+   "a_min_MPa": 87.38,
+   "corrected_all_node_MS": [
+    0.7837,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "NZ-03",
+   "node": 55340,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 374.1,
+   "stored_MS": [
+    0.4385898575505982,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.0538405105471611,
+   "reg_min_s3D": -0.049682360142469406,
+   "delta_s1D": 0.0006,
+   "delta_s3D": -0.0116,
+   "node_s1D": 0.05444948747754097,
+   "node_s3D": -0.0612923763692379,
+   "node_excess_MPa": 0.0116,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    0.4381,
+    null
+   ],
+   "at_node_MS": [
+    0.43806504160682125,
+    null
+   ],
+   "at_node_lowered": [
+    true,
+    false
+   ],
+   "a_min_MPa": 76.45,
+   "corrected_all_node_MS": [
+    0.438,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "NZ-04",
+   "node": 56424,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.25,
+   "T_C": 36.2,
+   "stored_MS": [
+    7.8668148442981085,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.028071541339159012,
+   "reg_min_s3D": -0.03455296531319618,
+   "delta_s1D": 0.0097,
+   "delta_s3D": -0.0095,
+   "node_s1D": 0.03386117145419121,
+   "node_s3D": -0.04402143508195877,
+   "node_excess_MPa": 0.0095,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    7.8569,
+    null
+   ],
+   "at_node_MS": [
+    7.856900410104336,
+    null
+   ],
+   "at_node_lowered": [
+    true,
+    false
+   ],
+   "a_min_MPa": 150.0,
+   "corrected_all_node_MS": [
+    7.8567,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "PD-01R",
+   "node": 203514,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 19.8,
+   "stored_MS": [
+    2.508331569166097,
+    1.8505193999474536
+   ],
+   "brittle": false,
+   "reg_max": 30.7073,
+   "all_max": 30.7073,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 30.7073,
+   "vm_bound_stored_MPa": 45.606,
+   "vm_base_MPa": 14.898,
+   "nodewise_at_node_MS": [
+    2.5083,
+    1.8505
+   ],
+   "at_node_MS": [
+    2.508331569166097,
+    1.8505193999474536
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    2.5083,
+    1.8505
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "PD-01S",
+   "node": 207131,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 19.8,
+   "stored_MS": [
+    3.2675145231981864,
+    2.4673555500985263
+   ],
+   "brittle": false,
+   "reg_max": 24.4213,
+   "all_max": 24.4213,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 21.8877,
+   "vm_bound_stored_MPa": 37.493,
+   "vm_base_MPa": 13.071,
+   "nodewise_at_node_MS": [
+    3.5768,
+    2.7186
+   ],
+   "at_node_MS": [
+    3.2675145231981864,
+    2.4673555500985263
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    3.2675,
+    2.4674
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "FD-01",
+   "node": 208807,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 19.9,
+   "stored_MS": [
+    2.7660274691705875,
+    6.0613015046948515
+   ],
+   "brittle": false,
+   "reg_max": 2.1813,
+   "all_max": 2.5536,
+   "delta": 0.3723,
+   "reg_check": true,
+   "node_increment": 2.5154,
+   "vm_bound_stored_MPa": 35.404,
+   "vm_base_MPa": 33.223,
+   "nodewise_at_node_MS": [
+    2.7308,
+    5.9953
+   ],
+   "at_node_MS": [
+    2.730821715834521,
+    5.995290717189727
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    199.99,
+    500.0
+   ],
+   "corrected_all_node_MS": [
+    2.7268,
+    5.9878
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "TC-02",
+   "node": 26731,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 98.5,
+   "stored_MS": [
+    0.2609113115946833,
+    0.009901845553577537
+   ],
+   "brittle": false,
+   "reg_max": 1.597,
+   "all_max": 2.9685,
+   "delta": 1.3715,
+   "reg_check": true,
+   "node_increment": 0.0531,
+   "vm_bound_stored_MPa": 120.577,
+   "vm_base_MPa": 118.98,
+   "nodewise_at_node_MS": [
+    0.2773,
+    0.023
+   ],
+   "at_node_MS": [
+    0.2609113115946833,
+    0.009901845553577537
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    228.06,
+    243.54
+   ],
+   "corrected_all_node_MS": [
+    0.2467,
+    -0.0015
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "TC-03",
+   "node": 38065,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 89.6,
+   "stored_MS": [
+    -0.10741016096152767,
+    -0.18836932210352297
+   ],
+   "brittle": false,
+   "reg_max": 0.1936,
+   "all_max": 0.2223,
+   "delta": 0.0287,
+   "reg_check": true,
+   "node_increment": 0.1936,
+   "vm_bound_stored_MPa": 183.791,
+   "vm_base_MPa": 183.597,
+   "nodewise_at_node_MS": [
+    -0.1074,
+    -0.1884
+   ],
+   "at_node_MS": [
+    -0.10741016096152767,
+    -0.18836932210352297
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    233.36,
+    282.93
+   ],
+   "corrected_all_node_MS": [
+    -0.1076,
+    -0.1885
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "TC-04",
+   "node": 42993,
+   "class": "BT",
+   "class_detail": "bad_tets",
+   "d_class_mm": 0.0,
+   "T_C": 19.6,
+   "stored_MS": [
+    1.2364635558548067,
+    0.8171266391320304
+   ],
+   "brittle": false,
+   "reg_max": 0.6008,
+   "all_max": 0.9928,
+   "delta": 0.392,
+   "reg_check": true,
+   "node_increment": 0.9928,
+   "vm_bound_stored_MPa": 71.542,
+   "vm_base_MPa": 70.941,
+   "nodewise_at_node_MS": [
+    1.2243,
+    0.8072
+   ],
+   "at_node_MS": [
+    1.2242762067471809,
+    0.8072244179820842
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    1.2243,
+    0.8072
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "TC-09",
+   "node": 45384,
+   "class": "RE",
+   "class_detail": "reentrant_edges",
+   "d_class_mm": 0.0,
+   "T_C": 20.0,
+   "stored_MS": [
+    10.439610322983258,
+    9.29730880862347
+   ],
+   "brittle": false,
+   "reg_max": 2.9134,
+   "all_max": 3.0566,
+   "delta": 0.1432,
+   "reg_check": true,
+   "node_increment": 0.9987,
+   "vm_bound_stored_MPa": 60.258,
+   "vm_base_MPa": 57.345,
+   "nodewise_at_node_MS": [
+    10.815,
+    9.6352
+   ],
+   "at_node_MS": [
+    10.439610322983258,
+    9.29730880862347
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    1033.63,
+    1240.41
+   ],
+   "corrected_all_node_MS": [
+    10.4125,
+    9.2729
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "NZ-01",
+   "node": 51953,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 610.6,
+   "stored_MS": [
+    -0.40067582726315765,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.030351538211107254,
+   "reg_min_s3D": -0.041808076202869415,
+   "delta_s1D": 0.0117,
+   "delta_s3D": -0.0059,
+   "node_s1D": 0.005677227396517992,
+   "node_s3D": -0.005080976523458958,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    -0.4007,
+    null
+   ],
+   "at_node_MS": [
+    -0.40067582726315765,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 25.0,
+   "corrected_all_node_MS": [
+    -0.401,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "NZ-02",
+   "node": 54754,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 243.2,
+   "stored_MS": [
+    2.370358140892017,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.028849761933088303,
+   "reg_min_s3D": -0.025910980999469757,
+   "delta_s1D": 0.0014,
+   "delta_s3D": -0.0023,
+   "node_s1D": 0.009830789640545845,
+   "node_s3D": -0.008286310359835625,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    2.3704,
+    null
+   ],
+   "at_node_MS": [
+    2.370358140892017,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 113.05,
+   "corrected_all_node_MS": [
+    2.3699,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "NZ-03",
+   "node": 55225,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 325.7,
+   "stored_MS": [
+    0.6576831125153646,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.0538405105471611,
+   "reg_min_s3D": -0.049682360142469406,
+   "delta_s1D": 0.0006,
+   "delta_s3D": -0.0116,
+   "node_s1D": 0.03551886975765228,
+   "node_s3D": -0.037516869604587555,
+   "node_excess_MPa": 0.0,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    0.6577,
+    null
+   ],
+   "at_node_MS": [
+    0.6576831125153646,
+    null
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": 97.06,
+   "corrected_all_node_MS": [
+    0.657,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "NZ-04",
+   "node": 56424,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.25,
+   "T_C": 22.4,
+   "stored_MS": [
+    9.028300547788172,
+    null
+   ],
+   "brittle": true,
+   "reg_max_s1D": 0.028071541339159012,
+   "reg_min_s3D": -0.03455296531319618,
+   "delta_s1D": 0.0097,
+   "delta_s3D": -0.0095,
+   "node_s1D": 0.03386117145419121,
+   "node_s3D": -0.04402143508195877,
+   "node_excess_MPa": 0.0095,
+   "reg_check": true,
+   "nodewise_at_node_MS": [
+    9.0156,
+    null
+   ],
+   "at_node_MS": [
+    9.015620417043566,
+    null
+   ],
+   "at_node_lowered": [
+    true,
+    false
+   ],
+   "a_min_MPa": 150.0,
+   "corrected_all_node_MS": [
+    9.0153,
+    null
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "PD-01R",
+   "node": 203514,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 20.0,
+   "stored_MS": [
+    2.50521560966204,
+    1.8479876828504076
+   ],
+   "brittle": false,
+   "reg_max": 30.7073,
+   "all_max": 30.7073,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 30.7073,
+   "vm_bound_stored_MPa": 45.646,
+   "vm_base_MPa": 14.939,
+   "nodewise_at_node_MS": [
+    2.5052,
+    1.848
+   ],
+   "at_node_MS": [
+    2.50521560966204,
+    1.8479876828504076
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    2.5052,
+    1.848
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "PD-01S",
+   "node": 207131,
+   "class": "regular",
+   "class_detail": null,
+   "d_class_mm": null,
+   "T_C": 20.0,
+   "stored_MS": [
+    3.268418493219305,
+    2.4680900257406853
+   ],
+   "brittle": false,
+   "reg_max": 24.4213,
+   "all_max": 24.4213,
+   "delta": 0.0,
+   "reg_check": true,
+   "node_increment": 21.8877,
+   "vm_bound_stored_MPa": 37.485,
+   "vm_base_MPa": 13.063,
+   "nodewise_at_node_MS": [
+    3.5778,
+    2.7195
+   ],
+   "at_node_MS": [
+    3.268418493219305,
+    2.4680900257406853
+   ],
+   "at_node_lowered": [
+    false,
+    false
+   ],
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "corrected_all_node_MS": [
+    3.2684,
+    2.4681
+   ]
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "FD-01",
+   "node": 208807,
+   "class": "ID",
+   "class_detail": "tie_patch_edges",
+   "d_class_mm": 0.0,
+   "T_C": 20.0,
+   "stored_MS": [
+    2.7557536897171064,
+    6.042038168219574
+   ],
+   "brittle": false,
+   "reg_max": 2.1813,
+   "all_max": 2.5536,
+   "delta": 0.3723,
+   "reg_check": true,
+   "node_increment": 2.5154,
+   "vm_bound_stored_MPa": 35.501,
+   "vm_base_MPa": 33.32,
+   "nodewise_at_node_MS": [
+    2.7207,
+    5.9764
+   ],
+   "at_node_MS": [
+    2.7207388650708344,
+    5.9763853720078135
+   ],
+   "at_node_lowered": [
+    true,
+    true
+   ],
+   "a_min_MPa": [
+    200.0,
+    500.0
+   ],
+   "corrected_all_node_MS": [
+    2.7168,
+    5.969
+   ]
+  }
+ ],
+ "per_part_case": {
+  "LC3|TC-02": {
+   "stored_min": [
+    -0.1067270716538341,
+    -0.26368018810349525
+   ],
+   "at_node_min": [
+    -0.1067270716538341,
+    -0.26368018810349525
+   ],
+   "corrected_min": [
+    -0.114,
+    -0.2691
+   ],
+   "stored_at": [
+    "GVLO B1_19 n26731 ID tie_patch_edges",
+    "GVHI B1_19 n26731 ID tie_patch_edges"
+   ],
+   "corrected_at": [
+    "GVLO B1_19 n26731 ID tie_patch_edges",
+    "GVHI B1_19 n26731 ID tie_patch_edges"
+   ],
+   "delta_max": 0.7659,
+   "rows": 8,
+   "changes_at_3_decimals": true,
+   "at_node_changes_at_3_decimals": false
+  },
+  "LC3|TC-03": {
+   "stored_min": [
+    -0.1659695776315111,
+    -0.24161269889277248
+   ],
+   "at_node_min": [
+    -0.16606866885202132,
+    -0.24170280294805713
+   ],
+   "corrected_min": [
+    -0.1663,
+    -0.2419
+   ],
+   "stored_at": [
+    "GVLO B1_19 n38421 ID tie_patch_edges",
+    "GVLO B1_19 n38421 ID tie_patch_edges"
+   ],
+   "corrected_at": [
+    "GVLO B1_19 n38421 ID tie_patch_edges",
+    "GVLO B1_19 n38421 ID tie_patch_edges"
+   ],
+   "delta_max": 0.0766,
+   "rows": 8,
+   "changes_at_3_decimals": false,
+   "at_node_changes_at_3_decimals": false
+  },
+  "LC3|TC-04": {
+   "stored_min": [
+    0.22949625425305942,
+    -0.002763748618345274
+   ],
+   "at_node_min": [
+    0.22772370656525331,
+    -0.00420145028312735
+   ],
+   "corrected_min": [
+    0.2277,
+    -0.0042
+   ],
+   "stored_at": [
+    "GVLO B1_19 n42993 BT bad_tets",
+    "GVLO B1_19 n42993 BT bad_tets"
+   ],
+   "corrected_at": [
+    "GVLO B1_19 n42993 BT bad_tets",
+    "GVLO B1_19 n42993 BT bad_tets"
+   ],
+   "delta_max": 0.1867,
+   "rows": 8,
+   "changes_at_3_decimals": true,
+   "at_node_changes_at_3_decimals": true
+  },
+  "LC3|TC-09": {
+   "stored_min": [
+    1.0313972197283903,
+    0.7735671627982437
+   ],
+   "at_node_min": [
+    1.0313972197283903,
+    0.7735671627982437
+   ],
+   "corrected_min": [
+    1.0314,
+    0.7736
+   ],
+   "stored_at": [
+    "GVHI B1_19 n45080 ID tie_patch_edges",
+    "GVHI B1_19 n45080 ID tie_patch_edges"
+   ],
+   "corrected_at": [
+    "GVLO B1_19 n45080 ID tie_patch_edges",
+    "GVLO B1_19 n45080 ID tie_patch_edges"
+   ],
+   "delta_max": 0.0,
+   "rows": 8,
+   "changes_at_3_decimals": false,
+   "at_node_changes_at_3_decimals": false
+  },
+  "LC3|NZ-01": {
+   "stored_min": [
+    -0.40245234768316696,
+    null
+   ],
+   "at_node_min": [
+    -0.40245234768316696,
+    null
+   ],
+   "corrected_min": [
+    -0.4034,
+    null
+   ],
+   "stored_at": [
+    "GVLO B1_1 n51953 regular None",
+    null
+   ],
+   "corrected_at": [
+    "GVLO B1_1 n51953 regular None",
+    null
+   ],
+   "delta_max": 0.0318,
+   "rows": 8,
+   "changes_at_3_decimals": true,
+   "at_node_changes_at_3_decimals": false
+  },
+  "LC3|NZ-02": {
+   "stored_min": [
+    0.7809684562681836,
+    null
+   ],
+   "at_node_min": [
+    0.7809684562681836,
+    null
+   ],
+   "corrected_min": [
+    0.781,
+    null
+   ],
+   "stored_at": [
+    "GVLO B1_2 n54332 ID tie_patch_edges",
+    null
+   ],
+   "corrected_at": [
+    "GVLO B1_2 n54332 ID tie_patch_edges",
+    null
+   ],
+   "delta_max": 0.0,
+   "rows": 8,
+   "changes_at_3_decimals": false,
+   "at_node_changes_at_3_decimals": false
+  },
+  "LC3|NZ-03": {
+   "stored_min": [
+    0.1767752458930183,
+    null
+   ],
+   "at_node_min": [
+    0.1767752458930183,
+    null
+   ],
+   "corrected_min": [
+    0.173,
+    null
+   ],
+   "stored_at": [
+    "GVLO B1_19 n55225 ID tie_patch_edges",
+    null
+   ],
+   "corrected_at": [
+    "GVLO B1_19 n55225 ID tie_patch_edges",
+    null
+   ],
+   "delta_max": 0.0272,
+   "rows": 8,
+   "changes_at_3_decimals": true,
+   "at_node_changes_at_3_decimals": false
+  },
+  "LC3|NZ-04": {
+   "stored_min": [
+    3.0041501755989968,
+    null
+   ],
+   "at_node_min": [
+    3.0041501755989968,
+    null
+   ],
+   "corrected_min": [
+    3.0035,
+    null
+   ],
+   "stored_at": [
+    "GVLO B1_21.65 n56424 ID tie_patch_edges",
+    null
+   ],
+   "corrected_at": [
+    "GVLO B1_21.65 n56424 ID tie_patch_edges",
+    null
+   ],
+   "delta_max": 0.0029,
+   "rows": 8,
+   "changes_at_3_decimals": true,
+   "at_node_changes_at_3_decimals": false
+  },
+  "LC3|PD-01R": {
+   "stored_min": [
+    0.3136057009571509,
+    0.06381755054124127
+   ],
+   "at_node_min": [
+    0.3136057009571509,
+    0.06381755054124127
+   ],
+   "corrected_min": [
+    0.3136,
+    0.0638
+   ],
+   "stored_at": [
+    "GVLO B1_21.65 n203406 ID rigid_connectors",
+    "GVLO B1_21.65 n203406 ID rigid_connectors"
+   ],
+   "corrected_at": [
+    "GVLO B1_21.65 n203406 ID rigid_connectors",
+    "GVLO B1_21.65 n203406 ID rigid_connectors"
+   ],
+   "delta_max": 0.0,
+   "rows": 8,
+   "changes_at_3_decimals": false,
+   "at_node_changes_at_3_decimals": false
+  },
+  "LC3|PD-01S": {
+   "stored_min": [
+    0.738457963911088,
+    0.4078822066159209
+   ],
+   "at_node_min": [
+    0.738457963911088,
+    0.4078822066159209
+   ],
+   "corrected_min": [
+    0.7385,
+    0.4079
+   ],
+   "stored_at": [
+    "GVLO B1_21.65 n206164 ID rigid_connectors",
+    "GVLO B1_21.65 n206164 ID rigid_connectors"
+   ],
+   "corrected_at": [
+    "GVLO B1_21.65 n206164 ID rigid_connectors",
+    "GVLO B1_21.65 n206164 ID rigid_connectors"
+   ],
+   "delta_max": 0.0,
+   "rows": 8,
+   "changes_at_3_decimals": true,
+   "at_node_changes_at_3_decimals": false
+  },
+  "LC3|FD-01": {
+   "stored_min": [
+    0.8479828308454966,
+    2.640090132425475
+   ],
+   "at_node_min": [
+    0.8479828308454966,
+    2.640090132425475
+   ],
+   "corrected_min": [
+    0.8375,
+    2.6196
+   ],
+   "stored_at": [
+    "GVLO B1_21.65 n209549 ID tie_patch_edges",
+    "GVLO B1_21.65 n209549 ID tie_patch_edges"
+   ],
+   "corrected_at": [
+    "GVLO B1_21.65 n209549 ID tie_patch_edges",
+    "GVLO B1_21.65 n209549 ID tie_patch_edges"
+   ],
+   "delta_max": 0.3838,
+   "rows": 8,
+   "changes_at_3_decimals": true,
+   "at_node_changes_at_3_decimals": false
+  },
+  "F2|TC-02": {
+   "stored_min": [
+    -0.1117956769540237,
+    -0.26776849198734787
+   ],
+   "at_node_min": [
+    -0.1117956769540237,
+    -0.26776849198734787
+   ],
+   "corrected_min": [
+    -0.1246,
+    -0.2773
+   ],
+   "stored_at": [
+    "GVLO B1_19 n26731 ID tie_patch_edges",
+    "GVHI B1_19 n26731 ID tie_patch_edges"
+   ],
+   "corrected_at": [
+    "GVLO B1_19 n26731 ID tie_patch_edges",
+    "GVHI B1_19 n26731 ID tie_patch_edges"
+   ],
+   "delta_max": 1.3715,
+   "rows": 8,
+   "changes_at_3_decimals": true,
+   "at_node_changes_at_3_decimals": false
+  },
+  "F2|TC-03": {
+   "stored_min": [
+    -0.1659955302763273,
+    -0.2416362977396861
+   ],
+   "at_node_min": [
+    -0.1659955302763273,
+    -0.2416362977396861
+   ],
+   "corrected_min": [
+    -0.1661,
+    -0.2418
+   ],
+   "stored_at": [
+    "GVLO B1_19 n38421 ID tie_patch_edges",
+    "GVLO B1_19 n38421 ID tie_patch_edges"
+   ],
+   "corrected_at": [
+    "GVLO B1_19 n38421 ID tie_patch_edges",
+    "GVLO B1_19 n38421 ID tie_patch_edges"
+   ],
+   "delta_max": 0.0287,
+   "rows": 8,
+   "changes_at_3_decimals": false,
+   "at_node_changes_at_3_decimals": false
+  },
+  "F2|TC-04": {
+   "stored_min": [
+    0.22691254350003875,
+    -0.004859379261451191
+   ],
+   "at_node_min": [
+    0.2232122962720844,
+    -0.00786062522867248
+   ],
+   "corrected_min": [
+    0.2232,
+    -0.0079
+   ],
+   "stored_at": [
+    "GVLO B1_19 n42993 BT bad_tets",
+    "GVLO B1_19 n42993 BT bad_tets"
+   ],
+   "corrected_at": [
+    "GVLO B1_19 n42993 BT bad_tets",
+    "GVLO B1_19 n42993 BT bad_tets"
+   ],
+   "delta_max": 0.392,
+   "rows": 8,
+   "changes_at_3_decimals": true,
+   "at_node_changes_at_3_decimals": true
+  },
+  "F2|TC-09": {
+   "stored_min": [
+    1.0922667312890617,
+    0.8267109624801239
+   ],
+   "at_node_min": [
+    1.0922667312890617,
+    0.8267109624801239
+   ],
+   "corrected_min": [
+    1.0913,
+    0.8258
+   ],
+   "stored_at": [
+    "GVHI B1_19 n45080 ID tie_patch_edges",
+    "GVHI B1_19 n45080 ID tie_patch_edges"
+   ],
+   "corrected_at": [
+    "GVLO B1_19 n45080 ID tie_patch_edges",
+    "GVLO B1_19 n45080 ID tie_patch_edges"
+   ],
+   "delta_max": 0.1432,
+   "rows": 8,
+   "changes_at_3_decimals": true,
+   "at_node_changes_at_3_decimals": false
+  },
+  "F2|NZ-01": {
+   "stored_min": [
+    -0.40067582726315765,
+    null
+   ],
+   "at_node_min": [
+    -0.40067582726315765,
+    null
+   ],
+   "corrected_min": [
+    -0.401,
+    null
+   ],
+   "stored_at": [
+    "GVLO B1_1 n51953 regular None",
+    null
+   ],
+   "corrected_at": [
+    "GVLO B1_1 n51953 regular None",
+    null
+   ],
+   "delta_max": 0.0117,
+   "rows": 8,
+   "changes_at_3_decimals": false,
+   "at_node_changes_at_3_decimals": false
+  },
+  "F2|NZ-02": {
+   "stored_min": [
+    0.7839113581386454,
+    null
+   ],
+   "at_node_min": [
+    0.7839096414164619,
+    null
+   ],
+   "corrected_min": [
+    0.7837,
+    null
+   ],
+   "stored_at": [
+    "GVLO B1_2 n54332 ID tie_patch_edges",
+    null
+   ],
+   "corrected_at": [
+    "GVLO B1_2 n54332 ID tie_patch_edges",
+    null
+   ],
+   "delta_max": 0.0023,
+   "rows": 8,
+   "changes_at_3_decimals": false,
+   "at_node_changes_at_3_decimals": false
+  },
+  "F2|NZ-03": {
+   "stored_min": [
+    0.18509777758593704,
+    null
+   ],
+   "at_node_min": [
+    0.18509777758593704,
+    null
+   ],
+   "corrected_min": [
+    0.1835,
+    null
+   ],
+   "stored_at": [
+    "GVLO B1_19 n55225 ID tie_patch_edges",
+    null
+   ],
+   "corrected_at": [
+    "GVLO B1_19 n55225 ID tie_patch_edges",
+    null
+   ],
+   "delta_max": 0.0116,
+   "rows": 8,
+   "changes_at_3_decimals": true,
+   "at_node_changes_at_3_decimals": false
+  },
+  "F2|NZ-04": {
+   "stored_min": [
+    3.008579768950785,
+    null
+   ],
+   "at_node_min": [
+    3.0065521802281863,
+    null
+   ],
+   "corrected_min": [
+    3.0065,
+    null
+   ],
+   "stored_at": [
+    "GVLO B1_21.65 n56424 ID tie_patch_edges",
+    null
+   ],
+   "corrected_at": [
+    "GVLO B1_21.65 n56424 ID tie_patch_edges",
+    null
+   ],
+   "delta_max": 0.0097,
+   "rows": 8,
+   "changes_at_3_decimals": true,
+   "at_node_changes_at_3_decimals": true
+  },
+  "F2|PD-01R": {
+   "stored_min": [
+    0.15956165852610926,
+    -0.0609343105195439
+   ],
+   "at_node_min": [
+    0.15956165852610926,
+    -0.0609343105195439
+   ],
+   "corrected_min": [
+    0.1596,
+    -0.0609
+   ],
+   "stored_at": [
+    "GVLO B1_21.65 n203406 ID rigid_connectors",
+    "GVLO B1_21.65 n203406 ID rigid_connectors"
+   ],
+   "corrected_at": [
+    "GVLO B1_21.65 n203406 ID rigid_connectors",
+    "GVLO B1_21.65 n203406 ID rigid_connectors"
+   ],
+   "delta_max": 0.0,
+   "rows": 8,
+   "changes_at_3_decimals": false,
+   "at_node_changes_at_3_decimals": false
+  },
+  "F2|PD-01S": {
+   "stored_min": [
+    0.5333840921393529,
+    0.2418040723711823
+   ],
+   "at_node_min": [
+    0.5333840921393529,
+    0.2418040723711823
+   ],
+   "corrected_min": [
+    0.5334,
+    0.2418
+   ],
+   "stored_at": [
+    "GVLO B1_21.65 n206164 ID rigid_connectors",
+    "GVLO B1_21.65 n206164 ID rigid_connectors"
+   ],
+   "corrected_at": [
+    "GVLO B1_21.65 n206164 ID rigid_connectors",
+    "GVLO B1_21.65 n206164 ID rigid_connectors"
+   ],
+   "delta_max": 0.0,
+   "rows": 8,
+   "changes_at_3_decimals": false,
+   "at_node_changes_at_3_decimals": false
+  },
+  "F2|FD-01": {
+   "stored_min": [
+    0.8404904971992209,
+    2.6253320030102953
+   ],
+   "at_node_min": [
+    0.8404904971992209,
+    2.6253320030102953
+   ],
+   "corrected_min": [
+    0.8304,
+    2.6056
+   ],
+   "stored_at": [
+    "GVLO B1_21.65 n209549 ID tie_patch_edges",
+    "GVLO B1_21.65 n209549 ID tie_patch_edges"
+   ],
+   "corrected_at": [
+    "GVLO B1_21.65 n209549 ID tie_patch_edges",
+    "GVLO B1_21.65 n209549 ID tie_patch_edges"
+   ],
+   "delta_max": 0.3723,
+   "rows": 8,
+   "changes_at_3_decimals": true,
+   "at_node_changes_at_3_decimals": false
+  }
+ }
+}

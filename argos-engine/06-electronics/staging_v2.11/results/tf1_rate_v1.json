@@ -1,0 +1,142 @@
+{
+ "script": "calc/v2p11/tf1_rate_v1.py",
+ "date": "2026-10-20",
+ "status": "CALC / DERIVED on SIM inputs; not physical approval",
+ "inputs": {
+  "tf1_exposure_v352_v1.json": {
+   "file": "/home/claude/work/shared-fallback/engine/04-fea/v352/texts/tf1_exposure_v352_v1.json",
+   "sha256_16": "d23e72f089cca33a"
+  }
+ },
+ "rates": {
+  "B1_rev4_GVLO": {
+   "file": "/home/claude/work/mechanical/v352/tb70/hist/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_R4_GVLO_hist.npz",
+   "sha256_16": "b51e5672fb41058e",
+   "cited_by_tf1_exposure": true,
+   "t_end_s": 21.651,
+   "station_nodes_aft_mm": [
+    13.49,
+    14.72,
+    15.96,
+    17.2
+   ],
+   "station_max_end_C": 108.182,
+   "rate_K_per_s": {
+    "m1_last_interval": 6.727,
+    "m1_interval_s": 0.15,
+    "m2_previous_interval": 6.744,
+    "m3_lsq_last_0p65s": 6.741
+   },
+   "lead_item4_check": {
+    "r_used_K_per_s": 6.727,
+    "r_max_of_methods_K_per_s": 6.744,
+    "tol_lo_K_at_r_used": 13.288,
+    "TC01_max_at_trip_C_at_r_used": 164.718,
+    "TC01_max_at_trip_C_at_r_max_of_methods": 164.729,
+    "r_limit_K_per_s": 7.17,
+    "inside_A165_rows_at_r_used": true,
+    "inside_A165_rows_all_methods": true,
+    "margin_to_limit_K_per_s": 0.443
+   }
+  },
+  "B1_rev4_GVHI": {
+   "file": "/home/claude/work/mechanical/v352/tb70/hist/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_R4_GVHI_hist.npz",
+   "sha256_16": "e525fa1ad783b7de",
+   "cited_by_tf1_exposure": true,
+   "t_end_s": 21.651,
+   "station_nodes_aft_mm": [
+    13.49,
+    14.72,
+    15.96,
+    17.2
+   ],
+   "station_max_end_C": 117.083,
+   "rate_K_per_s": {
+    "m1_last_interval": 6.993,
+    "m1_interval_s": 0.15,
+    "m2_previous_interval": 7.03,
+    "m3_lsq_last_0p65s": 7.024
+   },
+   "lead_item4_check": {
+    "r_used_K_per_s": 6.993,
+    "r_max_of_methods_K_per_s": 7.03,
+    "tol_lo_K_at_r_used": 13.456,
+    "TC01_max_at_trip_C_at_r_used": 164.996,
+    "TC01_max_at_trip_C_at_r_max_of_methods": 165.019,
+    "r_limit_K_per_s": 7.0,
+    "inside_A165_rows_at_r_used": true,
+    "inside_A165_rows_all_methods": false,
+    "margin_to_limit_K_per_s": 0.007
+   }
+  },
+  "B1_rev3_merged": {
+   "file": "/home/claude/work/mechanical/v352/tb70/hist/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_hist.npz",
+   "sha256_16": "f53ecacdf306259f",
+   "cited_by_tf1_exposure": false,
+   "t_end_s": 21.651,
+   "station_nodes_aft_mm": [
+    13.48,
+    14.71,
+    15.95,
+    17.19
+   ],
+   "station_max_end_C": 137.742,
+   "rate_K_per_s": {
+    "m1_last_interval": 6.507,
+    "m1_interval_s": 0.15,
+    "m2_previous_interval": 6.576,
+    "m3_lsq_last_0p65s": 6.564
+   }
+  },
+  "A1_rev3_merged_burn2_end": {
+   "file": "/home/claude/work/mechanical/v352/tb70/hist/DC-A1dispp99_tg711_hi_SS316L_L2.5_v352_NF2b_hist.npz",
+   "sha256_16": "f0631ef8700cb546",
+   "cited_by_tf1_exposure": false,
+   "t_end_s": 26.781,
+   "station_nodes_aft_mm": [
+    13.48,
+    14.71,
+    15.95,
+    17.19
+   ],
+   "station_max_end_C": 83.463,
+   "rate_K_per_s": {
+    "m1_last_interval": 3.141,
+    "m1_interval_s": 0.099,
+    "m2_previous_interval": 2.981,
+    "m3_lsq_last_0p65s": 2.999
+   }
+  }
+ },
+ "T_F1_basis_rate": {
+  "r_K_per_s": 6.993,
+  "rule": "larger of the GVLO / GVHI rev-4 B1 end-of-burn station rates (lead 21:46:49Z item 4), method m1 (last output interval, 0.15 s) as in case_tc_channel_v1",
+  "tol_lo_K": 13.456,
+  "station_true_at_trip_C": 163.456,
+  "formula": "tol_lo = 9.05 + 0.630 r K (worst case, any rate r; DESIGN install, tau <= 0.25 s, B-TC-1 to verify)",
+  "basis_rows": "A 165 (TB_a165, both bounds) if r <= 7.17 K/s (GVLO) and <= 7.00 K/s (GVHI) and tau <= 0.25 s; else A 175",
+  "verdict_method_m1_only": "A165",
+  "stated_r_K_per_s": 7.03,
+  "stated_r_rule": "largest of the three methods over GVLO / GVHI (Electronics 21:49:44Z)",
+  "verdict": "A175",
+  "lead_ruling": "LEAD 2026-10-20T21:51:07Z: A 175 CONFIRMED as the T-F1 exposure basis (r_GVHI 7.03 K/s > 7.00 K/s); A 165 not confirmed (0.004 K margin below the method resolution); re-basing on A 165 possible after a B-TC-1 calibration, before T-F1 is run",
+  "after_B_TC_1_calibration": {
+   "formula": "tol_lo_cal = 5.85 + 0.630 r K (static worst 4.36 K after the 150 C coupon calibration + placement 0.38 + surface steady 1.11)",
+   "at_7p03_K_per_s_K": 10.28,
+   "per_bound": {
+    "B1_rev4_GVLO": {
+     "r_K_per_s": 6.744,
+     "tol_lo_cal_K": 10.1,
+     "TC01_max_at_trip_C": 161.53,
+     "inside_165_by_K": 3.47
+    },
+    "B1_rev4_GVHI": {
+     "r_K_per_s": 7.03,
+     "tol_lo_cal_K": 10.28,
+     "TC01_max_at_trip_C": 161.82,
+     "inside_165_by_K": 3.18
+    }
+   }
+  }
+ }
+}

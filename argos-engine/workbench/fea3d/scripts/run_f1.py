@@ -209,7 +209,7 @@ def main(argv):
         print(f"[{name}/{state}] deck {inp.stat().st_size / 1e6:.1f} MB", flush=True)
         if not solve:
             continue
-        r = ccxrun.run_ccx("f1", sd, threads=int(os.environ.get("FEA3D_THREADS", "2")), mem_cap_gb=6.0, log=log)
+        r = ccxrun.run_ccx("f1", sd, threads=int(os.environ.get("FEA3D_THREADS", "2")), mem_cap_gb=float(os.environ.get("FEA3D_MEMCAP", "6.0")), log=log)
         print(f"[{name}/{state}] ccx {json.dumps(r)}", flush=True)
         if r["returncode"] != 0 or r["killed"]:
             raise SystemExit(f"ccx failed: {r}")

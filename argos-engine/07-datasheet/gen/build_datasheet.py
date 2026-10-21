@@ -15,16 +15,13 @@ Renders must exist first (gen/render_views.sh <cad-version>).
 import argparse, collections, csv, datetime, glob, hashlib, html, io, json, math, os, re, shutil, subprocess, sys
 
 GEN_NAME = 'build_datasheet.py'
-GEN_VERSION = '0.2.0'
+GEN_VERSION = '0.3.1'
 DOC_ID = 'ARGOS-H1-ENGINE-DATASHEET'
 DEFAULT_HUB = '/home/claude/work/shared-fallback/engine'
-DEFAULT_CAD_DIR = '/home/claude/work/mechanical/engine/03-cad'
+DEFAULT_CAD_DIR = '/home/claude/work/shared-fallback/engine/03-cad/v3.5.2'
 HERE = os.path.dirname(os.path.abspath(__file__))
 DS_ROOT = os.path.dirname(HERE)
 G0 = 9.80665  # standard gravity, m/s2 (defined constant, not data)
-
-EV_CLASSES = ['SIM', 'DERIVED', 'ASSUMED', 'DATASHEET', 'TO-VERIFY', 'LITERATURE', 'DESIGN', 'REQ',
-              'LEAD', 'MISSING', 'TO-DEFINE', 'PENDING', 'SUPERSEDED']
 
 
 # =============================================================================================
@@ -71,58 +68,6 @@ def ptr_join(*parts):
     return out
 
 
-def normalise_tag(raw):
-    """Map a source tag string onto the programme evidence classes."""
-    if raw is None:
-        return None
-    t = str(raw).strip()
-    u = t.upper()
-    if not u:
-        return None
-    if u.startswith('TO-VERIFY') or u.startswith('TO-CONFIRM') or u.startswith('DATASHEET-PENDING') \
-            or u.startswith('TO-CHECK'):
-        return 'TO-VERIFY'
-    if u.startswith('TO-DEFINE'):
-        return 'TO-DEFINE'
-    if u.startswith('PENDING'):
-        return 'PENDING'
-    if u.startswith('UNKNOWN') or u.startswith('OPEN') or u.startswith('MISSING'):
-        return 'MISSING'
-    if u.startswith('SIM') or u.startswith('FEA') or u.startswith('CEA'):
-        return 'SIM'
-    if u.startswith('DERIVED') or u.startswith('ESTIMATE'):
-        return 'DERIVED'
-    if u.startswith('ASSUMED'):
-        return 'ASSUMED'
-    if u.startswith('DATASHEET'):
-        return 'DATASHEET'
-    if u.startswith('LITERATURE'):
-        return 'LITERATURE'
-    if u.startswith('REQ'):
-        return 'REQ'
-    if u.startswith('LEAD') or u.startswith('[DESIGN; COMB') or 'LEAD DECISION' in u or u.startswith('COMB V2.4 / LEAD') \
-            or ('/ LEAD' in u and u.startswith(('GNC', 'COMB'))):
-        return 'LEAD'
-    if u.startswith('DESIGN'):
-        return 'DESIGN'
-    if u.startswith('COMB/GNC') or u.startswith('LEAD/COMB') or u.startswith('LEAD/GNC'):
-        return 'LEAD'
-    if re.match(r'^(V\d|COMBUSTION\.JSON V\d|MECHANICAL\.JSON V\d|ELECTRONICS\.JSON V\d)', u):
-        return 'DESIGN'
-    if u.startswith('KICAD') or u.startswith('CHECK_NETLIST'):
-        return 'DERIVED'
-    if u.startswith('COOLPROP') or u.startswith('DS-DERIVED'):
-        return 'DERIVED'   # property-library or datasheet-derived calculation
-    if re.match(r'^(MECH|MECHANICAL|GNC|COMB|COMBUSTION|ELEC|ELECTRONICS)\b.*(DECISION|\d{4}-\d\d-\d\d)', u):
-        return 'DESIGN'    # a specialist's dated design decision (not a lead decision)
-    if re.match(r'^[\d.]+\s*\S*\s*=\s*\S', t):
-        return 'DERIVED'   # tag states the conversion it was derived by ('4.75 V = 74.4 bar g ...')
-    m = re.search(r'\b(SIM|DERIVED|ASSUMED|DATASHEET|LITERATURE|DESIGN|REQ|LEAD)\b', u)
-    if m:
-        return m.group(1)  # first class word inside a free-text tag
-    return None
-
-
 # =============================================================================================
 # context: sources, traced values, QA
 # =============================================================================================
@@ -159,6 +104,7 @@ class TV:
         ov = getattr(ctx, 'ovr', None)
         if ov is not None:
             ov.filter_tv(self)
+        resolve_class(self)  # v0.3.0: ten tags or DECIDED; no default class
         self.tid = ctx.register(self)
         ctx.recent.append(self)
 
@@ -169,6 +115,10 @@ class TV:
             return self.status or 'MISSING'
         if isinstance(v, bool):
             return 'yes' if v else 'no'
+        if fmt is None and isinstance(v, (int, float)) and getattr(self, 'src_txt', None):
+            return self.src_txt.replace('-', '−') if self.src_txt.startswith('-') else self.src_txt  # v0.3.1: the digits of the source text
+        if fmt is None and self.formula is None and self.sid not in (None, 'generator') and not str(self.tag_raw or '').startswith('DERIVED by'):
+            fmt = 'src'  # v0.3.1: a source value prints at its source precision (REV-DS-1 D1-08)
         if isinstance(v, (int, float)):
             return fmt_num(v, fmt)
         if isinstance(v, (list, tuple)) and all(isinstance(a, (int, float)) for a in v):
@@ -176,7 +126,7 @@ class TV:
         return str(v)
 
     def pill(self):
-        return ev_pill(self.ev, self.tag_raw)
+        return ev_pill(self.ev, self.tag_raw, getattr(self, 'basis', None), self.status if self.value is not None else None)
 
     def ref(self):
         return f'<a class="tr" href="#{self.tid}">{self.tid}</a>'
@@ -199,7 +149,9 @@ class TV:
 
 
 def fmt_num(v, fmt=None):
-    if fmt:
+    if fmt == 'src':
+        s = src_digits(v)  # v0.3.1: source precision (REV-DS-1 D1-08)
+    elif fmt:
         try:
             s = format(v, fmt)
         except (ValueError, TypeError):
@@ -219,13 +171,6 @@ def fmt_num(v, fmt=None):
                 s = f'{v:.4g}'
     s = s.replace('-', '−') if s.startswith('-') else s
     return s
-
-
-def ev_pill(ev, tag_raw=None):
-    if not ev:
-        return '<span class="ev ev-none" title="no tag">UNTAGGED</span>'
-    title = f' title="{esc(tag_raw)}"' if tag_raw else ''
-    return f'<span class="ev ev-{ev.lower()}"{title}>{esc(ev)}</span>'
 
 
 class Ctx:
@@ -307,11 +252,11 @@ class Ctx:
         if tag is not None:
             ev = tag
             if tag_raw is None:
-                tag_raw = f'(class set by generator: {tag})'
+                tag_raw = f'(class set at the call site: {tag})'
         else:
             ev = normalise_tag(tag_raw)
             if ev is None and tag_raw is None and tag_default is not None:
-                ev, tag_raw = tag_default, f'(no source tag; class set by generator: {tag_default})'
+                ev, tag_raw = tag_default, f'(no source tag; class set at the call site: {tag_default})'
             if ev is None:
                 self.issue('WARN', f'unmapped evidence tag at {sid}:{ptr}: {str(tag_raw)[:80]!r}')
         if conv is not None and isinstance(val, (int, float)) and not isinstance(val, bool):
@@ -338,10 +283,11 @@ class Ctx:
         self.unknowns.append({'what': what, 'status': status, 'tid': tv.tid, 'note': note})
         return tv
 
-    def contra(self, cid, title, sides, newest, resolution):
-        """sides: list of (label, TV); newest: label of the side shown as current."""
+    def contra(self, cid, title, sides, newest, resolution, governs=None, status=None):
+        """sides: list of (label, TV); newest: label of the side shown as current; governs: list of (label, TV), the governing
+        source(s); status: the state of the disagreement (v0.3.1)."""
         self.contradictions.append({'id': cid, 'title': title, 'sides': sides, 'newest': newest,
-                                    'resolution': resolution})
+                                    'resolution': resolution, 'governs': governs or [], 'status': status})
 
 
 # =============================================================================================
@@ -383,106 +329,6 @@ def md_inline(s):
     s = re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', s)
     s = re.sub(r'`(.+?)`', r'<code>\1</code>', s)
     return s
-
-
-class Changelog:
-    def __init__(self, ctx, sid):
-        self.ctx, self.sid = ctx, sid
-        self.lines = ctx.src(sid).text.splitlines() if ctx.src(sid).text else []
-
-    def line(self, n):
-        raw = self.lines[n - 1]
-        parts = raw.split(' | ')
-        rec = {'n': n, 'raw': raw, 'sha16': sha16_text(raw)}
-        if len(parts) >= 4 and re.match(r'^\d{4}-\d\d-\d\d$', parts[0]):
-            rec.update(date=parts[0], owner=parts[1], what=parts[2], text=' | '.join(parts[3:-1]) if len(parts) > 4 else parts[3],
-                       why=parts[-1] if len(parts) > 4 else '')
-        else:
-            rec.update(date=None, owner=None, what=None, text=raw, why='')
-        return rec
-
-    def items(self, n):
-        """Split a decision text into its numbered items (1), (2), ... in sequence. A split needs the
-        expected next number and a preceding sentence/clause boundary, so 'item (2) of' is not one."""
-        text = self.line(n)['text']
-        out = {}
-        pos, k, starts = 0, 1, []
-        while True:
-            m = None
-            for mm in re.finditer(r'\((%d)\)\s' % k, text[pos:]):
-                i = pos + mm.start()
-                before = text[:i].rstrip()
-                if i == 0 or (before and before[-1] in '.:;)') or before.endswith('|'):
-                    m = i
-                    break
-            if m is None:
-                break
-            starts.append((k, m))
-            pos = m + 3
-            k += 1
-        for j, (kk, st) in enumerate(starts):
-            end = starts[j + 1][1] if j + 1 < len(starts) else len(text)
-            out[kk] = text[st:end].strip()
-        return out
-
-    def item(self, n, k, sentence=None, contains=None):
-        rec = self.line(n)
-        its = self.items(n)
-        ptr = f'L{n}({k})'
-        if k not in its:
-            self.ctx.issue('WARN', f'CHANGELOG line {n} has no item ({k})')
-            return self.ctx.missing(f'CHANGELOG L{n} item ({k})')
-        txt = re.sub(r'^\(%d\)\s*' % k, '', its[k])
-        if contains:
-            sents = re.split(r'(?<=[.;])\s+(?=[A-Z(])', txt)
-            hit = [s for s in sents if contains.lower() in s.lower()]
-            if hit:
-                txt = ' '.join(hit)
-                ptr += f'[sentence containing "{contains}"]'
-        ev = 'LEAD' if rec.get('owner') == 'lead' else (normalise_tag(rec.get('owner')) or 'DERIVED')
-        return self.ctx.t(self.sid, ptr, txt, ev, tag_raw=f"{rec.get('owner')} {rec.get('what')} {rec.get('date')} (line sha {rec['sha16']})")
-
-    def whole(self, n, maxlen=None):
-        rec = self.line(n)
-        txt = rec['text'] if maxlen is None or len(rec['text']) <= maxlen else rec['text'][:maxlen].rsplit(' ', 1)[0] + ' …'
-        ev = 'LEAD' if rec.get('owner') == 'lead' else 'DERIVED'
-        if rec.get('what') == '(result)' and rec.get('owner') in ('gnc', 'combustion', 'electronics', 'mechanical'):
-            ev = 'SIM'
-        return self.ctx.t(self.sid, f'L{n}', txt, ev, tag_raw=f"{rec.get('owner')} {rec.get('what')} {rec.get('date')} (line sha {rec['sha16']})")
-
-    def find(self, needle, owner='lead', what='(decision)'):
-        """Line number of the newest entry by owner/what whose text contains needle (None if absent)."""
-        for i in range(len(self.lines), 0, -1):
-            rec = self.line(i)
-            if rec.get('owner') == owner and rec.get('what') == what and needle in rec['text']:
-                return i
-        return None
-
-    def part(self, n, contains=None):
-        """Decision text of a line (no numbered items needed), or its sentences containing a phrase."""
-        rec = self.line(n)
-        txt, ptr = rec['text'], f'L{n}'
-        if contains:
-            phr = [contains] if isinstance(contains, str) else list(contains)
-            sents = re.split(r'(?<=[.;])\s+(?=[A-Z(])', txt)
-            hit = [x for x in sents if any(p.lower() in x.lower() for p in phr)]
-            if not hit:
-                self.ctx.issue('WARN', f'CHANGELOG line {n}: no sentence containing {contains!r}')
-                return self.ctx.missing(f'CHANGELOG L{n} sentence containing {" | ".join(phr)}')
-            txt = ' '.join(hit)
-            ptr += '[sentence containing ' + ' | '.join(f'"{p}"' for p in phr) + ']'
-        ev = 'LEAD' if rec.get('owner') == 'lead' else (normalise_tag(rec.get('owner')) or 'DERIVED')
-        if rec.get('what') == '(result)' and rec.get('owner') in ('gnc', 'combustion', 'electronics', 'mechanical'):
-            ev = 'SIM'   # same rule as whole(): a specialist's result line
-        return self.ctx.t(self.sid, ptr, txt, ev, tag_raw=f"{rec.get('owner')} {rec.get('what')} {rec.get('date')} (line sha {rec['sha16']})")
-
-    def decisions(self, owner='lead', last=None):
-        out = []
-        for i in range(1, len(self.lines) + 1):
-            rec = self.line(i)
-            if rec.get('owner') == owner and rec.get('what') == '(decision)':
-                out.append(rec)
-        return out[-last:] if last else out
 
 
 # =============================================================================================
@@ -556,7 +402,7 @@ def short_name(name, maxlen=44):
         if 4 <= i < cut:
             cut = i
     s = s[:cut].strip()
-    return s if len(s) <= maxlen else s[:maxlen - 1].rstrip() + '…'
+    return s if len(s) <= maxlen else clipw(s, maxlen)  # v0.3.1: word-boundary cut with a visible ' …'
 
 
 def short_mat(material_name, code):
@@ -669,6 +515,7 @@ def tvtxt(tv, maxlen=None, cls='', ovr=True):
     if tv.value is None:
         return Cell(tv.h(), [tv])
     s = tv.value if isinstance(tv.value, str) else readable(tv.value)
+    s = display_text(tv, s)  # v0.3.1: display rules (REV-DS-1 D1-11, D1-12); the trace keeps the source string
     ov = getattr(tv.ctx, 'ovr', None)
     if ov is not None and ovr:
         c = ov.render(tv, s, cls, annot_only=(ovr == 'annot'))
@@ -788,7 +635,11 @@ def ensure_fonts(ctx, a):
 # =============================================================================================
 NUM_TOKEN = re.compile(r'(?<![A-Za-z\d.])\d+(?:\.\d+)?(?![A-Za-z\d])')
 SRC_FILE = {'CMB': 'combustion.json', 'REQ': 'REQUIREMENTS.md', 'ICD': 'ICD-AIRFRAME.md', 'CL': 'CHANGELOG.md',
-            'ELE': 'electronics.json', 'GNC': 'gnc.json', 'MEC': 'mechanical.json', 'FA1': 'fa1_envelope_v2p4a.json'}
+            'ELE': 'electronics.json', 'GNC': 'gnc.json', 'MEC': 'mechanical.json', 'FA1': 'fa1_envelope_v2p4a.json',
+            'F3D': 'REPORT-FEA3D-v352.md', 'DSIC': 'DATASHEET-INPUTS-COMBUSTION.md', 'DSIG': 'DATASHEET-INPUTS-GNC.md',
+            'MMXMD': 'margin_matrix_v352.md (rows v8)', 'TXT5': 'item_c_tf1_texts_v352_v5.json', 'BOM': 'BOM_v3.5.2.json',
+            'MP': 'massprops_v3.5.2.json', 'MDEL': 'massdelta_v3.5.2_vs_v3.5.1.json', 'F4J': 'f4_v352.json', 'SET': 'set_v3.5.2.json',
+            'BENCH': 'bench_plan_v4.md', 'RCMB': 'combustion REPORT.md', 'RPL': 'plume REPORT.md', 'PVAL': 'validation_v2.json'}
 
 
 def num_in(tok, text):
@@ -1165,61 +1016,6 @@ def md_version(sid, text):
     return None
 
 
-def register_sources(ctx, a):
-    H, C, V = a.hub, a.cad_dir, a.cad_version
-    J = os.path.join
-    ctx.add('CMB', J(H, 'interfaces/combustion.json'), 'Combustion interface (design point, grain, injector, igniter, sequences)')
-    ctx.add('MEC', J(H, 'interfaces/mechanical.json'), 'Mechanical interface (gimbal, TVC, envelope, materials)')
-    ctx.add('ELE', J(H, 'interfaces/electronics.json'), 'Electronics interface (ECU, sensors, firmware, abort causes)')
-    ctx.add('GNC', J(H, 'interfaces/gnc.json'), 'Space/GNC interface (reference vehicle, mission, Monte Carlo)')
-    ctx.add('BASE', J(H, 'interfaces/ENGINE-BASELINE-v0.json'), 'Engine baseline v0 (seed values, superseded)')
-    ctx.add('CL', J(H, 'interfaces/CHANGELOG.md'), 'Decision log (line-numbered)', 'md')
-    ctx.add('REQ', J(H, '00-requirements/REQUIREMENTS.md'), 'Engine requirements', 'md')
-    ctx.add('ICD', J(H, '00-requirements/ICD-AIRFRAME.md'), 'Engine-airframe ICD', 'md')
-    ctx.add('SUP', J(H, 'reviews/SUPERVISION.json'), 'Independent review register')
-    ctx.add('RV2', J(H, 'reviews/REVIEW-COMBUSTION-R2.md'), 'Independent Combustion re-review REV-COMB-2 (text)', 'md', required=False)
-    if a.overrides:
-        ctx.add('OVR', a.overrides, 'Decision override table (datasheet generator input; drop entries when combustion.json v2.4a lands)')
-    ctx.add('FA1', J(H, '02-combustion/data/v2p4a/fa1_envelope_v2p4a.json'),
-            'Combustion v2.4a FA-1 relight-pulse load envelope (SIM on an ASSUMED construct)', required=False)
-    ctx.add('RCMB', J(H, '02-combustion/REPORT.md'), 'Combustion report', 'md')
-    ctx.add('CF4', J(H, '02-combustion/CF-4-SPEC.md'), 'CF-4 relight-purge cold-flow specification', 'md')
-    ctx.add('T14', J(H, '02-combustion/T1-T4-REGRESSION-SPEC.md'), 'T1-T4 regression measurement specification', 'md')
-    ctx.add('RPL', J(H, '05-plume-cfd/REPORT.md'), 'Plume CFD report', 'md')
-    ctx.add('PVAL', J(H, '05-plume-cfd/validation/results/validation_v2.json'), 'Plume CFD validation results')
-    ctx.add('FEALC', J(H, '04-fea/loadcases_v1.json'), 'FEA load cases (inputs)')
-    ctx.add('SLEW', J(H, '03-cad/calcs/actuator_slew_v2.json'), 'TVC slew calculation v2 (Mechanical, hub copy)')
-    ctx.add('BENCH', J(H, '06-electronics/docs/bench_plan_v2.md'), 'Electronics bench and test plan', 'md')
-    ctx.add('RELE', J(H, '06-electronics/REPORT-v2.9-HANDBACK.md'), 'Electronics v2.9 handback report', 'md', required=False)
-    ctx.add('RGNC', J(H, '01-systems-gnc/REPORT-v3.md'), 'Space/GNC report v3', 'md', required=False)
-    ctx.add('BOM', J(C, f'BOM_{V}.json'), f'Bill of materials (CAD {V})')
-    ctx.add('MP', J(C, f'massprops_{V}.json'), f'Mass properties (CAD {V})')
-    ctx.add('MAN', J(C, f'assembly/assembly_manifest_{V}.json'), f'Assembly manifest, instance bounds (CAD {V})')
-    ctx.add('GLB', J(C, f'assembly/ENGINE_{V}_neutral.glb'), f'Assembly GLB, visualisation geometry (CAD {V})', 'bin')
-    ctx.add('PROP', J(C, 'properties.json'), 'CAD build properties and results', required=False)
-    ctx.add('CHK', J(C, f'checks/checks_summary_{V}.json'), f'CAD software geometric checks (CAD {V})', required=False)
-    ctx.add('RMAN', J(a.renders, 'render_manifest.json'), 'Render manifest (this generator)')
-    for fid, rel, _ in PLUME_FIGS:
-        ctx.add(fid, find_hub_file(H, rel), 'Plume figure', 'img', required=False)
-    # versions for markdown and binary sources
-    for sid, s in ctx.sources.items():
-        if s.version is None and s.text is not None:
-            s.version = md_version(sid, s.text)
-        if sid == 'CL' and s.text is not None:
-            s.version = f'{len(s.text.splitlines())} lines'
-        if sid == 'SUP' and isinstance(s.data, dict) and s.version is None:
-            s.version = f'{len(s.data.get("reviews") or [])} reviews'
-        if sid == 'GLB':
-            s.version = V
-        if sid == 'PVAL' and s.version is None:
-            m = re.search(r'_(v\d+)\.json$', s.path)
-            s.version = m.group(1) if m else None
-        if sid in ('PROP', 'CHK', 'MAN') and s.data is not None:
-            s.version = s.data.get('cad_version') or s.version
-        if s.kind == 'img' and s.version is None:
-            s.version = 'figure'
-
-
 def src_label(ctx, sid):
     s = ctx.sources.get(sid)
     if s is None:
@@ -1280,7 +1076,7 @@ class BomRow:
         self.mclass = bom_mass_class(line.get('mass_source'))
         self.pstate = price_state(line.get('unit_price'))
         ptr = ptr_join(kind, idx)
-        self.row_tv = TV(ctx, f"{self.pn}: {line.get('name', '')[:60]}", '', 'DESIGN',
+        self.row_tv = TV(ctx, f"{self.pn}: {line.get('name', '')}", '', 'DESIGN',
                          f"BOM row (CAD {line.get('step', '')})", 'BOM', ptr,
                          note='row trace: name, qty, groups, material_name, process, unit_mass_kg, mass_source, unit_price, supplier')
         if self.unit is not None:
@@ -1564,10 +1360,13 @@ def svg_layout(ctx, R):
         px = R['meta']['res'][0] / 2 + (g['x_centre_m'] - cam['centre_m'][0]) / cam['m_per_px'] - R['x0']
         row = k % 2
         y = H + 34 + row * 60
-        o.append(f'<line x1="{px:.1f}" y1="{H - 4:.1f}" x2="{px:.1f}" y2="{y - fs:.1f}" class="ld"/>')
-        o.append(svg_text(px, y, g['group'], fs, 'middle', 600, '#1d2733'))
         z0, z1 = g['cad_z_range_m']
-        o.append(svg_text(px, y + fs + 2, f'CAD z {z0 * 1000:+.0f} … {z1 * 1000:+.0f} mm', fs * 0.82, 'middle', 400, '#55626f'))
+        zt = f'CAD z {z0 * 1000:+.0f} … {z1 * 1000:+.0f} mm'
+        hw = max(len(g['group']) * fs * 0.31, len(zt) * fs * 0.82 * 0.31)  # estimated half width of the label
+        tx = min(max(px, hw + 6), W - hw - 6)
+        o.append(f'<line x1="{px:.1f}" y1="{H - 4:.1f}" x2="{tx:.1f}" y2="{y - fs:.1f}" class="ld"/>')
+        o.append(svg_text(tx, y, g['group'], fs, 'middle', 600, '#1d2733'))
+        o.append(svg_text(tx, y + fs + 2, zt, fs * 0.82, 'middle', 400, '#55626f'))
     o.append('</svg>')
     return '\n'.join(o)
 
@@ -1609,199 +1408,6 @@ def save_plot(fig, a, name):
     return 'assets/' + name + '.svg'
 
 
-def fa1_envelope(ctx, D):
-    """FA-1 relight-pulse load: the Combustion v2.4a envelope (SIM on an ASSUMED construct) and the lead
-    load decision that cites the data file (CHANGELOG). None while either is missing from the hub."""
-    cl = D['cl']
-    n = cl.find('fa1_envelope_v2p4a.json')
-    if n is None or 'FA1' not in ctx.sources or ctx.src('FA1').data is None:
-        return None
-    F = {'n': n}
-    dec = F['dec'] = cl.part(n, 'DECISION: FA-1 structural load')
-    F['load'] = rx_text(ctx, dec, r'structural load = (\d+) bar abs', 'bar', tag='LEAD')
-    F['p_des'] = rx_text(ctx, dec, r'margins also at (\d+) bar abs', 'bar', tag='LEAD')
-    F['p_sens'] = rx_text(ctx, dec, r'and at (\d+) bar abs \(sensitivity', 'bar', tag='LEAD')
-    F['per'] = [rx_text(ctx, dec, r'natural period of ([\d.]+)-([\d.]+) ms', 'ms', tag='LEAD', group=g) for g in (1, 2)]
-    F['f_int'] = rx_text(ctx, dec, r'thrust spike ([\d.]+) kN x (\d+) ms', 'kN', tag='LEAD', group=1)
-    F['t_int'] = rx_text(ctx, dec, r'thrust spike ([\d.]+) kN x (\d+) ms', 'ms', tag='LEAD', group=2)
-    F['summary'] = cl.part(n, ("FA-1 envelope (", 'head peak'))
-    F['bounding'] = cl.part(n, 'O/F bounding')
-    F['dlf'] = cl.part(n, 'Pressure DLF')
-    F['inv'] = cl.part(n, 'Missing datum')
-    F['evid'] = cl.part(n, 'physical evidence')
-    m = re.search(r'fa1_envelope_v2p4a\.json ([0-9a-f]{16})', cl.line(n)['text'])
-    cited, have = (m.group(1) if m else None), ctx.src('FA1').sha16
-    F['hash'] = ctx.t('generator', f'FA1 sha256/16 against the citation in CHANGELOG L{n}',
-                      (f'{have}: matches the citation' if cited == have else f'MISMATCH: cited {cited}, file {have}') if cited else f'{have}: no hash cited',
-                      'DERIVED', tag_raw='generator check on this build')
-    if cited != have:
-        ctx.issue('WARN', f'FA-1 envelope file sha256/16 {have} differs from the decision citation {cited} (CHANGELOG L{n})')
-    E, T = '/envelope', '/tags/model'
-    VO, BO = 'vapour_once|incl_OF3-3.5|all', 'both|incl_OF3-3.5|all'
-
-    def ev(key, metric, unit, tagp=T):
-        return ctx.v('FA1', f'{E}/{key}/{metric}/max', unit, tag_ptr=tagp)
-    F['pk'] = [ev('vapour_once|grid_OF4-12|rounded_Cd1.0', 'peak_head_bar', 'bar'),
-               ev('vapour_once|grid_OF4-12|sharp_Cd0.65', 'peak_head_bar', 'bar'),
-               ev(BO, 'peak_head_bar', 'bar')]
-    F['aft'] = ctx.v('FA1', f'{E}/{BO}/aft_over_head_peak', '', tag_ptr=T)
-    F['above'] = []
-    for k in ('above45_head_total_ms', 'above67p5_head_total_ms', 'above90_head_total_ms'):
-        mm = re.match(r'above(\d+)(?:p(\d+))?_', k)
-        lev = float(mm.group(1) + ('.' + mm.group(2) if mm.group(2) else ''))
-        F['above'].append((lev, ev(VO, k, 'ms'), ev(BO, k, 'ms')))
-    F['imp'] = (ev(VO, 'impulse_above_P0_25ms_head_bar_ms', 'bar·ms'), ev(BO, 'impulse_above_P0_25ms_head_bar_ms', 'bar·ms'))
-    F['imp_def'] = ctx.v('FA1', '/metric_definitions/impulse', tag_ptr=T)
-    F['fpk'] = (ev(VO, 'F_peak_QSx0.975_N', 'N', '/tags/thrust'), ev(BO, 'F_peak_QSx0.975_N', 'N', '/tags/thrust'))
-    sd = ctx.v('FA1', f'{E}/{BO}/F_sdof_QSx0.975_N_max_by_period', 'N', tag_ptr='/tags/sdof')
-    F['sdof'] = ctx.d(max(sd.value) if isinstance(sd.value, list) and sd.value else None, 'N',
-                      'max over the SDOF periods of F_sdof_QSx0.975_N_max_by_period (upper bracket)', [sd])
-    ri = ctx.v('FA1', '/interim_load_comparison/thrust_rect_sdof_N', 'N', tag_ptr='/tags/sdof')
-    F['sdof_int'] = ctx.d([min(ri.value), max(ri.value)] if isinstance(ri.value, list) and ri.value else None, 'N',
-                          'range over the SDOF periods of the interim rectangular thrust pulse', [ri])
-
-    def eqs(key):
-        tv = ctx.v('FA1', f'{E}/{key}/P_head_equiv_static_by_period', 'bar', tag_ptr='/tags/sdof')
-        vals = [x.get('P_equiv_static_abs_bar') for x in tv.value if isinstance(x, dict)] if isinstance(tv.value, list) else []
-        vals = [x for x in vals if isinstance(x, (int, float))]
-        return ctx.d(max(vals) if vals else None, 'bar', f'max over the SDOF periods of P_head_equiv_static_by_period ({key})', [tv])
-    F['eqs'] = (eqs('vapour_once|grid_OF4-12|rounded_Cd1.0'), eqs(BO))
-    F['grid'] = ctx.v('FA1', '/grid', tag_ptr=T)
-    F['ncases'] = ctx.v('FA1', '/grid/n_cases', tag_ptr=T)
-    F['tag'] = ctx.v('FA1', T, tag='SIM')
-    F['notmod'] = ctx.v('FA1', '/not_modelled', tag_ptr=T)
-    F['inv_status'] = ctx.v('FA1', '/fuel_vapour_inventory/status', tag='TO-VERIFY')
-    n_m = cl.find('FA-1', owner='mechanical', what='(result)')
-    if n_m and n_m > n:
-        F['n_mech'] = n_m
-        F['mech'] = F['margins'] = cl.whole(n_m)
-        F['mech_key'] = cl.part(n_m, ('YIELD', 'J-FWD', 'bearings exceed', 'brinelling'))
-        F['mech_rev'] = ctx.missing(f'Independent review and lead decision on the Mechanical FA-1 margins (CHANGELOG {n_m}) '
-                                    'and on the CAD changes they propose', 'PENDING')
-    else:
-        F['margins'] = ctx.missing('Mechanical structural margins at the FA-1 structural, design and sensitivity pressures', 'PENDING')
-    F['inv_unk'] = ctx.missing('FA-1 fuel-vapour inventory at light (data file: first-order bound only; lead decision: remains TO-VERIFY)', 'TO-VERIFY')
-    return F
-
-
-def sec_fa1(ctx, doc, F):
-    """Section 2.5: the FA-1 envelope and the load decision."""
-    o = [doc.h(2, '2.5 FA-1 relight-pulse load')]
-    o.append('<p>The fuel-assisted relight pulse (FMEA FA-1) is published as an envelope over the Combustion v2.4a case grid, computed on a vented '
-             'three-node construct with ASSUMED inputs: an estimate, not acceptance evidence. The lead set the structural load on it (CHANGELOG '
-             f'{F["n"]}). The single point in combustion.json v2.4 is not a load any more and is annotated wherever it is quoted (OVR-07).</p>')
-    pk, vo_bo = F['pk'], ' / '
-    rows = [['Case grid (as published, with the number of cases)', tvtxt(F['grid'], 400)],
-            ['Head peak: baseline (vapour counted once, rounded entrance) / sharp entrance / upper bracket',
-             cat(pres_bar(ctx, pk[0]), vo_bo, pres_bar(ctx, pk[1]), vo_bo, pres_bar(ctx, pk[2]), Cell('', pk))],
-            ['Aft peak relative to the head peak (range over the cases)', num_cell(F['aft'], '.3f')]]
-    for lev, a_, b_ in F['above']:
-        rows.append([f'Time above {fmt_num(lev)} bar at the head (summed): baseline / upper bracket', cat(a_.h('.2f'), vo_bo, b_.h('.2f'))])
-    rows += [['Head pressure impulse above the cold-flow pressure: baseline / upper bracket',
-              cat(F['imp'][0].h('.0f'), vo_bo, F['imp'][1].h('.0f'), '<div class="small">', tvtxt(F['imp_def'], 200), '</div>')],
-             ['Thrust spike, peak (quasi-steady nozzle × η<sub>cf</sub>): baseline / upper bracket', cat(F['fpk'][0].h('.0f'), vo_bo, F['fpk'][1].h('.0f'))],
-             ['Thrust spike, single-degree-of-freedom equivalent (max over periods), upper bracket; interim rectangular pulse for comparison',
-              cat(F['sdof'].h('.0f'), '; interim pulse ', F['sdof_int'].h('.0f'))],
-             ['Head equivalent static pressure with the dynamic load factor (max over periods): baseline rounded / upper bracket',
-              cat(pres_bar(ctx, F['eqs'][0]), vo_bo, pres_bar(ctx, F['eqs'][1]), Cell('', list(F['eqs'])))],
-             ['Lead summary of the envelope', cat(tvtxt(F['summary'], 700), ' ', tvtxt(F['bounding'], 400), ' ', tvtxt(F['dlf'], 400))],
-             ['Model tag', tvtxt(F['tag'], 300)],
-             ['Not modelled', tvtxt(F['notmod'], 700)],
-             ['Fuel-vapour inventory at light', cat(tvtxt(F['inv_status'], 240), ' ', tvtxt(F['inv'], 200), ' ', F['inv_unk'].h())],
-             ['Data file', cat(f'<span class="mono small">02-combustion/data/v2p4a/{esc(SRC_FILE["FA1"])}</span> ', F['hash'].h())]]
-    o.append(dtable(['FA-1 envelope (Combustion v2.4a)', 'Value'], rows, widths=['40%', '60%'],
-                    caption='Envelope maxima over the case grid. Baseline: fuel vapour counted once; upper bracket: both initial conditions. '
-                            'Absolute pressures. SIM on an ASSUMED construct.'))
-    per = F['per']
-    rows = [['FA-1 structural load, quasi-static at head and aft, all parts', Cell(pres_bar(ctx, F['load'], 0), [F['load']])],
-            ['Parts with a natural period in the decided band (closures, bolts, J1 lip): design / sensitivity pressure',
-             cat(f'<span class="v">{per[0].num("g")}–{per[1].num("g")}</span><span class="u">&#8239;ms</span> {per[0].pill()}{per[0].ref()} {per[1].ref()}: ',
-                 pres_bar(ctx, F['p_des'], 0), vo_bo, pres_bar(ctx, F['p_sens'], 0), Cell('', [per[0], per[1], F['p_des'], F['p_sens']]))],
-            ['Thrust spike, interim structural load (confirmed bounding)', cat(F['f_int'].h('.1f'), ' × ', F['t_int'].h('g'))],
-            (['Mechanical margins at these loads (decision-log result, not independently reviewed)',
-              cat(tvtxt(F['mech'], 1800), ' ', F['mech_rev'].h())] if F.get('mech') else
-             ['Mechanical margins at these loads', Cell(F['margins'].h(), [F['margins']])]),
-            ['Physical evidence', tvtxt(F['evid'], 300)],
-            ['Decision text', tvtxt(F['dec'], 900)]]
-    o.append(dtable(['FA-1 load decision', 'Value'], rows, widths=['40%', '60%'],
-                    caption=('Lead decision on the envelope and the margins Mechanical reported against it (quoted as reported, negative values '
-                             'included; SIM, not the assembled FEA of record; §9.2, §13.3 C-14). ' if F.get('mech') else
-                             'Lead decision on the envelope. The structural margins at these loads are Mechanical\'s to report (§9, §12.2). ') +
-                            'The proof pressure is in the §2.4 ladder (its absolute or gauge basis is not stated in combustion.json).'))
-    return o
-
-
-def plot_throttle(a, pts, fails, cap_bar, meop_bar, stiff_rule, marks, fail_label, basis=None):
-    plt = mpl_setup()
-    fig, ax = plt.subplots(2, 2, figsize=(6.9, 4.3))
-    F = [p['F'].value for p in pts]
-    def ser(k, f=1.0):
-        return [p[k].value * f if p[k].value is not None else float('nan') for p in pts]
-    pc = ser('Pc', 1e-5)
-    ax[0, 0].plot(F, pc, 'o-', color=C_ACC, ms=3.2, lw=1.1, label='operating-point list (SIM)')
-    if fails:
-        import textwrap
-        ax[0, 0].plot([f['F'] for f in fails], [f['Pc'] for f in fails], 's', color=C_BAD, ms=2.8, alpha=0.75,
-                      label='\n'.join(textwrap.wrap(fail_label, 36)))
-    ax[0, 0].axhline(cap_bar, color=C_WARN, lw=0.8, ls='--')
-    ax[0, 0].text(0.02, cap_bar + 0.8, f'software cap {cap_bar:g} bar', color=C_WARN, fontsize=6.2, transform=ax[0, 0].get_yaxis_transform())
-    ax[0, 0].axhline(meop_bar, color=C_BAD, lw=0.8, ls='--')
-    ax[0, 0].text(0.02, meop_bar + 0.8, f'MEOP {meop_bar:g} bar', color=C_BAD, fontsize=6.2, transform=ax[0, 0].get_yaxis_transform())
-    if basis is not None:
-        ax[0, 0].axhline(basis[0], color=C_ACC, lw=0.8, ls='-.')
-        ax[0, 0].text(0.98, basis[0] - 2.6, basis[1], color=C_ACC, fontsize=6.0, ha='right', transform=ax[0, 0].get_yaxis_transform())
-    ax[0, 0].set_xlabel('thrust F [N]')
-    ax[0, 0].set_ylabel('chamber pressure Pc [bar]')
-    ax[0, 0].legend(loc='lower right', fontsize=5.8, frameon=True, framealpha=0.92, edgecolor='none')
-    ax[0, 0].set_ylim(0, meop_bar * 1.16)
-    ax[0, 1].plot(F, ser('OF'), 'o-', color=C_ACC2, ms=3.2, lw=1.1)
-    ax[0, 1].set_xlabel('thrust F [N]')
-    ax[0, 1].set_ylabel('O/F [–]')
-    ax[1, 0].plot(F, ser('Isp'), 'o-', color=C_ACC, ms=3.2, lw=1.1)
-    ax[1, 0].set_xlabel('thrust F [N]')
-    ax[1, 0].set_ylabel('Isp, sea level [s]')
-    ax[1, 1].semilogy(F, ser('dP'), 'o-', color=C_OK, ms=3.2, lw=1.1)
-    # plain decimal tick labels: mathtext labels are split into tspans whose whitespace falls back to the SVG default (serif) font
-    from matplotlib.ticker import FuncFormatter, NullFormatter
-    ax[1, 1].yaxis.set_major_formatter(FuncFormatter(lambda v, _: f'{v:g}'))
-    ax[1, 1].yaxis.set_minor_formatter(NullFormatter())
-    ax[1, 1].axhline(stiff_rule, color=C_BAD, lw=0.8, ls='--')
-    ax[1, 1].text(0.02, stiff_rule * 1.12, f'stiffness rule dP/Pc ≥ {stiff_rule:g}', color=C_BAD, fontsize=6.2, transform=ax[1, 1].get_yaxis_transform())
-    ax[1, 1].set_xlabel('thrust F [N]')
-    ax[1, 1].set_ylabel('injector dP / Pc [–]')
-    fmax = max([v for v in F if v is not None] + [0])
-    fall = max([fmax] + [f['F'] for f in fails if f['F'] is not None])
-    for x in ax.flat:
-        for f, lab in marks:
-            if f is not None:
-                x.axvline(f, color=C_GREY, lw=0.6, ls=':')
-        x.set_xlim(0, (fall if x is ax[0, 0] else fmax) * 1.06)
-    fig.tight_layout(h_pad=1.0, w_pad=1.6)
-    return save_plot(fig, a, 'plot_throttle')
-
-
-def plot_pressure_ladder(a, items):
-    """items: (label, value_bar or (lo, hi), color, note)"""
-    plt = mpl_setup()
-    fig, ax = plt.subplots(figsize=(6.9, 0.28 * len(items) + 0.5))
-    ys = list(range(len(items)))[::-1]
-    for y, (lab, v, col, note) in zip(ys, items):
-        if isinstance(v, (list, tuple)):
-            ax.barh(y, v[1] - v[0], left=v[0], height=0.55, color=col, alpha=0.55)
-            ax.text(v[1] + 0.8, y, f'{v[0]:.1f}–{v[1]:.1f} bar  {note}', va='center', fontsize=6.3, color='#1d2733')
-        else:
-            ax.barh(y, v, height=0.55, color=col)
-            ax.text(v + 0.8, y, f'{v:.2f} bar  {note}', va='center', fontsize=6.3, color='#1d2733')
-    ax.set_yticks(ys)
-    ax.set_yticklabels([i[0] for i in items])
-    ax.set_xlabel('pressure [bar] (absolute unless noted)')
-    vmax = max((max(v) if isinstance(v, (list, tuple)) else v) for _, v, _, _ in items if v is not None)
-    ax.set_xlim(0, vmax * 1.12)
-    ax.grid(axis='y', visible=False)
-    fig.tight_layout()
-    return save_plot(fig, a, 'plot_pressure_ladder')
-
-
 def plot_mass(a, fams, excl):
     plt = mpl_setup()
     n = len(fams) + len(excl)
@@ -1832,73 +1438,6 @@ def plot_mass(a, fams, excl):
     return save_plot(fig, a, 'plot_mass')
 
 
-def plot_landing(a, rows):
-    """rows: (label, P, lo, hi, color)"""
-    plt = mpl_setup()
-    fig, ax = plt.subplots(figsize=(6.9, 0.2 * len(rows) + 0.7))
-    ys = list(range(len(rows)))[::-1]
-    for y, (lab, p, lo, hi, col) in zip(ys, rows):
-        ax.errorbar(p, y, xerr=[[p - lo], [hi - p]], fmt='o', color=col, ms=3.0, lw=0.9, capsize=2)
-        ax.text(1.003, y, f'{p:.3f} [{lo:.3f}, {hi:.3f}]', va='center', fontsize=6.0, transform=ax.get_yaxis_transform())
-    ax.set_yticks(ys)
-    ax.set_yticklabels([r[0] for r in rows])
-    ax.set_xlabel('P(landing success), 500 dispersed runs, Wilson 95 % interval')
-    ax.set_xlim(min(0.2, min(r[2] for r in rows) - 0.02), 1.0)
-    ax.grid(axis='y', visible=False)
-    fig.tight_layout()
-    fig.subplots_adjust(right=0.80)
-    return save_plot(fig, a, 'plot_landing')
-
-
-def plot_slew(a, cases, req):
-    """cases: list of (load label, {V: dps}); req: required dps"""
-    plt = mpl_setup()
-    fig, ax = plt.subplots(figsize=(6.9, 2.1))
-    volts = sorted({v for _, d in cases for v in d})
-    w = 0.8 / max(1, len(volts))
-    cols = {volts[0]: C_GREY, volts[-1]: C_ACC2}
-    for k, v in enumerate(volts):
-        xs = [i + (k - (len(volts) - 1) / 2) * w for i in range(len(cases))]
-        vals = [d.get(v, float('nan')) for _, d in cases]
-        ax.bar(xs, vals, width=w * 0.92, color=cols.get(v, C_ACC), label=f'{v} V plug')
-        for x, val in zip(xs, vals):
-            ax.text(x, val + 1.5, f'{val:.1f}', ha='center', fontsize=5.6)
-    ax.axhline(req, color=C_BAD, lw=0.9, ls='--')
-    ax.text(len(cases) - 0.5, req + 2, f'ENG-07 ≥ {req:g} °/s', color=C_BAD, fontsize=6.2, ha='right')
-    ax.set_xticks(range(len(cases)))
-    ax.set_xticklabels([c[0] for c in cases], fontsize=6.3)
-    ax.set_ylabel('worst-direction slew at 7° [°/s]')
-    ax.legend(ncol=len(volts), loc='upper left', fontsize=6.2)
-    ax.set_ylim(0, max(max(d.values()) for _, d in cases) * 1.18)
-    ax.grid(axis='x', visible=False)
-    fig.tight_layout()
-    return save_plot(fig, a, 'plot_slew')
-
-
-def plot_sequence(a, ev, purge, windows):
-    """ev: list of (t, label); purge: dict(t0, ramp, flow, end); windows: list of (label, t0, t1)"""
-    plt = mpl_setup()
-    fig, ax = plt.subplots(figsize=(6.9, 1.9))
-    ax.barh(2, purge['ramp'], left=purge['t0'], height=0.5, color=C_GREY, label='MV opener ramp')
-    ax.barh(2, purge['flow'], left=purge['end'] - purge['flow'], height=0.5, color=C_ACC2, alpha=0.8, label='purge flow (2 taps)')
-    for k, (lab, t0, t1) in enumerate(windows):
-        ax.barh(1 - 0.0 * k, t1 - t0, left=t0, height=0.5, color=C_WARN, alpha=0.35 + 0.2 * k)
-        ax.text(t1 + 0.03, 1, lab, va='center', fontsize=6.0)
-    for k, (t, lab) in enumerate(sorted(ev)):
-        ax.axvline(t, color=C_ACC, lw=0.7, ls=':')
-        ax.text(t + 0.012, (0.62, 0.36, 0.10)[k % 3], lab, va='bottom', ha='left', fontsize=6.0, color=C_ACC,
-                bbox=dict(boxstyle='round,pad=0.12', fc='white', ec='none', alpha=0.85))
-    ax.set_yticks([2, 1])
-    ax.set_yticklabels(['PURGE (A1 relight)', 'light window W'])
-    ax.set_xlabel('time relative to E0 (RELIGHT command) [s]')
-    ax.set_ylim(0, 2.6)
-    ax.set_xlim(purge['t0'] - 0.2, 1.4)
-    ax.legend(loc='upper right', fontsize=6.0, ncol=2)
-    ax.grid(axis='y', visible=False)
-    fig.tight_layout()
-    return save_plot(fig, a, 'plot_sequence')
-
-
 # =============================================================================================
 # document scaffolding
 # =============================================================================================
@@ -1910,44 +1449,6 @@ class Doc:
         hid = 'sec%02d' % (len(self.heads) + 1)
         self.heads.append({'level': level, 'id': hid, 'text': text, 'page': None})
         return f'<h{level} id="{hid}" class="{cls}">{esc(text)}</h{level}>'
-
-
-def rx(ctx, sid, ptr, pattern, unit='', tag=None, conv=None, group=1, note=''):
-    """Number extracted from a text value at a JSON pointer with an explicit regex (recorded)."""
-    s = ctx.raw(sid, ptr, default=None)
-    if isinstance(s, dict):
-        tag_raw = s.get('tag')
-        s = s.get('v')
-    else:
-        tag_raw = None
-    m = re.search(pattern, str(s)) if s is not None else None
-    loc = f'{ptr} [regex {pattern}]'
-    if not m:
-        ctx.issue('WARN', f'regex not matched {sid}:{ptr} {pattern}')
-        tv = TV(ctx, None, unit, 'MISSING', tag_raw, sid, loc, status='MISSING', note='pattern not found')
-        ctx.unknowns.append({'what': f'{sid}:{loc}', 'status': 'MISSING', 'tid': tv.tid})
-        return tv
-    val = float(m.group(group))
-    if conv:
-        val = val * conv[0] + conv[1]
-        note = (note + '; ' if note else '') + f'display = raw x {conv[0]:g} ({conv[2]})'
-    ev = tag or normalise_tag(tag_raw) or 'DERIVED'
-    return TV(ctx, val, unit, ev, tag_raw or f'(class set by generator: {ev})', sid, loc, note=note)
-
-
-def md_row(ctx, sid, section_prefix, key, col, ev=None, tag_col=None, maxlen=None):
-    """Text cell of a markdown table row selected by its first-column key."""
-    rows = md_table_rows(ctx.src(sid).text or '', section_prefix)
-    for r in rows:
-        if r and re.sub(r'\*', '', r[0]).strip() == key:
-            if col >= len(r):
-                break
-            txt = re.sub(r'\*\*', '', r[col]).strip()
-            tag_raw = r[tag_col].strip() if (tag_col is not None and tag_col < len(r)) else None
-            e = ev or normalise_tag(tag_raw.split('/')[0] if tag_raw else None) or 'DESIGN'
-            return ctx.t(sid, f'§{section_prefix or "*"} row "{key}" col {col}', txt, e, tag_raw=tag_raw)
-    ctx.issue('WARN', f'markdown row not found {sid} §{section_prefix} {key!r}')
-    return ctx.missing(f'{sid} §{section_prefix} row {key}')
 
 
 def req_row(ctx, key, maxlen=None):
@@ -1975,47 +1476,6 @@ def pill_box(ev, text):
 # =============================================================================================
 # section 0: cover and contents
 # =============================================================================================
-def sec_cover(ctx, doc, a, D):
-    g = D['geo']
-    rated = D['rated']
-    cfg = [('CMB', 'Combustion'), ('MEC', 'Mechanical'), ('ELE', 'Electronics'), ('GNC', 'Space/GNC'),
-           ('REQ', 'Requirements'), ('ICD', 'Airframe ICD'), ('CL', 'Decision log'), ('SUP', 'Review register')] + \
-          ([('OVR', 'Decision overrides')] if 'OVR' in ctx.sources else [])
-    cfg_rows = ''.join(f'<tr><td>{n}</td><td>{esc(ctx.src(s).version or "–")}</td><td class="mono">{esc(ctx.src(s).sha16 or "MISSING")}</td></tr>'
-                       for s, n in cfg)
-    low = D.get('rated_low')
-    rated_cell = cat(rated['F'].h(), f'<div class="tsub">≈ {low.h()} if η<sub>cf</sub> is at the low end of its band</div>', Cell('', [low])) \
-        if (low is not None and low.value is not None) else rated['F']
-    tiles = [
-        ('Rated thrust (SL), Pc at the software cap', rated_cell), ('Chamber pressure', D['pc_rated_cell']), ('Throttle floor 5:1', D['floor_F']),
-        ('Isp, rated (SL)', rated['Isp']), ('CAD mass, wet (excl. tank)', D['mass_wet_all']),
-        ('Envelope (CAD bbox)', D['env_cell']),
-    ]
-    th = ''.join(f'<div class="tile"><div class="tl">{esc(l)}</div><div class="tv">{(v.h() if isinstance(v, TV) else v.html)}</div></div>' for l, v in tiles)
-    CELL_STATS['data_cells'] += len(tiles)
-    CELL_STATS['traced'] += len(tiles)
-    hero = D['R'].get('iso_alpha')
-    hero_html = f'<img class="hero" src="{hero["file"]}" alt="CAD render, isometric">' if hero else '<div class="miss">render missing</div>'
-    return f'''
-<section class="cover">
- <div class="cv-band">
-  <div class="cv-prog">ARGOS H1 · engine programme · {esc(DOC_ID)}</div>
-  <div class="cv-title">Engine technical datasheet</div>
-  <div class="cv-sub">N<sub>2</sub>O / printed-ABS hybrid rocket engine · servo-pintle throttle · two-axis gimbal · for a self-landing rocket</div>
- </div>
- <div class="cv-main">
-  <div class="cv-hero">{hero_html}<div class="cv-cap">CAD {esc(a.cad_version)} assembly, neutral pose. Visualisation of tessellated display geometry, not a drawing.</div></div>
-  <div class="cv-side">
-   <div class="cv-draft">DRAFT · {esc(a.rev)}</div>
-   <div class="cv-warn"><b>Not physical approval.</b> Nothing in this datasheet is physical approval or acceptance. No value is MEASURED: every value is design, simulation, derivation, assumption, datasheet or requirement data and carries its evidence tag and a trace reference (T###, Appendix A). Missing data are shown as MISSING, TO-DEFINE or PENDING, never estimated by the generator.</div>
-   <div class="tiles">{th}</div>
-   <table class="cv-cfg"><thead><tr><th>Configuration</th><th>Version</th><th>sha256/16</th></tr></thead><tbody>
-   <tr><td>CAD</td><td>{esc(a.cad_version)}</td><td class="mono">GLB {esc(ctx.src("GLB").sha16 or "MISSING")}</td></tr>
-   {cfg_rows}</tbody></table>
-   <div class="cv-gen">Generated {esc(D["generated"])} by gen/{GEN_NAME} {GEN_VERSION}. Quotations: delivery Sønderborg, Denmark, DK-6400. Units SI; pressures in MPa with bar in brackets.</div>
-  </div>
- </div>
-</section>'''
 
 
 def sec_toc(doc):
@@ -2032,318 +1492,11 @@ def sec_toc(doc):
 # =============================================================================================
 # section 1: identification and status
 # =============================================================================================
-def sec_identification(ctx, doc, a, D):
-    cl = D['cl']
-    o = [doc.h(1, '1 Identification and status')]
-    gen = lambda v, what: TV(ctx, v, '', 'DESIGN', 'generator configuration (command line / run time)', 'generator', what)
-    rows = [
-        ('Document', gen(DOC_ID, 'DOC_ID')),
-        ('Revision and status', gen(f'{a.rev} — DRAFT, digital design data only', '--rev')),
-        ('Generated', gen(D['generated'], 'run time (UTC)')),
-        ('Engine (requirement ENG-01)', req_row(ctx, 'ENG-01')),
-        ('Throttle architecture', ctx.v('CMB', '/decisions/throttle_architecture')),
-        ('Propellants and grain (ENG-12)', req_row(ctx, 'ENG-12')),
-        ('Thrust vector control (ENG-07)', req_row(ctx, 'ENG-07')),
-        ('Ignition', ctx.v('CMB', '/decisions/igniter')),
-        ('CAD configuration', ctx.v('PROP', '/status', tag='DESIGN')),
-        ('Combustion interface status', ctx.v('CMB', '/status', tag='DESIGN')),
-        ('Electronics interface status', ctx.v('ELE', '/status', tag='DESIGN')),
-        ('Review register note', ctx.v('SUP', '/note', tag='DESIGN')),
-        ('Decision overrides in force', D['ovr_summary']),
-    ]
-    o.append(dtable(['Item', 'Value'], [[l, tvtxt(v, 520)] for l, v in rows], widths=['24%', '76%'],
-                    caption='Identification. Text values are quoted from their sources (trace references link to Appendix A).'))
-    o.append(doc.h(2, '1.1 Separation of evidence'))
-    o.append('<p>The programme keeps five kinds of evidence apart. This datasheet labels every value with one of them; none of them is a physical test.</p>')
-    sep = [
-        ('Conceptual geometry', 'Items defined in text or hand calculation only, not modelled as solids: N2O tank, isolation-valve module mass, head-end bleed path, relief and fill/vent hardware.',
-         ctx.v('MEC', '/fixed_module/tank/concept/src', tag='DESIGN')),
-        ('CAD solid model', f'CAD {a.cad_version}: STEP solids of record, assembly manifest and GLB display mesh. Software checks only.',
-         ctx.v('PROP', '/results/parts_summary', tag='DERIVED')),
-        ('Mass budget', 'CAD volume × density for modelled parts, datasheet or assumed masses for COTS items, explicit exclusions (§4.4).',
-         ctx.v('BOM', '/mass_sum_note', tag='DERIVED')),
-        ('Simulation', 'Quasi-1D combustion and CEA, plume CFD, 6-DOF Monte Carlo, firmware SIL. Predictions with stated inputs and tags.',
-         ctx.v('GNC', '/status', tag='SIM')),
-        ('Physical validation', 'None performed. Bench, cold-flow and static-fire tests are listed in §12 and executed by the founders.',
-         ctx.v('SUP', '/note', tag='DESIGN')),
-    ]
-    o.append(dtable(['Evidence kind', 'Scope in this datasheet', 'Source statement'],
-                    [[k, s, tvtxt(v, 300)] for k, s, v in sep], label_cols=2, widths=['17%', '40%', '43%']))
-    o.append(doc.h(2, '1.2 Evidence tags'))
-    leg = [('SIM', 'model prediction (CEA, quasi-1D, CFD, 6-DOF, SIL)'), ('DERIVED', 'calculated from tagged inputs (by a specialist or by this generator)'),
-           ('ASSUMED', 'engineering assumption pending data'), ('DATASHEET', 'vendor or catalogue value'),
-           ('TO-VERIFY', 'value or feature to confirm (vendor, CAD or test)'), ('LITERATURE', 'published reference'),
-           ('DESIGN', 'design choice or specification value'), ('REQ', 'requirement (founder or lead)'),
-           ('LEAD', 'lead decision recorded in the CHANGELOG'), ('MISSING', 'no value in the sources'),
-           ('TO-DEFINE', 'value not yet defined by its owner'), ('PENDING', 'analysis not yet delivered'),
-           ('SUPERSEDED', 'withdrawn value, not shown (§13.2)')]
-    o.append('<div class="legend">' + ''.join(f'<div>{ev_pill(e)} {esc(t)}</div>' for e, t in leg) + '</div>')
-    o.append('<p class="small">Each value is followed by its tag and a trace reference T###. The trace gives the source file, its version and sha256/16, and the exact key (JSON pointer, markdown row or CHANGELOG line and item). Where a source carries a longer tag text, Appendix A keeps it verbatim.</p>')
-    o.append(note_box('<b>Decisions newer than combustion.json v2.4.</b> Where an interface file still carries wording that a later lead decision replaced '
-                      '(REV-COMB-2 findings R2-01, R2-02 and R2-05), the stale words are <del class="stale">struck through</del> and the decision is '
-                      '<ins class="dec">inserted with its override id</ins>. The override table (§13.1) cites the decision text and checks it on every build; '
-                      'values the Combustion author withdrew are not shown at all (§13.2).', 'info'))
-    o.append(doc.h(2, '1.3 Recent lead decisions folded in'))
-    dec = cl.decisions('lead', last=a.decisions)
-    o.append(dtable(['Line', 'Date', 'Decision (start of text)'],
-                    [[str(d['n']), d['date'] or '', tvtxt(cl.whole(d['n'], 420), None)] for d in dec], label_cols=2,
-                    widths=['6%', '11%', '83%'],
-                    caption=f'Last {len(dec)} lead decisions in interfaces/CHANGELOG.md ({esc(ctx.src("CL").version)}, sha256/16 {esc(ctx.src("CL").sha16)}).'))
-    return '\n'.join(o)
 
 
 # =============================================================================================
 # section 2: key performance
 # =============================================================================================
-def sec_performance(ctx, doc, a, D):
-    idx = D['tpi']
-    o = [doc.h(1, '2 Key performance')]
-    basis = ctx.v('CMB', '/operating_points/basis', tag='SIM')
-    o.append('<p>All performance values are model predictions (quasi-1D port model with CEA thermochemistry), with the regression law '
-             'ASSUMED until the T1–T4 static fires. None is measured. Model basis: ' + tvtxt(basis).html + '</p>')
-    o.append(doc.h(2, '2.1 Rated point and throttle floor'))
-    cols = [(f, f'{lab}, {f * 100:g} %' + (f' ({1 / f:g}:1)' if f < 1 else '')) for f, lab in
-            ((1.0, 'Rated'), (0.2, 'Floor target'), (0.25, 'Floor requirement'), (0.125, 'Stretch floor'))]
-    rows = []
-
-    def row(label, key, unit, conv=None, fmt=None, kind=None):
-        cells = [label]
-        tvs = []
-        for f, _ in cols:
-            tv = tp(ctx, idx, f, key, unit, conv)
-            tvs.append(tv)
-            if kind == 'p':
-                cells.append(Cell(pres(ctx, tv), [tv]))
-            else:
-                cells.append(Cell(tv.h(fmt=fmt), [tv]))
-        rows.append(cells)
-        return tvs
-
-    F = row('Thrust F (sea level)', 'F_N', 'N', fmt='.1f')
-    P = row('Chamber pressure Pc', 'Pc_Pa', 'Pa', kind='p')
-    row('Mixture ratio O/F', 'OF', '', fmt='.2f')
-    isp = row('Specific impulse Isp (sea level)', 'Isp_SL_s', 's', fmt='.1f')
-    rows.append(['Specific impulse as exhaust velocity'] + [Cell(t.h(fmt='.0f'), [t]) for t in
-                [ctx.d(i.value * G0 if i.value is not None else None, 'N·s/kg', 'Isp × g0, g0 = 9.80665 m/s² (defined constant)', [i]) for i in isp]])
-    mo = row('Oxidiser mass flow', 'mdot_ox_kg_s', 'kg/s', fmt='.4f')
-    mf = row('Fuel mass flow', 'mdot_fuel_kg_s', 'kg/s', fmt='.4f')
-    rows.append(['Total mass flow'] + [Cell(t.h(fmt='.4f'), [t]) for t in
-                [ctx.d((x.value + y.value) if (x.value is not None and y.value is not None) else None, 'kg/s', 'ṁ_ox + ṁ_fuel', [x, y]) for x, y in zip(mo, mf)]])
-    row('Pintle lift', 'pintle_lift_m', 'mm', conv=(1000, 0, 'm to mm'), fmt='.3f')
-    row('Injector stiffness dP/Pc', 'dP_inj_over_Pc', '', fmt='.2f')
-    req = [ctx.v('CMB', '/operating_points/max_thrust/F_N', 'N'), ctx.v('CMB', '/operating_points/floor_target_20pct/F_N', 'N'),
-           ctx.v('CMB', '/operating_points/floor_requirement_25pct/F_N', 'N'), ctx.v('CMB', '/operating_points/floor_stretch_12p5pct/F_N', 'N')]
-    rows.append(['Requirement or target thrust'] + [num_cell(t, '.1f') for t in req])
-    cap = D['cl'].item(170, 1)
-    st = [cap,
-          ctx.v('CMB', '/operating_points/floor_target_20pct/status', tag='SIM'),
-          ctx.v('CMB', '/operating_points/floor_requirement_25pct/status', tag='SIM'),
-          ctx.v('CMB', '/operating_points/floor_stretch_12p5pct/status', tag='SIM')]
-    rows.append(['Model status at the point', Cell('ENG-01 at the 25 bar cap: see the note below ' + st[0].pill() + st[0].ref(), [st[0]])]
-                + [tvtxt(t, 120) for t in st[1:]])
-    o.append(dtable(['Quantity'] + [c[1] for c in cols], rows, widths=['24%', '19%', '19%', '19%', '19%'],
-                    caption='Operating points from combustion.json /operating_points/throttle_points_20C_initial_port (tank state and port as in the model basis above). '
-                            'Column fractions are the selection keys of the point list.'))
-    o.append(note_box(f'<b>ENG-01 at the software cap.</b> {tvtxt(cap).html}', 'info'))
-    D['thr_plot_tvs'] = F + P
-    fails = []
-    fl = ctx.raw('CMB', '/operating_points/pressure_limits/full_stroke_failure_S230/v', default=[]) or []
-    eng12a = md_bullet(ctx, 'REQ', 'Amendments after rev 2', 'ENG-12:', 'REQ')
-    arm_max = rx_text(ctx, eng12a, r'at ARM 15-(\d+) C', '°C', tag='REQ')
-    n_out = 0
-    for k, r in enumerate(fl):
-        fb = '/operating_points/pressure_limits/full_stroke_failure_S230'
-        if arm_max.value is not None and r.get('T_tank_C') is not None and r['T_tank_C'] > arm_max.value:
-            n_out += 1
-            continue
-        tvF = ctx.v('CMB', f'{fb}/v/{k}/F_N', 'N', tag='SIM', tag_ptr=fb)
-        tvP = ctx.v('CMB', f'{fb}/v/{k}/Pc_bar', 'bar', tag='SIM', tag_ptr=fb)
-        tvT = ctx.v('CMB', f'{fb}/v/{k}/T_tank_C', '°C', tag='SIM', tag_ptr=fb)
-        tvC = ctx.v('CMB', f'{fb}/v/{k}/Cd', '', tag='SIM', tag_ptr=fb)
-        fails.append({'F': tvF.value, 'Pc': tvP.value, 'tvs': [tvF, tvP, tvT, tvC]})
-    pts = []
-    for f in sorted(idx, reverse=True):
-        pts.append({'F': tp(ctx, idx, f, 'F_N', 'N'), 'Pc': tp(ctx, idx, f, 'Pc_Pa', 'Pa'), 'OF': tp(ctx, idx, f, 'OF'),
-                    'Isp': tp(ctx, idx, f, 'Isp_SL_s', 's'), 'dP': tp(ctx, idx, f, 'dP_inj_over_Pc')})
-    capv = ctx.v('CMB', '/decisions/normal_software_Pc_cap_Pa', 'Pa')
-    meopv = ctx.v('CMB', '/decisions/chamber_MEOP_Pa', 'Pa')
-    stiff = rx(ctx, 'CMB', '/stability/criteria', r'dP/Pc >= ([\d.]+)', '', tag='DERIVED')
-    marks = [(F[1].value, 'floor target'), (F[0].value, 'rated')]
-    tts = [f['tvs'][2].value for f in fails if len(f['tvs']) > 2]
-    cds = [f['tvs'][3].value for f in fails if len(f['tvs']) > 3]
-    flab = 'pintle stuck at full stroke (SIM, v2.3 line-loss model)' + (f', tank {min(tts):g}–{max(tts):g} °C, Cd {min(cds):g}–{max(cds):g}' if tts and cds else '')
-    mb0 = ctx.v('CMB', '/meop_basis_v2p4/v/basis_bar', 'bar', tag_ptr='/meop_basis_v2p4')
-    src = plot_throttle(a, pts, fails, capv.value / 1e5, meopv.value / 1e5, stiff.value, marks, flab,
-                        basis=(mb0.value, f'MEOP basis v2.4 {mb0.value:g} bar (thrust not published)') if mb0.value is not None else None)
-    ref_ids = [t.tid for p in pts for t in p.values()] + [t.tid for f in fails for t in f['tvs']] + [capv.tid, meopv.tid, stiff.tid, mb0.tid, arm_max.tid]
-    o.append(fig_html(src, 'Throttle characteristics over the operating-point list (SIM) and the stuck-pintle full-stroke cases. '
-                      'Dotted lines mark the floor-target and rated points; dashed lines the software cap, the MEOP and the injector-stiffness rule; '
-                      f'the dash-dot line is the v2.4 MEOP basis (§2.4). Stuck-pintle rows with a tank above the ARM limit ({arm_max.num()} °C, ENG-12 amendment) '
-                      f'are not credible ignition states and are not plotted ({n_out} of {len(fl)} rows).', ref_ids, 'wide'))
-
-    o.append(doc.h(2, '2.2 Nozzle and chamber'))
-    nz = [
-        ('Throat diameter D<sub>t</sub>', ctx.v('CMB', '/gas_path/nozzle/throat_diameter_m', 'mm', conv=(1000, 0, 'm to mm')), '.2f'),
-        ('Exit diameter D<sub>e</sub>', ctx.v('CMB', '/gas_path/nozzle/exit_diameter_m', 'mm', conv=(1000, 0, 'm to mm')), '.2f'),
-        ('Expansion ratio ε', ctx.v('CMB', '/gas_path/nozzle/expansion_ratio', tag_ptr='/decisions/expansion_ratio'), '.2f'),
-        ('Throat area A<sub>t</sub>', ctx.v('CMB', '/gas_path/nozzle/throat_area_m2', 'mm²', conv=(1e6, 0, 'm² to mm²')), '.2f'),
-        ('Exit-to-ambient pressure ratio at rated point', ctx.v('CMB', '/gas_path/nozzle/pe_over_pa_at_max'), '.3f'),
-        ('Characteristic velocity c* (delivered, η<sub>c*</sub> 0.92)', ctx.v('CMB', '/operating_points/max_thrust/cstar_delivered_m_s', 'm/s'), '.0f'),
-        ('Ratio of specific heats, chamber', ctx.v('CMB', '/operating_points/max_thrust/gamma_chamber'), '.4f'),
-        ('Molar mass, chamber', ctx.v('CMB', '/operating_points/max_thrust/MW_chamber', 'kg/kmol'), '.2f'),
-        ('Gas-path length, injector face to exit', ctx.v('CMB', '/gas_path/overall/gas_path_length_injector_face_to_exit_m', 'mm', conv=(1000, 0, 'm to mm')), '.1f'),
-        ('Free chamber volume, initial', ctx.v('CMB', '/gas_path/overall/free_chamber_volume_initial_m3', 'cm³', conv=(1e6, 0, 'm³ to cm³')), '.1f'),
-        ('Characteristic length L*, initial', ctx.v('CMB', '/gas_path/overall/L_star_initial_m', 'm'), '.3f'),
-        ('Chamber gas-side diameter (pre/post chamber)', ctx.v('CMB', '/gas_path/chamber_gas_diameter_m', 'mm', conv=(1000, 0, 'm to mm')), '.1f'),
-        ('Case tube OD × wall', None, None),
-    ]
-    rows = []
-    for lab, tv, f in nz:
-        if tv is None:
-            od = ctx.v('CMB', '/gas_path/case/OD_m', 'mm', conv=(1000, 0, 'm to mm'))
-            wl = ctx.v('CMB', '/gas_path/case/wall_m', 'mm', conv=(1000, 0, 'm to mm'))
-            rows.append([lab, cat(od.h('.2f'), ' × ', wl.h('.3f'), Cell('', [od, wl]))])
-            continue
-        rows.append([lab, Cell(tv.h(fmt=f), [tv])])
-    t0 = ctx.v('CMB', '/operating_points/max_thrust/Tc_ideal_K', 'K')
-    t1 = ctx.v('CMB', '/operating_points/max_thrust/T0_delivered_K', 'K')
-    rows.append(['Chamber temperature, ideal (CEA)', Cell(temp_k(t0, 0), [t0])])
-    rows.append(['Stagnation temperature, delivered (η<sub>c*</sub>²)', Cell(temp_k(t1, 0), [t1])])
-    rows.append(['Throat insert material', tvtxt(ctx.v('CMB', '/gas_path/nozzle/graphite'), 220)])
-    o.append(dtable(['Quantity', 'Value'], rows, widths=['46%', '54%'], caption='Nozzle and chamber at the rated point (combustion.json).'))
-
-    o.append(doc.h(2, '2.3 Burn, starts and relight'))
-    lw = [ctx.v('CMB', f'/light_windows/v/{k}', 's', tag_ptr='/light_windows') for k in ('flight_first_start', 'flight_relight', 'stand')]
-    rows = [
-        ['Starts per flight', tvtxt(ctx.v('CMB', '/igniter/starts_per_flight'))],
-        ['Restart requirement (ENG-04)', tvtxt(req_row(ctx, 'ENG-04'), 700)],
-        ['Light window W from the lift command: flight first start / flight relight / stand',
-         cat(lw[0].h('.2f'), ' / ', lw[1].h('.2f'), ' / ', lw[2].h('.2f'))],
-        ['Relight planning value (flight software)', num_cell(ctx.v('GNC', '/requirements/ignition/relight_planning_value_s', 's'), '.2f')],
-        ['Planning value on an UNPRIMED flag (option c)', num_cell(ctx.v('GNC', '/requirements/ignition/relight_planning_value_s/option_c_unprimed_s', 's'), '.2f')],
-        ['A1 burn time, nominal 6-DOF (FSW v2.6 basis)', num_cell(ctx.v('GNC', '/flight_profile/mission_plan_v3/v/A1/nominal_fsw_v2.6_planning_1.4s/burn_time_s', 's', tag='SIM'), '.2f')],
-        ['N2O vented per relight purge, plan maximum', num_cell(ctx.v('CMB', '/relight_purge/v/N2O_vented_g/plan_max', 'g', tag_ptr='/relight_purge'), '.0f')],
-        ['Grain and throat insert life (ENG-06)', tvtxt(req_row(ctx, 'ENG-06'), 600)],
-    ]
-    o.append(dtable(['Item', 'Value'], rows, widths=['40%', '60%']))
-
-    o.append(doc.h(2, '2.4 Pressure limits and physical worst case'))
-    if ctx.ovr:
-        r7 = next((e for e in ctx.ovr.entries if e['id'] == 'OVR-07' and e['status'] == 'ACTIVE'), None)
-        rv = next((t for t in (r7['srcs'] if r7 else []) if t.sid == 'RV2'), None)
-        if rv is not None:
-            of8 = rx_text(ctx, rv, r'O/F (\d+)', '', tag='DERIVED')
-            if of8.value is not None:
-                D['fa1_plot_note'] = f'single point at ASSUMED O/F {of8.value:g}; envelope pending (OVR-07)'
-    cap25 = ctx.v('CMB', '/decisions/normal_software_Pc_cap_Pa', 'Pa')
-    ab30 = ctx.v('CMB', '/decisions/ecu_overpressure_abort_Pa', 'Pa')
-    hw = rx(ctx, 'ELE', '/sensors/pressure_transducers/hw_ovp', r'=\s*([\d.]+) bar abs', 'bar', note='nominal trip of the hardware comparator')
-    ll_r = ctx.v('CMB', '/late_light_and_meop/v/decomposition_peak_bar/pad_15C/rounded', 'bar', tag_ptr='/late_light_and_meop')
-    ll_s = ctx.v('CMB', '/late_light_and_meop/v/decomposition_peak_bar/pad_15C/sharp', 'bar', tag_ptr='/late_light_and_meop')
-    mb = ctx.v('CMB', '/meop_basis_v2p4/v/basis_bar', 'bar', tag_ptr='/meop_basis_v2p4')
-    mm_ = ctx.v('CMB', '/meop_basis_v2p4/v/margin_to_MEOP_bar', 'bar', tag_ptr='/meop_basis_v2p4')
-    meop = ctx.v('CMB', '/decisions/chamber_MEOP_Pa', 'Pa')
-    fa = ctx.v('CMB', '/late_light_and_meop/v/fuel_assisted_relight_bar/burn_1ms', 'bar', tag_ptr='/late_light_and_meop')
-    fas = ctx.v('CMB', '/late_light_and_meop/v/fuel_assisted_status', tag_ptr='/late_light_and_meop')
-    bn = ctx.v('CMB', '/operating_points/pressure_limits/blocked_nozzle_bound_Pa', 'Pa')
-    proof = ctx.v('CMB', '/decisions/proof_pressure_Pa', 'Pa')
-    pmin = ctx.v('CMB', '/meop_basis_v2p4/v/proof_margin_min_bar', 'bar', tag_ptr='/meop_basis_v2p4')
-    tmeop = ctx.v('CMB', '/operating_points/tank_MEOP_Pa', 'Pa')
-    trange = ctx.v('CMB', '/operating_points/tank_pressure_range_Pa', 'bar', conv=(1e-5, 0, 'Pa to bar'))
-    cl = D['cl']
-    eng09a = md_bullet(ctx, 'REQ', 'Amendments after rev 2', 'ENG-09:', 'REQ')
-    t_il = rx_text(ctx, eng09a, r'T_tank <= (\d+) C', '°C', tag='REQ')
-    c172_4 = cl.item(172, 4)
-    p_il = rx_text(ctx, c172_4, r'(\d+) C / ([\d.]+) bar abs', 'bar', tag='LEAD', group=2)
-    guard = ctx.missing('Tank interlock guard band = total channel uncertainty (Electronics states it; CHANGELOG 172 (4))', 'TO-DEFINE')
-    c172_2 = cl.item(172, 2)
-    fa_int = rx_text(ctx, c172_2, r'quasi-static (\d+) bar abs', 'bar', tag='LEAD')
-    fa_note = ctx.ovr.note_for('OVR-07') if ctx.ovr else None
-    tlow = ctx.d(trange.value[0] if isinstance(trange.value, list) else None, 'bar', 'lower end of combustion.json tank_pressure_range_Pa', [trange])
-    F1 = D['fa1'] = fa1_envelope(ctx, D)
-    if F1:
-        pk = F1['pk']
-        fa1_rows = [
-            ['FA-1 envelope, head peak: baseline / sharp entrance / upper bracket (v2.4a)',
-             cat(pres_bar(ctx, pk[0]), ' / ', pres_bar(ctx, pk[1]), ' / ', pres_bar(ctx, pk[2]), Cell('', pk)), 'SIM on an ASSUMED construct (§2.5)'],
-            ['FA-1 structural load (lead decision): quasi-static at head and aft, all parts', Cell(pres_bar(ctx, F1['load'], 0), [F1['load']]),
-             f'replaces the interim check (CHANGELOG {F1["n"]})'],
-            ['FA-1 parts with a natural period in the decided band: design / sensitivity pressure',
-             cat(pres_bar(ctx, F1['p_des'], 0), ' / ', pres_bar(ctx, F1['p_sens'], 0), Cell('', [F1['p_des'], F1['p_sens']])),
-             'Mechanical margins reported, not reviewed (§2.5)' if F1.get('mech') else 'Mechanical margins PENDING (§2.5)']]
-        fa1_lad = [('FA-1 envelope, head peak', (pk[0].value, pk[2].value) if None not in (pk[0].value, pk[2].value) else None, C_BAD,
-                    'baseline to upper bracket (SIM, ASSUMED construct)'),
-                   ('FA-1 structural load', F1['load'].value, C_ACC2, 'quasi-static, head and aft, all parts (LEAD)'),
-                   ('FA-1 design / sensitivity', (F1['p_des'].value, F1['p_sens'].value) if None not in (F1['p_des'].value, F1['p_sens'].value) else None,
-                    C_ACC2, 'parts in the decided period band (LEAD)')]
-        fa1_refs = pk + [F1['load'], F1['p_des'], F1['p_sens']]
-        fa1_cap = ('Pressure ladder. FA-1 is shown as the Combustion v2.4a envelope (SIM on an ASSUMED construct) and the lead structural-load decision '
-                   '(§2.5); the single point in combustion.json v2.4 is annotated (OVR-07) and not plotted. FA-1 is accepted for design continuation only '
-                   '(CHANGELOG 170 (2)).')
-    else:
-        fa1_rows = [['FA-1 interim structural check until the load envelope is published', Cell(pres_bar(ctx, fa_int, 0), [fa_int]), 'quasi-static at head and aft (CHANGELOG 172 (2))']]
-        fa1_lad = [('FA-1 relight pulse, 1 ms', tuple(fa.value) if isinstance(fa.value, list) else fa.value, C_BAD, D.get('fa1_plot_note', 'SIM on ASSUMED inputs')),
-                   ('FA-1 interim structural check', fa_int.value, C_ACC2, 'quasi-static, head and aft (LEAD)')]
-        fa1_refs = [fa, fa_int]
-        fa1_cap = ('Pressure ladder. The FA-1 fuel-assisted relight pulse is a single point at an ASSUMED fuel fraction; its load is being restated as an '
-                   'envelope, with an interim quasi-static structural check meanwhile (CHANGELOG 172 (2), OVR-07). FA-1 is accepted for design continuation only '
-                   '(CHANGELOG 170 (2)).')
-    rows = [
-        ['Normal chamber pressure cap (software)', Cell(pres(ctx, cap25), [cap25]), 'LEAD decision; ENG-01/ENG-09'],
-        ['ECU over-pressure abort', Cell(pres(ctx, ab30), [ab30]), 'decided channel and persistence: §7.6 (OVR-01)'],
-        ['Hardware comparator trip (Pc transducer, nominal)', Cell(pres_bar(ctx, hw, 2), [hw]), 'absolute; band in electronics.json'],
-        ['Late-light decomposition peak at the pad (key pad_15C): rounded / sharp port entrance', cat(pres_bar(ctx, ll_r), ' / ', pres_bar(ctx, ll_s), Cell('', [ll_r, ll_s])), 'rounded entrance REQUIRED (CHANGELOG 160 (4))'],
-        ['MEOP basis (v2.4) at the ignition interlock, and its margin to MEOP', cat(pres_bar(ctx, mb, 2), ' at T<sub>tank</sub> ≤ ', t_il.h(), '; margin ', mm_.h('.2f'), Cell('', [mb, t_il, mm_])),
-         'stuck pintle at full stroke, worst corner of the bands; replaces the v2.3 basis (§13.2)'],
-        ['Chamber MEOP', Cell(pres(ctx, meop), [meop]), 'kept with the ignition interlock (ENG-09 amendment)'],
-        ['Fuel-assisted relight pulse (FMEA FA-1, key burn_1ms)', cat(pres_bar(ctx, fa), fa_note or '', Cell('', [fa])), tvtxt(fas, 120)],
-        *fa1_rows,
-        ['Blocked-nozzle bound (chamber at tank vapour pressure)', Cell(pres(ctx, bn), [bn]), 'below yield (FEA PENDING)'],
-        ['Proof pressure (ENG-09) and its minimum margin above the MEOP basis', cat(pres(ctx, proof), '; margin ≥ ', pmin.h('.1f'), Cell('', [proof, pmin])), 'hydro proof, founders'],
-        ['Tank MEOP', Cell(pres(ctx, tmeop), [tmeop]), 'tank not yet in CAD'],
-        ['Tank pressure at ARM, saturated: lower end / ignition interlock', cat(pres_bar(ctx, tlow), ' / ', pres_bar(ctx, p_il, 2), ' less the guard band ', guard.h(), Cell('', [tlow, p_il, guard])),
-         'interlock per CHANGELOG 172 (4); the combustion.json range still spans the old ARM range (OVR-04)'],
-    ]
-    o.append(dtable(['Limit', 'Value', 'Note'], rows, label_cols=1, widths=['38%', '34%', '28%'], free_cols=(2,),
-                    caption='Pressure ladder (absolute unless noted). The note column is an editorial pointer, not data.'))
-    # note column is a generator remark, counted as label: rebuild stats for column 2 strings
-    lad = [('Normal Pc cap (software)', cap25.value / 1e5, C_OK, 'LEAD'),
-           ('ECU over-pressure abort', ab30.value / 1e5, C_WARN, 'LEAD'),
-           ('HW comparator (nominal)', hw.value, C_WARN, 'DERIVED'),
-           ('Late-light peak, rounded entrance', ll_r.value, C_GREY, 'SIM'),
-           ('Late-light peak, sharp entrance', ll_s.value, C_GREY, 'SIM'),
-           ('MEOP basis v2.4 (ignition interlock)', mb.value, C_ACC, 'SIM'),
-           ('Chamber MEOP', meop.value / 1e5, C_BAD, 'LEAD'),
-           *fa1_lad,
-           ('Blocked-nozzle bound', bn.value / 1e5, C_GREY, 'DERIVED'),
-           ('Proof', proof.value / 1e5, C_ACC2, 'LEAD'),
-           ('Tank MEOP', tmeop.value / 1e5, C_GREY, 'LEAD')]
-    lad = [x for x in lad if x[1] is not None]
-    src = plot_pressure_ladder(a, lad)
-    o.append(fig_html(src, fa1_cap, [t.tid for t in [cap25, ab30, hw, ll_r, ll_s, mb, meop] + fa1_refs + [bn, proof, tmeop]], 'wide'))
-    grng = ctx.v('MEC', '/gimbal/range_deg', '°')
-    lat5 = ctx.d(F[0].value * math.sin(math.radians(grng.value)), 'N', f'F_rated × sin(gimbal range {grng.value:g}°)', [F[0], grng])
-    wF = ctx.missing('Physical worst-case thrust at the v2.4 MEOP basis: combustion.json v2.4 publishes the basis pressure only', 'MISSING')
-    latw = ctx.missing('Lateral thrust at the gimbal range for the physical worst case (needs the worst-case thrust)', 'MISSING')
-    cd_b = rx_text(ctx, c172_4, r'full-stroke Cd <= ([\d.]+)', '', tag='LEAD')
-    rows = [
-        ['Basis', tvtxt(ctx.v('CMB', '/decisions/chamber_MEOP_Pa/tag', tag='LEAD'), 260)],
-        ['Chamber pressure at the basis (pintle stuck at full stroke)', cat(pres_bar(ctx, mb, 2), ' at T<sub>tank</sub> ≤ ', t_il.h(), Cell('', [mb, t_il]))],
-        ['Thrust at the basis', Cell(wF.h(), [wF])],
-        ['Full-stroke injector Cd accepted in CF-1/CF-3 (otherwise MEOP is restated)', num_cell(cd_b, '.2f')],
-        ['Lateral thrust at the gimbal range: rated / worst case', cat(lat5.h('.1f'), ' / ', latw.h(), Cell('', [lat5, latw]))],
-        *([['Relight thrust transient (FA-1): interim structural load, confirmed bounding by the envelope', cat(F1['f_int'].h('.1f'), ' × ', F1['t_int'].h('g'))]] if F1 else []),
-        ['Airframe ICD statement (ICD §3)', tvtxt(md_row(ctx, 'ICD', '3. Loads', 'Physical worst-case thrust', 1, tag_col=2), 300)],
-        ['Pressure-part requirement (ENG-09)', tvtxt(req_row(ctx, 'ENG-09'), 700)],
-        ['ENG-09 amendment', tvtxt(eng09a, 300)],
-    ]
-    o.append(dtable(['Physical worst case', 'Value'], rows, widths=['32%', '68%'],
-                    caption='The v2.3 stuck-pintle basis assumed a tank above the ignition interlock, which is no longer a credible ignition state; the thrust at '
-                            'the v2.4 basis is not published, so the structural thrust case stays open (§13.3, C-07).'))
-    D['worst'] = {'F': wF, 'P': mb}
-    if F1:
-        o += sec_fa1(ctx, doc, F1)
-    return '\n'.join(o)
 
 
 def fig_html(src, caption, refs, cls=''):
@@ -2359,221 +1512,11 @@ def fig_html(src, caption, refs, cls=''):
 # =============================================================================================
 # section 3: throttle and thrust vector control
 # =============================================================================================
-def sec_throttle_tvc(ctx, doc, a, D):
-    o = [doc.h(1, '3 Throttle and thrust vector control')]
-    o.append(doc.h(2, '3.1 Throttle'))
-    E = '/eng03_pintle_rate/rate_map/summary'
-    rows = [
-        ['Throttle requirement (ENG-02)', tvtxt(req_row(ctx, 'ENG-02'), 600)],
-        ['Throttle floor flown by GNC (fraction of rated)', num_cell(ctx.v('GNC', '/requirements/throttle/floor_frac_required_max', '%', conv=(100, 0, 'fraction to %')), '.0f')],
-        ['Injector', tvtxt(ctx.v('CMB', '/gas_path/injector/type'))],
-        ['Pintle seat diameter / stroke', cat(ctx.v('CMB', '/gas_path/injector/seat_diameter_m', 'mm', conv=(1000, 0, 'm to mm')).h('.2f'), ' / ',
-                                              ctx.v('CMB', '/gas_path/injector/stroke_m', 'mm', conv=(1000, 0, 'm to mm')).h('.2f'),
-                                              Cell('', [ctx.recent[-1], ctx.recent[-2]]))],
-        ['Discharge coefficient Cd (two-phase N2O)', num_cell(ctx.v('CMB', '/gas_path/injector/Cd'), '.2f')],
-        ['Cd acceptance criterion', tvtxt(ctx.v('CMB', '/gas_path/injector/Cd_acceptance', tag='DERIVED'), 260)],
-        ['Pintle drive', tvtxt(ctx.v('ELE', '/actuators/pintle_throttle/model', tag_ptr='/actuators/pintle_throttle/tags'))],
-        ['Pintle servo mass', num_cell(ctx.v('ELE', '/actuators/pintle_throttle/datasheet_class/mass_g', 'g', tag_ptr='/actuators/pintle_throttle/tags'), '.0f')],
-        ['Pintle supply rail', tvtxt(ctx.v('ELE', '/actuators/pintle_throttle/rail', tag='DESIGN'))],
-        ['Pintle position resolution', num_cell(ctx.v('CMB', '/valves_and_actuators/pintle_actuator/position_resolution_m', 'µm', conv=(1e6, 0, 'm to µm')), '.0f')],
-        ['Throttle response requirement (ENG-03)', tvtxt(req_row(ctx, 'ENG-03'), 700)],
-        ['Start ramp', num_cell(ctx.v('ELE', '/eng03_pintle_rate/start_ramp', 'N/s'), '.0f')],
-        ['Opening rate, minimum over the map: nominal / corner', cat(ctx.v('ELE', f'{E}/nominal/open_min_N_per_s', 'N/s', tag='SIM', tag_ptr='/eng03_pintle_rate/rate_map/reduced_model_for_gnc/B_two_state/tags').h('.0f'), ' / ',
-                                                                    ctx.v('ELE', f'{E}/corner/open_min_N_per_s', 'N/s', tag='SIM').h('.0f'), Cell('', ctx.recent[-2:]))],
-        ['Closing rate, minimum over the map (corner)', num_cell(ctx.v('ELE', f'{E}/corner/close_min_N_per_s', 'N/s', tag='SIM'), '.0f')],
-        ['Map states opening at ≥ 2500 N/s: nominal / corner', cat(ctx.v('ELE', f'{E}/nominal/states_open_ge_2500', tag='SIM').h(), ' / ',
-                                                                  ctx.v('ELE', f'{E}/corner/states_open_ge_2500', tag='SIM').h(), Cell('', ctx.recent[-2:]))],
-        ['Chamber filling time constant', num_cell(ctx.v('CMB', '/operating_points/chamber_fill_time_constant_s', 'ms', conv=(1000, 0, 's to ms')), '.1f')],
-        ['Shutdown requirement (ENG-05)', tvtxt(req_row(ctx, 'ENG-05'), 600)],
-        ['Actuator speed finding (Combustion)', tvtxt(ctx.v('CMB', '/valves_and_actuators/pintle_actuator/speed_checks/conclusion', tag='SIM'), 420)],
-    ]
-    o.append(dtable(['Item', 'Value'], rows, widths=['34%', '66%']))
-
-    o.append(doc.h(2, '3.2 Thrust vector control'))
-    S = '/actuators/tvc_A'
-    rows = [
-        ['Architecture', tvtxt(ctx.v('MEC', '/gimbal/architecture'), 400)],
-        ['Gimbal range (vector norm) / mechanical stop', cat(ctx.v('MEC', '/gimbal/range_deg', '°').h('.1f'), ' / ', ctx.v('MEC', '/gimbal/mechanical_stop_deg', '°').h('.1f'), Cell('', ctx.recent[-2:]))],
-        ['Pivot location', tvtxt(ctx.v('MEC', '/gimbal/pivot_location'), 300)],
-        ['Pivot to injector face / to nozzle exit', cat(ctx.v('MEC', '/gimbal/pivot_from_injector_face_m', 'mm', conv=(1000, 0, 'm to mm')).h('.1f'), ' / ',
-                                                        ctx.v('MEC', '/gimbal/pivot_from_nozzle_exit_m', 'mm', conv=(1000, 0, 'm to mm')).h('.1f'), Cell('', ctx.recent[-2:]))],
-        ['Gimbal bearings', tvtxt(ctx.v('MEC', '/gimbal/bearings'))],
-        ['TVC actuators', tvtxt(ctx.v('ELE', f'{S}/model', tag='DATASHEET'))],
-        ['Actuator mass (each)', num_cell(ctx.v('ELE', f'{S}/mass_kg', 'kg'), '.3f')],
-        ['Actuator stall torque / no-load speed at 7.4 V', cat(ctx.v('ELE', f'{S}/stall_torque_Nm/v/7.4V', 'N·m', tag_ptr=f'{S}/stall_torque_Nm').h('.2f'), ' / ',
-                                                               ctx.v('ELE', f'{S}/noload_speed_dps/v/7.4V', '°/s', tag_ptr=f'{S}/noload_speed_dps').h('.0f'), Cell('', ctx.recent[-2:]))],
-        ['Actuator command rate', num_cell(ctx.v('ELE', f'{S}/update_rate_Hz', 'Hz'), '.0f')],
-        ['Linkage ratio n (servo angle / engine angle)', num_cell(ctx.v('MEC', '/tvc_actuation/gear_ratio_n'), '.1f')],
-        ['Engine-angle resolution / backlash', cat(ctx.v('MEC', '/tvc_actuation/resolution_deg_engine', '°').h('.4f'), ' / ',
-                                                   ctx.v('MEC', '/tvc_actuation/backlash_deg_engine', '°').h('.4f'), Cell('', ctx.recent[-2:]))],
-        ['Required slew (ENG-07)', num_cell(ctx.v('GNC', '/requirements/gimbal/rate_min_dps', '°/s'), '.0f')],
-        ['Required gimbal angular acceleration', num_cell(ctx.v('GNC', '/requirements/gimbal/angular_accel_min_rad_s2', 'rad/s²'), '.1f')],
-        ['Slew status, mechanical.json v2', tvtxt(ctx.v('MEC', '/tvc_actuation/ENG-07_rate_status', tag='DERIVED'), 300)],
-        ['Design engine moment: ENG-10 / Mechanical as built / GNC parts load',
-         cat(Cell(tvtxt(req_row(ctx, 'ENG-10'), 160).html, [ctx.recent[-1]]), '<br>',
-             ctx.v('MEC', '/tvc_actuation/design_loads/v/M_engine_GS_Nm', 'N·m', tag_ptr='/tvc_actuation/design_loads').h('.2f'), ' / ',
-             ctx.v('GNC', '/design_limit_loads/hinge_moment_design_Nm', 'N·m').h('.1f'), Cell('', ctx.recent[-2:]))],
-        ['Axis stiffness, structure + rods at centre (α / β)', num_cell(ctx.v('MEC', '/tvc_actuation/axis_stiffness_table/v/centre/mech_T', 'N·m/rad', tag='SIM', tag_ptr='/tvc_actuation/axis_stiffness_Nm_per_rad'), '.0f')],
-        ['Stiffness requirement (ENG-11)', tvtxt(req_row(ctx, 'ENG-11'), 400)],
-        ['Rocking mode, first (range over poses)', num_cell(ctx.v('MEC', '/tvc_actuation/rocking_mode_Hz', 'Hz'), '.1f')],
-        ['Stiffness and rocking-mode status', tvtxt(ctx.v('MEC', '/tvc_actuation/ENG-11_status', tag='DERIVED'), 420)],
-    ]
-    o.append(dtable(['Item', 'Value'], rows, widths=['34%', '66%']))
-    # slew vs load (Mechanical calc v2)
-    cases = ctx.raw('SLEW', '/cases', default={}) or {}
-    loads = ctx.raw('SLEW', '/loads_Nm', default={}) or {}
-    names = {}
-    volts = sorted({c.split('|')[0] for c in cases}, key=lambda s: float(s.rstrip('V')))
-    lrows, plot_cases, refs = [], [], []
-    for lk in loads:
-        lt = ctx.v('SLEW', ptr_join('loads_Nm', lk), 'N·m', tag='DERIVED', tag_ptr='/method')
-        cells = [names.get(lk, lk), num_cell(lt, '.2f')]
-        dv = {}
-        for v in volts:
-            key = f'{v}|{lk}'
-            if key in cases:
-                t = ctx.v('SLEW', ptr_join('cases', key, 'worst_any_motion_at_7deg', 'dps'), '°/s', tag='DERIVED', tag_ptr='/method')
-                refs.append(t.tid)
-                cells.append(num_cell(t, '.1f'))
-                dv[float(v.rstrip('V'))] = t.value
-            else:
-                cells.append(ctx.missing(f'slew {key}'))
-        lrows.append(cells)
-        if lk != 'no_load':
-            plot_cases.append((f'{names.get(lk, lk)}\n{lt.value:.2f} N·m', dv))
-    o.append(dtable(['Hinge load case', 'Load'] + [f'Slew at {v} [°/s]' for v in volts], lrows, widths=['30%', '16%'] + ['18%'] * len(volts),
-                    caption=f'Worst-direction engine slew at 7° (any motion), Mechanical actuator_slew_v2 ({esc(src_label(ctx, "SLEW"))}). '
-                            'Linear servo torque–speed lines (ASSUMED shape).'))
-    reqv = ctx.raw('GNC', '/requirements/gimbal/rate_min_dps/v', default=100.0)
-    src = plot_slew(a, plot_cases, reqv)
-    o.append(fig_html(src, 'Engine slew at 7° by hinge load case and plug voltage. ENG-07 is OPEN and marginal at the v2 load '
-                      '(REQUIREMENTS amendment); B-TVC-1 measures it.', refs, 'wide'))
-    return '\n'.join(o)
 
 
 # =============================================================================================
 # section 4: geometry and mass
 # =============================================================================================
-def sec_geometry_mass(ctx, doc, a, D):
-    o = [doc.h(1, '4 Geometry and mass')]
-    o.append(note_box('<b>Renders are visualisation only.</b> They are produced by gen/render_views.sh from the tessellated GLB display mesh '
-                      f'of CAD {esc(a.cad_version)} (GLB sha256/16 {esc(ctx.src("GLB").sha16)}). They are not drawings and carry no tolerances. '
-                      'Dimensions printed on them are bounding-box extents from the assembly manifest; the STEP solids are the CAD of record.', 'warn'))
-    g = D['geo']
-    o.append(doc.h(2, '4.1 Envelope and principal dimensions'))
-    R = D['R']
-    figs = []
-    for key, axis, title in (('front', 0, 'Front view (looking along +Y)'), ('side', 1, 'Side view (looking along −X)')):
-        if R.get(key):
-            dims = dict(g['dims'])
-            dims['Wh'] = g['dims']['W' + 'xy'[axis]]
-            figs.append(f'<div class="ortho">{svg_ortho_dims(ctx, R[key], axis, dims, title)}</div>')
-    o.append('<div class="ortho-pair">' + ''.join(figs) + '</div>')
-    d = g['dims']
-    rows = [
-        ['Overall length along the engine axis (z)', num_cell(d['H'], '.1f')],
-        ['Overall width X / Y (axis-aligned bounding box)', cat(d['Wx'].h('.2f'), ' / ', d['Wy'].h('.2f'))],
-        ['Pivot to forward end / pivot to aft end', cat(d['top'].h('.1f'), ' / ', d['aft'].h('.1f'))],
-        ['Gimballed engine group: z range / length', cat(d['eng_rng'].h('.1f'), ' / ', d['eng_len'].h('.1f'))],
-        ['Fixed module (thrust frame, valve module, servos): z range / length', cat(d['fix_rng'].h('.1f'), ' / ', d['fix_len'].h('.1f'))],
-        ['Mechanical build record, neutral assembly bounds', tvtxt(ctx.v('PROP', '/results/assembly/neutral/bounds_mm', 'mm', tag='DERIVED'))],
-        ['Swept radial envelope, worst band (Mechanical checks)', tvtxt(ctx.v('CHK', '/swept_worst_band', tag='TO-VERIFY'), 400)],
-        ['Airframe bay requirement (ICD §2)', tvtxt(md_row(ctx, 'ICD', '2. Engine bay', 'Engine bay inner diameter', 1, tag_col=2))],
-        ['Engine zone (ICD §2)', tvtxt(md_row(ctx, 'ICD', '2. Engine bay', 'Engine zone, engine frame', 1, tag_col=2), 300)],
-    ]
-    o.append(dtable(['Dimension', 'Value'], rows, widths=['42%', '58%'],
-                    caption=f'Envelope from the union of the {g["n_inst"]} instance bounding boxes in the assembly manifest (engine frame, mm, origin at the gimbal pivot, +z forward). '
-                            'An axis-aligned box does not bound the radial extent: the radial sweep check is listed separately.'))
-    o.append(doc.h(2, '4.2 Assembly views'))
-    if R.get('iso'):
-        o.append(f'<figure class="render iso"><img src="{R["iso"]["file"]}"><figcaption>Isometric view, CAD {esc(a.cad_version)}, neutral pose '
-                 f'(render {esc(R["iso"]["png_sha16"])}). Visualisation only.</figcaption></figure>')
-    if R.get('layout'):
-        o.append(f'<figure class="render layout">{svg_layout(ctx, R["layout"])}<figcaption>Thrust chamber and pintle stack laid out side by side '
-                 'along the axis order (pintle drive at left, nozzle joint at right), true scale. Axial positions are not preserved; the CAD z range '
-                 'of each group is printed under it. Visualisation only.</figcaption></figure>')
-    if R.get('section'):
-        svg, shown, missing = svg_section(ctx, R['section'], D['bom_by_pn'], SECTION_CALLOUTS)
-        D['section_shown'] = shown
-        refs = [D['bom_by_pn'][p].row_tv.tid for p in shown if p in D['bom_by_pn']]
-        o.append(f'<figure class="render section">{svg}<figcaption>Half section in the plane y = 0 (the y &lt; 0 half removed; cut faces darkened). '
-                 'Labels: BOM name, part number and material, placed at the area-weighted centroid of each part\'s cut face. '
-                 'Visualisation of display geometry, not a drawing.'
-                 + (f' Parts without a cut face in this plane: {esc(", ".join(missing))}.' if missing else '')
-                 + ' <span class="figref">BOM rows: ' + ', '.join(f'<a class="tr" href="#{r}">{r}</a>' for r in refs) + '</span></figcaption></figure>')
-    o.append(doc.h(2, '4.3 Part families'))
-    cards = []
-    for fam, info in D['families'].items():
-        Rf = R.get('family_' + fam)
-        img = f'<img src="{Rf["file"]}">' if Rf else '<div class="miss">render missing</div>'
-        cards.append(f'<div class="fam"><div class="fimg">{img}</div><div class="fcap"><b>{esc(fam)} · {esc(FAMILY_NAMES.get(fam, fam))}</b><br>'
-                     f'{info["n_tv"].h()} lines · {info["mass_tv"].h(".3f")}</div></div>')
-        CELL_STATS['data_cells'] += 2
-        CELL_STATS['traced'] += 2
-    o.append('<div class="famgrid">' + ''.join(cards) + '</div>')
-    o.append('<p class="small">Each family is rendered at its assembly position (not exploded). Line counts and masses are sums over the BOM lines '
-             'of the family (qty × unit mass, DERIVED by this generator; the transport lock is excluded).</p>')
-
-    o.append(doc.h(2, '4.4 Mass'))
-    MP = '/states'
-    states = ['wet', 'mid', 'burnout', 'nograin']
-    groups = ['engine', 'ring', 'horn', 'pushrod', 'fixed', 'all']
-    rows = []
-    for gname in groups:
-        cells = [f'{GROUP_NAMES.get(gname, gname)}']
-        for s_ in states:
-            t = ctx.v('MP', f'{MP}/{s_}/{gname}/m_kg', 'kg', tag='DERIVED', note='CAD volume × density and COTS masses (massprops)')
-            cells.append(num_cell(t, '.4f'))
-        rows.append(cells)
-    o.append(dtable(['Group', 'Wet (full grain)', 'Mid-burn', 'Burn-out', 'No grain'], rows, widths=['32%', '17%', '17%', '17%', '17%'],
-                    caption=f'Mass by subassembly and state, massprops {esc(src_label(ctx, "MP"))}. Group "all" is the CAD model total.'))
-    # family sums + exclusions
-    fam_rows = []
-    for fam, info in D['families'].items():
-        fam_rows.append([f'{fam} · {FAMILY_NAMES.get(fam, fam)}', Cell(info['n_tv'].h(), [info['n_tv']]), num_cell(info['mass_tv'], '.4f')])
-    fam_rows.append(['Sum of BOM lines (excl. transport lock)', '', num_cell(D['bom_sum_tv'], '.4f')])
-    o.append(dtable(['BOM family', 'Lines', 'Mass'], fam_rows, widths=['56%', '14%', '30%'], free_cols=(),
-                    caption='Mass by BOM part family (DERIVED: Σ qty × unit mass over the BOM lines).'))
-    ex = D['exclusions']
-    o.append(dtable(['Not in the CAD mass', 'Mass', 'Status / source'], [[e[0], e[1], e[2]] for e in ex], widths=['34%', '24%', '42%'],
-                    caption='Items excluded from the CAD mass. They are not zero: each is carried at its source value or as UNKNOWN.'))
-    src = plot_mass(a, [(f'{f} {FAMILY_NAMES.get(f, f)}', info['mass_tv'].value) for f, info in D['families'].items()], D['excl_plot'])
-    o.append(fig_html(src, 'CAD mass by BOM family (solid) and items outside the CAD mass (hatched; ranges where the source gives one).',
-                      [i['mass_tv'].tid for i in D['families'].values()] + D['excl_refs'], 'wide'))
-    o.append(doc.h(2, '4.5 Airframe interface (ICD summary)'))
-    keys2 = ['Engine bay inner diameter', 'Engine zone, engine frame', 'Nozzle exit below the pivot', 'Gimbal range', 'Airframe attachment',
-             'Ring fit', 'Ring fasteners', 'Main-valve module (MV-P, balanced poppet)', 'Feed across the gimbal']
-    keys3 = ['Rated thrust', 'Over-thrust abort', 'Physical worst-case thrust', 'Chamber MEOP / proof', 'Lateral thrust at 7°', 'TVC design moment',
-             'Peak axial specific force in flight', 'Touchdown, leg contact', 'Axis stiffness, structure plus rods']
-    keys4 = ['Liftoff mass', 'Dry mass / N2O / grain', 'Engine hardware mass and CG']
-    rows = []
-    for sec, keys in (('2. Engine bay', keys2), ('3. Loads', keys3), ('4. Mass', keys4)):
-        rows.append(subrow(f'ICD §{sec}', 2))
-        for k in keys:
-            rows.append([k, tvtxt(md_row(ctx, 'ICD', sec, k, 1, tag_col=2), 330)])
-    o.append(dtable(['Item', 'Value (ICD text)'], rows, widths=['28%', '72%'],
-                    caption=f'Selected rows of 00-requirements/ICD-AIRFRAME.md ({esc(src_label(ctx, "ICD"))}). Tag column of the ICD kept as the source tag.'))
-    orow = []
-    for r in md_table_rows(ctx.src('ICD').text or '', '12. Open items'):
-        if r and r[0].startswith('ICD-'):
-            orow.append([r[0], tvtxt(ctx.t('ICD', f'§12 row "{r[0]}" col 1', r[1], 'TO-DEFINE', tag_raw='ICD open item'), 240),
-                         tvtxt(ctx.t('ICD', f'§12 row "{r[0]}" col 2', r[2] if len(r) > 2 else '', 'DESIGN', tag_raw='ICD owner'))])
-    o.append(dtable(['ICD item', 'Open item', 'Owner'], orow, widths=['10%', '62%', '28%'], caption='ICD open items (§12).'))
-    o.append(doc.h(2, '4.6 CAD fit and interference checks'))
-    poses = ctx.raw('CHK', '/poses', default=[]) or []
-    rows = []
-    for k, p in enumerate(poses):
-        base = f'/poses/{k}'
-        rows.append([p.get('pose', str(k)),
-                     num_cell(ctx.v('CHK', base + '/interference_not_whitelisted', tag='DERIVED'), 'd'),
-                     num_cell(ctx.v('CHK', base + '/unexpected_close_lt_3mm', tag='DERIVED'), 'd'),
-                     num_cell(ctx.v('CHK', base + '/min_unexpected_mm', 'mm', tag='DERIVED'), '.3f'),
-                     cat(ctx.v('CHK', base + '/wall_min_mm', 'mm', tag='DERIVED').h('.1f'), ' by ', ctx.v('CHK', base + '/wall_min_by', tag='DERIVED').h(pill=False))])
-    o.append(dtable(['Pose', 'Interferences (not whitelisted)', 'Unexpected gaps < 3 mm', 'Smallest unexpected gap', 'Smallest wall gap'], rows,
-                    widths=['16%', '18%', '18%', '20%', '28%'],
-                    caption=f'Software geometric checks by Mechanical ({esc(src_label(ctx, "CHK"))}). A clean software check is not a physical fit check; '
-                            'the smallest wall gap is reported by part; a part that mounts on the airframe wall (P-clip) touches it by design (see the swept-envelope row above, TO-VERIFY).'))
-    return '\n'.join(o)
 
 
 def md_bullet(ctx, sid, section_prefix, starts, ev, maxlen=None):
@@ -2595,321 +1538,22 @@ def price_cell(r):
         h = '<span class="q">TO-QUOTE</span>'
     elif r.pstate == 'TO-QUOTE-REF':
         m = re.search(r'reference:?\s*([^)]*)', p)
-        h = '<span class="q">TO-QUOTE</span> <span class="small">ref. ' + esc((m.group(1) if m else p)[:70]) + ' (not a DK quote)</span>'
+        h = '<span class="q">TO-QUOTE</span> <span class="small">ref. ' + esc(clipw(m.group(1) if m else p, 140)) + ' (not a DK quote)</span>'
     elif r.pstate == 'DATED-REF':
-        h = '<span class="small">' + esc(p[:90]) + '</span> <span class="q">DK delivery TO-QUOTE</span>'
+        h = '<span class="small">' + esc(clipw(p, 140)) + '</span> <span class="q">DK delivery TO-QUOTE</span>'
     else:
         h = '<span class="miss">INVALID PRICE FIELD</span>'
     return Cell(h, [r.row_tv])
 
 
-def sec_bom(ctx, doc, a, D):
-    o = [doc.h(1, '5 Parts list')]
-    b = ctx.src('BOM').data
-    deliv = ctx.v('BOM', '/delivery', tag='REQ')
-    curr = ctx.v('BOM', '/currency', tag='DESIGN')
-    nl = ctx.v('BOM', '/n_lines', tag='DERIVED')
-    ni = ctx.v('BOM', '/n_instances', tag='DERIVED')
-    rows = [['Delivery address for quotations', tvtxt(deliv)], ['Price status', tvtxt(curr)],
-            ['BOM lines / placed instances', cat(nl.h('d'), ' / ', ni.h('d'))],
-            ['Total cost', Cell(D['cost_tv'].h(), [D['cost_tv']])]]
-    o.append(dtable(['Item', 'Value'], rows, widths=['30%', '70%'],
-                    caption=f'BOM {esc(src_label(ctx, "BOM"))}. Price rule: every line TO-QUOTE delivered to Sønderborg DK-6400 unless dated; no zero and no "from" prices.'))
-    o.append('<p class="small">Columns: part number (with its BOM-row trace), name and supplier as written in the BOM, quantity, material, process, unit mass with its evidence class, '
-             'and price status. COTS = commercial part. Wetted oxygen-clean parts are marked O<sub>2</sub>.</p>')
-    k = 0
-    for fam in D['family_order']:
-        rs = [r for r in D['bom'] if r.kind == 'lines' and r.fam == fam]
-        if not rs:
-            continue
-        k += 1
-        info = D['families'].get(fam)
-        o.append(doc.h(2, f'5.{k} {fam} — {FAMILY_NAMES.get(fam, fam)}'))
-        rows = []
-        for r in rs:
-            l = r.l
-            nm = esc(l.get('name', ''))
-            nm = nm if len(nm) <= 110 else nm[:108].rsplit(' ', 1)[0] + ' …'
-            sup = esc((l.get('supplier') or '')[:80])
-            o2 = ' <span class="o2">O<sub>2</sub></span>' if str(l.get('oxygen_clean')) == 'True' else ''
-            lock = ' <span class="q">transport lock, not placed, excluded from mass</span>' if l.get('groups') == 'lock' else ''
-            rows.append([
-                Cell(f'<span class="pn">{esc(r.pn)}</span>{r.row_tv.ref()}', [r.row_tv]),
-                Cell(f'{nm}{o2}{lock}<div class="sup">{sup}</div>', [r.row_tv]),
-                Cell(esc(l.get('qty', '')), [r.row_tv]),
-                Cell(esc(short_mat(l.get('material_name'), l.get('material'))) + ('<div class="sup">COTS</div>' if str(l.get('cots')) == 'True' else ''), [r.row_tv]),
-                Cell('<span class="small">' + esc((l.get('process') or '')[:70]) + '</span>', [r.row_tv]),
-                Cell(r.mass_tv.h('.4f', unit=False), [r.mass_tv]),
-                price_cell(r)])
-        o.append(dtable(['PN', 'Part and supplier', 'Qty', 'Material', 'Process', 'Unit mass [kg]', 'Price'], rows, label_cols=0, cls='bom',
-                        widths=['9%', '33%', '4%', '13%', '15%', '11%', '15%'],
-                        caption=(f'{fam} family: {info["n_tv"].value} lines, {info["mass_tv"].value:.4f} kg (Σ qty × unit mass).' if info else None)))
-    extra = [r for r in D['bom'] if r.kind != 'lines']
-    if extra:
-        k += 1
-        o.append(doc.h(2, f'5.{k} Provisions and contingency (not in the CAD model)'))
-        rows = []
-        for r in extra:
-            l = r.l
-            rows.append([Cell(f'<span class="pn">{esc(r.pn)}</span>{r.row_tv.ref()}', [r.row_tv]),
-                         Cell(esc(l.get('name', '')[:120]) + f'<div class="sup">{esc((l.get("supplier") or "")[:80])}</div>', [r.row_tv]),
-                         Cell(esc(l.get('qty', '')), [r.row_tv]),
-                         Cell(esc(l.get('groups', '')), [r.row_tv]),
-                         Cell(r.mass_tv.h('.4f', unit=False), [r.mass_tv]), price_cell(r)])
-        pm = ctx.v('BOM', '/provision_mass_estimate_kg/estimate_range_kg', 'kg', tag='ASSUMED', tag_ptr='/provision_mass_estimate_kg/note')
-        o.append(dtable(['PN', 'Item', 'Qty', 'Status', 'Unit mass [kg]', 'Price'], rows, label_cols=0, cls='bom',
-                        widths=['10%', '44%', '5%', '15%', '11%', '15%']))
-        o.append(note_box(f'Bleed provision mass estimate (excluding the valves): {pm.h(".3f")}. Valve mass is a MASS RISK (§4.4).', 'info'))
-    return '\n'.join(o)
-
-
 # =============================================================================================
 # section 6: materials and thermal protection
 # =============================================================================================
-def sec_materials(ctx, doc, a, D):
-    o = [doc.h(1, '6 Materials and thermal protection')]
-    o.append(doc.h(2, '6.1 Materials'))
-    mats = ctx.v('MEC', '/materials')
-    if isinstance(mats.value, list):
-        o.append('<ul class="mats">' + ''.join(f'<li>{esc(m)}</li>' for m in mats.value) + f'</ul><p class="small">Source: mechanical.json {mats.pill()}{mats.ref()}</p>')
-    rows = []
-    for mname, info in sorted(D['mat_usage'].items(), key=lambda kv: -kv[1]['mass_tv'].value):
-        rows.append([esc(mname), Cell(info['n_tv'].h(), [info['n_tv']]), num_cell(info['mass_tv'], '.4f'), Cell(info['o2_tv'].h(), [info['o2_tv']])])
-    o.append(dtable(['Material (BOM material_name)', 'Lines', 'Mass', 'Oxygen-clean lines'], rows, widths=['52%', '12%', '20%', '16%'],
-                    caption='Material usage over the BOM lines (DERIVED by this generator; transport lock excluded).'))
-    o.append(doc.h(2, '6.2 Thermal protection and thermal loads'))
-    T = '/thermal_and_loads'
-    pf = ctx.v('CMB', f'{T}/peak_convective_heat_flux_W_m2', 'MW/m²', conv=(1e-6, 0, 'W/m² to MW/m²'))
-    hg = ctx.v('CMB', f'{T}/peak_h_g_W_m2K', 'W/(m²·K)')
-    taw = ctx.v('CMB', f'{T}/T_aw_throat_K', 'K')
-    pfi = ctx.v('CMB', f'{T}/peak_incident_flux_cold_wall_transient_W_m2', 'MW/m²', conv=(1e-6, 0, 'W/m² to MW/m²'))
-    cot = ctx.v('ELE', f'/abort_matrix/causes/{D["cause_idx"].get("OVER_TEMP", 0)}/thresholds/kCaseOverTemp_K', 'K')
-    nht = ctx.v('ELE', f'/abort_matrix/causes/{D["cause_idx"].get("OVER_TEMP", 0)}/thresholds/kNozzleHolderOverTemp_K', 'K')
-    rows = [
-        ['Grain-zone liner thickness', num_cell(ctx.v('CMB', '/gas_path/liner_grain_zone/thickness_m', 'mm', conv=(1000, 0, 'm to mm')), '.1f')],
-        ['Pre-chamber liner and structural amendments', tvtxt(md_bullet(ctx, 'REQ', 'Amendments after rev 2', 'Structure/thermal', 'LEAD'), 420)],
-        ['Post-chamber insulator', tvtxt(ctx.v('CMB', '/gas_path/post_chamber_insulator'), 300)],
-        ['Peak convective heat flux at the throat (Bartz, 600 K wall)', num_cell(pf, '.2f')],
-        ['Peak gas-side heat-transfer coefficient', num_cell(hg, '.0f')],
-        ['Adiabatic wall temperature at the throat', Cell(temp_k(taw, 0), [taw])],
-        ['Incident flux on a cold wall at start (nominal–conservative)', num_cell(pfi, '.2f')],
-        ['Throat insert replacement rule', tvtxt(ctx.v('CMB', f'{T}/throat_replacement_rule'))],
-        ['Insert life plan (ENG-06, newest)', tvtxt(req_row(ctx, 'ENG-06'), 300)],
-        ['Nozzle gasket NZ-03 finding', tvtxt(ctx.v('CMB', '/nozzle_joint/v/NZ03_gasket', tag_ptr='/nozzle_joint'))],
-        ['Proposed joint J1', tvtxt(ctx.v('CMB', '/nozzle_joint/v/proposal_J1', tag_ptr='/nozzle_joint'))],
-        ['Joint leak control', tvtxt(ctx.v('CMB', '/nozzle_joint/v/H19_control', tag_ptr='/nozzle_joint'))],
-        ['Case over-temperature abort (MV open) / nozzle-holder limit', cat(temp_k(cot, 2), ' / ', temp_k(nht, 2), Cell('', [cot, nht]))],
-        ['Thermal FEA status', tvtxt(ctx.v('MEC', '/open_items/3', tag='PENDING'))],
-    ]
-    o.append(dtable(['Item', 'Value'], rows, widths=['36%', '64%']))
-    return '\n'.join(o)
 
 
 # =============================================================================================
 # section 7: combustion
 # =============================================================================================
-ABORT_MAP = [  # (id, title, CHANGELOG items, combustion key, firmware pointer kind/name)
-    ('A2', 'No light within the window W', [], 'A2', ('cause', 'NO_IGNITION')),
-    ('A4', 'Chamber over-pressure abort', [(160, 2), (166, 4)], 'A4', ('cause', 'PC_OVERPRESSURE')),
-    ('A5', 'Late-light monitor', [(160, 1)], 'A5', ('ptr', '/start_monitors_v2p9/A5')),
-    ('A7', 'Pc plausibility bands, START high side', [(160, 3), (166, 7)], 'A7', ('ptr', '/start_monitors_v2p9/A7')),
-    ('A14', 'Bleed valve fault / closure not confirmed', [(168, 2), (168, 3)], 'A14', ('cause', 'BLEED_FAULT')),
-    ('A15', 'Anomaly during PURGE', [], 'A15', ('none', None)),
-    ('A16', 'Torch loss between E1 and E2 (both sensors)', [(164, 8)], 'A16', ('none', None)),
-    ('E1', 'Torch confirmation 2oo2 and closure gate', [(166, 3)], None, ('cause', 'TORCH_FAULT')),
-    ('LR', 'Light-rule baseline fallback', [(166, 1)], None, ('ptr', '/light_rule_v2p9/rule')),
-    ('TC', 'Invalid case thermocouple', [(166, 6)], None, ('cause', 'OVER_TEMP')),
-    ('RST', 'ECU reset in flight', [(166, 8)], None, ('cause', 'WATCHDOG')),
-    ('DRG', 'Drogue release predicate (FC)', [(168, 1), (175, 5)], None, ('ptr', '/drogue_release_support/rule_owner')),
-    ('SAFE', 'Stand safing after a no-light', [(172, 1)], None, ('proc', None)),
-]
-
-
-def sec_combustion(ctx, doc, a, D):
-    cl = D['cl']
-    o = [doc.h(1, '7 Combustion')]
-    if ctx.ovr and any(e['status'] == 'ACTIVE' for e in ctx.ovr.entries):
-        o.append(note_box('<b>Reading this section.</b> combustion.json v2.4 is the source of every value here. Where it still carries wording that a newer lead '
-                          'decision replaced, the old words are <del class="stale">struck through</del> and the decision is <ins class="dec">inserted</ins> with '
-                          'its override id (§13.1). The Combustion v2.4a patch is to remove them (CHANGELOG 172 (6)).', 'info'))
-    o.append(doc.h(2, '7.1 Design point'))
-    rows = [
-        ['Fuel', tvtxt(ctx.v('CMB', '/decisions/fuel'))],
-        ['Oxidiser load and tank volume', cat(ctx.v('CMB', '/decisions/N2O_load_and_tank/v/m_N2O_kg', 'kg', tag_ptr='/decisions/N2O_load_and_tank').h('.2f'), ' in ',
-                                              ctx.v('CMB', '/decisions/N2O_load_and_tank/v/V_tank_m3', 'L', conv=(1000, 0, 'm³ to L'), tag_ptr='/decisions/N2O_load_and_tank').h('.2f'), Cell('', ctx.recent[-2:]))],
-        ['Tank conditioning', tvtxt(ctx.v('CMB', '/decisions/tank_pressurisation'), 300)],
-        ['Model basis', tvtxt(ctx.v('CMB', '/operating_points/basis', tag='SIM'), 300)],
-        ['Combustion and nozzle efficiencies η<sub>c*</sub> / η<sub>cf</sub>', cat(rx(ctx, 'CMB', '/operating_points/basis', r'eta_c\* ([\d.]+)', tag='ASSUMED').h('.3f'), ' / ',
-                                                                                   rx(ctx, 'CMB', '/operating_points/basis', r'eta_cf ([\d.]+)', tag='ASSUMED').h('.3f'), Cell('', ctx.recent[-2:]))],
-        ['Oxidiser flux at the head, rated, initial port', num_cell(ctx.v('CMB', '/operating_points/max_thrust/G_ox_initial_kg_m2s', 'kg/(m²·s)'), '.0f')],
-        ['Regression law (form)', tvtxt(ctx.v('CMB', '/gas_path/grain/regression_law/form', tag='ASSUMED'))],
-        ['Regression coefficient a / exponent n', cat(ctx.v('CMB', '/gas_path/grain/regression_law/a', 'm/s·(kg/m²s)^-n').h('.3e'), ' / ', ctx.v('CMB', '/gas_path/grain/regression_law/n').h('.2f'), Cell('', ctx.recent[-2:]))],
-        ['Regression law note', tvtxt(ctx.v('CMB', '/gas_path/grain/regression_law/note', tag='ASSUMED'), 300)],
-        ['T1–T4 measurement specification', tvtxt(ctx.t('T14', 'header (version line)', f'02-combustion/T1-T4-REGRESSION-SPEC.md, {ctx.src("T14").version}', 'DESIGN', tag_raw='document header'))],
-    ]
-    o.append(dtable(['Item', 'Value'], rows, widths=['32%', '68%']))
-
-    o.append(doc.h(2, '7.2 Fuel grain'))
-    G = '/gas_path/grain'
-    segs = [D['bom_by_pn'].get('ENG-GR-01'), D['bom_by_pn'].get('ENG-GR-02')]
-    seg_len = []
-    for pn in ('ENG-GR-01', 'ENG-GR-02'):
-        lo, hi, n = manifest_extent(ctx, pn_prefix=pn + '#')
-        seg_len.append(man_tv(ctx, (hi[2] - lo[2]) if n else None, f'z extent of {pn}', pn_prefix=pn + '#'))
-    gn = ' '.join((r.l.get('name', '') + ' ' + (r.l.get('notes') or '')) for r in segs if r)
-    stated = bool(re.search(r'round|radius|fillet|\br\s*(>=|≥)?\s*4', gn, re.I))
-    rnd_cad = ctx.t('BOM', '/lines/*[ENG-GR-01, ENG-GR-02]/name+notes (generator text search)',
-                    'stated in the BOM' if stated else 'not stated in the BOM name or notes of ENG-GR-01/02: rounded entrance TO-VERIFY in CAD',
-                    'DERIVED' if stated else 'TO-VERIFY', tag_raw='generator check of BOM text')
-    if not stated:
-        ctx.unknowns.append({'what': f'Rounded port entrance r >= 4 mm (CHANGELOG 160 (4)) not stated in BOM {a.cad_version} GR-01/02', 'status': 'TO-VERIFY', 'tid': rnd_cad.tid})
-    D['rnd_cad'] = rnd_cad
-    rows = [
-        ['Segments (BOM)', cat(*[Cell(f'{esc(r.l.get("name", ""))} {r.row_tv.ref()}<br>', [r.row_tv]) for r in segs if r])],
-        ['Segment length from the CAD manifest (GR-01 / GR-02)', cat(seg_len[0].h('.1f'), ' / ', seg_len[1].h('.1f'))],
-        ['Grain outer diameter / total length', cat(ctx.v('CMB', f'{G}/outer_diameter_m', 'mm', conv=(1000, 0, 'm to mm')).h('.1f'), ' / ',
-                                                   ctx.v('CMB', f'{G}/length_m', 'mm', conv=(1000, 0, 'm to mm')).h('.1f'), Cell('', ctx.recent[-2:]))],
-        ['Port', cat(ctx.v('CMB', f'{G}/port/type').h(), ', initial Ø ', ctx.v('CMB', f'{G}/port/initial_diameter_m', 'mm', conv=(1000, 0, 'm to mm')).h('.1f'), Cell('', ctx.recent[-2:]))],
-        ['Initial web', num_cell(ctx.v('CMB', f'{G}/port/initial_web_m', 'mm', conv=(1000, 0, 'm to mm')), '.2f')],
-        ['Port entrance (decided)', tvtxt(cl.item(160, 4), 400)],
-        ['Port entrance in CAD / BOM', Cell(rnd_cad.h(), [rnd_cad])],
-        ['Density (printed ABS)', num_cell(ctx.v('CMB', f'{G}/density_kg_m3', 'kg/m³'), '.0f')],
-        ['Grain mass: Combustion / CAD', cat(ctx.v('CMB', f'{G}/mass_kg', 'kg').h('.3f'), ' / ', ctx.v('MP', '/grain_mass_wet_kg', 'kg', tag='DERIVED').h('.4f'), Cell('', ctx.recent[-2:]))],
-        ['Residual web rule', tvtxt(ctx.v('CMB', f'{G}/residual_web_rule'))],
-        ['Retention', tvtxt(ctx.v('CMB', f'{G}/retention', tag='DESIGN'), 300)],
-    ]
-    o.append(dtable(['Item', 'Value'], rows, widths=['32%', '68%']))
-
-    o.append(doc.h(2, '7.3 Injector and feed'))
-    V = '/valves_and_actuators'
-    rows = [
-        ['Feed architecture', tvtxt(ctx.v('CMB', f'{V}/architecture', tag='DESIGN'), 400)],
-        ['Injector flow model', tvtxt(ctx.v('CMB', '/gas_path/injector/flow_model', tag='LITERATURE'))],
-        ['Filter', tvtxt(ctx.v('CMB', '/gas_path/injector/filter'))],
-        ['Isolation valve: minimum Cv / MEOP / closing time', cat(ctx.v('CMB', f'{V}/isolation_valve/Cv_min').h('.1f'), ' / ',
-                                                                  Cell(pres(ctx, ctx.v('CMB', f'{V}/isolation_valve/MEOP_Pa', 'Pa')), [ctx.recent[-1]]), ' / ',
-                                                                  ctx.v('CMB', f'{V}/isolation_valve/close_time_max_s', 's').h('.2f'), Cell('', [ctx.recent[-1], ctx.recent[-3]]))],
-        ['Relief: trapped liquid, back-relief and tank', tvtxt(ctx.v('CMB', f'{V}/isolation_valve/trapped_liquid_relief'))],
-        ['Coast seat-leak ceiling (v2.4)', tvtxt(md_line(ctx, 'RCMB', '- **Coast leak ceiling:**', 'DERIVED'))],
-        ['Hose across the gimbal', tvtxt(ctx.v('CMB', f'{V}/hose', tag='DERIVED'), 300)],
-        ['Priming rule (first start)', tvtxt(ctx.v('CMB', f'{V}/priming_rule/v/0', tag_ptr=f'{V}/priming_rule'), 300)],
-        ['Pc tap and sense line', cat(tvtxt(ctx.v('CMB', '/gas_path/pc_tap/location', tag='DESIGN')), '<br>', tvtxt(ctx.v('CMB', '/gas_path/pc_tap/sense_line')))],
-        ['Pintle seat and seal review', tvtxt(ctx.v('CMB', f'{V}/pintle_actuator/lead_decision_v2p3', tag='LEAD'), 420)],
-    ]
-    o.append(dtable(['Item', 'Value'], rows, widths=['32%', '68%']))
-
-    o.append(doc.h(2, '7.4 Igniter'))
-    I = '/igniter'
-    ts = f'{I}/torch_sizing'
-    el = f'{I}/electrical'
-    igm = ctx.v('CMB', f'{I}/mass_kg', 'kg')
-    ig_bom = D['bom_by_pn'].get('ENG-IG-01')
-    rows = [
-        ['Type', tvtxt(ctx.v('CMB', f'{I}/type', tag='DESIGN'))],
-        ['Torch chamber pressure / O/F / throat diameter', cat(ctx.v('CMB', f'{ts}/v/Pc_torch_bar', 'bar', tag='DERIVED', tag_ptr=ts).h('.1f'), ' / ',
-                                                               ctx.v('CMB', f'{ts}/v/OF', tag='DERIVED', tag_ptr=ts).h('.1f'), ' / ',
-                                                               ctx.v('CMB', f'{ts}/v/throat_d_m', 'mm', conv=(1000, 0, 'm to mm'), tag='DERIVED', tag_ptr=ts).h('.1f'), Cell('', ctx.recent[-3:]))],
-        ['Torch flows N2O / propane', cat(ctx.v('CMB', f'{ts}/v/mdot_n2o_kg_s', 'g/s', conv=(1000, 0, 'kg/s to g/s'), tag='DERIVED', tag_ptr=ts).h('.3f'), ' / ',
-                                          ctx.v('CMB', f'{ts}/v/mdot_propane_kg_s', 'g/s', conv=(1000, 0, 'kg/s to g/s'), tag='DERIVED', tag_ptr=ts).h('.3f'), Cell('', ctx.recent[-2:]))],
-        ['Orifice diameters N2O / propane', cat(ctx.v('CMB', f'{I}/N2O_orifice_d_m', 'mm', conv=(1000, 0, 'm to mm')).h('.3f'), ' / ',
-                                                ctx.v('CMB', f'{I}/propane_orifice_d_m', 'mm', conv=(1000, 0, 'm to mm')).h('.3f'), Cell('', ctx.recent[-2:]))],
-        ['Spark: supply / energy / rate', cat(ctx.v('CMB', f'{el}/v/spark_supply_V', 'V', tag_ptr=el).h('.0f'), ' / ', ctx.v('CMB', f'{el}/v/spark_energy_J', 'J', tag_ptr=el).h('.2f'), ' / ',
-                                              ctx.v('CMB', f'{el}/v/rate_Hz', 'Hz', tag_ptr=el).h('.0f'), Cell('', ctx.recent[-3:]))],
-        ['Envelope', tvtxt(ctx.v('CMB', f'{I}/envelope/v/mount', tag_ptr=f'{I}/envelope'), 260)],
-        ['Igniter system mass: Combustion / BOM ENG-IG-01', cat(igm.h('.2f'), ' / ', ig_bom.mass_tv.h('.3f') if ig_bom else 'MISSING', Cell('', [igm] + ([ig_bom.mass_tv] if ig_bom else [])))],
-        ['Starts per flight', tvtxt(ctx.v('CMB', f'{I}/starts_per_flight'))],
-    ]
-    o.append(dtable(['Item', 'Value'], rows, widths=['32%', '68%']))
-
-    o.append(doc.h(2, '7.5 Start, relight and shutdown sequences'))
-    SQ = f'{I}/sequence/v'
-    seq = ctx.raw('CMB', SQ + '/start', default=[]) or []
-    rows = []
-    ev_t = {}
-    for k, e in enumerate(seq):
-        ep = ctx.v('CMB', f'{SQ}/start/{k}/epoch', tag='LEAD', tag_ptr=f'{I}/sequence')
-        tt = ctx.v('CMB', f'{SQ}/start/{k}/t_s', 's', tag='LEAD', tag_ptr=f'{I}/sequence')
-        ac = ctx.v('CMB', f'{SQ}/start/{k}/action', tag='LEAD', tag_ptr=f'{I}/sequence')
-        ev_t[e.get('epoch')] = tt
-        rows.append([Cell(f'<b>{esc(ep.value)}</b>', [ep]), num_cell(tt, '.3f') if tt.value is not None else Cell('—', [tt]), tvtxt(ac, 560)])
-    o.append(dtable(['Epoch', 't [s]', 'Action'], rows, label_cols=0, widths=['14%', '9%', '77%'],
-                    caption='Start and relight sequence (combustion.json v2.4 /igniter/sequence; times relative to E0 where stated by the source).'))
-    pt = '/relight_purge/v/timing_s'
-    pur = {k: ctx.v('CMB', f'{pt}/{k}', 's', tag_ptr='/relight_purge') for k in ('PURGE_command_rel_E0', 'MV_ramp', 'flow', 'flow_end_rel_E0')}
-    evs = [(ev_t[k].value, k) for k in ('E0', 'E1', 'torch gate', 'E2') if k in ev_t and ev_t[k].value is not None]
-    W = ev_t.get('W')
-    tg = ev_t.get('torch gate')
-    plan = ctx.v('GNC', '/requirements/ignition/relight_planning_value_s', 's')
-    windows = [(f'W {W.value:g} s from the lift command (FSW planning value {plan.value:g} s)', tg.value, W.value)] if (W and tg and W.value is not None and tg.value is not None) else []
-    src = plot_sequence(a, evs, {'t0': pur['PURGE_command_rel_E0'].value, 'ramp': pur['MV_ramp'].value, 'flow': pur['flow'].value,
-                                 'end': pur['flow_end_rel_E0'].value}, windows)
-    o.append(fig_html(src, 'A1 relight timeline: forced purge before E0, torch, ignition lift at E1, light E2 and the Pc-confirm deadline. '
-                      'E2 is shown at the value listed by the source sequence (not a bound).', [t.tid for t in pur.values()] + [t.tid for t in ev_t.values()], 'wide'))
-    lists = [('ARM preconditions', 'arm_preconditions'), ('Relight', 'relight'), ('Shutdown', 'shutdown'), ('Abort if no ignition', 'abort_if_no_ignition')]
-    rows = []
-    for lab, key in lists:
-        items = ctx.raw('CMB', f'{SQ}/{key}', default=[]) or []
-        for j, _ in enumerate(items):
-            tv = ctx.v('CMB', f'{SQ}/{key}/{j}', tag='LEAD', tag_ptr=f'{I}/sequence')
-            rows.append([lab if j == 0 else '', tvtxt(tv, 380)])
-    o.append(dtable(['Phase', 'Rule'], rows, widths=['18%', '82%']))
-    fa1 = ctx.v('CMB', f'{SQ}/fa1_supervision/v/status', tag='LEAD', tag_ptr=f'{SQ}/fa1_supervision')
-    o.append(note_box(f'<b>FA-1 (fuel-assisted relight pulse).</b> {tvtxt(fa1).html} {tvtxt(cl.item(170, 2)).html}'
-                      f'<br><b>Load restated as an envelope (CHANGELOG 172 (2)).</b> {tvtxt(cl.item(172, 2)).html}'
-                      + (f'<br><b>Envelope published and structural load decided (CHANGELOG {D["fa1"]["n"]}; §2.5).</b> {tvtxt(D["fa1"]["dec"]).html}'
-                         if D.get('fa1') else ''), 'warn'))
-
-    o.append(doc.h(2, '7.6 Abort set'))
-    lines_ = sorted({n for _, _, its, _, _ in ABORT_MAP for n, _ in its} | {160, 164})
-    o.append('<p>The decided abort set is the newest lead decision for each item (CHANGELOG lines ' + ', '.join(str(n) for n in lines_[:-1]) +
-             f' and {lines_[-1]}). The Combustion matrix (combustion.json {esc(ctx.src("CMB").version or "")}) and the firmware v2.9 implementation '
-             '(electronics.json v2) are shown beside it; where they differ, the decision governs and the difference is listed in §13.</p>')
-    cm = '/abort_matrix_v2p4/v'
-    rows = []
-    for aid, title, items, ckey, fw in ABORT_MAP:
-        dec = [cl.item(n, k) for n, k in items]
-        dcell = cat(*[Cell(f'<div class="dec"><b>L{n}({k})</b> {tvtxt(t, 330).html}</div>', [t]) for (n, k), t in zip(items, dec)]) if dec else Cell('<span class="small">no specific lead item; Combustion matrix applies</span>', [])
-        if not dec and ckey:
-            # keep the decided set honest: the matrix itself carries the lead tag
-            mt = ctx.v('CMB', '/abort_matrix_v2p4/tag', tag='LEAD') if ctx.raw('CMB', '/abort_matrix_v2p4/tag', default=None) else None
-            dcell = Cell('<span class="small">no item of its own; governed by the matrix tag: </span>' + (tvtxt(mt, 160).html if mt else ''), [mt] if mt else [])
-        ccell = tvtxt(ctx.v('CMB', f'{cm}/{ckey}', tag_ptr='/abort_matrix_v2p4'), 240) if ckey else Cell('<span class="small">—</span>', [])
-        if fw[0] == 'cause' and fw[1] in D['cause_idx']:
-            ci = D['cause_idx'][fw[1]]
-            fcell = cat(f'<b>{esc(fw[1])}</b> ', tvtxt(ctx.v('ELE', f'/abort_matrix/causes/{ci}/trigger', tag='DESIGN'), 200))
-            th = ctx.raw('ELE', f'/abort_matrix/causes/{ci}/thresholds', default={}) or {}
-            for kk in th:
-                t = ctx.v('ELE', f'/abort_matrix/causes/{ci}/thresholds/{kk}')
-                fcell = cat(fcell, f'<div class="small">{esc(kk)} = ', t.h(), '</div>')
-        elif fw[0] == 'ptr':
-            fcell = tvtxt(ctx.v('ELE', fw[1], tag_default='DESIGN'), 240)
-        elif fw[0] == 'proc':
-            pr = ctx.t('generator', f'abort map {aid}: firmware column', 'ground procedure, not a firmware cause', 'DESIGN', tag_raw='generator classification of the decided item')
-            fcell = Cell(f'<span class="small">{esc(pr.value)}</span> {pr.ref()}', [pr])
-        else:
-            nf = ctx.t('ELE', '/abort_matrix/causes (generator search)', 'no matching cause in firmware v2.9', 'MISSING', tag_raw='generator search of the cause list')
-            fcell = Cell(nf.h(), [nf])
-        rows.append([Cell(f'<b>{aid}</b><div class="small">{esc(title)}</div>', []), dcell, ccell, fcell])
-    o.append(dtable(['ID', 'Decided (CHANGELOG)', 'Combustion v2.4 matrix', 'Firmware v2.9 (SIL only)'], rows, label_cols=1, cls='abort',
-                    widths=['11%', '35%', '24%', '30%']))
-    act = ctx.v('ELE', '/abort_matrix/actions', tag='LEAD')
-    o.append(note_box(f'<b>Abort action.</b> {tvtxt(act).html}', 'info'))
-
-    o.append(doc.h(2, '7.7 Stability'))
-    st = '/stability/points_initial_port'
-    pts = ctx.raw('CMB', st + '/v', default={}) or {}
-    rows = []
-    for fr in pts:
-        base = f'{st}/v/{fr}'
-        cells = [Cell(f'{float(fr) * 100:.1f} %', [])]
-        for key, unit, f in (('dP_over_Pc', '', '.2f'), ('GM_tau5ms', '', '.1f'), ('GM_tau10ms', '', '.1f'), ('f_1L_Hz', 'Hz', '.0f'),
-                             ('f_Helmholtz_Hz', 'Hz', '.0f'), ('f_thermal_lag_Hz', 'Hz', '.2f')):
-            cells.append(num_cell(ctx.v('CMB', f'{base}/{key}', unit, tag_ptr=st), f))
-        rows.append(cells)
-    o.append(dtable(['Throttle', 'dP/Pc', 'Chug gain margin, 5 ms', 'Chug gain margin, 10 ms', '1L acoustic', 'Helmholtz', 'Thermal lag'], rows,
-                    caption='Stability indicators at the initial port (SIM).'))
-    o.append(note_box(tvtxt(ctx.v('CMB', '/stability/criteria', tag='DERIVED')).html + '<br>' + tvtxt(ctx.v('CMB', '/stability/hybrid_LF_note', tag='TO-VERIFY')).html, 'info'))
-    return '\n'.join(o)
 
 
 # =============================================================================================
@@ -2940,19 +1584,6 @@ def md_first_para(ctx, sid, heading_prefix, ev):
             return ctx.t(sid, f'§{heading_prefix} first paragraph', ln.strip(), ev, tag_raw=f'{sid} §{heading_prefix}')
     ctx.issue('WARN', f'section not found {sid} §{heading_prefix}')
     return ctx.missing(f'{sid} §{heading_prefix}')
-
-
-def rx_text(ctx, tv, pattern, unit='', tag=None, group=1, note=''):
-    """Number extracted with a recorded regex from a text value already traced (CHANGELOG item, markdown row)."""
-    s = tv.value if isinstance(tv.value, str) else None
-    m = re.search(pattern, s) if s else None
-    loc = f'{tv.ptr} [regex {pattern}]'
-    if not m:
-        ctx.issue('WARN', f'regex not matched {tv.sid}:{tv.ptr} {pattern}')
-        t = TV(ctx, None, unit, 'MISSING', tv.tag_raw, tv.sid, loc, status='MISSING', note='pattern not found')
-        ctx.unknowns.append({'what': f'{tv.sid}:{loc}', 'status': 'MISSING', 'tid': t.tid})
-        return t
-    return TV(ctx, float(m.group(group)), unit, tag or tv.ev, tv.tag_raw, tv.sid, loc, note=note)
 
 
 def wilson(p, n, z=1.959964):
@@ -2992,712 +1623,31 @@ def img_fig(ctx, a, fid, caption, cls='', prefix='fig_'):
 # =============================================================================================
 # section 8: plume CFD
 # =============================================================================================
-def sec_plume(ctx, doc, a, D):
-    o = [doc.h(1, '8 Plume CFD')]
-    P = 'PVAL'
-    De = ctx.v('CMB', '/gas_path/nozzle/exit_diameter_m', 'm')
-    stl = md_line(ctx, 'RPL', 'Version ', 'SIM')
-    o.append(note_box('<b>Simulation, not measurement.</b> ' + tvtxt(stl, 700).html, 'info'))
-
-    def mm(tv):
-        return ctx.d(tv.value * De.value * 1000 if (tv.value is not None and De.value) else None, 'mm',
-                     'x/De × De (exit diameter from combustion.json, tagged v1 geometry)', [tv, De])
-
-    S = lambda ptr, unit='', tag='SIM': ctx.v(P, ptr, unit, tag=tag, note='validation_v2.json carries no tags: CFD outputs SIM, 1-D and correlation values DERIVED')
-    o.append(doc.h(2, '8.1 Key results at the rated point'))
-    xmd, xlc = S('/correlations/own_f_2s_rans/x_md_cfd', 'De'), S('/correlations/own_f_2s_rans/x_md_lewis_carlson', 'De', 'DERIVED')
-    sp1, sp3, ppt = S('/correlations/own_f_2s_rans/spacing_first_mach', 'De'), S('/correlations/own_f_2s_rans/spacing_mean3_mach', 'De'), \
-        S('/correlations/own_f_2s_rans/spacing_pp_tam', 'De', 'DERIVED')
-    core = S('/gci/core_length_Z095_De/fine', 'De')
-    t10, t20 = S('/gci/T_axis_10De_K/fine', 'K'), S('/gci/T_axis_20De_K/fine', 'K')
-    fcfd, f1d, fdev = S('/thrust_vs_1d/own_f_2s_rans/F_cfd', 'N'), S('/one_d/F_ideal_lambda_N', 'N', 'DERIVED'), S('/thrust_vs_1d/own_f_2s_rans/dev_vs_ideal_lambda_pct', '%')
-    mcfd, m1d, mdev = S('/thrust_vs_1d/own_f_2s_rans/mdot_cfd', 'kg/s'), S('/one_d/mdot', 'kg/s', 'DERIVED'), S('/thrust_vs_1d/own_f_2s_rans/mdot_dev_pct', '%')
-    rows = [
-        ['Operating point of every grid level', tvtxt(md_bullet(ctx, 'RPL', '0. Checkpoint', 'v1 (combustion.json v1)', 'SIM'), 300)],
-        ['Exit Mach number / pe/pa / fully expanded Mach number (1-D)', cat(S('/one_d/Me', '', 'DERIVED').h('.3f'), ' / ', S('/one_d/pe_over_pa', '', 'DERIVED').h('.3f'), ' / ',
-                                                                              S('/one_d/Mj', '', 'DERIVED').h('.3f'))],
-        ['Mach disk position, fine grid (in mm) and Lewis–Carlson correlation', cat(xmd.h('.3f'), ' (', mm(xmd).h('.1f'), ') — correlation ', xlc.h('.3f'))],
-        ['Mach disk resolvability', tvtxt(S('/gci_resolvability/x_mach_disk_De/verdict'), 240)],
-        ['Shock-cell spacing, first / mean of three (in mm)', cat(sp1.h('.2f'), ' (', mm(sp1).h('.1f'), ') / ', sp3.h('.2f'), ' (', mm(sp3).h('.1f'), ')')],
-        ['Shock-cell spacing, Prandtl–Pack–Tam correlation', num_cell(ppt, '.2f')],
-        ['Shock-cell spacing grid sensitivity', cat(S('/gci/spacing_mean_3_De/gci_fine_pct', '%').h('.2f'), ' — ', tvtxt(S('/gci/spacing_mean_3_De/note')))],
-        ['Peak Mach number before the disk', num_cell(S('/gci/M_max_before_disk/fine'), '.2f')],
-        ['Potential core length, axis Z ≥ 0.95 (in mm)', cat(core.h('.1f'), ' (', mm(core).h('.0f'), ')')],
-        ['Axis temperature at 10 De / 20 De (frozen, no afterburning)', cat(Cell(temp_k(t10, 0), [t10]), ' / ', Cell(temp_k(t20, 0), [t20]))],
-        ['Thrust, exit integral (fine) vs 1-D with divergence factor; deviation', cat(fcfd.h('.1f'), ' vs ', f1d.h('.1f'), '; ', fdev.h('.2f'))],
-        ['Thrust grid sensitivity', cat(S('/gci/thrust_exit_N/gci_fine_pct', '%').h('.2f'), ' — ', tvtxt(S('/gci/thrust_exit_N/note')))],
-        ['Mass flow, CFD vs 1-D; deviation', cat(mcfd.h('.4f'), ' vs ', m1d.h('.4f'), '; ', mdev.h('.2f'))],
-        ['Starting-jet front at the end of the run', num_cell(S('/jet_front_x_De/own_f_2s_rans', 'De'), '.1f')],
-        ['v2 design point (coarse grid): Mach disk CFD / correlation; thrust deviation',
-         cat(S('/v2op/x_md_cfd', 'De').h('.3f'), ' / ', S('/v2op/x_md_lewis_carlson', 'De', 'DERIVED').h('.3f'), '; ', S('/v2op/thrust_dev_vs_ideal_lambda_pct', '%').h('.2f'))],
-        ['v2 point remark', tvtxt(S('/v2op/note'), 320)],
-    ]
-    o.append(dtable(['Quantity', 'Value'], rows, widths=['38%', '62%'],
-                    caption=f'Plume CFD results ({esc(src_label(ctx, "PVAL"))}, fine grid at the v1 point unless stated; lengths in exit diameters De).'))
-    o.append(doc.h(2, '8.2 Fields'))
-    o.append(img_fig(ctx, a, 'PF-MACH', '<b>Mach number, near field</b> (SIM, fine grid, v1 point).', 'wide'))
-    o.append(img_fig(ctx, a, 'PF-SCHL', '<b>Numerical schlieren</b> |∇ρ| (SIM, fine grid, v1 point): Mach disk, reflected shocks and the shock-cell train.', 'wide'))
-    o.append(img_fig(ctx, a, 'PF-TEMP', '<b>Static temperature, full domain</b> (SIM, frozen chemistry, no afterburning). The far field is not statistically stationary.', 'wide'))
-    o.append(img_fig(ctx, a, 'PF-AXIS', '<b>Centreline profiles</b> (SIM, fine grid).', 'half'))
-    o.append(img_fig(ctx, a, 'PF-V2MACH', '<b>Mach number at the v2 design point</b> (SIM, coarse grid). v2-v1 differences carry the grid error of the coarse level.', 'wide'))
-    o.append(doc.h(2, '8.3 Afterburning and model limits'))
-    rows = [['Afterburning at the v1 point', tvtxt(md_bullet(ctx, 'RPL', '0. Checkpoint', 'adds 172', 'SIM'), 400)],
-            ['Afterburning at the v2 point', tvtxt(md_bullet(ctx, 'RPL', '0. Checkpoint', 'adds nothing', 'SIM'), 400)],
-            ['Afterburning at the stretch floor', tvtxt(md_bullet(ctx, 'RPL', '0. Checkpoint', 'adds up to', 'SIM'), 300)]]
-    for k in ('**Soot and radiation', '**Finite-rate chemistry', '**Exhaust gas model', '**Geometry and setting', '**Duration', '**No acoustics'):
-        rows.append(['Limit: ' + k.strip('*'), tvtxt(md_bullet(ctx, 'RPL', '10. What the model cannot show', k, 'SIM'), 360)])
-    o.append(dtable(['Item', 'Report statement'], rows, widths=['24%', '76%']))
-    o.append(doc.h(2, '8.4 Illustration'))
-    o.append(img_fig(ctx, a, 'PF-ART', '<b>Illustration, not simulation.</b> Blender render of revolved CFD fields with exposure, colour and emitter chosen '
-                     'for appearance (ARTISTIC); it is not a radiation prediction and carries no data.', 'wide art'))
-    o.append(doc.h(2, '8.5 Review status'))
-    sup_ = ctx.raw('SUP', '/reviews', default=[]) or []
-    ids = [k for k, r in enumerate(sup_) if str(r.get('id', '')).startswith('REV-PLUME')]
-    if ids:
-        rows = []
-        for i in ids:
-            hs = ctx.raw('SUP', f'/reviews/{i}/hashes_sha256_16', default={}) or {}
-            same, changed, missing = hash_status(ctx, a, hs)
-            hst = ctx.d(f'{len(same)} unchanged, {len(changed)} changed since review ({", ".join(changed) or "none"}), {len(missing)} not found', '',
-                        'sha256/16 of each reviewed hub file vs the register', [], ev='DERIVED')
-            rid = ctx.v('SUP', f'/reviews/{i}/id', tag='DERIVED')
-            key = 'comments' if sup_[i].get('comments') else 'criteria'
-            rows.append([Cell(f'<b>{esc(rid.value)}</b> {rid.ref()}', [rid]), num_cell(ctx.v('SUP', f'/reviews/{i}/verdict', tag='DERIVED')),
-                         tvtxt(ctx.v('SUP', f'/reviews/{i}/{key}', tag='DERIVED'), 300), Cell(hst.h(), [hst])])
-        o.append(dtable(['Review', 'Verdict', 'Comments (or criteria)', 'Reviewed file hashes vs current files'], rows, label_cols=0,
-                        widths=['13%', '17%', '42%', '28%'],
-                        caption='Independent reviews of the plume CFD in register order, newest last (reviews/SUPERVISION.json). A review verdict is not physical approval.'))
-        o.append(dtable(['Item', 'Value'], [['Report text revision answering the comments', tvtxt(stl, 400)]], widths=['30%', '70%']))
-    else:
-        o.append(Cell(ctx.missing('REV-PLUME entry in the review register').h()).html)
-    return '\n'.join(o)
 
 
 # =============================================================================================
 # section 9: structural FEA (PENDING until hub/04-fea margins or mechanical.json v2.1)
 # =============================================================================================
-FEA_SCHEMA = [('case', 'load case ID (loadcases file)'), ('part', 'BOM part number'), ('material', 'material code'),
-              ('state', 'critical state or instant'), ('MS', 'margin of safety on yield (combined, at temperature)'),
-              ('MS_ult', 'margin of safety on ultimate'), ('T_part_max_C', 'peak part temperature'), ('T_limit_C', 'usable temperature limit'),
-              ('SF_y', 'yield factor applied'), ('SF_u', 'ultimate factor applied'), ('criterion', 'criterion text'), ('status', 'result statement')]
-FEA_GLOBS = ['04-fea/**/*margin_table*.csv']
-
-
-def find_fea_tables(ctx, a):
-    files = []
-    for g in FEA_GLOBS:
-        files += sorted(glob.glob(os.path.join(a.hub, g), recursive=True))
-    files = [f for f in files if os.sep + 'history' + os.sep not in f]
-    out = []
-    for k, f in enumerate(files, 1):
-        sid = f'FEA{k}'
-        ctx.add(sid, f, 'FEA margin table (hub 04-fea)', 'csv', required=False)
-        rows = list(csv.DictReader(io.StringIO(ctx.src(sid).text or '')))
-        out.append((sid, f, rows))
-    return out
-
-
-def sec_fea(ctx, doc, a, D):
-    o = [doc.h(1, '9 Structural FEA')]
-    tables = find_fea_tables(ctx, a)
-    mec_v = ctx.v('MEC', '/version', tag='DESIGN')
-    mec_m = None
-    if isinstance(mec_v.value, str) and re.match(r'v2\.(\d+)', mec_v.value) and int(re.match(r'v2\.(\d+)', mec_v.value).group(1)) >= 1:
-        mec_m = ctx.raw('MEC', '/structural_margins', default=None)
-    pend = ctx.missing('Structural FEA margins (hub 04-fea margin table or mechanical.json v2.1 /structural_margins)', 'PENDING',
-                       note='no published margin table found by the generator')
-    if not tables and not mec_m:
-        o.append(note_box(f'<b>PENDING.</b> No structural margin has been published to the hub. The generator looked for '
-                          f'<code>{esc(", ".join(FEA_GLOBS))}</code> under the hub and for <code>/structural_margins</code> in '
-                          f'mechanical.json ≥ v2.1 (current: {mec_v.h()}). The pressure parts and the gimbal structure therefore carry no '
-                          f'verified margin in this draft {pend.pill()}{pend.ref()}. Stiffness and modal results from mechanical.json v2 are in §3.2.', 'warn'))
-    else:
-        ctx.unknowns = [u for u in ctx.unknowns if u.get('tid') != pend.tid]
-    o.append(doc.h(2, '9.1 Load cases (inputs)'))
-    cases = ctx.raw('FEALC', '/cases', default=[]) or []
-    rows = []
-    for i, c in enumerate(cases):
-        b = f'/cases/{i}'
-        cid = ctx.v('FEALC', b + '/id', tag='DESIGN')
-        ttl = ctx.v('FEALC', b + '/title', tag='DESIGN')
-        pc = ctx.v('FEALC', b + '/chamber_Pa', 'Pa', tag='DESIGN') if c.get('chamber_Pa') is not None else None
-        th = ctx.v('FEALC', b + '/thrust_N', 'N', tag='DESIGN') if c.get('thrust_N') is not None else None
-        sy = ctx.v('FEALC', b + '/criterion/SF_y', tag='REQ') if isinstance(c.get('criterion'), dict) and c['criterion'].get('SF_y') is not None else None
-        su = ctx.v('FEALC', b + '/criterion/SF_u', tag='REQ') if isinstance(c.get('criterion'), dict) and c['criterion'].get('SF_u') is not None else None
-        nm = Cell(f'<b>{esc(cid.value)}</b>{cid.ref()}', [cid])
-        rows.append([nm, tvtxt(ttl, 120),
-                     Cell(pres(ctx, pc), [pc]) if pc else Cell('<span class="small">not applicable</span>', [ttl]),
-                     num_cell(th, '.1f') if th else Cell('<span class="small">not applicable</span>', [ttl]),
-                     cat(sy.h('.1f') if sy else '—', ' / ', su.h('.1f') if su else '—', Cell('', [x for x in (sy, su, ttl) if x]))])
-    o.append(dtable(['Case', 'Title', 'Chamber pressure', 'Thrust', 'SF yield / ultimate'], rows, label_cols=0,
-                    widths=['8%', '42%', '20%', '13%', '17%'], caption=f'04-fea/loadcases_v1.json ({esc(src_label(ctx, "FEALC"))}). The thrust of LC2F is listed in §13.'))
-    cl = D['cl']
-    add = [['LC-TB70 (throat block, assembled FEA)', tvtxt(cl.item(166, 10, contains='LC-TB70'), 300)],
-           ['Throat-block event in the firmware SIL', tvtxt(ctx.v('ELE', '/open_issues/3', tag='SIM'), 300)],
-           ['FA-1 fuel-assisted relight pulse check', tvtxt(cl.item(164, 8, contains='Mechanical adds'), 300)],
-           ['FA-1 flight acceptance condition', tvtxt(cl.item(170, 2), 300)],
-           ['FA-1 load envelope and interim check (supersedes the single-point check above)', tvtxt(cl.item(172, 2), 600)]] + \
-          ([['FA-1 structural load decided on the v2.4a envelope (supersedes the interim check; §2.5)', tvtxt(D['fa1']['dec'], 900)]] if D.get('fa1') else [])
-    o.append(dtable(['Load case required by a lead decision', 'Decision text'], add, widths=['30%', '70%'],
-                    caption='Load cases decided after loadcases_v1 and not yet in a published load-case file.'))
-    o.append(doc.h(2, '9.2 Margin table'))
-    if tables:
-        for sid, f, rows_ in tables:
-            o.append(fea_margin_tables(ctx, sid, rows_))
-    elif mec_m:
-        o.append(tvtxt(ctx.v('MEC', '/structural_margins', tag='SIM'), 2000).html)
-    else:
-        rows = []
-        for i, c in enumerate(cases):
-            cid = ctx.v('FEALC', f'/cases/{i}/id', tag='DESIGN')
-            t = ctx.missing(f'FEA margins for load case {c.get("id")}', 'PENDING')
-            rows.append([Cell(f'<b>{esc(cid.value)}</b>{cid.ref()}', [cid]), Cell(t.h(), [t])])
-        o.append(dtable(['Load case', 'Governing margins'], rows, widths=['20%', '80%'],
-                        caption='Placeholder: one row per load case until a margin table is published.'))
-    F1 = D.get('fa1') or {}
-    if F1.get('mech'):
-        o.append(note_box(f'<b>Margins reported in the decision log, outside a published margin table (Mechanical result, CHANGELOG {F1["n_mech"]}; '
-                          f'FA-1 loads of §2.5).</b> {tvtxt(F1["mech"], 1800).html} <span class="small">Not the assembled FEA of record and not '
-                          f'independently reviewed; the CAD changes it proposes are not in CAD {esc(a.cad_version)}.</span> {F1["mech_rev"].h()}', 'warn'))
-    o.append('<p class="small">Schema the generator reads (one row per load case, part and state; the governing row per part is the minimum MS):</p>')
-    o.append(table(['Field', 'Meaning'], [[f'<code>{esc(k)}</code>', esc(v)] for k, v in FEA_SCHEMA], cls='schema', widths=['22%', '78%']))
-    o.append(note_box('A margin table is a simulation result. A positive margin is not a proof test: the hydrostatic proof (LC4) and the '
-                      'founders\' pressure tests remain the physical gates for the pressure parts.', 'info'))
-    return '\n'.join(o)
-
-
-def fea_margin_tables(ctx, sid, rows_):
-    """Governing (minimum MS) row per part and the list of negative margins, each cell traced to its CSV row."""
-    gov = {}
-    neg = []
-    for i, r in enumerate(rows_):
-        ms = fnum(r.get('MS'))
-        if ms is None:
-            continue
-        key = r.get('part', '?')
-        if key not in gov or ms < fnum(gov[key][1].get('MS')):
-            gov[key] = (i, r)
-        if ms < 0:
-            neg.append((i, r))
-    def rowcells(i, r):
-        loc = f'row {i + 2} (case={r.get("case")}, part={r.get("part")})'
-        msv = TV(ctx, fnum(r.get('MS')), '', 'SIM', f'{sid} CSV', sid, loc + '/MS')
-        msu = TV(ctx, fnum(r.get('MS_ult')), '', 'SIM', f'{sid} CSV', sid, loc + '/MS_ult', status='not given')
-        txt = TV(ctx, f"{r.get('case')} · {r.get('material')} · {r.get('state')} · T {r.get('T_part_max_C')} / {r.get('T_limit_C')} °C", '', 'SIM', f'{sid} CSV', sid, loc)
-        st = TV(ctx, (r.get('status') or '')[:220], '', 'SIM', f'{sid} CSV', sid, loc + '/status')
-        return [Cell(f'<span class="pn">{esc(r.get("part"))}</span>', [txt]), Cell(txt.h(pill=False), [txt]), num_cell(msv, '.2f'), num_cell(msu, '.2f'), tvtxt(st, 220)]
-    out = [dtable(['Part', 'Case · material · state · T max / limit', 'MS yield', 'MS ult.', 'Status'],
-                  [rowcells(i, r) for _, (i, r) in sorted(gov.items(), key=lambda kv: fnum(kv[1][1].get('MS')))],
-                  label_cols=0, widths=['10%', '34%', '9%', '9%', '38%'], caption=f'Governing margin per part ({esc(sid)}).')]
-    if neg:
-        out.append(dtable(['Part', 'Case · material · state · T max / limit', 'MS yield', 'MS ult.', 'Status'], [rowcells(i, r) for i, r in neg],
-                          label_cols=0, widths=['10%', '34%', '9%', '9%', '38%'], caption=f'All negative margins ({len(neg)} rows).'))
-    return '\n'.join(out)
 
 
 # =============================================================================================
 # section 10: electronics
 # =============================================================================================
-def sec_electronics(ctx, doc, a, D):
-    o = [doc.h(1, '10 Electronics and control')]
-    cl = D['cl']
-    i = next((k for k, r in enumerate(ctx.raw('SUP', '/reviews', default=[]) or []) if r.get('id') == 'REV-ELEC-1'), None)
-    if i is not None:
-        vd = ctx.v('SUP', f'/reviews/{i}/verdict', tag='DERIVED')
-        bl = ctx.v('SUP', f'/reviews/{i}/blocking', tag='DERIVED')
-        o.append(note_box(f'<b>Firmware v2.9 and electronics.json v2: REVISE per REV-ELEC-1</b> ({vd.h()}). Blocking findings: {tvtxt(bl).html} '
-                          f'Lead disposition: {tvtxt(cl.item(166, 10, contains="v2.10")).html} Values below are the published v2 interface; '
-                          'where a lead decision changes them, §7.6 and §13 show the decided value.', 'warn'))
-    E = 'ELE'
-    o.append(doc.h(2, '10.1 Engine control unit and firmware'))
-    rows = [
-        ['Architecture', tvtxt(ctx.v(E, '/ecu/architecture'))],
-        ['Microcontroller', tvtxt(ctx.v(E, '/ecu/mcu', tag='DESIGN'))],
-        ['PCB outline / enclosure reservation', cat(ctx.v(E, '/ecu/pcb_outline_mm', 'mm').h('.1f'), ' / ', ctx.v(E, '/ecu/enclosure_envelope_mm', 'mm').h('.0f'))],
-        ['ECU mass (range)', cat(ctx.v(E, '/ecu/mass_kg', 'kg').h('.2f'), ' (', ctx.v(E, '/ecu/mass_kg/range', 'kg', tag='ASSUMED').h('.2f'), ')')],
-        ['Schematic', tvtxt(ctx.v(E, '/ecu/schematic/version', tag='DESIGN'))],
-        ['Schematic checks', cat(tvtxt(ctx.v(E, '/ecu/schematic/erc')), '<br>', tvtxt(ctx.v(E, '/ecu/schematic/netlist_crosscheck')))],
-        ['Placeholders (not for fabrication)', tvtxt(ctx.v(E, '/ecu/schematic/placeholders', tag='TO-VERIFY'))],
-        ['Firmware version / target', cat(ctx.v(E, '/firmware/version', tag='DESIGN').h(), ' — ', tvtxt(ctx.v(E, '/firmware/target', tag='TO-VERIFY')))],
-        ['Firmware unit tests (v2.9)', tvtxt(ctx.v(E, '/firmware/unit_tests/v2.9', tag='SIM'))],
-        ['Interface status', tvtxt(ctx.v(E, '/status', tag='DESIGN'), 500)],
-        ['Constants generated from', tvtxt(ctx.v(E, '/inputs/generated_headers', tag='DESIGN'), 400)],
-        ['CAN link', tvtxt(ctx.v(E, '/can_interface/physical'), 240)],
-    ]
-    o.append(dtable(['Item', 'Value'], rows, widths=['28%', '72%']))
-    o.append(doc.h(2, '10.2 Sensors'))
-    PT = '/sensors/pressure_transducers'
-    rows = [
-        ['Pressure transducers (selection)', tvtxt(ctx.v(E, f'{PT}/selection'))],
-        ['Connectors', tvtxt(ctx.v(E, f'{PT}/connectors', tag='DESIGN'), 300)],
-        ['Hardware over-pressure comparator', tvtxt(ctx.v(E, f'{PT}/hw_ovp'))],
-        ['Transducer fault window', cat(ctx.v(E, f'{PT}/fault_window/min', 'V').h('.2f'), ' – ', ctx.v(E, f'{PT}/fault_window/max', 'V', tag='DESIGN').h('.2f'))],
-        ['Thermocouples', tvtxt(ctx.v(E, '/sensors/thermocouples/channels', tag='DESIGN'), 500)],
-        ['Case over-temperature abort / relight refusal', cat(Cell(temp_k(ctx.v(E, '/sensors/thermocouples/case_abort', 'K'), 2), [ctx.recent[-1]]), ' / ',
-                                                             Cell(temp_k(ctx.v(E, '/sensors/thermocouples/relight_refusal', 'K'), 2), [ctx.recent[-1]]))],
-        ['Other temperatures', tvtxt(ctx.v(E, '/sensors/temperature_other', tag='DESIGN'), 300)],
-        ['Encoders', tvtxt(ctx.v(E, '/sensors/encoders', tag='DESIGN'))],
-        ['Load cell (stand)', tvtxt(ctx.v(E, '/sensors/load_cell/model', tag='TO-VERIFY'))],
-        ['IMU', tvtxt(ctx.v(E, '/sensors/imu', tag='TO-VERIFY'))],
-    ]
-    o.append(dtable(['Item', 'Value'], rows, widths=['28%', '72%']))
-    o.append(doc.h(2, '10.3 Loop rates, latency and link loss'))
-    L = '/loop_rates_and_latency'
-    keys = [('pc_control_Hz', 'Pc control loop'), ('pc_adc_Hz', 'Pc ADC sampling'), ('tvc_shaping_Hz', 'TVC command shaping'), ('servo_pwm_Hz', 'Servo PWM'),
-            ('fc_command_Hz', 'FC command rate'), ('telemetry_fast_Hz', 'Telemetry, fast'), ('telemetry_slow_Hz', 'Telemetry, slow'), ('sd_log_Hz', 'SD log'),
-            ('safety_monitor_Hz', 'Safety monitor'), ('tlm_relight_Hz', 'Relight-state telemetry'), ('fc_thrust_Hz', 'FC thrust estimate')]
-    rows = [[lab, num_cell(ctx.v(E, f'{L}/{k}', 'Hz'), '.0f')] for k, lab in keys]
-    rows += [['Hardware watchdog', num_cell(ctx.v(E, f'{L}/hw_watchdog', 's'), '.3f')],
-             ['Link degraded / lost after', cat(ctx.v(E, '/link_loss/degraded_after', 's').h('.3f'), ' / ', ctx.v(E, '/link_loss/lost_after', 's').h('.3f'))],
-             ['Latency terms', tvtxt(ctx.v(E, f'{L}/latency_s', 's'), 300)]]
-    o.append(dtable(['Item', 'Value'], rows, widths=['40%', '60%']))
-    o.append(doc.h(2, '10.4 Light rule and start monitors (firmware v2.9)'))
-    LR = '/light_rule_v2p9'
-    rows = [
-        ['Light rule', tvtxt(ctx.v(E, f'{LR}/rule'), 600)],
-        ['Rise over the baseline P0 / confirmation ticks / baseline samples', cat(ctx.v(E, f'{LR}/kIgnRise_Pa', 'Pa').h('.0f'), ' / ', ctx.v(E, f'{LR}/kIgnConfirmRelN').h('.0f'), ' / ',
-                                                                                    ctx.v(E, f'{LR}/kIgnPreN').h('.0f'))],
-        ['Floor and baseline check', cat(tvtxt(ctx.v(E, f'{LR}/kIgnFloorAbs_Pa')), '<br>', tvtxt(ctx.v(E, f'{LR}/kIgnBaseCheck_Pa')))],
-        ['Decided baseline fallback (RE-02)', tvtxt(cl.item(166, 1), 500)],
-        ['SIL, A1 relight MC: lit runs / light-rule aborts / false lights on unlit runs',
-         cat(ctx.v(E, f'{LR}/sil_a1_relight_mc/runs_lit', tag='SIM').h('d'), ' / ', ctx.v(E, f'{LR}/sil_a1_relight_mc/light_rule_aborts', tag='SIM').h('d'), ' / ',
-             ctx.v(E, f'{LR}/sil_a1_relight_mc/unlit_false_lights', tag='SIM').h('d'))],
-        ['SIL, E2 after the light: median / maximum', cat(ctx.v(E, f'{LR}/sil_a1_relight_mc/E2_minus_light_ms/p50', 'ms', tag='SIM').h('.0f'), ' / ',
-                                                        ctx.v(E, f'{LR}/sil_a1_relight_mc/E2_minus_light_ms/max', 'ms', tag='SIM').h('.0f'))],
-        ['SIL basis', tvtxt(ctx.v(E, f'{LR}/sil_a1_relight_mc/tag', tag='SIM'), 300)],
-        ['A3 start monitor', tvtxt(ctx.v(E, '/start_monitors_v2p9/A3'), 400)],
-        ['A7 plausibility bands', tvtxt(ctx.v(E, '/start_monitors_v2p9/A7'), 400)],
-        ['E3 (end of start)', tvtxt(ctx.v(E, '/start_monitors_v2p9/E3'), 300)],
-    ]
-    o.append(dtable(['Item', 'Value'], rows, widths=['30%', '70%']))
-    o.append(doc.h(2, '10.5 Abort and refusal causes (firmware v2.9)'))
-    cs = ctx.raw(E, '/abort_matrix/causes', default=[]) or []
-    rows = []
-    for k, c in enumerate(cs):
-        b = f'/abort_matrix/causes/{k}'
-        code = ctx.v(E, b + '/code', tag='DESIGN')
-        cause = ctx.v(E, b + '/cause', tag='DESIGN')
-        trig = ctx.v(E, b + '/trigger', tag='DESIGN')
-        th = []
-        for kk in (c.get('thresholds') or {}):
-            t = ctx.v(E, f'{b}/thresholds/{kk}')
-            th.append(Cell(f'<div class="small">{esc(kk)} = {t.h()}</div>', [t]))
-        rows.append([Cell(f'{esc(code.num())}{code.ref()}', [code]), Cell(f'<b>{esc(cause.value)}</b>{cause.ref()}', [cause]), tvtxt(trig, 220),
-                     cat(*th) if th else Cell('<span class="small">no threshold</span>', [trig])])
-    o.append(dtable(['Code', 'Cause', 'Trigger', 'Thresholds'], rows, label_cols=0, cls='abort',
-                    widths=['6%', '17%', '42%', '35%'], caption=f'{len(cs)} causes in electronics.json /abort_matrix/causes. REVISE per REV-ELEC-1; decided changes in §7.6.'))
-    o.append(note_box(f'<b>Abort action.</b> {tvtxt(ctx.v(E, "/abort_matrix/actions", tag="LEAD")).html}', 'info'))
-    o.append(doc.h(2, '10.6 Power'))
-    PB = '/power_budget'
-    rows = [['Battery', tvtxt(ctx.v(E, f'{PB}/battery', tag='DESIGN'))],
-            ['Logic power, typical / peak', tvtxt(ctx.v(E, f'{PB}/logic_W', 'W'))],
-            ['Energy per flight day', num_cell(ctx.v(E, f'{PB}/flight_day_Wh', 'Wh'), '.2f')],
-            ['Energy per static-fire session', num_cell(ctx.v(E, f'{PB}/static_fire_session_Wh', 'Wh'), '.2f')],
-            ['Peak current (three servos stalled)', num_cell(ctx.v(E, f'{PB}/peak_current_A', 'A'), '.1f')],
-            ['Minimum voltage at the ECU', num_cell(ctx.v(E, f'{PB}/min_voltage_at_ECU_V', 'V'), '.2f')],
-            ['Fusing', tvtxt(ctx.v(E, f'{PB}/fusing', tag='DESIGN'))],
-            ['ARM bus peak vs fuse', tvtxt(ctx.v(E, f'{PB}/arm_bus_peak_vs_F301'), 300)]]
-    o.append(dtable(['Item', 'Value'], rows, widths=['30%', '70%']))
-    o.append(doc.h(2, '10.7 Head-end bleed provision and fail-safe states'))
-    HB = '/head_end_bleed_provision'
-    rows = [['Architecture', tvtxt(ctx.v(E, f'{HB}/architecture'), 400)],
-            ['Pad built-in test', tvtxt(ctx.v(E, f'{HB}/pad_bit', tag='DESIGN'))],
-            ['Purge', tvtxt(ctx.v(E, f'{HB}/purge'), 400)],
-            ['Stuck-open bleed during a burn', tvtxt(ctx.v(E, f'{HB}/in_burn_stuck_open', tag='SIM'), 400)],
-            ['Valve coil', tvtxt(ctx.v(E, f'{HB}/coil', tag='TO-VERIFY'), 300)]]
-    fs = ctx.raw(E, '/fail_safe_states', default={}) or {}
-    for k in fs:
-        if k.startswith('superseded'):
-            continue
-        rows.append([f'Fail-safe: {esc(k)}', tvtxt(ctx.v(E, ptr_join('fail_safe_states', k), tag='DESIGN'), 300)])
-    o.append(dtable(['Item', 'Value'], rows, widths=['30%', '70%']))
-    o.append(doc.h(2, '10.8 Electronics open issues'))
-    oi = ctx.raw(E, '/open_issues', default=[]) or []
-    rows = []
-    for k, x in enumerate(oi):
-        b = f'/open_issues/{k}'
-        rows.append([Cell(f'<b>{esc(x.get("id"))}</b>', [ctx.v(E, b + '/id', tag='DESIGN')]), tvtxt(ctx.v(E, b + '/severity', tag='DESIGN')),
-                     tvtxt(ctx.v(E, b + '/issue', tag='TO-VERIFY'), 260), tvtxt(ctx.v(E, b + '/owner', tag='DESIGN'), 80)])
-    o.append(dtable(['ID', 'Severity', 'Issue', 'Owner'], rows, label_cols=0, widths=['13%', '12%', '57%', '18%'],
-                    caption=f'electronics.json /open_issues ({len(oi)} items).'))
-    return '\n'.join(o)
 
 
 # =============================================================================================
 # section 11: mission and landing
 # =============================================================================================
-def sec_mission(ctx, doc, a, D):
-    o = [doc.h(1, '11 Mission and landing')]
-    cl = D['cl']
-    G = 'GNC'
-    o.append(doc.h(2, '11.1 Reference vehicle'))
-    RV = '/reference_vehicle'
-    rows = [
-        ['Reference vehicle', tvtxt(ctx.v(G, f'{RV}/name', tag='ASSUMED'), 300)],
-        ['Length / body diameter', cat(ctx.v(G, f'{RV}/length_overall_m', 'm').h('.2f'), ' / ', ctx.v(G, f'{RV}/body_diameter_m', 'm').h('.3f'))],
-        ['Dry mass', num_cell(ctx.v(G, f'{RV}/dry_mass_kg', 'kg'), '.3f')],
-        ['Fuel grain / N2O load / tank volume', cat(ctx.v(G, f'{RV}/fuel_grain_mass_kg', 'kg').h('.3f'), ' / ', ctx.v(G, f'{RV}/n2o_load_kg', 'kg').h('.2f'), ' / ',
-                                                  ctx.v(G, f'{RV}/tank_volume_L', 'L').h('.3f'))],
-        ['Lift-off mass / landing mass (nominal A1)', cat(ctx.v(G, f'{RV}/liftoff_mass_kg', 'kg').h('.3f'), ' / ', ctx.v(G, f'{RV}/landing_mass_kg', 'kg').h('.3f'))],
-        ['Lift-off thrust-to-weight', tvtxt(ctx.v(G, '/lift_capability/rv1c_liftoff_T_W', tag_ptr='/lift_capability/tag'), 200)],
-        ['Landing legs', tvtxt(ctx.v(G, f'{RV}/landing_legs'), 260)],
-        ['Fins', tvtxt(ctx.v(G, f'{RV}/fins'), 200)],
-        ['Tail-first aerodynamics', tvtxt(ctx.v(G, f'{RV}/aero/unknowns', tag='TO-VERIFY'), 260)],
-    ]
-    o.append(dtable(['Item', 'Value'], rows, widths=['30%', '70%'], caption='gnc.json v3 /reference_vehicle (parametric; the real airframe is owned outside the engine team).'))
-    o.append(doc.h(2, '11.2 Mission plan'))
-    MP = '/flight_profile/mission_plan_v3/v'
-    nom = f'{MP}/A1/nominal_relight_planning_1.81s'
-    apv = ctx.v(G, f'{MP}/A1/apogee_target_m', 'm', tag='REQ')
-    n_g2 = cl.find('On GNC rev2')
-    if n_g2:
-        c_ap = cl.item(n_g2, 1)
-        ap_new = rx_text(ctx, c_ap, r'A1 apogee target (\d+) m', 'm', tag='LEAD')
-        apo_rows = [['A1 apogee target (newest lead decision)', cat(num_cell(ap_new, '.0f'), ' ', tvtxt(c_ap, 300))],
-                    ['A1 apogee target in gnc.json v3 (planning value, superseded; §13.3 C-08)', Cell(f'<del class="stale">{apv.h(".0f")}</del>', [apv])],
-                    ['A1 apogee trim rule', tvtxt(cl.item(168, 4), 400)],
-                    ['Launch-commit condition added (newest lead decision)', tvtxt(cl.item(n_g2, 4, contains='launch-commit'), 300)]]
-    else:
-        apo_rows = [['A1 apogee target (planning)', num_cell(apv, '.0f')],
-                    ['A1 apogee trim (newest lead decision)', tvtxt(cl.item(168, 4), 400)]]
-    rows = [
-        ['A1 role and profile', cat(tvtxt(ctx.v(G, f'{MP}/A1/role', tag='REQ')), ': ', tvtxt(ctx.v(G, f'{MP}/A1/profile', tag='REQ'), 300))],
-        *apo_rows,
-        ['A1 nominal: apogee / relight height / burn time / N2O burned / reserve',
-         cat(ctx.v(G, f'{nom}/h_max', 'm', tag='SIM').h('.1f'), ' / ', ctx.v(G, f'{nom}/h_ign', 'm', tag='SIM').h('.1f'), ' / ',
-             ctx.v(G, f'{nom}/burn_time_s', 's', tag='SIM').h('.2f'), ' / ', ctx.v(G, f'{nom}/n2o_burned', 'kg', tag='SIM').h('.3f'), ' / ',
-             ctx.v(G, f'{nom}/reserve_frac', '', tag='SIM').h('.3f'))],
-        ['B1 role', tvtxt(ctx.v(G, f'{MP}/B1/role', tag='REQ'))],
-        ['B1 hop cap', cat(ctx.v(G, f'{MP}/B1/h_target_m', 'm').h('.0f'), ' — ', tvtxt(ctx.v(G, f'{MP}/B1/h_target_status', tag='LEAD'), 300))],
-        ['B1 sizing height', num_cell(ctx.v(G, f'{MP}/B1/h_sizing_m', 'm'), '.0f')],
-        ['B1 cap rule', tvtxt(cl.item(161, 7), 300)],
-        ['B2', cat(tvtxt(ctx.v(G, f'{MP}/B2/role', tag='REQ')), ', ', ctx.v(G, f'{MP}/B2/h_target_m', 'm', tag='REQ').h('.0f'))],
-        ['Order of first flights', tvtxt(ctx.v(G, f'{MP}/first_flights', tag='REQ'))],
-        ['Launch commit (wind)', tvtxt(cl.item(161, 6), 300)],
-        ['Mission statement (REQUIREMENTS)', tvtxt(md_bullet(ctx, 'REQ', 'Amendments after rev 2', 'Mission B1', 'LEAD'), 400)],
-    ]
-    o.append(dtable(['Item', 'Value'], rows, widths=['32%', '68%']))
-    o.append(doc.h(2, '11.3 Landing Monte Carlo'))
-    RP = '/relight_planning_v28'
-    tag = ctx.v(G, f'{RP}/tag', tag='SIM')
-    nrun = rx(ctx, G, f'{RP}/tag', r'(\d+) runs', 'runs', tag='SIM', note='runs per case')
-    base = f'{MP}/A1/relight_v2.8/P_by_line_state_at_planning_value'
-    bases = [('A1_none', 'A1, no throat growth'), ('A1_pc', 'A1, throat growth'), ('A1J_none', 'A1 ENG-07d basis, no growth'), ('A1J_pc', 'A1 ENG-07d basis, growth')]
-    states = [('liq', 'liquid line'), ('vapU', 'vapour, upper'), ('vapF', 'vapour, full')]
-    rows, prow = [], []
-    n = nrun.value or 0
-    def pcell(tv, label, color):
-        if tv.value is None or not n:
-            return Cell(tv.h(), [tv])
-        lo, hi = wilson(tv.value, n)
-        ci = ctx.d([round(lo, 4), round(hi, 4)], '', f'Wilson 95 % interval, n = {n:g} runs (from the GNC tag)', [tv, nrun])
-        prow.append((label, tv.value, lo, hi, color))
-        return cat(tv.h('.3f'), ' <span class="small">[', ci.h('.3f', pill=False), ']</span>')
-    for bk, blab in bases:
-        cells = [blab]
-        for sk, slab in states:
-            t = ctx.v(G, f'{base}/{bk}/P_by_state/{sk}', '', tag='SIM', tag_ptr=f'{RP}/tag')
-            cells.append(pcell(t, f'{blab}, {slab}', C_ACC))
-        t = ctx.v(G, f'{base}/{bk}/P_fault_1p37', '', tag='SIM', tag_ptr=f'{RP}/tag')
-        cells.append(pcell(t, f'{blab}, fault path', C_BAD))
-        oc = ctx.v(G, f'{RP}/v/sweep_and_full_by_base/{bk}/1.41/P_fault_1p37', '', tag='SIM', tag_ptr=f'{RP}/tag')
-        cells.append(pcell(oc, f'{blab}, fault path, option (c)', C_OK))
-        rows.append(cells)
-    pv = ctx.v(G, f'{RP}/v/planning_value_s', 's')
-    oc_s = ctx.v(G, '/requirements/ignition/relight_planning_value_s/option_c_unprimed_s', 's')
-    o.append(dtable(['Basis', 'Liquid line', 'Vapour, upper', 'Vapour, full', 'Fault path (plan value)', 'Fault path, option (c)'], rows,
-                    widths=['21%', '15%', '15%', '15%', '17%', '17%'],
-                    caption=f'P(landing success), A1 relight at the planning value {esc(pv.num())} s ({pv.ref()}); option (c) plans '
-                            f'{esc(oc_s.num())} s ({oc_s.ref()}) on an UNPRIMED flag. Wilson 95 % intervals DERIVED by the generator.'))
-    b1 = rx(ctx, G, '/b1_regression_band/v/lead_cap/finding', r'P ([\d.]+) \[([\d.]+), ([\d.]+)\]', '', tag='SIM', group=1)
-    b1lo = rx(ctx, G, '/b1_regression_band/v/lead_cap/finding', r'P ([\d.]+) \[([\d.]+), ([\d.]+)\]', '', tag='SIM', group=2)
-    b1hi = rx(ctx, G, '/b1_regression_band/v/lead_cap/finding', r'P ([\d.]+) \[([\d.]+), ([\d.]+)\]', '', tag='SIM', group=3)
-    if b1.value is not None:
-        prow.append(('B1 at the hop cap, regression band + growth', b1.value, b1lo.value, b1hi.value, C_ACC2))
-    o.append(dtable(['Case', 'Value'], [
-        ['B1 at the provisional hop cap: P with regression band and throat growth [interval as published]', cat(b1.h('.3f'), ' [', b1lo.h('.3f', pill=False), ', ', b1hi.h('.3f', pill=False), ']')],
-        ['B1 finding', tvtxt(ctx.v(G, '/b1_regression_band/v/lead_cap/finding', tag='SIM'), 420)]], widths=['36%', '64%']))
-    if prow:
-        src = plot_landing(a, prow)
-        o.append(fig_html(src, 'Landing success by basis and line state at the relight (6-DOF Monte Carlo, SIM). Red: drained-segment fault path at '
-                          'the planning value; green: the same fault path with option (c).', [nrun.tid, b1.tid], 'wide'))
-    sup = ctx.raw('SUP', '/reviews', default=[]) or []
-    j = next((k for k, r in enumerate(sup) if r.get('id') == 'REV-GNC-2'), None)
-    rows = [['Monte Carlo basis', tvtxt(tag, 500)],
-            ['Planning status', tvtxt(ctx.v(G, f'{RP}/v/status', tag='LEAD'), 400)],
-            ['Not physical acceptance', tvtxt(ctx.v(G, '/publication_note/not_physical_acceptance', tag='SIM'), 300)]]
-    if j is not None:
-        rows.append(['RG-01 (relight evidence)', cat(ctx.v('SUP', f'/reviews/{j}/verdict', tag='DERIVED').h(), ': ',
-                                                     tvtxt(ctx.v('SUP', f'/reviews/{j}/blocking', tag='DERIVED')))])
-    rows.append(['RG-01 re-fly', tvtxt(cl.item(164, 9), 200)])
-    o.append(dtable(['Item', 'Value'], rows, widths=['24%', '76%']))
-    o.append(note_box('<b>RG-01 OPEN.</b> The A1 relight probabilities above come from the v2.8 relight study on the earlier segment basis. '
-                      'The re-fly on the decided purge path and the re-routed coil (CHANGELOG 164) had not been published when this draft was generated; '
-                      'the values are planning evidence, not a relight claim. CF-4 is the physical gate.', 'warn'))
-    return '\n'.join(o)
 
 
 # =============================================================================================
 # section 12: verification status
 # =============================================================================================
-def sec_verification(ctx, doc, a, D):
-    o = [doc.h(1, '12 Verification status')]
-    cl = D['cl']
-    note = ctx.v('SUP', '/note', tag='DESIGN')
-    o.append(note_box(f'<b>Nothing in this datasheet is physical approval.</b> {tvtxt(note).html} No value here is a measurement. '
-                      'Review verdicts, matching file hashes, clean CAD checks, passing unit tests and this document\'s own trace check '
-                      'are digital evidence only.', 'warn'))
-    o.append(doc.h(2, '12.1 Review register'))
-    sup = ctx.raw('SUP', '/reviews', default=[]) or []
-    rows = []
-    for k, r in enumerate(sup):
-        b = f'/reviews/{k}'
-        rid = ctx.v('SUP', b + '/id', tag='DERIVED')
-        dt = ctx.v('SUP', b + '/date', tag='DERIVED')
-        vd = ctx.v('SUP', b + '/verdict', tag='DERIVED')
-        dl = ctx.v('SUP', b + '/deliverable', tag='DERIVED')
-        blk = ctx.v('SUP', b + '/blocking', tag='DERIVED') if r.get('blocking') else None
-        same, changed, missing = hash_status(ctx, a, r.get('hashes_sha256_16'))
-        hs = ctx.d(f'{len(same)} of {len(same) + len(changed) + len(missing)} reviewed files unchanged'
-                   + (f'; changed since review: {", ".join(changed)}' if changed else '')
-                   + (f'; not in the hub: {", ".join(missing)}' if missing else ''), '', 'sha256/16 of each reviewed hub file vs the register entry', [], ev='DERIVED')
-        isnot = ('Not physical approval; not a review of any file changed after the listed hashes'
-                 + ('; the reviewed files have since changed, so the verdict covers an earlier state' if changed else '')
-                 + ('; not acceptance of the open findings' if blk else '') + '.')
-        disp = ctx.v('SUP', b + '/lead_disposition', tag='LEAD') if r.get('lead_disposition') else None
-        rows.append([Cell(f'<b>{esc(rid.value)}</b>{rid.ref()}<div class="small">{esc(dt.value)}</div>', [rid, dt]),
-                     tvtxt(dl, 200),
-                     cat(f'<b>{esc(vd.value)}</b> ', vd.pill(), vd.ref(), Cell('', [vd]),
-                         ('<div class="small">Blocking: ' + tvtxt(blk, 300).html + '</div>') if blk else '', Cell('', [blk] if blk else [])),
-                     cat(f'<span class="small">{esc(isnot)}</span><div class="small">', hs.h(pill=False), '</div>', Cell('', [hs]),
-                         ('<div class="small">Lead disposition: ' + disp.h() + '</div>') if disp else '', Cell('', [disp] if disp else []))])
-    o.append(dtable(['Review', 'Deliverable', 'Verdict', 'What it is not; file state'], rows, label_cols=0, widths=['12%', '30%', '28%', '30%'],
-                    caption=f'reviews/SUPERVISION.json ({esc(ctx.src("SUP").sha16)}), {len(sup)} entries in register order. A verdict covers the hashed files only.'))
-    o.append(doc.h(2, '12.2 Open items and blockers'))
-    i_rg = next((k for k, r in enumerate(sup) if r.get('id') == 'REV-GNC-2'), None)
-    i_el = next((k for k, r in enumerate(sup) if r.get('id') == 'REV-ELEC-1'), None)
-    i_c2 = next((k for k, r in enumerate(sup) if r.get('id') == 'REV-COMB-2'), None)
-    n_g2 = cl.find('On GNC rev2')
-    if i_c2 is not None:
-        rc2 = ('REV-COMB-2', 'Independent re-review of combustion v2.4', str(sup[i_c2].get('verdict')),
-               [ctx.v('SUP', f'/reviews/{i_c2}/major', tag='DERIVED'), ctx.v('SUP', f'/reviews/{i_c2}/lead_disposition', tag='LEAD'), cl.item(172, 6)])
-    else:
-        rc2 = ('REV-COMB-2', 'Independent re-review of combustion v2.4', 'IN PROGRESS', [cl.item(170, 6)])
-    items = [
-        ('RG-01', 'A1 relight evidence on the current design basis' + (' (rev2 re-fly staged, SIM; independent review REV-GNC-3 pending)' if n_g2 else ''), 'BLOCKING',
-         [ctx.v('SUP', f'/reviews/{i_rg}/blocking', tag='DERIVED') if i_rg is not None else ctx.missing('REV-GNC-2'), cl.item(164, 9), cl.item(161, 12)] +
-         ([cl.whole(n_g2 - 1, 700), cl.item(n_g2, 8)] if n_g2 and cl.line(n_g2 - 1).get('owner') == 'gnc' else ([cl.item(n_g2, 8)] if n_g2 else []))),
-        ('FA-1', 'Fuel-assisted relight pulse above proof at its upper bound (single control)',
-         'DESIGN CONTINUATION ONLY' + ('; margins reported, not reviewed' if (D.get('fa1') or {}).get('mech') else ''),
-         [ctx.v('CMB', '/fmea_input/v/FA-1/hazard', tag='DERIVED', tag_ptr='/fmea_input'), cl.item(170, 2), cl.item(172, 2)] +
-         ([D['fa1']['dec'], D['fa1']['margins']] + ([D['fa1']['mech_rev']] if D['fa1'].get('mech') else []) if D.get('fa1') else [])),
-        ('CF-4', 'Relight-purge cold flow (gate for the A1 relight claim)', 'NOT RUN (founders)',
-         [ctx.v('CMB', '/cf4_gate/v/claim', tag='LEAD', tag_ptr='/cf4_gate'), cl.item(164, 5)]),
-        ('IGN-1', 'Torch reliability, photodiode false positives, light spike on hardware', 'NOT RUN (founders)',
-         [md_section_text(ctx, 'BENCH', 'IGN-1 / T1', 'DESIGN'), cl.item(160, 1, contains='IGN-1')]),
-        ('B-PC-1', 'Pc chain residual and drift; sets the light-rule floor', 'NOT RUN (founders)',
-         [md_row(ctx, 'BENCH', '1. Order and gates', '3', 2), cl.item(166, 5, contains='B-PC-1'), cl.item(166, 9)]),
-        ('BLEED-MASS', 'Head-end bleed valve mass (MASS RISK, not baseline)', 'TO-VERIFY',
-         [cl.item(164, 7), ctx.v('ELE', '/open_issues/18/issue', tag='TO-VERIFY')] + ([cl.item(n_g2, 2)] if n_g2 else [])),
-        ('ENG-11', 'Gimbal axis stiffness and rocking mode', 'NOT MET (structure only)',
-         [ctx.v('MEC', '/tvc_actuation/ENG-11_status', tag='DERIVED')] if ctx.raw('MEC', '/tvc_actuation/ENG-11_status', default=None) is not None else [req_row(ctx, 'ENG-11')]),
-        ('ENG-07', 'Gimbal slew at the v2 hinge load', 'MARGINAL',
-         [ctx.v('MEC', '/tvc_actuation/ENG-07_rate_status', tag='DERIVED')]),
-        ('FEA', 'Structural margins of the pressure parts and gimbal', 'PENDING', [ctx.missing('Structural FEA margins (see §9)', 'PENDING')]),
-        ('ENVELOPE', 'Swept radial envelope at the airframe wall', 'TO-VERIFY', [ctx.v('CHK', '/swept_worst_band', tag='TO-VERIFY')]),
-        ('GRAIN-R4', 'Rounded port entrance r ≥ 4 mm shown in CAD/BOM', 'TO-VERIFY', [D.get('rnd_cad') or ctx.missing('rounded entrance check')]),
-        rc2,
-        ('COMB-v2.4a', 'Combustion interface patch for the stale values (override table §13.1)', 'IN PROGRESS', [cl.item(172, 6), D['ovr_summary']]),
-        ('INTERLOCK-GB', 'Guard band of the tank interlock (channel uncertainty)', 'TO-DEFINE', [cl.item(172, 4)]),
-        ('ELEC-v2.10', 'Electronics v2.10 answering REV-ELEC-1', 'IN PROGRESS',
-         [ctx.v('SUP', f'/reviews/{i_el}/blocking', tag='DERIVED') if i_el is not None else ctx.missing('REV-ELEC-1'), cl.item(166, 10, contains='v2.10')]),
-    ]
-    rows = []
-    for iid, what, st, tvs in items:
-        ev = cat(*[Cell(f'<div class="dec">{tvtxt(t, 260).html}</div>', [t]) for t in tvs if t is not None])
-        stv = ctx.t('generator', f'open-item status {iid}', st, 'TO-VERIFY' if st in ('TO-VERIFY', 'MARGINAL') else
-                    ('PENDING' if (st in ('PENDING', 'IN PROGRESS') or st.startswith('REVISE') or st == 'CONDICIONADO') else ('TO-DEFINE' if st == 'TO-DEFINE' else 'MISSING')),
-                    tag_raw='status summarised by the generator from the evidence in the row')
-        rows.append([Cell(f'<b>{esc(iid)}</b><div class="small">{esc(what)}</div>', []), Cell(f'<b>{esc(st)}</b>', [stv]), ev])
-    o.append(dtable(['Item', 'Status', 'Evidence (quoted)'], rows, widths=['20%', '13%', '67%']))
-    o.append(doc.h(2, '12.3 Requirement verification methods'))
-    rows = []
-    am = [ln.strip()[2:] for ln in md_section_lines(ctx.src('REQ').text or '', 'Amendments after rev 2') if ln.strip().startswith('- ')]
-    for r in md_table_rows(ctx.src('REQ').text or '', '2. Top-level'):
-        if not r or not r[0].startswith('ENG-'):
-            continue
-        rq = md_row(ctx, 'REQ', '2. Top-level', r[0], 1, tag_col=2)
-        vm = md_row(ctx, 'REQ', '2. Top-level', r[0], 3, ev='REQ')
-        acell = []
-        for b in am:
-            if re.search(r'\b' + re.escape(r[0]) + r'\b', b):
-                x = sentence_with(b, r[0]) or b
-                tva = ctx.t('REQ', f'§Amendments after rev 2 bullet "{b[:48]}" [sentence containing "{r[0]}"]', x, 'REQ', tag_raw='REQ amendment bullet')
-                acell.append(Cell(f'<div class="dec">{tvtxt(tva, 260).html}</div>', [tva]))
-        rows.append([f'<b>{esc(r[0])}</b>', tvtxt(rq, 230), cat(*acell) if acell else Cell('<span class="small">none</span>', []), tvtxt(vm, 120)])
-    o.append(dtable(['ID', 'Requirement (rev 2 text, start)', 'Amendments after rev 2 (sentences naming the ID)', 'Verification method'], rows,
-                    widths=['7%', '42%', '33%', '18%'], free_cols=(2,),
-                    caption=f'00-requirements/REQUIREMENTS.md §2 and its amendments ({esc(src_label(ctx, "REQ"))}). No requirement has been verified physically.'))
-    o.append(doc.h(2, '12.4 Founder test list'))
-    rows = []
-    for r in md_table_rows(ctx.src('BENCH').text or '', '1. Order and gates'):
-        if not r or not r[0].isdigit():
-            continue
-        rows.append([f'Bench step {esc(r[0])}', tvtxt(md_row(ctx, 'BENCH', '1. Order and gates', r[0], 1, ev='DESIGN')),
-                     tvtxt(md_row(ctx, 'BENCH', '1. Order and gates', r[0], 2, ev='DESIGN'), 200), tvtxt(md_row(ctx, 'BENCH', '1. Order and gates', r[0], 3, ev='DESIGN'), 120)])
-    for r in md_table_rows(ctx.src('REQ').text or '', '4. Gating early bench tests'):
-        if not r or r[0] in ('Test',):
-            continue
-        rows.append(['Early purchase (REQ §4)', Cell(f'<b>{esc(r[0])}</b>', [md_row(ctx, 'REQ', '4. Gating early bench tests', r[0], 0, ev='REQ')]),
-                     tvtxt(md_row(ctx, 'REQ', '4. Gating early bench tests', r[0], 2, ev='REQ'), 220), tvtxt(md_row(ctx, 'REQ', '4. Gating early bench tests', r[0], 1, ev='REQ'), 160)])
-    pcs = ctx.raw('CMB', '/cf4_gate/v/pass_criteria', default=[]) or []
-    for k, _ in enumerate(pcs):
-        t = ctx.v('CMB', f'/cf4_gate/v/pass_criteria/{k}', tag='LEAD', tag_ptr='/cf4_gate')
-        rows.append(['CF-4 pass criterion', Cell('<b>CF-4</b>', [t]), tvtxt(t, 200), Cell(f'02-combustion/CF-4-SPEC.md {esc(ctx.src("CF4").version or "")}', [t])])
-    for st in ('Grain mass before', 'Port diameter at six', 'Time histories', 'At least two oxidiser'):
-        t = md_bullet(ctx, 'T14', 'T1-T4 regression', st, 'DESIGN')
-        rows.append(['T1–T4 measurement', Cell('<b>T1–T4</b>', [t]), tvtxt(t, 260), Cell(f'02-combustion/T1-T4-REGRESSION-SPEC.md {esc(ctx.src("T14").version or "")}', [t])])
-    o.append(dtable(['Kind', 'Test', 'Gate or measurement', 'Needs / source'], rows, label_cols=1, widths=['13%', '13%', '50%', '24%'],
-                    caption='Physical tests executed by the founders. None has been run. Cost: TO-QUOTE, delivered to Sønderborg, DK-6400.'))
-    return '\n'.join(o)
 
 
 # =============================================================================================
 # section 13: open contradictions (registered when the sources actually disagree)
 # =============================================================================================
-def register_contradictions(ctx, a, D):
-    cl = D['cl']
-    sup = ctx.raw('SUP', '/reviews', default=[]) or []
-    # C1: combustion interface reviewed vs current (no entry when any review hashed the current file)
-    hk = ptr_join('interfaces/combustion.json')[1:]
-    revs = [k for k, r in enumerate(sup) if 'interfaces/combustion.json' in (r.get('hashes_sha256_16') or {})]
-    covered = [k for k in revs if sup[k]['hashes_sha256_16']['interfaces/combustion.json'] == ctx.src('CMB').sha16]
-    if revs and not covered:
-        i = revs[-1]
-        ctx.contra('C-01', 'Combustion interface: reviewed state vs current file',
-                   [(f'{sup[i].get("id")} reviewed hash', ctx.v('SUP', f'/reviews/{i}/hashes_sha256_16/{hk}', tag='DERIVED')),
-                    ('current combustion.json version', ctx.v('CMB', '/version', tag='DESIGN'))],
-                   'current combustion.json is used throughout', 'no review covers the current file; a re-review is needed.')
-    # C2: grain mass
-    gc = ctx.v('CMB', '/gas_path/grain/mass_kg', 'kg')
-    gm = ctx.v('MP', '/grain_mass_wet_kg', 'kg', tag='DERIVED')
-    if gc.value is not None and gm.value is not None and abs(gc.value - gm.value) > 0.005:
-        gb = D['bom_by_pn'].get('ENG-GR-01')
-        side3 = ctx.t('BOM', ptr_join('lines', gb.idx, 'notes'), gb.l.get('notes') or '', 'DESIGN', tag_raw='BOM notes') if gb else ctx.missing('BOM GR-01 notes')
-        ctx.contra('C-02', 'Fuel grain mass: Combustion vs CAD density',
-                   [('Combustion v2.4', gc), ('CAD v3.4.1 mass properties', gm), ('BOM GR-01 notes', side3), ('ENG-12', req_row(ctx, 'ENG-12'))],
-                   'Combustion value (ENG-12)', 'CAD material density differs from the Combustion and BOM-note density; weigh every grain (ENG-12).')
-    # C3: 30 bar abort persistence
-    ci = D['cause_idx'].get('PC_OVERPRESSURE')
-    if ci is not None:
-        fw = ctx.v('ELE', f'/abort_matrix/causes/{ci}/thresholds/kPcOverPressureTime_s', 's')
-        dec = cl.item(166, 4)
-        dms = rx_text(ctx, dec, r'(\d+) ms persistence', 'ms', tag='LEAD')
-        if fw.value is not None and dms.value is not None and abs(fw.value * 1000 - dms.value) > 1e-6:
-            ctx.contra('C-03', '30 bar over-pressure abort: persistence and channel',
-                       [('firmware v2.9', fw), ('CHANGELOG 160 (2)', cl.item(160, 2)), ('CHANGELOG 166 (4)', dec),
-                        ('combustion.json v2.4 A4', ctx.v('CMB', '/abort_matrix_v2p4/v/A4', tag_ptr='/abort_matrix_v2p4'))],
-                       'CHANGELOG 166 (4): filtered channel, 5 ms', 'Electronics v2.10 to implement (REV-ELEC-1).')
-    # C4: A5 monitor deleted vs firmware
-    a5 = ctx.v('ELE', '/start_monitors_v2p9/A5')
-    d160 = cl.item(160, 1)
-    if isinstance(a5.value, str) and 'unchanged' in a5.value and isinstance(d160.value, str) and 'DELETED' in d160.value:
-        ctx.contra('C-04', 'A5 late-light monitor: deleted by decision, still an abort in firmware v2.9',
-                   [('CHANGELOG 160 (1)', d160), ('firmware v2.9', a5)], 'deleted (LIGHT_SPIKE log event)', 'REV-ELEC-1 RE-01 blocking; Electronics v2.10.')
-    # C5: option (c) key in gnc.json v3
-    eo = ctx.v('ELE', '/relight_interface/fc_planning_from_gnc/option_c_unprimed_s', tag_default='DESIGN')
-    go = ctx.v('GNC', '/requirements/ignition/relight_planning_value_s/option_c_unprimed_s', 's')
-    if isinstance(eo.value, str) and eo.value.startswith('NOT') and go.value is not None:
-        ctx.contra('C-05', 'Relight option (c) planning value: present in gnc.json v3 or not',
-                   [('electronics.json v2', eo), ('gnc.json v3', go), ('CHANGELOG 161 (9)', cl.item(161, 9))],
-                   'present (lead verified, CHANGELOG 161 (9))', 'Electronics fixes the lookup (OI-GNC-V3).')
-    # C6: head-end bleed status inside electronics.json
-    hs = ctx.v('ELE', '/relight_interface/head_end_bleed/status', tag_default='DESIGN')
-    if isinstance(hs.value, str) and 'no design' in hs.value:
-        ctx.contra('C-06', 'Head-end bleed: "fallback, no design" vs decided purge path',
-                   [('electronics.json /relight_interface', hs), ('electronics.json /head_end_bleed_provision', ctx.v('ELE', '/head_end_bleed_provision/architecture')),
-                    ('CHANGELOG 164 (1)', cl.item(164, 1))], 'CHANGELOG 164 (1): decided purge path', 'stale text in electronics.json v2; Electronics v2.10.')
-    # C7: structural thrust case: LC2F and ICD bases vs the decided ignition interlock and the v2.4 MEOP basis
-    k2f = next((k for k, c in enumerate(ctx.raw('FEALC', '/cases', default=[]) or []) if c.get('id') == 'LC2F'), None)
-    W = D.get('worst', {})
-    if k2f is not None and W.get('P') is not None:
-        lt = ctx.v('FEALC', f'/cases/{k2f}/thrust_N', 'N', tag='DESIGN')
-        lsrc = ctx.v('FEALC', f'/cases/{k2f}/src/thrust', tag='DESIGN')
-        icd = md_row(ctx, 'ICD', '3. Loads', 'Physical worst-case thrust', 1, tag_col=2)
-        e9 = md_bullet(ctx, 'REQ', 'Amendments after rev 2', 'ENG-09:', 'REQ')
-        hot = [t for t in (lsrc, icd) if isinstance(t.value, str) and re.search(r'\b30\s*°?\s*C\b', t.value)]
-        if lt.value is not None and hot and isinstance(e9.value, str) and 'T_tank <=' in e9.value:
-            ctx.contra('C-07', 'Structural thrust case: LC2F and ICD bases vs the decided ignition interlock',
-                       [('loadcases_v1 LC2F thrust', lt), ('LC2F source', lsrc), ('ICD §3', icd), ('ENG-09 amendment', e9),
-                        ('combustion.json v2.4 MEOP basis', W['P']), ('thrust at the v2.4 basis', W['F'])],
-                       'v2.4 MEOP basis (pressure); the thrust at that basis is MISSING',
-                       'Combustion to publish the thrust at the MEOP basis; Mechanical to restate LC2F and the ICD row. Until then no thrust value is shown as bounding.')
-    # C8: A1 apogee
-    ap = ctx.v('GNC', '/flight_profile/mission_plan_v3/v/A1/apogee_target_m', 'm', tag='REQ')
-    tr = cl.item(168, 4)
-    n_g2 = cl.find('On GNC rev2')
-    if n_g2 and ap.value is not None:
-        c_ap = cl.item(n_g2, 1)
-        ctx.contra('C-08', 'A1 apogee: planning target vs the target adopted after the purge sizing',
-                   [('gnc.json v3', ap), ('REQUIREMENTS §1 mission', md_line(ctx, 'REQ', '4. Coast nose-first', 'REQ')),
-                    ('CHANGELOG 168 (4) trim rule', tr), (f'CHANGELOG {n_g2} (1)', c_ap)], f'CHANGELOG {n_g2} (1)',
-                   'gnc.json v3.1 (published after REV-GNC-3) and the REQUIREMENTS mission text to restate the target.')
-    elif ap.value is not None and isinstance(tr.value, str) and 'trim' in tr.value:
-        ctx.contra('C-08', 'A1 apogee: planning target vs trim adopted after the purge sizing',
-                   [('gnc.json v3', ap), ('CHANGELOG 168 (4)', tr)], 'CHANGELOG 168 (4)', 'GNC re-fly sizes the trim.')
-    # C9: igniter mass scope
-    ig = D['bom_by_pn'].get('ENG-IG-01')
-    im = ctx.v('CMB', '/igniter/mass_kg', 'kg')
-    if ig and ig.unit is not None and isinstance(im.value, list) and not (im.value[0] <= ig.unit <= im.value[1]):
-        ctx.contra('C-09', 'Igniter mass: Combustion system estimate vs BOM line',
-                   [('combustion.json v2.4', im), ('BOM ENG-IG-01', ig.mass_tv), ('BOM ENG-IG-01 row', ig.row_tv)],
-                   'both shown (scopes differ)', 'BOM line covers body and plug; solenoids and propane supply to be placed in the BOM or the exclusions.')
-    # C10: mechanical interface basis vs CAD of the datasheet
-    ms = ctx.v('MEC', '/status', tag='DESIGN')
-    if isinstance(ms.value, str) and 'v3.3' in ms.value and a.cad_version != 'v3.3':
-        ctx.contra('C-10', 'Mechanical interface basis vs CAD of this datasheet',
-                   [('mechanical.json v2', ms), ('CAD build', ctx.v('PROP', '/cad_version', tag='DESIGN')), ('Mechanical open item', ctx.v('MEC', '/open_items/0', tag='PENDING'))],
-                   f'CAD {a.cad_version} for geometry, BOM and mass; mechanical.json v2 for stiffness and loads until v2.1', 'mechanical.json v2.1 pending.')
-    # C13: BOM total vs its own note (transport lock)
-    bs = ctx.v('BOM', '/mass_sum_kg', 'kg', tag='DERIVED')
-    if bs.value is not None and abs(bs.value - D['bom_sum_tv'].value) > 1e-3:
-        expl = abs(bs.value - D['bom_sum_tv'].value - D['bom_lock_tv'].value) < 1e-3
-        ctx.contra('C-13', 'CAD mass: BOM mass_sum_kg vs the sum of its lines',
-                   [('BOM mass_sum_kg', bs), ('BOM mass_sum_note', ctx.v('BOM', '/mass_sum_note', tag='DERIVED')),
-                    ('generator sum, transport lock excluded', D['bom_sum_tv']), ('transport-lock lines', D['bom_lock_tv'])],
-                   'generator sum with the transport lock excluded, as the BOM note states',
-                   ('the difference equals the transport-lock lines: mass_sum_kg includes them although the note excludes them. ' if expl else
-                    'the difference is not explained by the transport-lock lines. ') + 'Mechanical to restate mass_sum_kg or the note.')
-    # C14: FA-1 load decision vs the CAD parts of this datasheet (Mechanical margin result)
-    F1 = D.get('fa1') or {}
-    if F1.get('mech'):
-        r9 = D['bom_by_pn'].get('ENG-TC-09')
-        sides = [('FA-1 load decision', F1['dec'], 400),
-                 (f'Mechanical result, CHANGELOG {F1["n_mech"]} (sentences on yield, joints and bearings, quoted in full)', F1['mech_key'], 1200)]
-        if r9 is not None:
-            sides.append((f'BOM ENG-TC-09 material (CAD {a.cad_version})', ctx.v('BOM', ptr_join(r9.kind, r9.idx) + '/material_name', tag='DESIGN')))
-        ctx.contra('C-14', f'FA-1 load vs the parts of CAD {a.cad_version}: margins reported by Mechanical', sides,
-                   f'CAD {a.cad_version} as built (no lead decision on the result yet)',
-                   'lead decision on the Mechanical result; CAD v3.5 with the proposed part changes and its independent review; the datasheet '
-                   'is regenerated on that CAD.')
-    # C12: combustion.json wording behind the lead decisions (override table)
-    act = [e for e in (ctx.ovr.entries if ctx.ovr else []) if e['status'] == 'ACTIVE']
-    if act:
-        i2 = next((k for k, r in enumerate(sup) if r.get('id') == 'REV-COMB-2'), None)
-        sides = [('combustion.json version', ctx.v('CMB', '/version', tag='DESIGN'))]
-        if i2 is not None:
-            sides.append(('REV-COMB-2 majors', ctx.v('SUP', f'/reviews/{i2}/major', tag='DERIVED')))
-        sides.append(('CHANGELOG 172 (6)', cl.item(172, 6)))
-        ctx.contra('C-12', 'combustion.json v2.4 wording behind the lead decisions', sides,
-                   'the decisions, via overrides ' + ', '.join(e['id'] for e in act) + ' (§13.1)',
-                   'Combustion v2.4a patch; drop each override when the generator reports it REDUNDANT.')
-    # C11: firmware constants generated from combustion v2.3
-    gh = ctx.raw('ELE', '/inputs/generated_headers', default={}) or {}
-    rows = [r for v in gh.values() for r in (v if isinstance(v, list) else []) if isinstance(r, list) and r and r[0] == 'combustion.json']
-    if rows and any(len(r) > 2 and r[2] != ctx.src('CMB').sha16 for r in rows):
-        ctx.contra('C-11', 'Firmware constants generated from an earlier combustion interface',
-                   [('electronics.json generated headers', ctx.v('ELE', '/inputs/generated_headers', tag='DESIGN')), ('current combustion.json', ctx.v('CMB', '/version', tag='DESIGN'))],
-                   'combustion.json v2.4', 'regenerate engine_params.h in Electronics v2.10.')
 
 
 def sec_overrides(ctx, doc, a, D):
@@ -3710,6 +1660,10 @@ def sec_overrides(ctx, doc, a, D):
     o.append(f'<p>Table gen/decision_overrides.json ({esc(ov.version or "")}, sha256/16 {esc(src.sha16)}). Each decision is quoted from its source; '
              'the generator checks that the cited text contains the key phrases and every number of the decision, and applies a target only while '
              'the stale wording is still in it. An entry with no active target is reported REDUNDANT and can be dropped.</p>')
+    ret = [r.get('id') for r in ((src.data or {}).get('retired') or []) if isinstance(r, dict)]
+    if ret:
+        o.append(f'<p class="small">Retired in {esc(ov.version or "")}, each REDUNDANT at the rev1 draft build (the table\'s drop rule), '
+                 f'kept verbatim in the file under "retired" and in gen/history/: {esc(", ".join(ret))}.</p>')
     rows = []
     for e in ov.entries:
         srcs = cat(*[Cell(f'<div class="dec"><span class="mono small">{esc(SRC_FILE.get(t.sid, t.sid))} {esc(t.ptr or "")}</span><br>'
@@ -3743,27 +1697,9 @@ def sec_overrides(ctx, doc, a, D):
                      Cell(f'{esc(mt.value)} {mt.ref()}', [mt]), Cell(f'{esc(co.value)} {co.ref()}', [co])])
     o.append(dtable(['ID', 'Shown instead', 'Keys withheld', 'Text masks', 'In the author\'s withdrawal list'], rows, label_cols=2, cls='fixed',
                     widths=['20%', '24%', '32%', '12%', '12%'],
-                    caption='Values the Combustion author withdrew in REPORT v2.4 §13 that are still live in combustion.json v2.4 (REV-COMB-2 R2-05). '
+                    caption='Values the Combustion author withdrew in REPORT v2.4 §13 (their list: combustion.json /superseded_v2p4), wherever combustion.json '
+                            f'{esc(ctx.src("CMB").version or "")} still carries them. '
                             'They are not shown in this datasheet; masked text reads "[withheld: superseded value, SUP-xx]".'))
-    return '\n'.join(o)
-
-
-def sec_contradictions(ctx, doc, a, D):
-    o = [doc.h(1, '13 Decision overrides and open contradictions')]
-    o.append(sec_overrides(ctx, doc, a, D))
-    o.append(doc.h(2, '13.3 Open contradictions'))
-    o.append('<p>Each entry cites every side. The column "shown in this datasheet" names the value used elsewhere in the document '
-             '(the newest decided one). Entries are generated only when the current sources actually disagree.</p>')
-    rows = []
-    for c in sorted(ctx.contradictions, key=lambda c: int(re.sub(r'\D', '', c['id']) or 0)):
-        sides = cat(*[Cell(f'<div class="dec"><b>{esc(sd[0])}:</b> {tvtxt(sd[1], sd[2] if len(sd) > 2 else 260).html}</div>', [sd[1]])
-                      for sd in c['sides']])
-        res = ctx.t('generator', f'contradiction {c["id"]}', f'{c["newest"]}. {c["resolution"]}', 'DERIVED', tag_raw='generator summary of the cited sides')
-        rows.append([Cell(f'<b>{esc(c["id"])}</b><div class="small">{esc(c["title"])}</div>', []), sides, Cell(f'{esc(res.value)} {res.ref()}', [res])])
-    if rows:
-        o.append(dtable(['ID', 'Sides (quoted)', 'Shown in this datasheet; next step'], rows, widths=['18%', '57%', '25%']))
-    else:
-        o.append('<p>No contradiction detected in the current sources.</p>')
     return '\n'.join(o)
 
 
@@ -3783,12 +1719,15 @@ def sec_unknowns(ctx, doc, a, D):
             val = tv.num() if tv.value is not None else (tv.status or tv.ev)
             if isinstance(tv.value, str):
                 val = tv.value
+            elif isinstance(tv.value, (dict, list)):
+                val = readable(tv.value)  # v0.3.1: not a Python repr
+            val = display_text(tv, val) if isinstance(val, str) else val  # v0.3.1: display rules (REV-DS-1 D1-11, D1-12)
             rows.append((tv.ev, tv.sid or '', tv.tid, what, ctx.ovr.annot_plain(val) if ctx.ovr else val))
     rows.sort(key=lambda r: (['MISSING', 'PENDING', 'TO-DEFINE', 'TO-VERIFY'].index(r[0]), r[1], int(r[2][1:])))
     counts = {k: sum(1 for r in rows if r[0] == k) for k in ('MISSING', 'PENDING', 'TO-DEFINE', 'TO-VERIFY')}
     o.append('<p class="small">' + ' · '.join(f'{ev_pill(k)} {v}' for k, v in counts.items()) + '</p>')
-    body = [[f'<a class="tr" href="#{r[2]}">{r[2]}</a>', ev_pill(r[0]), f'<span class="mono">{esc(r[3][:150])}</span>',
-             esc(str(r[4])[:260] + ('…' if len(str(r[4])) > 260 else ''))] for r in rows]
+    body = [[f'<a class="tr" href="#{r[2]}">{r[2]}</a>', ev_pill(r[0]), f'<span class="mono">{esc(clipw(r[3], 150))}</span>',
+             esc(clipw(str(r[4]), 260))] for r in rows]  # v0.3.1: word-boundary cut with a visible ' …'
     o.append(table(['Trace', 'Class', 'Source key', 'Value or text'], body, cls='dt unk', widths=['7%', '10%', '33%', '50%']))
     D['unknown_counts'] = counts
     return '\n'.join(o)
@@ -3797,60 +1736,11 @@ def sec_unknowns(ctx, doc, a, D):
 # =============================================================================================
 # section 15: revision history and sources
 # =============================================================================================
-def sec_revision_sources(ctx, doc, a, D):
-    o = [doc.h(1, '15 Revision history and sources')]
-    o.append(doc.h(2, '15.1 Revision history'))
-    hist = D.get('history', [])
-    o.append(table(['Revision', 'Generated (UTC)', 'CAD', 'Generator', 'Note'],
-                   [[esc(h['rev']), esc(h['generated']), esc(h['cad_version']), esc(h['generator']), esc(h.get('note', ''))] for h in hist],
-                   cls='dt', widths=['14%', '20%', '10%', '16%', '40%']))
-    o.append(doc.h(2, '15.2 Sources'))
-    rows = []
-    for sid, s in ctx.sources.items():
-        base = a.hub if s.path.startswith(a.hub) else (a.cad_dir if s.path.startswith(a.cad_dir) else (DS_ROOT if s.path.startswith(DS_ROOT) else ''))
-        rel = os.path.relpath(s.path, base) if base else s.path
-        where = 'hub' if base == a.hub else ('CAD' if base == a.cad_dir else ('datasheet' if base == DS_ROOT else 'other'))
-        rows.append([f'<b>{esc(sid)}</b>', esc(s.role), f'<span class="mono">{esc(where)}: {esc(rel)}</span>', esc(s.version or '—'),
-                     f'<span class="mono">{esc(s.sha16 or "MISSING")}</span>', esc(s.mtime or '—'), str(s.reads)])
-    o.append(table(['ID', 'Role', 'Path', 'Version', 'sha256/16', 'Modified (UTC)', 'Reads'], rows, cls='dt src',
-                   widths=['7%', '24%', '30%', '9%', '13%', '13%', '4%']))
-    o.append(f'<p class="small">Hub root: <span class="mono">{esc(a.hub)}</span>. CAD root: <span class="mono">{esc(a.cad_dir)}</span>. '
-             f'The same table, with absolute paths, is written to out/sources.json.</p>')
-    return '\n'.join(o)
 
 
 # =============================================================================================
 # appendix A: value trace
 # =============================================================================================
-def sec_trace(ctx, doc, a, D):
-    o = [doc.h(1, 'Appendix A Value trace')]
-    o.append('<p class="small">Every traced value used in this document: trace id, value as displayed, evidence class, source and version, '
-             'key (JSON pointer, markdown row, CHANGELOG line and item, or generator formula) and the source tag text. Identical source keys share one id.</p>')
-    rows = []
-    for tv in ctx.traces:
-        s = ctx.sources.get(tv.sid)
-        src = f'{tv.sid} {s.version or ""}'.strip() if s else (tv.sid or '—')
-        if isinstance(tv.value, str):
-            val = tv.value if len(tv.value) <= 90 else tv.value[:88] + '…'
-        elif isinstance(tv.value, dict) or (isinstance(tv.value, list) and not all(isinstance(x, (int, float)) for x in tv.value)):
-            r_ = readable(tv.value)
-            val = r_ if len(r_) <= 90 else r_[:88] + '…'
-        else:
-            val = tv.num() + (f' {tv.unit}' if tv.unit and tv.value is not None else '')
-        if ctx.ovr:
-            val = ctx.ovr.annot_plain(val)
-        key = tv.ptr or (f'formula: {tv.formula}' if tv.formula else '')
-        extra = tv.tag_raw or ''
-        if tv.inputs:
-            extra += ' ← ' + ', '.join(tv.inputs[:8]) + (' …' if len(tv.inputs) > 8 else '')
-        if tv.note and tv.note not in extra:
-            extra += f' [{tv.note}]'
-        rows.append(f'<tr id="{tv.tid}"><td class="mono">{tv.tid}</td><td>{esc(val)}</td><td>{ev_pill(tv.ev)}</td><td>{esc(src)}</td>'
-                    f'<td class="mono">{esc(key[:160])}</td><td>{esc(extra[:200])}</td></tr>')
-    o.append('<table class="dt trace"><colgroup><col style="width:6%"><col style="width:20%"><col style="width:9%"><col style="width:11%">'
-             '<col style="width:26%"><col style="width:28%"></colgroup><thead><tr><th>ID</th><th>Value</th><th>Class</th><th>Source</th><th>Key</th>'
-             '<th>Source tag / formula</th></tr></thead><tbody>' + '\n'.join(rows) + '</tbody></table>')
-    return '\n'.join(o)
 
 
 # =============================================================================================
@@ -3874,19 +1764,997 @@ def check_renders(ctx, a):
             ctx.issue('WARN', f'render {v["png"]} changed after the manifest was written')
 
 
+# =============================================================================================
+# rev1 code (v0.3.1): new_00_infra.py, new_10_prepare.py, new_30_sec_a.py, new_40_sec_geo.py, new_50_sec_fea.py, new_60_sec_cmb.py, new_65_sec_plume.py, new_70_sec_ele.py, new_75_ele41.py, new_80_sec_ver.py, new_90_main.py, new_95_appendix.py
+# =============================================================================================
+# ---------------------------------------------------------------------------------------------
+# v0.3.0 infrastructure: evidence model, CHANGELOG reader, markdown row finders, rev1 sources,
+# print header
+# ---------------------------------------------------------------------------------------------
+PAGE_STATEMENT = 'SIM / CALC / DERIVED; not physical approval; no hardware has been tested'
+CL_MARK = re.compile(r'^\(?(founder )?(decisions?|result|review|note|handback|direction)\b', re.I)
+CL_DEC = re.compile(r'^\(?(founder )?decisions?\b', re.I)
+
+# Evidence model (lead rulings 2026-10-21 12:13Z item 4 and 12:17Z). Every number carries one of the ten
+# evidence tags, or the source-class pill DECIDED (a design value, decided limit or requirement: chosen, not
+# measured or computed), or it is counted as UNTAGGED in qa_report. The generator sets no default class:
+# a class comes from the source tag, from the quoted text, or from an explicit class at the call site
+# (recorded in the trace as 'class set at the call site').
+TEN_TAGS = ['SIM', 'CALC', 'DERIVED', 'ASSUMED', 'DATASHEET', 'LITERATURE', 'AS RECALLED', 'TO-VERIFY', 'MISSING', 'ESTIMATE']
+EV_CLASSES = TEN_TAGS + ['DECIDED']
+SOURCE_CLASS_NAMES = {'LEAD': 'Lead decision', 'DESIGN': 'Design value', 'REQ': 'Requirement'}
+STATUS_CLASSES = ('PENDING', 'SUPERSEDED', 'TO-DEFINE')
+TEN_WORD = re.compile(r'(?<![A-Za-z0-9_\-])(SIM|CALC|DERIVED|ASSUMED|DATASHEET|LITERATURE|AS RECALLED|TO-VERIFY|TO-CONFIRM|MISSING|ESTIMATE|FEA|CEA)'
+                      r'(?![A-Za-z0-9_\-])')
+WORD_MAP = {'TO-CONFIRM': 'TO-VERIFY', 'FEA': 'SIM', 'CEA': 'SIM'}
+CLASS_WORD = re.compile(r'\[(SIM|CALC|DERIVED|ESTIMATE|ASSUMED|DATASHEET|LITERATURE|AS RECALLED|TO-VERIFY)\b')
+UNLESS_TAGGED = re.compile(r'\b((?:SIM|CALC|DERIVED|ESTIMATE)(?:\s*/\s*(?:SIM|CALC|DERIVED|ESTIMATE))*) unless tagged')
+QUANTITY = re.compile(r'(?<![\w.\-])[+\-−]?\d+(?:\.\d+)?\s?(?:%|bar|kg|g|kN|N\s?m|N·m|N|mm|cm|m|ms|s|K|°C|C|MPa|GPa|kPa|Pa|V|mV|W|Hz|L|'
+                      r'm/s²|m/s2|m/s|rad/s|rad|°|deg|J|A)(?![\w/])'
+                      r'|(?<![\w.\-])[+\-−]\d+\.\d+(?![\w.])|(?<![\w.\-])\d+\.\d{2,}(?![\w.])')
+
+
+def ten_words(s, limit=3):
+    """Distinct words of the ten evidence tags in a text, in order of first appearance (FEA / CEA read as SIM)."""
+    out = []
+    for m in TEN_WORD.finditer(s or ''):
+        w = WORD_MAP.get(m.group(1), m.group(1))
+        if w not in out:
+            out.append(w)
+    return out[:limit]
+
+
+def is_number(v):
+    if isinstance(v, bool):
+        return False
+    if isinstance(v, (int, float)):
+        return True
+    return isinstance(v, (list, tuple)) and len(v) > 0 and all(isinstance(x, (int, float)) and not isinstance(x, bool) for x in v)
+
+
+def has_quantity(s):
+    return bool(QUANTITY.search(s or ''))
+
+
+def ev_ok(ev):
+    """True for one of the ten tags or a ' / ' list of them."""
+    return bool(ev) and all(p.strip() in TEN_TAGS for p in str(ev).split(' / '))
+
+
+def _gen_free(tag_raw):
+    return re.sub(r'\((?:class set|no source tag)[^)]*\)', '', str(tag_raw or ''))
+
+
+def _plain_text(v):
+    if isinstance(v, str):
+        return v
+    if isinstance(v, (dict, list)):
+        try:
+            return readable(v)
+        except Exception:
+            return json.dumps(v, default=str)
+    return ''
+
+
+BASIS_PHRASE = re.compile(r"\b(?:on|from)\s+(?:the\s+|a\s+|an\s+)?(?:author's\s+)?(SIM|CALC|DERIVED|ASSUMED|DATASHEET|LITERATURE|AS RECALLED|ESTIMATE)\b")
+
+
+def own_and_basis_words(tag_raw):
+    """Evidence words that tag the value itself, and the words of a basis phrase ('on SIM', 'from SIM') that
+    describe what a decided value rests on."""
+    t = _gen_free(tag_raw)
+    basis = list(dict.fromkeys(m.group(1) for m in BASIS_PHRASE.finditer(t)))
+    return ten_words(BASIS_PHRASE.sub(' ', t)), basis
+
+
+def basis_of(tv, kind):
+    """Source-class text of a DECIDED value: 'Lead decision, line N (k)', 'Design value, <file> <version>',
+    'Requirement, ENG-xx' (lead ruling 12:17Z (1))."""
+    raw = _gen_free(tv.tag_raw)
+    s = tv.ctx.sources.get(tv.sid) if tv.sid else None
+    fname = SRC_FILE.get(tv.sid) or (os.path.basename(s.path) if s else (tv.sid or 'generator'))
+    where = f'{fname} {(s.version if s and s.version else "")}'.strip()
+    if tv.sid == 'CL':
+        m = re.match(r'L(\d+)(?:\((\d+)\))?', tv.ptr or '')
+        ln = (m.group(1) + (f' ({m.group(2)})' if m.group(2) else '')) if m else '?'
+        owner = raw.split(' ')[0] if raw.strip() else 'lead'
+        return (f'Lead decision, line {ln}' if owner == 'lead' else f'{owner.capitalize()} line {ln}'), raw.strip()
+    if kind == 'LEAD':
+        m = re.search(r'(?:CHANGELOG|line|lines|l\.)\s*(\d{2,3})(?:\s*\((\d+[a-z]?)\))?', raw) or re.search(r'(?<![\d.])(\d{3})\s*\((\d+[a-z]?)\)', raw)
+        if m:
+            return f'Lead decision, line {m.group(1)}' + (f' ({m.group(2)})' if m.group(2) else ''), f'tag in {where}: {raw.strip()}'
+        m = re.search(r'(20\d\d-\d\d-\d\d)', raw)
+        if m:
+            return f'Lead decision of {m.group(1)}', f'tag in {where}: {raw.strip()}'
+        return f'Lead decision, per {where}', f'tag in {where}: {raw.strip()}'
+    if kind == 'REQ':
+        m = re.search(r'\b(ENG-\d+[a-z]?)\b', raw + ' ' + str(tv.ptr or ''))
+        return 'Requirement' + (f', {m.group(1)}' if m else f', {where}'), f'tag in {where}: {raw.strip()}'
+    return f'Design value, {where}', (f'tag in {where}: {raw.strip()}' if raw.strip() else f'{where}')
+
+
+def resolve_class(tv):
+    """Final evidence class of a traced value (called by TV.__init__). The v0.2.0 source classes LEAD / DESIGN /
+    REQ become DECIDED with their source text, unless the source tag (for a number) or the quoted text (for a
+    text) names one of the ten tags for the value itself; status words become a status."""
+    ev, val = tv.ev, tv.value
+    tv.basis = getattr(tv, 'basis', None)
+    tv.basis_detail = getattr(tv, 'basis_detail', None)
+    tv.basis_kind = getattr(tv, 'basis_kind', None)
+    tv.ident = bool(isinstance(val, int) and not isinstance(val, bool) and str(tv.ptr or '').endswith('/code'))
+    if ev in STATUS_CLASSES:
+        tv.status = tv.status or ev
+        if val is None:
+            ev = 'MISSING'
+        elif tv.formula:
+            ev = 'DERIVED'
+        else:
+            w = ten_words(_gen_free(tv.tag_raw)) + ten_words(_plain_text(val))
+            w = list(dict.fromkeys(w))[:3]
+            ev = ' / '.join(w) if w else ('MISSING' if ev == 'TO-DEFINE' else None)
+    if ev in SOURCE_CLASS_NAMES or ev == 'DECIDED':
+        kind = ev if ev in SOURCE_CLASS_NAMES else (tv.basis_kind or 'LEAD')
+        tv.basis_kind = kind
+        nk = normalise_tag(_gen_free(tv.tag_raw).strip() or None)
+        if nk in SOURCE_CLASS_NAMES and kind == 'DESIGN':
+            kind = nk                      # the source tag names a lead decision or a requirement
+        tv.basis_kind = kind
+        own, bw = own_and_basis_words(tv.tag_raw)
+        if not tv.basis:
+            tv.basis, tv.basis_detail = basis_of(tv, kind)
+            if bw:
+                tv.basis += '; basis ' + ' / '.join(bw)
+        if val is None:
+            ev = 'MISSING'
+        elif is_number(val):
+            ev = own[0] if own else 'DECIDED'
+        else:
+            # a decision, design or requirement text is DECIDED; tags quoted inside it stay visible in the quoted text
+            # (lead 2026-10-21 12:52Z: line 264 items DECIDED); only the source tag's own words can replace DECIDED
+            ev = ' / '.join(own[:3]) if own else 'DECIDED'
+    elif ev is not None and not ev_ok(ev) and ev != 'REF':
+        tv.ctx.issue('WARN', f'class {ev!r} is not one of the ten tags at {tv.sid}:{tv.ptr}')
+        ev = None
+    tv.ev = ev
+
+
+def ev_pill(ev, tag_raw=None, basis=None, status=None):
+    """Evidence pill: one of the ten tags (or a ' / ' list of them), DECIDED with its source text, REF (a
+    reference text, no pill) or UNTAGGED."""
+    st = f' <span class="ev ev-status">{esc(status)}</span>' if status and status != ev else ''
+    if ev == 'REF':
+        return st.strip()
+    if not ev:
+        return '<span class="ev ev-none" title="no tag">UNTAGGED</span>' + st
+    title = f' title="{esc(tag_raw)}"' if tag_raw else ''
+    b = f'<span class="evb">{esc(basis)}</span>' if basis else ''
+    if ev == 'DECIDED':
+        return f'<span class="ev ev-decided"{title}>DECIDED</span>{b}{st}'
+    first = re.sub(r'[^a-z]+', '-', str(ev).split(' / ')[0].lower()).strip('-')
+    return f'<span class="ev ev-{first}"{title}>{esc(ev)}</span>{b}{st}'
+
+
+def normalise_tag(raw):
+    """Map a source tag string onto the evidence classes (the ten tags) or a source class (LEAD, DESIGN, REQ),
+    which resolve_class turns into DECIDED. None when the tag names no class."""
+    if raw is None:
+        return None
+    t = str(raw).strip()
+    u = t.upper()
+    if not u:
+        return None
+    if u.startswith('TO-VERIFY') or u.startswith('TO-CONFIRM') or u.startswith('DATASHEET-PENDING') or u.startswith('TO-CHECK'):
+        return 'TO-VERIFY'
+    if u.startswith('TO-DEFINE'):
+        return 'TO-DEFINE'
+    if u.startswith('PENDING'):
+        return 'PENDING'
+    if u.startswith('UNKNOWN') or u.startswith('OPEN') or u.startswith('MISSING'):
+        return 'MISSING'
+    if u.startswith('AS RECALLED'):
+        return 'AS RECALLED'
+    if u.startswith('CALC'):
+        return 'CALC'
+    if u.startswith('SIM') or u.startswith('FEA') or u.startswith('CEA'):
+        return 'SIM'
+    if u.startswith('ESTIMATE') or u.startswith('[ESTIMATE'):
+        return 'ESTIMATE'
+    if u.startswith('DERIVED'):
+        return 'DERIVED'
+    if u.startswith('ASSUMED'):
+        return 'ASSUMED'
+    if u.startswith('DATASHEET'):
+        return 'DATASHEET'
+    if u.startswith('LITERATURE'):
+        return 'LITERATURE'
+    if u.startswith('REQ'):
+        return 'REQ'
+    if u.startswith('LEAD') or u.startswith('[DESIGN; COMB') or 'LEAD DECISION' in u or u.startswith('COMB V2.4 / LEAD') \
+            or ('/ LEAD' in u and u.startswith(('GNC', 'COMB'))):
+        return 'LEAD'
+    if u.startswith('DESIGN'):
+        return 'DESIGN'
+    if u.startswith('COMB/GNC') or u.startswith('LEAD/COMB') or u.startswith('LEAD/GNC'):
+        return 'LEAD'
+    if re.match(r'^(V\d|COMBUSTION\.JSON V\d|MECHANICAL\.JSON V\d|ELECTRONICS\.JSON V\d)', u):
+        return 'DESIGN'
+    if u.startswith('KICAD') or u.startswith('CHECK_NETLIST'):
+        return 'DERIVED'
+    if u.startswith('COOLPROP') or u.startswith('DS-DERIVED'):
+        return 'DERIVED'   # property-library or datasheet-derived calculation
+    if re.match(r'^(MECH|MECHANICAL|GNC|COMB|COMBUSTION|ELEC|ELECTRONICS)\b.*(DECISION|\d{4}-\d\d-\d\d)', u):
+        return 'DESIGN'    # a specialist's dated design decision (not a lead decision)
+    if re.match(r'^[\d.]+\s*\S*\s*=\s*\S', t):
+        return 'DERIVED'   # tag states the conversion it was derived by ('4.75 V = 74.4 bar g ...')
+    m = re.search(r'\b(SIM|CALC|DERIVED|ESTIMATE|ASSUMED|DATASHEET|LITERATURE|AS RECALLED|TO-VERIFY|DESIGN|REQ|LEAD)\b', u)
+    if m:
+        return m.group(1)  # first class word inside a free-text tag
+    return None
+
+
+def cl_class(rec, txt=None):
+    """Class of a CHANGELOG text. A lead line is a decision record: source class LEAD (DECIDED unless the quoted
+    text carries one of the ten tags, see resolve_class). A specialist's line: its first bracketed tag word, else its
+    own 'X unless tagged' statement; else no class (counted as untagged)."""
+    owner = (rec.get('owner') or '').strip()
+    if owner == 'lead':
+        return 'LEAD'
+    t = txt if txt is not None else (rec.get('text') or '')
+    m = CLASS_WORD.search(t)
+    if m:
+        return m.group(1)
+    m = UNLESS_TAGGED.search(rec.get('text') or '')
+    if m:
+        return re.sub(r'\s*/\s*', ' / ', m.group(1))
+    w = ten_words(t, 1)
+    return w[0] if w else None
+
+
+WORKPATH = re.compile(r"(?:the |a )?(?:lead|author's|author|coordinator) scratchpad(?: [\w./\-]+)?|/home/claude[\w./\-]*|/tmp/[\w./\-]*")
+
+
+def clipw(s, n):
+    """A display text cut to at most n characters at a word boundary, with a visible ' …' (never a silent cut; rev1 phase 2)."""
+    s = '' if s is None else str(s)
+    if len(s) <= n:
+        return s
+    k = s.rfind(' ', 0, n - 1)
+    return (s[:k] if k > n // 2 else s[:n - 1]).rstrip(' ,;:(') + ' …'
+
+
+def src_digits(v):
+    """A source number at its own precision (REV-DS-1 D1-08): the shortest repr of the value with the float noise of a unit
+    conversion removed (about 10 significant digits kept) and no trailing '.0'."""
+    if isinstance(v, bool) or not isinstance(v, (int, float)):
+        return str(v)
+    if isinstance(v, int) or not math.isfinite(v):
+        return str(v)
+    if v == 0:
+        return '0'
+    r = round(v, max(0, 9 - int(math.floor(math.log10(abs(v))))))
+    s = repr(r)
+    if 'e' in s or 'E' in s:
+        s = format(r, '.10g')
+    return s[:-2] if s.endswith('.0') else s
+
+
+# display rules for quoted source text (lead 2026-10-21 14:05Z): the printed quote changes, the trace keeps the source string
+DISPLAY_SUBS = [
+    (re.compile(r'\*Por revisar\*'), 'to be reviewed', None),                                  # D1-12: plain English, no markdown
+    (re.compile(r'(?<!REPORT )(?<!REPORT)§\s?(\d+(?:\.\d+)*)'), r'combustion REPORT §\1', {'CMB'}),  # D1-11: combustion.json cross-references
+]
+
+
+def display_text(tv, s):
+    if not isinstance(s, str):
+        return s
+    for rx_, rep, sids in DISPLAY_SUBS:
+        if sids is None or tv.sid in sids:
+            s = rx_.sub(rep, s)
+    return s
+
+
+def gnote(html_, tvs=()):
+    """A bracketed generator note after a quoted value: the quote stays verbatim; the note states what a later lead line decides
+    about it, each cited line with its trace reference (rev1 phase 2; lead 2026-10-21 13:47Z, REV-DS-1 batch 1)."""
+    return Cell(f'<span class="gnote">[{html_}]</span>', [t for t in tvs if isinstance(t, TV)])
+
+
+def as_design(tv, basis, why):
+    """A decided number whose source tag names the lead although the lead has not accepted it: its source class is the
+    specialist's design value (DECIDED, design value), never a lead decision (lead 2026-10-21 13:47Z, REV-DS-1 D1-03).
+    Applied right after the value is read, so its trace entry carries the class."""
+    if tv.ev == 'DECIDED':
+        tv.basis_kind = 'DESIGN'
+        tv.basis = basis
+        tv.basis_detail = f'source tag: {tv.tag_raw}; class set at the call site: DESIGN ({why})'
+        tv.tag_raw = f'{tv.tag_raw} (class set at the call site: DESIGN; {why})'
+    return tv
+
+
+def sub_tv(ctx, tv, start, end):
+    """Verbatim part of a traced text, from the first occurrence of start to the end of the next occurrence of end; it keeps the
+    class and basis of the text it is cut from (used where a register side quotes one clause of a long cell; rev1 phase 2)."""
+    s = tv.value if isinstance(tv.value, str) else ''
+    i = s.find(start)
+    j = s.find(end, i) if i >= 0 else -1
+    if i < 0 or j < 0:
+        ctx.issue('WARN', f'{tv.sid}:{tv.ptr}: no text from {start!r} to {end!r}')
+        return ctx.missing(f'{tv.sid} {tv.ptr} text from "{start}"')
+    t = TV(ctx, s[i:j + len(end)], '', tv.ev, tv.tag_raw, tv.sid, f'{tv.ptr} [from "{start}" to "{end}"]', note=tv.note, status=tv.status)
+    t.ev, t.basis, t.basis_detail, t.basis_kind = tv.ev, getattr(tv, 'basis', None), getattr(tv, 'basis_detail', None), getattr(tv, 'basis_kind', None)
+    return t
+
+
+def redact_paths(txt):
+    """Quoted text with every working-path mention replaced by a visible marker (the quote is otherwise verbatim)."""
+    if not isinstance(txt, str):
+        return txt, 0
+    n = len(WORKPATH.findall(txt))
+    return (WORKPATH.sub('[working copy; path not printed]', txt), n) if n else (txt, 0)
+
+
+class Changelog:
+    """Line-numbered CHANGELOG reader (v0.3.0: an explicit class may be given for a quoted item or sentence; working-path
+    mentions in a quote are replaced by a visible marker)."""
+
+    def __init__(self, ctx, sid):
+        self.ctx, self.sid = ctx, sid
+        self.lines = ctx.src(sid).text.splitlines() if ctx.src(sid).text else []
+
+    def line(self, n):
+        raw = self.lines[n - 1]
+        parts = raw.split(' | ')
+        rec = {'n': n, 'raw': raw, 'sha16': sha16_text(raw)}
+        if len(parts) >= 4 and re.match(r'^\d{4}-\d\d-\d\d$', parts[0]) and CL_MARK.match(parts[2]):
+            rec.update(date=parts[0], owner=parts[1], what=parts[2], text=' | '.join(parts[3:]), why='')
+        elif len(parts) >= 4 and re.match(r'^\d{4}-\d\d-\d\d$', parts[0]):
+            rec.update(date=parts[0], owner=parts[1], what=parts[2], text=' | '.join(parts[3:-1]) if len(parts) > 4 else parts[3],
+                       why=parts[-1] if len(parts) > 4 else '')
+        else:
+            rec.update(date=None, owner=None, what=None, text=raw, why='')
+        return rec
+
+    def items(self, n):
+        """Split a decision text into its numbered items (1), (2), ... in sequence. A split needs the
+        expected next number and a preceding sentence/clause boundary, so 'item (2) of' is not one."""
+        text = self.line(n)['text']
+        out = {}
+        pos, k, starts = 0, 1, []
+        while True:
+            m = None
+            for mm in re.finditer(r'\((%d)\)\s' % k, text[pos:]):
+                i = pos + mm.start()
+                before = text[:i].rstrip()
+                if i == 0 or (before and before[-1] in '.:;)') or before.endswith('|'):
+                    m = i
+                    break
+            if m is None:
+                break
+            starts.append((k, m))
+            pos = m + 3
+            k += 1
+        for j, (kk, st) in enumerate(starts):
+            end = starts[j + 1][1] if j + 1 < len(starts) else len(text)
+            out[kk] = text[st:end].strip()
+        return out
+
+    def _tag(self, rec):
+        return f"{rec.get('owner')} {rec.get('what')} {rec.get('date')} (line sha {rec['sha16']})"
+
+    def _t(self, ptr, txt, ev, tag):
+        txt2, n = redact_paths(txt)
+        return self.ctx.t(self.sid, ptr, txt2, ev, tag_raw=tag, note=(f'{n} working-path mention(s) replaced by a marker' if n else ''))
+
+    def item(self, n, k, sentence=None, contains=None, ev=None, why=None):
+        rec = self.line(n)
+        its = self.items(n)
+        ptr = f'L{n}({k})'
+        if k not in its:
+            self.ctx.issue('WARN', f'CHANGELOG line {n} has no item ({k})')
+            return self.ctx.missing(f'CHANGELOG L{n} item ({k})')
+        txt = re.sub(r'^\(%d\)\s*' % k, '', its[k])
+        if contains:
+            sents = re.split(r'(?<=[.;])\s+(?=[A-Z(])', txt)
+            hit = [s for s in sents if contains.lower() in s.lower()]
+            if hit:
+                txt = ' '.join(hit)
+                ptr += f'[sentence containing "{contains}"]'
+        tag = self._tag(rec) + (f'; class set at the call site: {why}' if ev and why else '')
+        return self._t(ptr, txt, ev or cl_class(rec, txt), tag)
+
+    def clip(self, n, k, start, end, ev=None, why=None):
+        """Verbatim part of item (k) of line n from the first occurrence of start to the end of the next occurrence of
+        end (used where a sentence of the item also names a working path that is not printed)."""
+        rec = self.line(n)
+        if k is None:
+            txt = rec['text']
+        else:
+            its = self.items(n)
+            txt = re.sub(r'^\(%d\)\s*' % k, '', its.get(k, ''))
+        i = txt.find(start)
+        j = txt.find(end, i + len(start) - len(end) if len(end) < len(start) else i) if i >= 0 else -1
+        if i < 0 or j < 0:
+            self.ctx.issue('WARN', f'CHANGELOG line {n} item ({k}): no text from {start!r} to {end!r}')
+            return self.ctx.missing(f'CHANGELOG L{n} item ({k}) text from "{start}"')
+        tag = self._tag(rec) + (f'; class set at the call site: {why}' if ev and why else '')
+        return self._t(f'L{n}' + (f'({k})' if k is not None else '') + f'[from "{start}" to "{end}"]', txt[i:j + len(end)],
+                       ev or cl_class(rec, txt[i:j + len(end)]), tag)
+
+    def whole(self, n, maxlen=None):
+        rec = self.line(n)
+        txt = rec['text'] if maxlen is None or len(rec['text']) <= maxlen else rec['text'][:maxlen].rsplit(' ', 1)[0] + ' …'
+        return self._t(f'L{n}', txt, cl_class(rec), self._tag(rec))
+
+    def find(self, needle, owner='lead', what='(decision)'):
+        """Line number of the newest entry by owner/what whose text contains needle (None if absent)."""
+        for i in range(len(self.lines), 0, -1):
+            rec = self.line(i)
+            if rec.get('owner') == owner and (rec.get('what') == what or (what == '(decision)' and CL_DEC.match(rec.get('what') or ''))) \
+                    and needle in rec['text']:
+                return i
+        return None
+
+    def part(self, n, contains=None, ev=None, why=None):
+        """Decision text of a line (no numbered items needed), or its sentences containing a phrase."""
+        rec = self.line(n)
+        txt, ptr = rec['text'], f'L{n}'
+        if contains:
+            phr = [contains] if isinstance(contains, str) else list(contains)
+            sents = re.split(r'(?<=[.;])\s+(?=[A-Z(])', txt)
+            hit = [x for x in sents if any(p.lower() in x.lower() for p in phr)]
+            if not hit:
+                self.ctx.issue('WARN', f'CHANGELOG line {n}: no sentence containing {contains!r}')
+                return self.ctx.missing(f'CHANGELOG L{n} sentence containing {" | ".join(phr)}')
+            txt = ' '.join(hit)
+            ptr += '[sentence containing ' + ' | '.join(f'"{p}"' for p in phr) + ']'
+        tag = self._tag(rec) + (f'; class set at the call site: {why}' if ev and why else '')
+        return self._t(ptr, txt, ev or cl_class(rec, txt), tag)
+
+    def decisions(self, owner='lead', last=None):
+        out = []
+        for i in range(1, len(self.lines) + 1):
+            rec = self.line(i)
+            if rec.get('owner') == owner and CL_DEC.match(rec.get('what') or ''):
+                out.append(rec)
+        return out[-last:] if last else out
+
+
+def rx(ctx, sid, ptr, pattern, unit='', tag=None, conv=None, group=1, note=''):
+    """Number extracted from a text value at a JSON pointer with an explicit regex (recorded). v0.3.0: no
+    default class; without a tag here or in the source the value is UNTAGGED."""
+    s = ctx.raw(sid, ptr, default=None)
+    if isinstance(s, dict):
+        tag_raw = s.get('tag')
+        s = s.get('v')
+    else:
+        tag_raw = None
+    m = re.search(pattern, str(s)) if s is not None else None
+    loc = f'{ptr} [regex {pattern}]'
+    if not m:
+        ctx.issue('WARN', f'regex not matched {sid}:{ptr} {pattern}')
+        tv = TV(ctx, None, unit, 'MISSING', tag_raw, sid, loc, status='MISSING', note='pattern not found')
+        ctx.unknowns.append({'what': f'{sid}:{loc}', 'status': 'MISSING', 'tid': tv.tid})
+        return tv
+    val = float(m.group(group))
+    if conv:
+        val = val * conv[0] + conv[1]
+        note = (note + '; ' if note else '') + f'display = raw x {conv[0]:g} ({conv[2]})'
+    ev = tag or normalise_tag(tag_raw)
+    t = TV(ctx, val, unit, ev, tag_raw or (f'(class set at the call site: {tag})' if tag else None), sid, loc, note=note)
+    if not conv:
+        t.src_txt = m.group(group)  # v0.3.1: printed with the digits of the source text (REV-DS-1 D1-08)
+    return t
+
+
+def rx_text(ctx, tv, pattern, unit='', tag=None, group=1, note=''):
+    """Number extracted with a recorded regex from a text value already traced (CHANGELOG item, markdown row).
+    v0.3.0: without an explicit class the number takes the text's class; a DECIDED text passes its source class
+    (lead decision, design value, requirement) so that the number gets its own basis text."""
+    s = tv.value if isinstance(tv.value, str) else None
+    m = re.search(pattern, s) if s else None
+    loc = f'{tv.ptr} [regex {pattern}]'
+    if not m:
+        ctx.issue('WARN', f'regex not matched {tv.sid}:{tv.ptr} {pattern}')
+        t = TV(ctx, None, unit, 'MISSING', tv.tag_raw, tv.sid, loc, status='MISSING', note='pattern not found')
+        ctx.unknowns.append({'what': f'{tv.sid}:{loc}', 'status': 'MISSING', 'tid': t.tid})
+        return t
+    ev = tag or ((getattr(tv, 'basis_kind', None) or 'LEAD') if tv.ev == 'DECIDED' else tv.ev)
+    traw = tv.tag_raw
+    if tag and tag != tv.ev and tag not in SOURCE_CLASS_NAMES:
+        traw = (f'{traw}; ' if traw else '') + f'(class set at the call site: {tag})'
+    t = TV(ctx, float(m.group(group)), unit, ev, traw, tv.sid, loc, note=note)
+    t.src_txt = m.group(group)  # v0.3.1: printed with the digits of the source text (REV-DS-1 D1-08)
+    return t
+
+
+def md_row(ctx, sid, section_prefix, key, col, ev=None, tag_col=None, maxlen=None):
+    """Text cell of a markdown table row selected by its first-column key (v0.3.0: no default class)."""
+    rows = md_table_rows(ctx.src(sid).text or '', section_prefix)
+    for r in rows:
+        if r and re.sub(r'\*', '', r[0]).strip() == key:
+            if col >= len(r):
+                break
+            txt = re.sub(r'\*\*', '', r[col]).strip()
+            tag_raw = r[tag_col].strip() if (tag_col is not None and tag_col < len(r)) else None
+            e = ev or normalise_tag(tag_raw.split('/')[0] if tag_raw else None)
+            return ctx.t(sid, f'§{section_prefix or "*"} row "{key}" col {col}', txt, e, tag_raw=tag_raw)
+    ctx.issue('WARN', f'markdown row not found {sid} §{section_prefix} {key!r}')
+    return ctx.missing(f'{sid} §{section_prefix} row {key}')
+
+
+def md_rows_all(text, section_prefix=None, exact=False):
+    """(line number, cells) of every table row in a section (heading text starting with the prefix)."""
+    out, in_sec = [], section_prefix is None
+    for i, ln in enumerate((text or '').splitlines(), 1):
+        if ln.startswith('#'):
+            if section_prefix is not None:
+                h = ln.lstrip('#').strip()
+                in_sec = (h == section_prefix) if exact else h.startswith(section_prefix)
+            continue
+        if in_sec and ln.startswith('|') and not re.match(r'^\|\s*-', ln):
+            out.append((i, [c.strip() for c in ln.strip().strip('|').split(' | ')]))
+    return out
+
+
+def md_find(ctx, sid, section_prefix, conds, col, ev=None, tag_col=None, tag_raw=None, note='', strip_bold=True):
+    """Text cell of the one markdown table row whose columns match conds {col: exact text}; the locator
+    names the section, the matched columns and the column read."""
+    rows = md_rows_all(ctx.src(sid).text or '', section_prefix)
+    hit = []
+    for ln, r in rows:
+        ok = True
+        for c, want in conds.items():
+            got = re.sub(r'\*\*', '', r[c]).strip() if c < len(r) else None
+            if got != want:
+                ok = False
+                break
+        if ok:
+            hit.append((ln, r))
+    loc = f'§{section_prefix or "*"} row ' + ' & '.join(f'c{c}="{w}"' for c, w in conds.items()) + f' col {col}'
+    if len(hit) != 1:
+        ctx.issue('WARN', f'markdown row {sid} {loc}: {len(hit)} matches')
+        return ctx.missing(f'{sid} {loc}')
+    ln, r = hit[0]
+    if col >= len(r):
+        ctx.issue('WARN', f'markdown row {sid} {loc}: no column {col}')
+        return ctx.missing(f'{sid} {loc}')
+    txt = re.sub(r'\*\*', '', r[col]).strip() if strip_bold else r[col].strip()
+    traw = tag_raw or (r[tag_col].strip() if (tag_col is not None and tag_col < len(r)) else None)
+    e = ev or normalise_tag(traw.split('/')[0] if traw else None)
+    return ctx.t(sid, loc + f' (line {ln})', txt, e, tag_raw=traw, note=note)
+
+
+def md_rows_where(ctx, sid, section_prefix, col0_re=None):
+    """Rows of a section (optionally those whose first cell matches a regex), header row dropped."""
+    rows = md_rows_all(ctx.src(sid).text or '', section_prefix)
+    if rows and col0_re is None:
+        rows = rows[1:]
+    return [(ln, r) for ln, r in rows if col0_re is None or re.match(col0_re, re.sub(r'\*\*', '', r[0]).strip())]
+
+
+def md_cell_ln(ctx, sid, ln, r, col, ev, tag_raw=None, label=None, note=''):
+    """Text cell of a markdown row already located by line number (used when walking a whole table)."""
+    txt = re.sub(r'\*\*', '', r[col]).strip() if col < len(r) else ''
+    lab = label or re.sub(r'\*\*', '', r[0]).strip()
+    return ctx.t(sid, f'line {ln} row "{lab[:60]}" col {col}', txt, ev, tag_raw=tag_raw, note=note)
+
+
+def md_text_lines(ctx, sid, lo, hi, ev, tag_raw=None, note=''):
+    """Verbatim text of source lines lo..hi (1-based) of a markdown file."""
+    L = (ctx.src(sid).text or '').splitlines()
+    txt = ' '.join(x.strip() for x in L[lo - 1:hi]).strip()
+    return ctx.t(sid, f'lines {lo}-{hi}', txt, ev, tag_raw=tag_raw, note=note)
+
+
+def md_line_starting(ctx, sid, starts, ev, tag_raw=None, after_heading=None, maxlen=None):
+    """First line (after an optional heading) that starts with a given text."""
+    L = (ctx.src(sid).text or '').splitlines()
+    on = after_heading is None
+    for i, ln in enumerate(L, 1):
+        if after_heading is not None and ln.startswith('#') and ln.lstrip('#').strip().startswith(after_heading):
+            on = True
+            continue
+        if on and ln.strip().lstrip('-* ').startswith(starts):
+            t = ln.strip().lstrip('-* ').strip().replace('**', '')
+            return ctx.t(sid, f'line {i} (starts "{starts[:40]}")', t, ev, tag_raw=tag_raw)
+    ctx.issue('WARN', f'{sid}: no line starting {starts!r}')
+    return ctx.missing(f'{sid} line starting {starts}')
+
+
+def inl(c):
+    """Inline html of a traced value or cell inside prose."""
+    if isinstance(c, TV):
+        return tvtxt(c).html if isinstance(c.value, str) else c.h()
+    if isinstance(c, Cell):
+        return c.html
+    return str(c)
+
+
+def jt(ctx, sid, ptr, ev=None, maxlen=None, tag_ptr=None, note=''):
+    """JSON text value as a traced cell (class from its own tag, else ev)."""
+    tv = ctx.v(sid, ptr, tag=ev, tag_ptr=tag_ptr, note=note)
+    return tvtxt(tv, maxlen)
+
+
+def jn(ctx, sid, ptr, unit='', fmt=None, ev=None, conv=None, note=''):
+    tv = ctx.v(sid, ptr, unit, conv=conv, tag=ev, note=note)
+    return num_cell(tv, fmt)
+
+
+def val_class(txt):
+    """Cell colour class for a margin text: negative first number -> neg; < +0.05 -> thin."""
+    m = re.match(r'\s*([+\-−]?\d+\.\d+|>\+\d+)', txt or '')
+    if not m:
+        return ''
+    s = m.group(1).replace('−', '-')
+    if s.startswith('>'):
+        return 'pos'
+    v = float(s)
+    m2 = re.match(r'\s*[+\-−]?\d+\.\d+\s*/\s*([+\-−]?\d+\.\d+)', txt or '')
+    v2 = float(m2.group(1).replace('−', '-')) if m2 else v
+    lo = min(v, v2)
+    return 'neg' if lo < 0 else ('thin' if lo < 0.05 else 'pos')
+
+
+MD_VERSION_PATS = {
+    'RCMB': [r'^Version (\d+(?:\.\d+)+[a-z]?)'], 'CF4': [r'^Version (\d+(?:\.\d+)+[a-z]?)'], 'T14': [r'\(RG-03\), (v[\d.]+)'],
+    'DSIC': [r'^Version (v[\d.]+[a-z]?)'], 'DSIG': [r'\(gnc\.json (v[\d.]+)'], 'REQ': [r'requirements, (rev \d+)'],
+    'ICD': [r'\((draft [\d.]+)\)'], 'BENCH': [r'test plan (v\d+)'], 'BENCH5': [r'test plan (v\d+)', r'(v5)'], 'RELE': [r'(v\d+(?:\.\d+)+) handback'],
+    'RPL': [r'Text revision (v[\d.]+\w*)', r'Version (v[\d.]+\w*)'], 'F3D': [r'(FINAL handback of the v3\.5\.2 re-check)'],
+    'RGNC5': [r'^# (REVIEW-GNC-R5 \(REV-GNC-7\))'], 'RCMB4': [r'^# (REVIEW-COMBUSTION-R4 \(REV-COMB-4\))'],
+    'RELE3': [r'^# (REVIEW-ELECTRONICS-R3 \(REV-ELEC-3\))'], 'RELE4': [r'^# (REVIEW-ELECTRONICS-R4 \(REV-ELEC-4\))'],
+    'RDS1': [r'^# (REVIEW-DATASHEET-R1 \(REV-DS-1\))'], 'MMXMD': [r'^# (FEA3D margin matrix v3\.5\.2)'],
+    'MOUNTMD': [r'(v3\.5\.2 re-check with RM2-11 folded)'],
+}
+
+
+def md_version2(sid, text):
+    head = '\n'.join((text or '').splitlines()[:14])
+    for p in MD_VERSION_PATS.get(sid, []):
+        m = re.search(p, head, re.M)
+        if m:
+            return m.group(1)
+    return None
+
+
+def register_sources(ctx, a):
+    H, C, V = a.hub, a.cad_dir, a.cad_version
+    J = os.path.join
+    F3 = J(H, '04-fea/assembly3d_v352')
+    R8 = J(H, '04-fea/assembly3d_v352_rows_v8')
+    M2 = J(H, '04-fea/v352')
+    add = ctx.add
+    # interfaces and decision records
+    add('CMB', J(H, 'interfaces/combustion.json'), 'Combustion interface v2.4d (design point, grain, injector, igniter, sequences, FA-1 rulings)')
+    add('MEC', J(H, 'interfaces/mechanical.json'), 'Mechanical interface (its _v352 sections govern for CAD v3.5.2)')
+    promo = bool(getattr(a, 'ele41_line', None))
+    if promo:
+        # promoted-v4.1 build (lead GO 2026-10-21 14:48:44Z; CHANGELOG 266 (6), (7))
+        add('ELE', J(H, 'interfaces/electronics.json'), 'Electronics interface v4.1 (ECU, sensors, firmware v2.12 SIL, abort causes): promoted, CHANGELOG 266 (7); '
+            'option (b) is carved out of every start with ignition until a reviewed v2.13 delta (266 (6)); line 266 governs v4.1 where they differ')
+        add('ELE4', J(H, '06-electronics/staging_v2.11/results/electronics_v4.json'), 'Electronics interface v4 (firmware v2.11), the file published before line 266 '
+            '(kept as staging_v2.11/results/electronics_v4.json, 266 (7)): used only for the superseded sides of the contradiction register')
+    else:
+        add('ELE', J(H, 'interfaces/electronics.json'), 'Electronics interface v4 (ECU, sensors, firmware v2.11, abort causes)')
+    add('GNC', J(H, 'interfaces/gnc.json'), 'Space/GNC interface v3.2 (reference vehicle, mission, ENG-11)')
+    add('CL', J(H, 'interfaces/CHANGELOG.md'), 'Decision log (line-numbered)', 'md')
+    add('REQ', J(H, '00-requirements/REQUIREMENTS.md'), 'Engine requirements', 'md')
+    add('ICD', J(H, '00-requirements/ICD-AIRFRAME.md'), 'ICD-AIRFRAME draft 0.2 (2026-10-13; out of the finish scope since 2026-10-19, CHANGELOG 222; not updated): used only where no current source covers a value', 'md')
+    add('SUP', J(H, 'reviews/SUPERVISION.json'), 'Independent review register')
+    if a.overrides:
+        add('OVR', a.overrides, 'Decision override table (datasheet generator input)')
+    add('REV0S', J(DS_ROOT, 'out/sources.json'), 'Datasheet rev0-draft sources record (kept; CAD v3.4.1)', required=False)
+    # combustion and plume
+    add('RCMB', J(H, '02-combustion/REPORT.md'), 'Combustion report', 'md')
+    add('DSIC', J(H, '02-combustion/DATASHEET-INPUTS-COMBUSTION.md'), 'Combustion datasheet inputs', 'md')
+    add('CF4', J(H, '02-combustion/CF-4-SPEC.md'), 'CF-4 relight-purge cold-flow specification', 'md')
+    add('T14', J(H, '02-combustion/T1-T4-REGRESSION-SPEC.md'), 'T1-T4 regression measurement specification', 'md')
+    add('FA1SP', J(H, '02-combustion/data/v2p4b/fa1_pressure_spectra_published_v2p4b.csv'),
+        'FA-1 equivalent-static-pressure spectra, 406 periods (Combustion v2.4b data, SIM histories, DERIVED spectra)', 'csv')
+    add('RCMB4', J(H, 'reviews/REVIEW-COMBUSTION-R4.md'), 'Independent review REV-COMB-4 (text)', 'md')
+    add('RPL', J(H, '05-plume-cfd/REPORT.md'), 'Plume CFD report', 'md')
+    add('PVAL', J(H, '05-plume-cfd/validation/results/validation_v2.json'), 'Plume CFD validation results')
+    for fid, rel, _ in PLUME_FIGS:
+        add(fid, find_hub_file(H, rel), 'Plume figure', 'img', required=False)
+    # GNC
+    add('DSIG', J(H, '01-systems-gnc/DATASHEET-INPUTS-GNC.md'), 'GNC datasheet inputs (gnc.json v3.2)', 'md')
+    add('RGNC5', J(H, 'reviews/REVIEW-GNC-R5.md'), 'Independent review REV-GNC-7 (text)', 'md')
+    # electronics
+    add('RELE', J(H, '06-electronics/REPORT-v2.11-HANDBACK.md'), 'Electronics v2.11 handback report', 'md')
+    if promo:
+        SRC_FILE['BENCH'] = 'bench_plan_v5.md'  # the plan of the promoted v4.1 (display name of the source in traces and overrides)
+        add('BENCH', J(H, '06-electronics/staging_v2.12/docs/bench_plan_v5.md'), 'Electronics bench and test plan v5, the plan of electronics.json v4.1: ACCEPT WITH '
+            'COMMENTS (REV-ELEC-4); it does not go to the founders before the corrections of CHANGELOG 266 (7) (E4-02, E4-06)', 'md')
+    else:
+        add('BENCH', J(H, '06-electronics/staging_v2.11/docs/bench_plan_v4.md'), 'Electronics bench and test plan v4, the plan of electronics.json v4: REVISE (text), not for the founders before v5 (CHANGELOG 253 (5)); v5 comes with electronics v4.1 (PENDING REVIEW)', 'md')
+    add('RELE3', J(H, 'reviews/REVIEW-ELECTRONICS-R3.md'), 'Independent review REV-ELEC-3 (text)', 'md')
+    if promo:
+        add('RELE4', J(H, 'reviews/REVIEW-ELECTRONICS-R4.md'), 'Independent review REV-ELEC-4 of Electronics v2.12 (text; the corrections that line 266 (7) applies)', 'md')
+    else:
+        add('ELE41', J(H, '06-electronics/staging_v2.12/results/electronics_v4.1.json'), 'Electronics interface candidate v4.1 (Electronics v2.12, staged): '
+            'PENDING REVIEW until the REV-ELEC-4 verdict (CHANGELOG 264 (1)); no value of it is used in this draft', required=False)
+        add('BENCH5', J(H, '06-electronics/staging_v2.12/docs/bench_plan_v5.md'), 'Electronics bench and test plan v5 (staged with v4.1): '
+            'PENDING REVIEW with v4.1; not used for values in this draft', 'md', required=False)
+    add('RDS1', J(H, 'reviews/REVIEW-DATASHEET-R1.md'), 'Independent review REV-DS-1 of this datasheet\'s rev1-draft (text)', 'md')
+    # 3D FEA v3.5.2 (FEA3D-2) and the rows-v8 margin matrix
+    add('F3D', J(F3, 'REPORT-FEA3D-v352.md'), 'FEA3D v3.5.2 report (FEA3D-2, final)', 'md')
+    add('F3DMAN', J(F3, 'MANIFEST.json'), 'FEA3D v3.5.2 manifest')
+    add('MOUNT', J(F3, 'results/v352/engine_mount_data_v352.json'), 'Engine mounting data v3.5.2 (hole loads)')
+    add('MOUNTMD', J(F3, 'results/v352/tables/engine_mount_data_v352.md'), 'Engine mounting data v3.5.2, datasheet tables', 'md')
+    add('KTAB', J(F3, 'results/v352/k_table_r3_v352.json'), 'Axis stiffness K table at R3 (v3.5.2)')
+    add('ROCK', J(F3, 'results/v352/rocking_servo_J_v352.json'), 'Rocking modes vs servo J (v3.5.2)')
+    add('MODAL', J(F3, 'results/v352/modal_ca2c_vs_ca2b_v352.json'), 'Modal ca2c vs ca2b (v3.5.2)')
+    add('F4J', J(F3, 'results/v352/f4_v352.json'), 'F4 joints J-FD01 / J-FD09 (v3.5.2)')
+    add('CDJ', J(F3, 'results/v352/jfwd_cD_result_v352.json'), 'Mesh-convergence check cD (J-FWD seat)')
+    add('ENV6', J(F3, 'results/v352/jfwd_soak_envelope_v352_v6.json'), 'J-FWD soak envelope v6 (final)')
+    add('ICDMF', J(F3, 'results/v352/icd_momentfree_v352.json'), 'Moment-free hole-load estimate (v3.5.2)')
+    add('MMX', J(R8, 'tables/margin_matrix_v352.json'), 'Margin matrix v3.5.2 on J-FWD rows v8 (every part x every case)')
+    add('MMXMD', J(R8, 'tables/margin_matrix_v352.md'), 'Margin matrix v3.5.2 on rows v8 (published table)', 'md')
+    add('MMXD', J(R8, 'delta_vs_assembly3d_v352.json'), 'Margin matrix delta, rows v8 vs the FEA3D-2 matrix')
+    # Mechanical J-FWD rows, texts and follow-ups (04-fea/v352)
+    add('ROWS8', J(M2, 'jfwd_in718_rows_v352_v8.json'), 'J-FWD IN718 rows v8 (Mechanical)')
+    add('BAND', J(M2, 'jfwd_pq_band_v352_v1.json'), 'Seat-line P+Q select-fit band v1 (Mechanical, R2-B)')
+    add('TAPW', J(M2, 'jfwd_tapwall_v352_v3.json'), 'TC-02 torch-tap wall at FA1S, v3 (Mechanical, R4-01)')
+    add('TB70', J(M2, 'lc_tb70_envelope_v2.json'), 'LC-TB70 envelope v2: Z3 v2 and the J-FWD replace rule (Mechanical)')
+    add('TXT5', J(M2, 'texts/item_c_tf1_texts_v352_v5.json'), 'Item C / T-F1 texts v5 (drawing, founder and datasheet texts)')
+    add('LCF', J(M2, 'jfwd_screw_lcf_v352_v3.json'), 'J-FWD screw LCF v3 (Mechanical)')
+    add('FIL', J(M2, 'jfwd_head_fillet_v352_v2.json'), 'J-FWD screw head fillet v2 (Mechanical)')
+    add('SPR', J(M2, 'jfwd_spring_v352_v5.json'), 'HW-170 disc spring v5 (Mechanical)')
+    add('C1S', J(M2, 'c1seat/c1_seat_v352_v1.json'), 'C1 seat (Mechanical F1)', required=False)
+    add('TPB', J(M2, 'c1seat/torch_port_bl08_v352_v1.json'), 'Torch-port rise F2 (Mechanical; not a bound)', required=False)
+    add('MMAN', J(M2, 'MANIFEST_v352.sha256'), 'Mechanical 04-fea/v352 manifest', 'text')
+    # CAD v3.5.2 FINAL
+    add('BOM', J(C, f'BOM_{V}.json'), f'Bill of materials (CAD {V})')
+    add('MP', J(C, f'massprops_{V}.json'), f'Mass properties (CAD {V})')
+    add('MDEL', J(C, f'massdelta_{V}_vs_v3.5.1.json'), f'Mass delta {V} vs v3.5.1')
+    add('SET', J(C, f'set_{V}.json'), f'CAD set record ({V})')
+    add('MAN', J(C, f'assembly/assembly_manifest_{V}.json'), f'Assembly manifest, instance bounds (CAD {V})')
+    add('GLB', J(C, f'assembly/ENGINE_{V}_neutral.glb'), f'Assembly GLB, visualisation geometry (CAD {V})', 'bin')
+    add('HWD', J(C, 'data/hardware_v352.json'), 'Hardware data v3.5.2 (fasteners, springs)')
+    add('CHK', J(C, 'checks/test_final352_v1.json'), 'Final-set check (round trips, changed parts, BOM delta)')
+    add('CLR', J(C, 'checks/clear_interim352_v2.json'), 'Interference and clearance check at 18 poses (geometry unchanged in the final)')
+    add('GLBR', J(C, f'checks/glb_readback_{V}.json'), 'GLB read-back check')
+    add('DRW', J(C, 'texts/jfwd_drawing_texts_v352_v2.json'), 'J-FWD drawing texts v2 (TC-01 / TC-02 / HW-101 notes)')
+    add('CADMAN', J(C, f'MANIFEST_{V}.sha256'), f'CAD {V} manifest', 'text')
+    add('RMAN', J(a.renders, 'render_manifest.json'), 'Render manifest (this generator)')
+    add('RSCR', J(HERE, 'render_views_blender.py'), 'Render script (Blender, this generator)', 'text')
+    for sid, s in ctx.sources.items():
+        if s.version is None and s.text is not None:
+            s.version = md_version2(sid, s.text)
+        if sid == 'CL' and s.text is not None:
+            s.version = f'{len(s.text.splitlines())} lines'
+        if sid == 'SUP' and isinstance(s.data, dict):
+            s.version = f'{len(s.data.get("reviews") or [])} reviews'
+        if sid == 'GLB':
+            s.version = V
+        if sid == 'PVAL' and s.version is None:
+            m = re.search(r'_(v\d+)\.json$', s.path)
+            s.version = m.group(1) if m else None
+        if sid in ('MAN', 'SET', 'BOM', 'MP', 'MDEL') and s.data is not None:
+            s.version = (s.data.get('cad_version') or V) + (f' {s.data.get("version")}' if s.data.get('version') and sid == 'SET' else '')
+        if sid in ('CADMAN', 'MMAN') and s.text is not None:
+            s.version = f'{len([x for x in s.text.splitlines() if x.strip()])} rows'
+        if sid in ('ROWS8', 'BAND', 'TAPW', 'TB70', 'TXT5', 'LCF', 'FIL', 'SPR', 'DRW', 'ENV6', 'MMX', 'MMXD', 'CHK', 'CLR') and s.version is None:
+            m = re.search(r'_(v\d+)\.json$', s.path)
+            s.version = m.group(1) if m else (s.data.get('date') if isinstance(s.data, dict) else None)
+        if sid == 'FA1SP' and s.text is not None:
+            s.version = f'{len(s.text.splitlines()) - 1} periods'
+        if s.kind == 'img' and s.version is None:
+            s.version = 'figure'
+
+
+def print_pdf(a, html_path, pdf_path, D):
+    st = 'font-family:\'Inter DS\',Inter,sans-serif;font-size:6.4px;color:#55626f;width:100%;padding:0 14mm;display:flex;justify-content:space-between;'
+    # the status word before the revision, as on the cover ('PRELIMINARY · rev1'; REV-DS-1 final-build checklist, staged item)
+    hdr = (f'<div style="{st}"><span><b style="color:#0b3a5c">{esc(DOC_ID)}</b> · <b style="color:#b4232a">{esc(a.status)}</b> · {esc(a.rev)} · CAD {esc(a.cad_version)}</span>'
+           f'<span><b style="color:#b4232a">{esc(PAGE_STATEMENT)}</b></span></div>')
+    ftr = (f'<div style="{st}"><span>Generated {esc(D["generated"])} · {GEN_NAME} {GEN_VERSION} · digital design data only · {esc(PAGE_STATEMENT)}</span>'
+           f'<span>Page <span class="pageNumber"></span> / <span class="totalPages"></span></span></div>')
+    cfg = {'header': hdr, 'footer': ftr, 'margin': {'top': '17mm', 'bottom': '15mm', 'left': '14mm', 'right': '14mm'}}
+    cfgp = os.path.join(a.build, 'print_config_rev1.json')
+    json.dump(cfg, open(cfgp, 'w'))
+    env = dict(os.environ)
+    env.setdefault('PLAYWRIGHT_BROWSERS_PATH', a.pw_browsers)
+    if getattr(a, 'fontconf', None):
+        env['FONTCONFIG_FILE'] = a.fontconf
+    cmd = [a.node, os.path.join(HERE, 'print_pdf.mjs'), html_path, pdf_path, cfgp]
+    if a.nice:
+        cmd = ['nice', '-n', str(a.nice)] + cmd
+    r = subprocess.run(cmd, env=env, capture_output=True, text=True, timeout=900)
+    if r.returncode != 0:
+        raise RuntimeError('PDF printing failed: ' + r.stderr[-2000:])
+    return r.stdout.strip()
+
+
+CSS_REV1 = r'''
+.ev-calc { background:#e6ebf8; color:#2b4a8c; } .ev-estimate { background:#fbeee0; color:#8a4b00; }
+.stmt { font-size: 7.4pt; font-weight: 700; color: #b4232a; }
+table.mx td { font-size: 6.3pt; padding: 1pt 1.6pt; white-space: nowrap; }
+table.mx th { font-size: 6.3pt; padding: 1pt 1.6pt; }
+table.mx td.neg, td.neg { background: #fbe3e3; color: #8c1d24; font-weight: 650; }
+table.mx td.thin, td.thin { background: #fff3dc; }
+table.mx td.pos { }
+table.tight td { font-size: 6.8pt; padding: 1.1pt 2.2pt; }
+table.tight th { font-size: 6.8pt; }
+table.mount td { font-size: 6.1pt; padding: 0.9pt 1.4pt; white-space: nowrap; }
+table.mount th { font-size: 6.1pt; padding: 0.9pt 1.4pt; }
+.fn { font-size: 6.2pt; color: var(--ink2); margin: -2mm 0 3mm; }
+.fn p { margin: 0 0 0.6mm; }
+.neg-tag { display: inline-block; font-size: 5.6pt; font-weight: 750; color: #fff; background: #b4232a; padding: 0.1pt 2.2pt; border-radius: 2pt; }
+.open-tag { display: inline-block; font-size: 5.6pt; font-weight: 750; color: #9a4a00; background: #ffe3c7; padding: 0.1pt 2.2pt; border-radius: 2pt; }
+.closed-tag { display: inline-block; font-size: 5.6pt; font-weight: 750; color: #155e57; background: #ddf1ee; padding: 0.1pt 2.2pt; border-radius: 2pt; }
+.box-neg { border-color: #b4232a; background: #fdf0f0; }
+.cols2 { columns: 2; column-gap: 6mm; }
+.kpi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2mm; margin: 2mm 0 3mm; }
+.kpi .tile .tv { font-size: 9.6pt; }
+.ev-decided { background:#ffffff; color:#24384d; border:0.5pt solid #24384d; }
+.evb { font-size: 5.4pt; color: #24384d; margin-left: 1.2pt; font-style: italic; }
+.ev-status { background:#ffe3c7; color:#9a4a00; margin-left: 1pt; }
+.ev-as-recalled { background:#f3e8dc; color:#6b4a2a; }
+.ev-tagbox { display:inline-block; margin: 0 1.5mm 1mm 0; }
+.gnote { display: block; font-size: 0.86em; color: #155e57; margin-top: 0.6pt; }
+p.hnote { font-size: 6.6pt; margin: 0 0 1.2mm; }
+tr.grp td { background: #eef2f6; font-weight: 700; font-size: 6.6pt; }
+'''
+
+
+def md_heading(ctx, sid, starts, ev, tag_raw=None):
+    """Text of the first heading line that starts with a given text."""
+    for i, ln in enumerate((ctx.src(sid).text or '').splitlines(), 1):
+        if ln.startswith('#') and ln.lstrip('#').strip().startswith(starts):
+            return ctx.t(sid, f'heading line {i}', ln.lstrip('#').strip(), ev, tag_raw=tag_raw)
+    ctx.issue('WARN', f'{sid}: no heading starting {starts!r}')
+    return ctx.missing(f'{sid} heading {starts}')
+
+
+def md_sentence(ctx, sid, heading_prefix, contains, ev, tag_raw=None, note=''):
+    """The sentence of a markdown section (heading text starting with heading_prefix) that contains a phrase,
+    with its line number (a sentence ends at '. ', ': ' or '; ' followed by a capital or at the end of the line)."""
+    lines = (ctx.src(sid).text or '').splitlines()
+    on = False
+    for i, ln in enumerate(lines, 1):
+        if ln.startswith('#'):
+            on = ln.lstrip('#').strip().startswith(heading_prefix)
+            continue
+        if on and contains in ln:
+            k = ln.index(contains)
+            starts = [0] + [m.end() for m in re.finditer(r'(?<=[.;:])\s+(?=[A-Z(*`])', ln[:k])]
+            j0 = starts[-1]
+            m = re.compile(r'(?<=[A-Za-z0-9)\]`*"\'])[.;](?=\s+[A-Z(*`]|\s*$)').search(ln, k + len(contains))
+            j1 = m.end() if m else len(ln)
+            txt = re.sub(r'\*\*', '', ln[j0:j1]).strip()
+            return ctx.t(sid, f'§{heading_prefix} line {i} [sentence containing "{contains}"]', txt, ev, tag_raw=tag_raw, note=note)
+    ctx.issue('WARN', f'{sid}: no sentence containing {contains!r} under {heading_prefix!r}')
+    return ctx.missing(f'{sid} §{heading_prefix} sentence containing {contains}')
+
+
+PRIVATE_PATH = re.compile(r'/home/claude|/tmp/|scratchpad|/dev/shm|/root/|/opt/|/mnt/|/usr/')
+
+
+def path_scan(ctx, label, text):
+    """ERROR for every private or absolute path visible in an output text (lead 12:13Z items 2 and 9: printed paths are
+    hub-relative only)."""
+    t = re.sub(r'<style.*?</style>', ' ', text, flags=re.S)
+    t = re.sub(r'<[^>]+>', ' ', t)
+    n = 0
+    for m in PRIVATE_PATH.finditer(t):
+        n += 1
+        if n <= 12:
+            ctx.issue('ERROR', f'private or absolute path visible in {label}: …{t[max(0, m.start() - 60):m.end() + 40]!r}…')
+    return n
+
+
+def hub_rel(a, path):
+    """Hub-relative form of a path (argos-engine hub); None when the path is outside the hub."""
+    p = os.path.abspath(path)
+    h = os.path.abspath(a.hub)
+    if p == h or p.startswith(h + os.sep):
+        return os.path.relpath(p, h)
+    return None
+
+
+# ---------------------------------------------------------------------------------------------
+# preparation (v0.3.0): renders, BOM, mass, envelope, pending inputs
+# ---------------------------------------------------------------------------------------------
+def hw_mass_class(ms):
+    u = (ms or '').strip().upper()
+    if not u:
+        return None
+    if u.startswith('CALC'):
+        return 'CALC'
+    if u.startswith('TO-FETCH'):
+        return 'MISSING'
+    if u.startswith('NEGLIGIBLE'):
+        return 'ASSUMED'
+    return bom_mass_class(ms)
+
+
+class HwRow(BomRow):
+    """BOM /hardware/lines row (standard parts, not modelled): CALC masses."""
+
+    def __init__(self, ctx, idx, line):
+        self.kind, self.idx, self.l = 'hardware', idx, line
+        self.pn = line['pn']
+        self.fam = family_of(self.pn)
+        self.qty = fnum(line.get('qty'))
+        self.unit = fnum(line.get('unit_mass_kg'))
+        self.mclass = hw_mass_class(line.get('mass_source'))
+        self.pstate = price_state(line.get('unit_price'))
+        ptr = ptr_join('hardware', 'lines', idx)
+        self.row_tv = TV(ctx, f"{self.pn}: {line.get('name', '')}", '', 'DESIGN', 'BOM hardware row (standard part, not modelled)', 'BOM', ptr,
+                         note='row trace: name, qty, host, size, grade, torque, tightening method, unit_mass_kg, mass_source, unit_price')
+        if self.unit is not None:
+            self.mass_tv = TV(ctx, self.unit, 'kg', self.mclass or 'CALC', line.get('mass_source'), 'BOM', ptr + '/unit_mass_kg')
+        else:
+            st = 'MISSING' if self.mclass in (None, 'MISSING') else self.mclass
+            self.mass_tv = TV(ctx, None, 'kg', st, line.get('mass_source'), 'BOM', ptr + '/unit_mass_kg', status=st if st != 'ASSUMED' else 'negligible')
+        self.line_mass = (self.unit * self.qty) if (self.unit is not None and self.qty is not None) else None
+        if self.pstate == 'INVALID':
+            ctx.issue('ERROR', f'BOM hardware {self.pn}: price field violates the price rule: {line.get("unit_price")!r}')
+
+
+def ele_state(ctx, a, cl):
+    """Record state of the electronics interface (lead 2026-10-21 13:45Z): electronics.json v4 with the v4.1 candidate PENDING
+    REVIEW (the default build), or the promoted-v4.1 build (--ele41-line N, N the CHANGELOG line that records the promotion)."""
+    st = {'promo': False, 'line': None, 'promo_tv': None, 'carve': [], 'wording': {},
+          'pend_tv': cl.clip(264, 1, 'interfaces/electronics.json stays v4', 'as PENDING REVIEW.')}
+    n = getattr(a, 'ele41_line', None)
+    if n:
+        # promoted-v4.1 build (lead GO 2026-10-21 14:48:44Z): line n records the promotion (266 (7)), the carve-out (266 (6)) and the
+        # REV-ELEC-4 verdict (266 (4)); every text below is a clip of that line, so the datasheet quotes the lead, never paraphrases it
+        st.update(promo=True, line=n)
+        st['promo_tv'] = cl.clip(n, 7, 'PROMOTED 14:45:39Z', 'under the carve-out of (6).')
+        st['carve_tv'] = cl.clip(n, 6, 'Option (b) (seat coefficient loaded', 'bench work without ignition.')
+        st['cons_tv'] = cl.clip(n, 6, 'Consequences under the rulings in force:', 'keeps the A1 relight at k = 3 [SIM S13T].')
+        st['susp_tv'] = cl.clip(n, 6, 'Suspended until v2.13, and marked so wherever shown:', 'the B-PC-1 / B-TC-1 TC4 rows.')
+        st['acc_tv'] = cl.clip(n, 6, 'Accepted now:', 'the T1-T4 planning rule.')
+        st['gov_tv'] = cl.clip(n, 7, 'Until v4.2 this line governs v4.1 where they differ:', 'Bench plan v5 does not go to the founders before these corrections.')
+        st['verdict_tv'] = cl.clip(n, 4, 'REV-ELEC-4 (independent delta review of Electronics v2.12', '11 NOTES')
+        st['q8_tv'] = cl.clip(n, 8, 'QUEUED, NOT STARTED (the founder says when)', 'a SIL MANIFEST_v2).')
+        st['routed_tv'] = cl.clip(n, 8, 'Routed: E4-N08', 'are GNC and lead items with v2.13.')
+        st['e401_tv'] = cl.item(n, 5)
+        st['carve'] = [{'id': f'Carve-out, {n} (6)', 'anchors': ['opt_b_comp', 'relight', 'lim_264_2'], 'tv': st['carve_tv']}]
+        s = ctx.src('ELE')
+        m = re.search(r'electronics_v4\.1\.json ([0-9a-f]{16}), byte for byte', st['promo_tv'].value or '')
+        if not m or m.group(1) != s.sha16:
+            ctx.issue('ERROR', f'promoted build: interfaces/electronics.json sha256/16 {s.sha16} is not the file line {n} (7) promotes')
+        if str((s.data or {}).get('version')) != 'v4.1':
+            ctx.issue('ERROR', f'promoted build: interfaces/electronics.json is {(s.data or {}).get("version")}, not v4.1')
+        st['wording'] = {'base': 'kIgnBaseCheck_Pa 0.76 / 0.46 bar implemented in v4.1: ACCEPTED (REV-ELEC-4, line {n})',
+                         'purge': 'implemented in v2.12 (v4.1): ACCEPTED (REV-ELEC-4, line {n})',
+                         'purge_status': 'implemented in v4.1: ACCEPTED (REV-ELEC-4, line {n}); the measured-time form is open after CF-4 / B-BLEED-1',
+                         'c13_status': 'v4.1 implementation: kIgnBaseCheck_Pa 0.76 / 0.46 bar ACCEPTED (REV-ELEC-4, line {n}); the option (b) rows and '
+                                       'residuals SUSPENDED UNTIL v2.13 ({n} (6))'}
+    return st
+
+
+def impl_txt(D, key, pending, promoted):
+    """(text, tvs) of the state of the electronics implementation of a lead decision: the pending wording with the 264 (1) record,
+    or, in the promoted-v4.1 build, the promotion wording with the promotion line ('{n}' is its number; the lead's wording for the
+    key, when the carve-out file gives one, replaces the default) (lead 2026-10-21 13:47Z)."""
+    e = D['ele']
+    if e['promo']:
+        w = (e['wording'].get(key) or promoted).format(n=e['line'])
+        # each label cites the item of line n that sets it: the promotion (7), ACCEPTED and SUSPENDED UNTIL v2.13 (6)
+        return w, [e['promo_tv']] + ([e['acc_tv']] if 'ACCEPTED' in w else []) + ([e['susp_tv']] if 'SUSPENDED' in w else [])
+    return pending, [e['pend_tv']]
+
+
 def prepare(ctx, a):
     D = {'generated': now_utc()}
-    D['cl'] = Changelog(ctx, 'CL')
+    D['cl'] = cl = Changelog(ctx, 'CL')
+    D['ele'] = ele_state(ctx, a, cl)
     idx = pts_index(ctx)
     D['tpi'] = idx
-    D['rated'] = {'F': tp(ctx, idx, 1.0, 'F_N', 'N'), 'Isp': tp(ctx, idx, 1.0, 'Isp_SL_s', 's')}
-    D['rated_low'] = rx_text(ctx, D['cl'].item(170, 1), r'~(\d+) N at', 'N', tag='DERIVED',
-                             note='rated thrust if T1 measures eta_cf at the low end of its band (CHANGELOG 170 (1))')
+    D['rated'] = {'F': tp(ctx, idx, 1.0, 'F_N', 'N'), 'Isp': tp(ctx, idx, 1.0, 'Isp_SL_s', 's'), 'OF': tp(ctx, idx, 1.0, 'OF')}
     pc = tp(ctx, idx, 1.0, 'Pc_Pa', 'Pa')
+    D['pc_rated'] = pc
     D['pc_rated_cell'] = Cell(pres(ctx, pc), [pc])
-    D['floor_F'] = tp(ctx, idx, 0.2, 'F_N', 'N')
-    D['mass_wet_all'] = ctx.v('MP', '/states/wet/all/m_kg', 'kg', tag='DERIVED', note='CAD model total, wet (full grain)')
-    # envelope from the manifest
+    D['floor_F'] = tp(ctx, idx, 0.2, 'F_N', 'N')  # floor target 20 % (rev0 basis); 25 % requirement and 12.5 % stretch in section 2
+    D['mass_wet_all'] = ctx.v('MP', '/states/wet/all/m_kg', 'kg', tag='DERIVED', note='CAD model total, wet (full grain); hardware CALC carried')
+    D['mass_mid_eng'] = ctx.v('MEC', '/gimballed_mass_properties_v352/states/mid/engine/m_kg', 'kg', tag='DERIVED')
+    # envelope from the assembly manifest
     lo, hi, n = manifest_extent(ctx)
     elo, ehi, en = manifest_extent(ctx, group='engine')
     flo, fhi, fn = manifest_extent(ctx, group='fixed')
@@ -3913,9 +2781,12 @@ def prepare(ctx, a):
     # BOM
     bom = load_bom(ctx)
     D['bom'] = bom
+    b = ctx.src('BOM').data or {}
+    D['gse'] = [BomRow(ctx, 'gse_tool_lines', i, l) for i, l in enumerate(b.get('gse_tool_lines', []))]
+    D['hw'] = [HwRow(ctx, i, l) for i, l in enumerate((b.get('hardware') or {}).get('lines', []))]
     by = {}
-    for r in bom:
-        if r.kind == 'lines' and r.pn not in by:
+    for r in bom + D['gse'] + D['hw']:
+        if r.pn not in by:
             by[r.pn] = r
     D['bom_by_pn'] = by
     order, fams = [], {}
@@ -3941,16 +2812,17 @@ def prepare(ctx, a):
     lock = [r for r in bom if r.kind == 'lines' and r.l.get('groups') == 'lock']
     D['bom_lock_tv'] = ctx.d(sum(r.line_mass for r in lock if r.line_mass is not None), 'kg',
                              'Σ qty × unit mass over the transport-lock lines (group lock)', [r.mass_tv for r in lock])
-    bs = ctx.raw('BOM', '/mass_sum_kg', default=None)
+    hws = sum(r.line_mass for r in D['hw'] if r.line_mass is not None)
+    D['hw_sum_tv'] = ctx.d(hws, 'kg', 'Σ qty × unit mass over the BOM hardware lines (CALC)', [r.mass_tv for r in D['hw']], ev='CALC',
+                           note='lines without a mass: ' + ', '.join(r.pn for r in D['hw'] if r.line_mass is None))
+    D['bom_mass_sum'] = ctx.v('BOM', '/mass_sum_kg', 'kg', tag='DERIVED', tag_ptr='/mass_sum_note')
+    bs = D['bom_mass_sum'].value
     if bs is not None and abs(bs - tot) > 1e-3:
-        ctx.issue('WARN', f'BOM mass_sum_kg {bs} differs from the generator sum {tot:.4f} (lock lines {D["bom_lock_tv"].value:.4f} kg; listed as C-13)')
-    mw = D['mass_wet_all'].value
-    if mw is not None and abs(mw - tot) > 0.01:
-        ctx.issue('INFO', f'massprops wet total {mw} vs BOM line sum {tot:.4f} (different scopes possible)')
-    D['cost_tv'] = TV(ctx, None, 'EUR', 'MISSING', 'BOM /currency: prices not given, every line TO-QUOTE unless dated', 'BOM', '/currency',
+        ctx.issue('INFO', f'BOM mass_sum_kg {bs} vs the generator sum {tot:.4f} (lock lines {D["bom_lock_tv"].value:.4f} kg)')
+    D['cost_tv'] = TV(ctx, None, 'EUR', 'MISSING', 'BOM unit_price: every line TO-QUOTE (delivery Sonderborg, Denmark, DK-6400)', 'BOM', '/lines/*/unit_price',
                       note='total not summed: no line carries a DK-6400 quotation', status='TO-QUOTE (not summed)')
     ctx.unknowns.append({'what': 'Total cost (every BOM line TO-QUOTE, delivery Sønderborg DK-6400)', 'status': 'MISSING', 'tid': D['cost_tv'].tid})
-    # material usage
+    # material usage (BOM lines; hardware listed separately)
     mu = {}
     for r in lines:
         k = r.l.get('material_name') or r.l.get('material') or 'unspecified'
@@ -3960,39 +2832,3893 @@ def prepare(ctx, a):
                           'o2_tv': ctx.d(sum(1 for r in v if str(r.l.get('oxygen_clean')) == 'True'), '', f'count of oxygen-clean lines, material "{k}"', [r.row_tv for r in v])}
                       for k, v in mu.items()}
     D['cause_idx'] = {c.get('cause'): i for i, c in enumerate(ctx.raw('ELE', '/abort_matrix/causes', default=[]) or [])}
-    # exclusions from the CAD mass (not zero: carried at their source value or UNKNOWN)
-    cl = D['cl']
+    # items outside the CAD mass (not zero: carried at their source value or UNKNOWN); v2.1 records labelled
+    v21 = 'mechanical.json v2.1 record (not re-derived for v3.5.2: not_re_derived_v352)'
     ex, ep, er = [], [], []
-    tank = ctx.v('MEC', '/fixed_module/tank/tube_mass_kg', 'kg', tag='DERIVED')
-    ex.append(['N2O tank: tube only (bulkheads, valves, fittings not designed)', num_cell(tank, '.3f'), tvtxt(ctx.v('MEC', '/fixed_module/tank/concept', tag='DERIVED'), 160)])
+    tank = ctx.v('MEC', '/fixed_module/tank/tube_mass_kg', 'kg', tag='DERIVED', note=v21)
+    ex.append(['N2O tank: tube only (bulkheads, valves, fittings not designed)', num_cell(tank, '.3f'),
+               cat(tvtxt(ctx.v('MEC', '/fixed_module/tank/concept', tag='DERIVED', note=v21), 160), f'<div class="small">{esc(v21)}</div>')])
     ep.append(('N2O tank, tube only', tank.value))
     er.append(tank.tid)
     prng = ctx.v('BOM', '/provision_mass_estimate_kg/estimate_range_kg', 'kg', tag='ASSUMED')
-    ex.append(['Head-end bleed provision, excluding valves (BOM ENG-BL lines)', num_cell(prng, '.3f'), tvtxt(ctx.v('BOM', '/provision_mass_estimate_kg/note', tag='ASSUMED'), 200)])
+    ex.append(['Head-end bleed provision, excluding valves (BOM provision lines)', num_cell(prng, '.3f'),
+               tvtxt(ctx.v('BOM', '/provision_mass_estimate_kg/note', tag='ASSUMED'), 200)])
     ep.append(('Bleed provision excl. valves', tuple(prng.value) if isinstance(prng.value, list) else prng.value))
     er.append(prng.tid)
-    vdec = cl.item(164, 7)
-    vn = rx_text(ctx, vdec, r'(\d+) x ([\d.]+) kg', '', tag='LEAD', group=1)
-    vm = rx_text(ctx, vdec, r'(\d+) x ([\d.]+) kg', 'kg', tag='LEAD', group=2)
-    vt = ctx.d(vn.value * vm.value if (vn.value and vm.value) else None, 'kg', 'n valves × mass per valve (MASS RISK, not baseline)', [vn, vm], ev='TO-VERIFY')
-    ex.append(['Bleed valves (MASS RISK, not baseline)', num_cell(vt, '.2f'), tvtxt(vdec, 260)])
-    ep.append(('Bleed valves, MASS RISK', vt.value))
-    er.append(vt.tid)
-    nm = ctx.v('MEC', '/fixed_module/not_modelled', tag='MISSING')
-    nmm = ctx.missing('mass of the items listed as not modelled in mechanical.json v2 (CAD v3.3 basis)', 'MISSING')
-    ex.append(['Other items not modelled (mechanical.json v2 list)', Cell(nmm.h(), [nmm]), tvtxt(nm, 300)])
+    nm = ctx.v('MEC', '/fixed_module/not_modelled', tag='MISSING', note=v21)
+    nmm = ctx.missing('mass of the items listed as not modelled in mechanical.json (v2.1 record)', 'MISSING')
+    ex.append(['Other items not modelled (mechanical.json list)', Cell(nmm.h(), [nmm]), tvtxt(nm, 300)])
     ep.append(('Other items not modelled', None))
     er.append(nmm.tid)
     ecu = ctx.v('ELE', '/ecu/mass_kg', 'kg')
     ecur = ctx.v('ELE', '/ecu/mass_kg/range', 'kg', tag='ASSUMED')
-    ex.append(['Engine ECU (on the fixed structure, not in CAD)', cat(ecu.h('.2f'), ' (', ecur.h('.2f', pill=False), ')'), tvtxt(ctx.v('ELE', '/ecu/architecture'), 160)])
+    ex.append(['Engine ECU (on the fixed structure, not in CAD)', cat(ecu.h('.2f'), ' (', ecur.h('.2f', pill=False), ')'),
+               tvtxt(ctx.v('ELE', '/ecu/architecture'), 160)])
     ep.append(('Engine ECU', tuple(ecur.value) if isinstance(ecur.value, list) else ecu.value))
     er.append(ecu.tid)
     n2o = ctx.v('CMB', '/decisions/N2O_load_and_tank/v/m_N2O_kg', 'kg', tag_ptr='/decisions/N2O_load_and_tank')
     ex.append(['N2O load (propellant)', num_cell(n2o, '.2f'), tvtxt(ctx.v('CMB', '/decisions/N2O_load_and_tank/tag', tag='LEAD'), 160)])
     er.append(n2o.tid)
     D['exclusions'], D['excl_plot'], D['excl_refs'] = ex, ep, er
+    # inputs still pending at this build (from the decision log, never assumed; lead update 2026-10-21 12:52Z)
+    pend = []
+    if not D['ele']['promo']:
+        pend.append(('Electronics v2.12: firmware v2.12 and the electronics.json v4.1 candidate are PENDING REVIEW (REV-ELEC-4); interfaces/electronics.json v4 '
+                     'stays the source of record', cl.clip(264, 1, 'interfaces/electronics.json stays v4', 'as PENDING REVIEW.')))
+        pend.append(('REV-ELEC-4 verdict (PENDING; never assumed)', cl.clip(264, 8, 'v4.1 is promoted only after its verdict', 'its verdict.')))
+    else:
+        n = D['ele']['line']
+        pend.append((f'Electronics v2.13 delta (the E4-01 fix) and its review: QUEUED, NOT STARTED; the founder says when ({n} (8)). Until it is reviewed, '
+                     f'option (b) is not used for any start with ignition ({n} (6))', D['ele']['q8_tv']))
+    pend.append(('T4 re-run: the length of the shorter T4 relight (OPEN, 261 (2) and 264 (5))', cl.clip(264, 5, 'Combustion sets the length', "soak-back.")))
+    D['pending'] = pend
+    mx_negatives(ctx, D)
+    D['pending_inputs'] = [p[0] for p in pend]
+    D['pending_n'] = ctx.d(len(pend), '', 'count of inputs pending at this build (§1.4)', [p[1] for p in pend], ev='PENDING')
     return D
+
+
+# ---------------------------------------------------------------------------------------------
+# sections 1-3 (v0.3.0): identification, key performance, throttle and TVC
+# ---------------------------------------------------------------------------------------------
+EV_DOC = [('SIM', 'model run (CFD, FE, Monte Carlo, quasi-1D, CEA, SIL)'), ('CALC', 'hand calculation on model loads or standard geometry'),
+          ('DERIVED', 'computed from other traced values (by a specialist, a reviewer or this generator)'),
+          ('ASSUMED', 'an input adopted without a measurement or a source'), ('DATASHEET', 'maker data'), ('LITERATURE', 'published data, cited'),
+          ('AS RECALLED', 'a value quoted from memory by its author; to be sourced'), ('TO-VERIFY', 'needed from, or to be confirmed by, the named owner'),
+          ('MISSING', 'not available; never estimated by the generator'), ('ESTIMATE', 'an estimate named as such by its source'),
+          ('DECIDED', 'a design value, decided limit or requirement: chosen, not measured or computed; where the source gives a basis, that basis '
+                      'and its tag are shown beside it (source class: design value, lead decision line N, or requirement)'),
+          ('REF', 'a reference or provenance text (a source, a review id, a "no number changed" statement): it carries no value and no pill')]
+EV_STATUS_DOC = [('PENDING', 'an input that has not landed (never assumed)'), ('SUPERSEDED', 'withdrawn by a newer decision, shown only as history'),
+                 ('TO-DEFINE', 'not yet defined by its owner (the value is MISSING)')]
+
+
+def src_tv(ctx, sid):
+    s = ctx.src(sid)
+    return TV(ctx, f'{s.version or "–"} · sha256/16 {s.sha16 or "MISSING"}', '', 'DERIVED', f'generator: version and sha256/16 of source {sid} at this build',
+              sid, '(file)', note=os.path.basename(s.path))
+
+
+def plot_pressure_ladder(a, items):
+    """items: [(label, bar value or (lo, hi), colour, note[, unit])] horizontal ladder on a log scale; each label carries the unit of its
+    source ('bar abs' where the source states it, else 'bar'; REV-DS-1 D1-08)."""
+    plt = mpl_setup()
+    n = len(items)
+    fig, ax = plt.subplots(figsize=(6.9, 0.2 * n + 0.75))
+    for i, it in enumerate(items):
+        lab, v, c, note = it[:4]
+        un = it[4] if len(it) > 4 else 'bar'
+        y = n - 1 - i
+        if v is None:
+            ax.text(1.05, y, f'{lab}: MISSING', va='center', fontsize=6, color=C_BAD)
+            continue
+        if isinstance(v, (tuple, list)):
+            ax.barh(y, v[1] - v[0], left=v[0], height=0.6, color=c, alpha=0.85)
+            ax.text(v[1] * 1.03, y, f'{v[0]:g}–{v[1]:g} {un}  {note}', va='center', fontsize=5.8)
+        else:
+            ax.barh(y, v, height=0.6, color=c, alpha=0.85)
+            ax.text(v * 1.03, y, f'{v:g} {un}  {note}', va='center', fontsize=5.8)
+    ax.set_yticks(range(n))
+    ax.set_yticklabels([it[0] for it in items][::-1], fontsize=6.2)
+    ax.set_xscale('log')
+    ax.set_xlim(1, 1200)
+    ax.set_xlabel('pressure [bar] (log scale; bar abs where the source states it)')
+    ax.grid(axis='y', visible=False)
+    fig.tight_layout()
+    return save_plot(fig, a, 'plot_pressure_ladder')
+
+
+def plot_fa1_spectrum(a, T, series, fa1s, bands):
+    plt = mpl_setup()
+    fig, ax = plt.subplots(figsize=(6.9, 2.9))
+    for lab, ys, c, ls in series:
+        ax.plot(T, ys, color=c, lw=1.0, ls=ls, label=lab)
+    if fa1s is not None:
+        ax.axhline(fa1s, color=C_BAD, lw=0.9, ls='--', label=f'FA1S {fa1s:g} bar abs (design case)')
+    for (t0, t1, v) in bands:
+        if v is not None:
+            ax.plot([t0, t1], [v, v], color=C_OK, lw=1.6, solid_capstyle='butt')
+    ax.plot([], [], color=C_OK, lw=1.6, label='decided band values (LEAD 230 (2))')
+    ax.set_xscale('log')
+    ax.set_xlabel('SDOF period T [ms]')
+    ax.set_ylabel('equivalent static pressure [bar abs]')
+    ax.set_xlim(0.02, 50)
+    ax.legend(fontsize=6, loc='lower center', ncol=2)
+    fig.tight_layout()
+    return save_plot(fig, a, 'plot_fa1_spectrum')
+
+
+def plot_throttle(a, pts):
+    """pts: list of dicts fraction, F, Pc_bar, Isp, OF."""
+    plt = mpl_setup()
+    fig, axs = plt.subplots(1, 3, figsize=(6.9, 2.2))
+    fr = [p['fraction'] * 100 for p in pts]
+    axs[0].plot(fr, [p['F'] for p in pts], 'o-', color=C_ACC, ms=3, lw=1)
+    axs[0].set_xlabel('throttle [%]')
+    axs[0].set_ylabel('thrust [N] (SL)')
+    axs[1].plot([p['F'] for p in pts], [p['Pc_bar'] for p in pts], 'o-', color=C_ACC2, ms=3, lw=1)
+    axs[1].set_xlabel('thrust [N]')
+    axs[1].set_ylabel('Pc [bar abs]')
+    axs[2].plot([p['F'] for p in pts], [p['Isp'] for p in pts], 'o-', color=C_WARN, ms=3, lw=1)
+    axs[2].set_xlabel('thrust [N]')
+    axs[2].set_ylabel('Isp SL [s]')
+    for ax in axs:
+        ax.tick_params(labelsize=6)
+    fig.tight_layout()
+    return save_plot(fig, a, 'plot_throttle')
+
+
+def sec_identification(ctx, doc, a, D):
+    o = [doc.h(1, '1 Identification')]
+    cl = D['cl']
+    o.append(note_box(f'<b class="stmt">{esc(PAGE_STATEMENT)}.</b> This datasheet is generated from the engine programme hub by '
+                      f'gen/{GEN_NAME} {GEN_VERSION}. Every value in a data column is a traced value (T###, Appendix A) with its evidence class. '
+                      'No value is MEASURED: the engine has not been built or fired. Missing data are shown as MISSING, TO-DEFINE or PENDING and never '
+                      'estimated here.', 'warn'))
+    o.append(doc.h(2, '1.1 Document and configuration'))
+    cfg = [('CAD set (FINAL v3.5.2)', 'SET'), ('CAD manifest', 'CADMAN'), ('Assembly GLB (renders)', 'GLB'), ('Bill of materials', 'BOM'),
+           ('Mass properties', 'MP'), ('Combustion interface', 'CMB'), ('Combustion datasheet inputs', 'DSIC'), ('Mechanical interface', 'MEC'),
+           ('Mechanical 04-fea/v352 manifest', 'MMAN'), ('GNC interface', 'GNC'), ('GNC datasheet inputs', 'DSIG'), ('Electronics interface', 'ELE'),
+           ('FEA3D v3.5.2 report', 'F3D'), ('Margin matrix of record (rows v8)', 'MMX'), ('Decision log', 'CL'), ('Review register', 'SUP'),
+           ('Requirements', 'REQ'),
+           ('Airframe ICD (out of the finish scope, CHANGELOG 222; no value is taken from it)', 'ICD')]
+    rows = [[lab, Cell(f'<span class="mono small">{esc(src_tv(ctx, sid).value)}</span>{src_tv(ctx, sid).ref()}', [src_tv(ctx, sid)])] for lab, sid in cfg]
+    rows.insert(1, ['CAD set status', tvtxt(ctx.v('SET', '/status', tag='DESIGN'), 520)])
+    o.append(dtable(['Item', 'Version · sha256/16 (this build)'], rows, widths=['32%', '68%'],
+                    caption=f'{esc(DOC_ID)} {esc(a.rev)}, CAD {esc(a.cad_version)}. Full source list with paths in §15.2.'))
+    o.append(doc.h(2, '1.2 What changed since rev0'))
+    r0 = 'REV0S'
+    rows = []
+    for lab, sid in (('CAD', None), ('Combustion interface', 'CMB'), ('Mechanical interface', 'MEC'), ('GNC interface', 'GNC'),
+                     ('Electronics interface', 'ELE'), ('Decision log', 'CL')):
+        if sid is None:
+            old = ctx.v(r0, '/cad_version', tag='DERIVED', note='rev0 sources.json')
+            new = TV(ctx, a.cad_version, '', 'DESIGN', 'CAD version of this build (render manifest and CAD folder)', 'RMAN', '/cad_version')
+        else:
+            old = ctx.v(r0, f'/sources/{sid}/version', tag='DERIVED', note='rev0 sources.json')
+            new = TV(ctx, ctx.src(sid).version, '', 'DERIVED', f'version of source {sid} at this build', sid, '(file version)')
+        rows.append([lab, num_cell(old), num_cell(new)])
+    rows.append(['Parts changed vs v3.5.1', Cell('–', []), tvtxt(ctx.v('SET', '/changed_parts_vs_v3.5.1', tag='DESIGN'))])
+    rows.append(['Mass change and the GNC trigger', Cell('–', []), tvtxt(ctx.v('MEC', '/gimballed_mass_properties_v352/delta_vs_v3.5.1/gnc_trigger/verdict', tag='DERIVED'), 500)])
+    e11 = cl.item(258, 1)
+    w0 = rx_text(ctx, e11, r'rev0 datasheet row 8 window (\d+)-(\d+) is withdrawn', 'N m/rad', tag='DERIVED', group=2,
+                 note='upper end of the rev0 window (DERIVED on CAD v3.5.1, withdrawn by line 258 (1))')
+    rows.append(['GNC row 8: servo output stiffness K_s (filed under ENG-11): upper end of the design-to window',
+                 Cell(f'{w0.h(".0f")} <span class="ev ev-status">SUPERSEDED</span>', [w0]), eng11_cell(ctx, D)])
+    rows.append(['Case-TC limits', Cell('–', []), tvtxt(cl.part(257, '423.15'), 500)])
+    rows.append(['3D FEA of the assembled engine', Cell('–', []), tvtxt(md_find(ctx, 'F3D', 'REPORT FEA3D v3.5.2', {0: 'Status'}, 1, ev='DERIVED',
+                                                                                 tag_raw='FEA3D-2 report header'), 300)])
+    o.append(dtable(['Item', 'rev0 (2026-10-13)', 'rev1 (this build)'], rows, widths=['24%', '24%', '52%'], cls='tight',
+                    caption='Rev0 values from the rev0 sources.json (07-datasheet/out/sources.json, kept); rev1 values from this build.'))
+    o.append(doc.h(2, '1.3 Evidence classes'))
+    o.append(table(['Class', 'Meaning'], [[(ev_pill(k) if k != 'REF' else '<b>REF</b>'), esc(v)] for k, v in EV_DOC]
+                   + [[f'<span class="ev ev-status">{esc(k)}</span>', esc(v)] for k, v in EV_STATUS_DOC], cls='dt tight', widths=['16%', '84%']))
+    o.append('<p class="small">Every number carries one of the ten evidence tags (SIM, CALC, DERIVED, ASSUMED, DATASHEET, LITERATURE, AS RECALLED, '
+             'TO-VERIFY, MISSING, ESTIMATE) or the source-class pill DECIDED. The tag comes from the source tag or the quoted text; where neither '
+             'gives one, the trace names the class set at the call site. This generator sets no default class: a value without a class is counted '
+             'as UNTAGGED in qa_report. A lead line that quotes a SIM, DERIVED or CALC number keeps that number\'s tag; DECIDED applies only to the '
+             'chosen value itself. PENDING, SUPERSEDED and TO-DEFINE are statuses shown beside the tag. A review verdict, a matching number or a '
+             'passing check is not physical approval.</p>')
+    o.append(doc.h(2, '1.4 At a glance: found negatives, open rulings and pending inputs'))
+    nb = D.get('neg_by_class', {})
+    o.append(note_box(f'<b>Found negatives.</b> {D["neg_total"].h()} margin-matrix cells are negative ('
+                      + ', '.join(f'{esc(k)} {v.h(pill=False)}' for k, v in sorted(nb.items())) + '); every one is listed with its class and closure in §9.3. '
+                      'Named: TC-04 (BT), the TC-01 J-FWD seat-line P+Q (DC; the R2-B select fit closes it only in the CALC band model), the J-FWD screw LCF '
+                      '(C6 OPEN: single-use screws), the screw head fillet from zero (§9.4). The mesh convergence of the seat-line P+Q is not shown (§9.1.1).', 'neg'))
+    rows = []
+    promo = D.get('ele', {}).get('promo')
+    for lab, tv in D['pending']:
+        rows.append([esc(lab), tvtxt(tv) if promo else tvtxt(tv, 600)])
+    o.append(dtable(['Pending input', 'Status (quoted)'], rows, widths=['34%', '66%'], cls='tight',
+                    caption=('Inputs still pending at this build, each quoted in full (REV-DS-1 D1-06). Where a value waits for one of them it is marked '
+                             f'at the value: SUSPENDED UNTIL v2.13 ({D["ele"]["line"]} (6)) for the option (b) values; OPEN for the T4 relight length (§7.9).'
+                             if promo else 'Inputs still pending at this build; their values are shown as PENDING (REVIEW) where used.')))
+    o.append(doc.h(2, '1.5 Recent lead decisions'))
+    decs = cl.decisions('lead', last=a.decisions)
+    rows = [[f'L{d["n"]}', esc(d.get('date') or ''), tvtxt(cl.whole(d['n'], maxlen=900))] for d in decs]
+    o.append(dtable(['Line', 'Date', 'Decision text (first 900 characters; full line in the CHANGELOG)'], rows, label_cols=2,
+                    widths=['6%', '10%', '84%'], cls='tight', caption=f'The last {len(decs)} lead decision lines of the CHANGELOG ({esc(src_label(ctx, "CL"))}).'))
+    return '\n'.join(o)
+
+
+def sec_performance(ctx, doc, a, D):
+    o = [doc.h(1, '2 Key performance')]
+    o.append(doc.h(2, '2.1 Combustion datasheet inputs'))
+    allr = md_rows_all(ctx.src('DSIC').text or '', None)
+    rows = []
+    for ln, r in allr[1:]:
+        if len(r) < 5:
+            continue
+        item = re.sub(r'\*\*', '', r[0]).strip()
+        tag = r[3].strip()
+        ev = normalise_tag(tag.split(';')[0].split('(')[0])
+        c2t = md_cell_ln(ctx, 'DSIC', ln, r, 2, ev, tag_raw=tag)
+        c2 = tvtxt(c2t, 700)
+        if item == 'Pc transducer proof' and isinstance(c2t.value, str) and 'P_torch 070BG' in c2t.value:
+            # combustion-side P_torch text vs lead 264 (4) (lead 2026-10-21 13:47Z, REV-DS-1 D1-04, C-14)
+            p4 = D['cl'].clip(264, 4, 'P_torch (J901', 'same part as P_mid (ENG-BL-08) and C1.')
+            c2 = cat(c2, gnote(f'P_torch: lead 264 (4){p4.ref()} selects the C1-family Kulite XTL-190SM-2000A; this 070BG text is superseded; the threshold '
+                               're-base is OPEN: contradiction register C-14', [p4]))
+            D.setdefault('c14_sides', []).insert(0, ('combustion datasheet inputs, row "Pc transducer proof" (condition / basis)', c2t))
+        rows.append([Cell(f'<b>{esc(item)}</b>', []), tvtxt(md_cell_ln(ctx, 'DSIC', ln, r, 1, ev, tag_raw=tag)),
+                     c2, tvtxt(md_cell_ln(ctx, 'DSIC', ln, r, 4, 'REF', tag_raw='source column'), 300)])
+    o.append(dtable(['Item', 'Value', 'Condition / basis', 'Source'], rows, cls='tight', widths=['13%', '37%', '34%', '16%'],
+                    caption=f'Every row of 02-combustion/DATASHEET-INPUTS-COMBUSTION.md ({esc(src_label(ctx, "DSIC"))}), quoted; the pill is the row\'s tag.'))
+    notes = [ln for ln in (ctx.src('DSIC').text or '').splitlines() if ln.startswith('- ')]
+    L = (ctx.src('DSIC').text or '').splitlines()
+    nrows = [[tvtxt(ctx.t('DSIC', f'notes line {L.index(n) + 1}', n[2:].strip(), 'DESIGN', tag_raw='datasheet inputs note'), 900)] for n in notes]
+    o.append(dtable(['Notes of the combustion datasheet inputs (quoted)'], nrows, label_cols=0, widths=['100%'], cls='tight'))
+    o.append(doc.h(2, '2.2 Throttle points (20 C tank, initial port)'))
+    pts = ctx.raw('CMB', '/operating_points/throttle_points_20C_initial_port', default=[]) or []
+    rows, plot_pts, refs = [], [], []
+    for i, p in enumerate(pts):
+        b = f'/operating_points/throttle_points_20C_initial_port/{i}'
+
+        def g(k, unit='', conv=None):
+            return ctx.v('CMB', f'{b}/{k}', unit, conv=conv, tag='SIM', tag_ptr='/operating_points/basis')
+        F, Pc, OF, Isp = g('F_N', 'N'), g('Pc_Pa', 'bar', (1e-5, 0, 'Pa to bar')), g('OF'), g('Isp_SL_s', 's')
+        mo, mf, lift, dpp = g('mdot_ox_kg_s', 'g/s', (1000, 0, 'kg/s to g/s')), g('mdot_fuel_kg_s', 'g/s', (1000, 0, 'kg/s to g/s')), \
+            g('pintle_lift_m', 'mm', (1000, 0, 'm to mm')), g('dP_inj_over_Pc')
+        fr = g('fraction')
+        rows.append([num_cell(fr, '.3f'), num_cell(F, '.1f'), num_cell(Pc, '.2f'), num_cell(OF, '.2f'), num_cell(Isp, '.1f'),
+                     num_cell(mo, '.1f'), num_cell(mf, '.2f'), num_cell(lift, '.3f'), num_cell(dpp, '.2f')])
+        refs += [F.tid, Pc.tid, Isp.tid]
+        if None not in (F.value, Pc.value, Isp.value, fr.value):
+            plot_pts.append({'fraction': fr.value, 'F': F.value, 'Pc_bar': Pc.value, 'Isp': Isp.value})
+    o.append(dtable(['Fraction', 'Thrust', 'Pc', 'O/F', 'Isp SL', 'N2O flow', 'ABS flow', 'Pintle lift', 'dP_inj / Pc'], rows, label_cols=0, cls='tight',
+                    caption=f'combustion.json /operating_points/throttle_points_20C_initial_port; basis: {esc(clipw(str(ctx.raw("CMB", "/operating_points/basis", default="")), 300))}'))
+    if plot_pts:
+        o.append(fig_html(plot_throttle(a, plot_pts), 'Throttle points: thrust vs throttle fraction, chamber pressure and sea-level Isp vs thrust (SIM).', refs, 'wide'))
+    o.append(doc.h(2, '2.3 Pressure ladder'))
+    lim = '/operating_points/pressure_limits'
+    cap = ctx.v('CMB', lim + '/normal_cap_Pa/v', 'bar', conv=(1e-5, 0, 'Pa to bar'), tag_ptr=lim + '/normal_cap_Pa')
+    ab = ctx.v('CMB', lim + '/abort_Pa/v', 'bar', conv=(1e-5, 0, 'Pa to bar'), tag_ptr=lim + '/abort_Pa')
+    meop = ctx.v('CMB', lim + '/chamber_MEOP_Pa/v', 'bar', conv=(1e-5, 0, 'Pa to bar'), tag_ptr=lim + '/chamber_MEOP_Pa')
+    proof = ctx.v('CMB', lim + '/proof_Pa/v', 'bar', conv=(1e-5, 0, 'Pa to bar'), tag_ptr=lim + '/proof_Pa')
+    mb = ctx.v('CMB', '/meop_basis_v2p4/v/basis_bar', 'bar', tag_ptr='/meop_basis_v2p4')
+    bm = '/fa1_spectra_damped_v2p4b/v/head_all_band_maxima_bar_abs'
+    bands = [(ctx.v('CMB', f'{bm}/{k}/zeta0', 'bar', tag='SIM', tag_ptr='/fa1_spectra_damped_v2p4b', note='undamped (zeta 0) band maximum, head, all cases'))
+             for k in ('T_le_0p1ms', 'T_0p1_to_1ms', 'T_1_to_20ms', 'T_20_to_50ms')]
+    for b_ in bands:
+        b_.unit = 'bar abs'  # the source key is head_all_band_maxima_bar_abs (REV-DS-1 D1-08)
+    fa1s = rx_text(ctx, ctx.v('CMB', '/fa1_p_torch_v2p4c/v/design_case', tag_ptr='/fa1_p_torch_v2p4c'), r'FA1S ([\d.]+) bar abs', 'bar abs')
+    # 166.14 bar abs is DERIVED (1.1 x FA1S); the LEAD class of DSIC row 21 belongs to the rule, not to the number (lead 2026-10-21 13:24Z)
+    dsic21 = md_find(ctx, 'DSIC', None, {0: 'Pc transducer proof'}, 1, ev='LEAD', tag_raw='LEAD (249 (4), 230 (2))')
+    fproof = rx_text(ctx, dsic21, r'>= ([\d.]+) bar abs', 'bar abs', tag='DERIVED',
+                     note='1.1 x FA1S; the rule is the lead\'s (249 (4)), the number is DERIVED')
+    fk = rx_text(ctx, dsic21, r'\(([\d.]+) x FA1S [\d.]+\)', '', tag='LEAD', note='factor of the rule (249 (4))')
+    req256 = D['cl'].clip(256, 5, 'R4-12 (070BG proof rating', 'state saturation and recovery)')
+    req264 = D['cl'].clip(264, 4, 'P_torch (J901', 'same part as P_mid (ENG-BL-08) and C1.')
+    c1 = rx_text(ctx, md_find(ctx, 'DSIC', None, {0: 'Pc transducer proof'}, 1, ev='DATASHEET', tag_raw='DATASHEET (C1 rating)'), r'XTL-190SM-2000A pick, ([\d.]+) bar abs', 'bar abs', tag='DATASHEET')
+    items = [('Software Pc cap (normal)', cap.value, C_ACC, cap.ev), ('ECU over-pressure abort', ab.value, C_WARN, ab.ev),
+             ('MEOP basis (late light, 24 C interlock)', mb.value, C_GREY, mb.ev), ('Chamber MEOP', meop.value, C_BAD, meop.ev),
+             ('Proof pressure', proof.value, C_BAD, proof.ev),
+             ('FA-1 band, T <= 0.1 ms', bands[0].value, C_ACC2, bands[0].ev), ('FA-1 band, 0.1-1 ms', bands[1].value, C_ACC2, bands[1].ev),
+             ('FA-1 band, 1-20 ms', bands[2].value, C_ACC2, bands[2].ev), ('FA1S design case (gas-filled passages)', fa1s.value, C_BAD, fa1s.ev),
+             ('Transducer proof (minimum)', fproof.value, C_OK, fproof.ev), ('C1 Kulite rating (proof, maker 1.5x rule)', c1.value, C_OK, c1.ev)]
+    NS = 'not stated in the source (bar)'
+    bas = {id(cap): f'{NS}; combustion.json pressure_limits in Pa', id(ab): f'{NS}; combustion.json pressure_limits in Pa',
+           id(mb): f'{NS}; combustion.json meop_basis_v2p4 basis_bar', id(meop): f'{NS}; combustion.json pressure_limits in Pa',
+           id(proof): f'{NS}; combustion.json pressure_limits in Pa'}
+    for b_ in bands:
+        bas[id(b_)] = 'bar abs: combustion.json key head_all_band_maxima_bar_abs'
+    bas[id(fa1s)] = 'bar abs: combustion.json fa1_p_torch_v2p4c ("FA1S ... bar abs")'
+    bas[id(fproof)] = 'bar abs: DATASHEET-INPUTS-COMBUSTION.md row "Pc transducer proof" (">= ... bar abs")'
+    bas[id(c1)] = 'bar abs: DATASHEET-INPUTS-COMBUSTION.md row "Pc transducer proof" (C1 rating "... bar abs")'
+    tvl = [cap, ab, mb, meop, proof, bands[0], bands[1], bands[2], fa1s, fproof, c1]
+    rows = [[lab, num_cell(tv), Cell(f'<span class="small">{esc(bas[id(tv)])}</span>', [tv])] for lab, tv in zip([i[0] for i in items], tvl)]
+    items = [it + (tv.unit or 'bar',) for it, tv in zip(items, tvl)]
+    # the transducer-proof row carries its derivation and the decisions that require it (lead 2026-10-21 13:24Z)
+    k_fp = [i[0] for i in items].index('Transducer proof (minimum)')
+    rows[k_fp][1] = Cell(f'{fproof.h()} = {fk.h("g", unit=False)} × FA1S {fa1s.h()}'
+                         f'<div class="small">Required of the flight Pc transducer and of P_torch: CHANGELOG 256 (5), R4-12 {req256.pill()}{req256.ref()}, '
+                         f'and 264 (4) {req264.pill()}{req264.ref()}</div>', [fproof, fk, fa1s, req256, req264])
+    o.append(dtable(['Pressure level', 'Value', 'Basis of the unit (bar or bar abs)'], rows, widths=['40%', '34%', '26%'], cls='tight',
+                    caption='Each value at the precision of its source, with the unit its source states: bar abs where the source says so; '
+                            'otherwise bar, with "not stated in the source" (REV-DS-1 D1-08).'))
+    o.append(fig_html(plot_pressure_ladder(a, [(i[0], i[1], i[2], i[3], i[4]) for i in items]),
+                      'Pressure ladder (bar, log scale; bar abs where the source states it, see the table), each level with its class: limits (DECIDED, lead decisions), the MEOP basis (SIM), FA-1 '
+                      'equivalent-static band maxima (SIM on ASSUMED inputs; the decided band values of line 230 (2) are rounded up from these), the FA1S '
+                      'design case (DERIVED) and the transducer ratings.',
+                      [t.tid for t in (cap, ab, mb, meop, proof, fa1s, fproof, c1)] + [b.tid for b in bands], 'wide'))
+    o.append(doc.h(2, '2.4 FA-1 hard start: equivalent static pressure spectrum'))
+    sp = ctx.src('FA1SP')
+    T, cols = [], {}
+    if sp.text:
+        lines = [l for l in sp.text.splitlines() if l.strip()]
+        hdr = lines[0].split(',')
+        want = ['head|all|zeta0', 'head|all|zeta0.02', 'head|all|zeta0.05', 'head|baseline|zeta0']
+        idxs = {w: hdr.index(w) for w in want if w in hdr}
+        for l in lines[1:]:
+            c = l.split(',')
+            T.append(float(c[0]))
+            for w, j in idxs.items():
+                cols.setdefault(w, []).append(float(c[j]))
+    sptv = TV(ctx, f'{len(T)} periods, columns head|all|zeta0, zeta0.02, zeta0.05, head|baseline|zeta0', '', 'SIM', 'SIM histories (ASSUMED inputs); DERIVED spectra',
+              'FA1SP', '(csv columns period_ms, head|all|zeta*, head|baseline|zeta0)', note='plotted as published')
+    series = [('head, all cases, ζ 0', cols.get('head|all|zeta0', []), C_ACC, '-'), ('head, all cases, ζ 0.02', cols.get('head|all|zeta0.02', []), C_ACC2, '-'),
+              ('head, all cases, ζ 0.05', cols.get('head|all|zeta0.05', []), C_GREY, '-'), ('head, baseline cases, ζ 0', cols.get('head|baseline|zeta0', []), C_WARN, ':')]
+    series = [s for s in series if s[1]]
+    bandseg = [(0.02, 0.1, 94), (0.1, 1, 121), (1, 20, 147), (20, 50, 94)]
+    dec = rx_text(ctx, md_find(ctx, 'DSIC', None, {0: 'FA-1 hard start: structural load'}, 2, ev='LEAD', tag_raw='LEAD (230 (2))'),
+                  r'band values ([\d]+) / ([\d]+) / ([\d]+) / ([\d]+) bar abs DECIDED', 'bar', tag='LEAD', group=1)
+    dvals = []
+    m = re.search(r'band values ([\d]+) / ([\d]+) / ([\d]+) / ([\d]+) bar abs DECIDED', str(md_find(ctx, 'DSIC', None, {0: 'FA-1 hard start: structural load'}, 2,
+                                                                                                    ev='LEAD', tag_raw='LEAD (230 (2))').value))
+    if m:
+        dvals = [float(x) for x in m.groups()]
+        bandseg = [(s[0], s[1], dvals[i]) for i, s in enumerate(bandseg)]
+    else:
+        bandseg = [(s[0], s[1], None) for s in bandseg]
+    if T:
+        o.append(fig_html(plot_fa1_spectrum(a, T, series, fa1s.value, bandseg),
+                          f'FA-1 equivalent static pressure at the head vs SDOF period ({len(T)} periods, {min(T):g}-{max(T):g} ms, counted from the file), '
+                          f'undamped and damped (damping ASSUMED); red: the FA1S design case, {esc(fa1s.num())} bar abs; green: the decided band '
+                          'values for structural SDOF paths (line 230 (2)). SIM histories on ASSUMED inputs, DERIVED spectra (Combustion v2.4b data, '
+                          'unchanged by the text-only v2.4c and v2.4d folds: table below).', [sptv.tid, fa1s.tid, dec.tid], 'wide'))
+        o.append(dtable(['Currency check of the FA-1 spectrum data', 'Record'], fa1_currency_rows(ctx), widths=['30%', '70%'], cls='tight'))
+    else:
+        o.append(f'<p class="miss">FA-1 spectra file missing {sptv.ref()}</p>')
+    return '\n'.join(o)
+
+
+def sec_throttle_tvc(ctx, doc, a, D):
+    o = [doc.h(1, '3 Throttle and thrust vector control')]
+    cl = D['cl']
+    o.append(doc.h(2, '3.1 Throttle'))
+    rows = []
+    for k in ('floor_requirement_25pct', 'floor_target_20pct', 'floor_stretch_12p5pct', 'thrust_ceiling_rule', 'chamber_fill_time_constant_s'):
+        rows.append([esc(k.replace('_', ' ')), tvtxt(ctx.v('CMB', f'/operating_points/{k}', tag='SIM'), 500)])
+    rows.append(['throttle architecture', tvtxt(ctx.v('CMB', '/decisions/throttle_architecture', tag='LEAD'), 500)])
+    o.append(dtable(['Item', 'Value (combustion.json)'], rows, widths=['24%', '76%'], cls='tight'))
+    o.append(doc.h(2, '3.2 Gimbal and TVC requirements (GNC v3.2 datasheet inputs)'))
+    rows = []
+    for key in ('6', '7', '8'):
+        ln_r = [x for x in md_rows_all(ctx.src('DSIG').text or '', None) if x[1] and x[1][0].strip() == key]
+        if not ln_r:
+            rows.append([key, ctx.missing(f'DSIG row {key}')])
+            continue
+        ln, r = ln_r[0]
+        tag = r[3].strip() if len(r) > 3 else None
+        ev = normalise_tag(tag)
+        val = eng11_cell(ctx, D) if key == '8' else tvtxt(md_cell_ln(ctx, 'DSIG', ln, r, 2, ev, tag_raw=tag, label=r[1].strip()))
+        evb, trb = ev, tag
+        if tag and re.search(r'\bfrom SIM\b', tag) and ev == 'REQ':
+            # the basis cell states the MC results the requirement is set from: SIM (lead 2026-10-21 14:05Z, REV-DS-1 D1-07, T912)
+            evb, trb = 'SIM', f'{tag} (class set at the call site: SIM: the basis cell states the GNC MC results; REV-DS-1 D1-07)'
+        lab = r[1].strip()
+        if key == '8':
+            lab = 'GNC row 8: servo output stiffness K_s (filed under ENG-11; ENG-11 (REQ) is the gimbal axis stiffness, §3.3 and §12.5)'
+        rows.append([Cell(f'<b>{esc(lab)}</b>', []), val,
+                     tvtxt(md_cell_ln(ctx, 'DSIG', ln, r, 4, evb, tag_raw=trb, label=r[1].strip()), 600)])
+    o.append(dtable(['Item', 'Value for the datasheet', 'Basis'], rows, widths=['14%', '50%', '36%'], cls='tight',
+                    caption=f'01-systems-gnc/DATASHEET-INPUTS-GNC.md rows 6-8 ({esc(src_label(ctx, "DSIG"))}).'))
+    o.append(note_box('<b>GNC row 8 (servo output stiffness K_s, filed under ENG-11) changed since rev0.</b> ' + inl(cl.item(258, 1))
+                      + ' The rev0 window is SUPERSEDED and not used. ENG-11 (REQ), the gimbal axis stiffness of REQUIREMENTS.md line 62, is in §3.3 and §12.5.', 'warn'))
+    o.append(doc.h(2, '3.3 Axis stiffness band and rocking modes (FEA3D, R3 poses)'))
+    rr = '/range_over_posted_R3_poses'
+    rows = []
+    for key, lab in (('FE_coupled_alpha', 'FE, α'), ('FE_coupled_beta', 'FE, β'), ('k_s58_coupled_alpha', 'with servo k_s 58, α'),
+                     ('k_s58_coupled_beta', 'with servo k_s 58, β'), ('k_s174_coupled_alpha', 'with servo k_s 174, α'), ('k_s174_coupled_beta', 'with servo k_s 174, β')):
+        lo = ctx.v('KTAB', f'{rr}/{key}/min', 'N m/rad', tag='SIM' if key.startswith('FE') else 'DERIVED')
+        hi = ctx.v('KTAB', f'{rr}/{key}/max', 'N m/rad', tag='SIM' if key.startswith('FE') else 'DERIVED')
+        lp = ctx.v('KTAB', f'{rr}/{key}/min_pose', tag='DERIVED')
+        hp = ctx.v('KTAB', f'{rr}/{key}/max_pose', tag='DERIVED')
+        if key.startswith('FE_coupled_'):
+            D.setdefault('ktab', {})[key.rsplit('_', 1)[1]] = (lo, hi)  # ENG-11 per axis (D1-13)
+        rows.append([lab, cat(lo.h('.0f'), ' (', lp.h(pill=False), ') – ', hi.h('.0f'), ' (', hp.h(pill=False), ')')])
+    o.append(dtable(['Axis stiffness K over the 17 R3 poses', 'min (pose) – max (pose)'], rows, widths=['40%', '60%'], cls='tight',
+                    caption='Per-pose values in §9.7. Servo k_s ASSUMED (TO-VERIFY at B-TVC-1). The FE rows are ENG-11 (REQ), the gimbal axis stiffness, per axis.'))
+    sp = eng11_spread(ctx, D)
+    kt = D.get('ktab') or {}
+    if 'beta' in kt and 'alpha' in kt:
+        i7 = cl.item(188, 7)
+        o.append(f'<p class="small"><b>ENG-11 (REQ) status on these FE values (REQUIREMENTS.md line 62):</b> the hard minimum ≥ {sp["hmin"].h()} holds '
+                 f'(beta minimum {kt["beta"][0].h()}); the spread element (alpha / beta spread across poses ≤ ±{sp["lim"].h()}) is not met on beta: '
+                 f'±{sp["beta"].h(".1f")} half-range over mid-range (alpha ±{sp["alpha"].h(".1f")}); OPEN under 188 (7){i7.ref()}: GNC robustness assessment, '
+                 'then the lead amends the requirement or Mechanical stiffens (§12.5; open item 11b, §11.2).</p>')
+    o.append(doc.h(2, '3.4 TVC actuation record (mechanical.json v2.1, not re-derived for v3.5.2)'))
+    rows = []
+    CLS34 = {'ENG-07_rate_status': ('CALC', 'CALC / DERIVED, with SIM for the P value it quotes'),
+             'ENG-11_status': ('SIM', 'SIM / DERIVED')}  # lead 2026-10-21 14:05Z, REV-DS-1 D1-07 (T942, T944)
+    for k in ('concept', 'gear_ratio_n', 'servo_angle_range_deg', 'rate_engine_dps_under_3.19Nm', 'ENG-07_rate_status', 'hinge_moment_design_Nm', 'ENG-11_status'):
+        if k in CLS34:
+            ev, why = CLS34[k]
+            t = ctx.v('MEC', f'/tvc_actuation/{k}', tag=ev, note='v2.1 record; not_re_derived_v352')
+            base = re.sub(r'\s*\(class set at the call site: [^)]*\)', '', t.tag_raw or '').strip()  # one call-site note, the D1-07 one
+            t.tag_raw = f'{base} (class set at the call site: {why}; REV-DS-1 D1-07)'.strip()
+            rows.append([esc(k.replace('_', ' ')), cat(tvtxt(t), gnote(f'class: {why}'))])
+        else:
+            rows.append([esc(k.replace('_', ' ')), tvtxt(ctx.v('MEC', f'/tvc_actuation/{k}', tag='DESIGN', note='v2.1 record; not_re_derived_v352'), 400)])
+    for k in ('architecture', 'range_deg', 'mechanical_stop_deg', 'bearings'):
+        rows.append([esc('gimbal ' + k.replace('_', ' ')), tvtxt(ctx.v('MEC', f'/gimbal/{k}', tag='DESIGN', note='v2.1 record; not_re_derived_v352'), 400)])
+    o.append(dtable(['Item', 'Value (v2.1 record)'], rows, widths=['26%', '74%'], cls='tight',
+                    caption='These v2.1 sections were not re-derived for v3.5.2 (mechanical.json not_re_derived_v352); where they conflict with a _v352 section, the _v352 section governs.'))
+    return '\n'.join(o)
+
+
+def eng11_cell(ctx, D):
+    """ENG-11 as the lead requires it written (12:13Z item 7; line 258 (1)): design-to 100-110 N m/rad at the ASSUMED servo
+    J 1.6e-3 kg m2, not robust across J. The numbers are traced to DSIG row 8; the J is ASSUMED."""
+    if 'eng11' in D:
+        return D['eng11']
+    hit = [x for x in md_rows_all(ctx.src('DSIG').text or '', None) if x[1] and x[1][0].strip() == '8']
+    if not hit:
+        m = ctx.missing('DSIG row 8 (ENG-11)')
+        D['eng11'] = Cell(m.h(), [m])
+        return D['eng11']
+    ln, r = hit[0]
+    tag = r[3].strip() if len(r) > 3 else None
+    row = md_cell_ln(ctx, 'DSIG', ln, r, 2, normalise_tag(tag), tag_raw=tag, label='ENG-11 servo output stiffness K_s')
+    lo = rx_text(ctx, row, r'Design-to (\d+)-(\d+) N m/rad', 'N m/rad', group=1)
+    hi = rx_text(ctx, row, r'Design-to (\d+)-(\d+) N m/rad', 'N m/rad', group=2)
+    J = rx_text(ctx, row, r'servo J ([\d.]+e-\d+) kg m2', 'kg m²', tag='ASSUMED',
+                note='the "nominal servo J" of DSIG row 8 is the ASSUMED value (lead 12:13Z item 7; CHANGELOG 258 (1), 262 (4))')
+    rob = md_find_sentence(ctx, row, 'not robust')
+    D['eng11'] = cat('design-to ', lo.h('.0f', unit=False), '–', hi.h('.0f'), ' at the ASSUMED servo J ', J.h('.1e'),
+                     ', not robust across J: ', tvtxt(rob, 600))
+    return D['eng11']
+
+
+def md_find_sentence(ctx, tv, contains):
+    """The sentence of an already traced text that contains a phrase (same source and key, sentence selector added)."""
+    s = tv.value if isinstance(tv.value, str) else ''
+    k = s.find(contains)
+    if k < 0:
+        ctx.issue('WARN', f'no sentence containing {contains!r} in {tv.sid}:{tv.ptr}')
+        return ctx.missing(f'{tv.sid} sentence containing {contains}')
+    starts = [0] + [m.end() for m in re.finditer(r'(?<=[.;:])\s+(?=[A-Z(*`])', s[:k])]
+    m = re.compile(r'(?<=[A-Za-z0-9)\]`*"\'])[.;](?=\s+[A-Z(*`]|\s*$)').search(s, k + len(contains))
+    txt = s[starts[-1]:(m.end() if m else len(s))].strip()
+    return TV(ctx, txt, '', tv.ev if tv.ev != 'DECIDED' else tv.basis_kind, tv.tag_raw, tv.sid, f'{tv.ptr} [sentence containing "{contains}"]')
+
+
+def fa1_currency_rows(ctx):
+    """FA-1 spectrum data of record: the file named by combustion.json (same sha) and the text-only v2.4c / v2.4d folds
+    (lead 12:13Z item 11)."""
+    sp = ctx.src('FA1SP')
+    rel = '02-combustion/data/v2p4b/fa1_pressure_spectra_published_v2p4b.csv'
+    named = ctx.v('CMB', '/fa1_spectra_damped_v2p4b/v/files/' + rel.replace('~', '~0').replace('/', '~1'), tag='REF')
+    chk = ctx.d(('same file: ' if named.value == sp.sha16 else 'DIFFERENT file: ') + f'combustion.json {ctx.src("CMB").version} names {rel} with '
+                f'sha256/16 {named.value}; the file read here has {sp.sha16}', '', 'generator check: sha named by combustion.json vs the file read', [named])
+    s17 = md_sentence(ctx, 'RCMB', '17. v2.4c', 'Text only', 'REF', tag_raw='combustion REPORT.md §17 (v2.4c) header paragraph')
+    s18 = md_sentence(ctx, 'RCMB', '18. v2.4d', 'Text only', 'REF', tag_raw='combustion REPORT.md §18 (v2.4d) header paragraph')
+    s183 = md_sentence(ctx, 'RCMB', '18.3 Not changed', 'FA-1 grid histories', 'REF', tag_raw='combustion REPORT.md §18.3')
+    return [['File named by combustion.json', tvtxt(chk, 400)], ['v2.4c fold (REPORT §17)', tvtxt(s17, 300)],
+            ['v2.4d fold (REPORT §18)', tvtxt(s18, 300)], ['FA-1 data after v2.4d (REPORT §18.3)', tvtxt(s183, 300)]]
+
+
+# ---------------------------------------------------------------------------------------------
+# cover and sections 4-6 (v0.3.0): geometry and mass, parts list, materials
+# ---------------------------------------------------------------------------------------------
+def sec_cover(ctx, doc, a, D):
+    rated = D['rated']
+    cfg = [('CMB', 'Combustion'), ('MEC', 'Mechanical'), ('ELE', 'Electronics'), ('GNC', 'Space/GNC'), ('F3D', '3D FEA report'),
+           ('MMX', 'Margin matrix (rows v8)'), ('REQ', 'Requirements'), ('CL', 'Decision log'), ('SUP', 'Review register')] + \
+          ([('OVR', 'Decision overrides')] if 'OVR' in ctx.sources else [])
+    gabs = glb_absent(ctx, D)
+    cfg_rows = ''.join(f'<tr><td>{n}</td><td>{esc(ctx.src(s).version or "–")}</td><td class="mono">{esc(ctx.src(s).sha16 or "MISSING")}</td></tr>'
+                       for s, n in cfg)
+    nt = D['neg_total']
+    tiles = [
+        ('Rated thrust (SL), Pc at the software cap', rated['F']), ('Chamber pressure, rated', D['pc_rated_cell']),
+        ('Throttle floor target (20 %)', D['floor_F']), ('Isp, rated (SL)', rated['Isp']),
+        ('CAD mass, wet, all groups (hardware CALC)', D['mass_wet_all']), ('Envelope (CAD bounding box)', D['env_cell']),
+        ('Found negatives in the margin matrix (§9.3)', nt), ('Inputs still PENDING (§1.4)', D['pending_n']),
+    ]
+    th = ''.join(f'<div class="tile"><div class="tl">{esc(l)}</div><div class="tv">{(v.h() if isinstance(v, TV) else v.html)}</div></div>' for l, v in tiles)
+    CELL_STATS['data_cells'] += len(tiles)
+    CELL_STATS['traced'] += len(tiles)
+    hero = D['R'].get('iso_alpha')
+    hero_html = f'<img class="hero" src="{hero["file"]}" alt="CAD render, isometric">' if hero else '<div class="miss">render missing</div>'
+    return f'''
+<section class="cover">
+ <div class="cv-band">
+  <div class="cv-prog">ARGOS H1 · engine programme · {esc(DOC_ID)}</div>
+  <div class="cv-title">Engine technical datasheet</div>
+  <div class="cv-sub">N<sub>2</sub>O / printed-ABS hybrid rocket engine · servo-pintle throttle · two-axis gimbal · for a self-landing rocket</div>
+ </div>
+ <div class="cv-main">
+  <div class="cv-hero">{hero_html}<div class="cv-cap">FINAL CAD {esc(a.cad_version)} assembly, neutral pose. Visualisation of tessellated display geometry (GLB {esc(ctx.src("GLB").sha16 or "MISSING")}), not a drawing. {gabs.h()}</div></div>
+  <div class="cv-side">
+   <div class="cv-draft">{esc(a.status)} · {esc(a.rev)}</div>
+   <div class="cv-warn"><b>{esc(PAGE_STATEMENT)}.</b> Nothing in this datasheet is physical approval or acceptance. No value is MEASURED. Every number carries one of the ten evidence tags (SIM, CALC, DERIVED, ASSUMED, DATASHEET, LITERATURE, AS RECALLED, TO-VERIFY, MISSING, ESTIMATE) or the source-class pill DECIDED (a design value, decided limit or requirement: chosen, not measured or computed), and a trace reference (T###, Appendix A). Missing data are shown as MISSING, TO-DEFINE or PENDING, never estimated by the generator.</div>
+   <div class="tiles">{th}</div>
+   <table class="cv-cfg"><thead><tr><th>Configuration</th><th>Version</th><th>sha256/16</th></tr></thead><tbody>
+   <tr><td>CAD (FINAL)</td><td>{esc(a.cad_version)}</td><td class="mono">manifest {esc(ctx.src("CADMAN").sha16 or "MISSING")}</td></tr>
+   {cfg_rows}</tbody></table>
+   <div class="cv-gen">Generated {esc(D["generated"])} by gen/{GEN_NAME} {GEN_VERSION}. Quotations: delivery Sønderborg, Denmark, DK-6400 (every price TO-QUOTE). Units SI; pressures in bar abs unless marked.</div>
+  </div>
+ </div>
+</section>'''
+
+
+def sec_geometry_mass(ctx, doc, a, D):
+    o = [doc.h(1, '4 Geometry and mass')]
+    o.append(note_box('<b>Renders are visualisation only.</b> They are produced by gen/render_views.sh from the tessellated GLB display mesh '
+                      f'of the FINAL CAD {esc(a.cad_version)} (GLB sha256/16 {esc(ctx.src("GLB").sha16)}; render manifest {esc(ctx.src("RMAN").sha16)}). '
+                      'They are not drawings and carry no tolerances. Dimensions printed on them are bounding-box extents from the assembly manifest; '
+                      'the STEP solids are the CAD of record.', 'warn'))
+    g = D['geo']
+    o.append(doc.h(2, '4.1 Envelope and principal dimensions'))
+    R = D['R']
+    figs = []
+    for key, axis, title in (('front', 0, 'Front view (looking along +Y)'), ('side', 1, 'Side view (looking along −X)')):
+        if R.get(key):
+            dims = dict(g['dims'])
+            dims['Wh'] = g['dims']['W' + 'xy'[axis]]
+            figs.append(f'<div class="ortho">{svg_ortho_dims(ctx, R[key], axis, dims, title)}</div>')
+    o.append('<div class="ortho-pair">' + ''.join(figs) + '</div>')
+    d = g['dims']
+    rows = [
+        ['Overall length along the engine axis (z)', num_cell(d['H'], '.1f')],
+        ['Overall width X / Y (axis-aligned bounding box)', cat(d['Wx'].h('.2f'), ' / ', d['Wy'].h('.2f'))],
+        ['Pivot to forward end / pivot to aft end', cat(d['top'].h('.1f'), ' / ', d['aft'].h('.1f'))],
+        ['Gimballed engine group: z range / length', cat(d['eng_rng'].h('.1f'), ' / ', d['eng_len'].h('.1f'))],
+        ['Fixed module (thrust frame, valve module, servos): z range / length', cat(d['fix_rng'].h('.1f'), ' / ', d['fix_len'].h('.1f'))],
+        ['GLB read-back: meshes / bounds error / result', cat(ctx.v('GLBR', '/readback_meshes', tag='DERIVED').h('d'), ' / ',
+                                                           ctx.v('GLBR', '/bounds_err_m', 'mm', conv=(1000, 0, 'm to mm'), tag='DERIVED').h('.3f'), ' / ',
+                                                           ctx.v('GLBR', '/passed', tag='DERIVED').h())],
+        ['Clearance at 18 poses: not-whitelisted interferences / smallest moving clearance',
+         cat(ctx.v('CLR', '/summary/n_not_whitelisted', tag='DERIVED').h('d'), ' / ', ctx.v('CLR', '/summary/min_moving_clearance_mm', 'mm', tag='DERIVED').h('.3f'))],
+    ]
+    bay = bay_cells(ctx, D)
+    rows += [
+        ['Engine-bay inner diameter (requirement)', tvtxt(bay['req'])],
+        ['Thrust rings GM-09 / GM-10: outer diameter (CAD bounds) / radial gap to the bay bore', cat(bay['ring_od'].h('.2f'), ' / ', bay['gap'].h('.3f'))],
+        ['Instances reaching beyond the ring radius (CAD bounds)', tvtxt(bay['beyond'], 400)],
+    ]
+    o.append(dtable(['Dimension', 'Value'], rows, widths=['42%', '58%'],
+                    caption=f'Envelope from the union of the {g["n_inst"]} instance bounding boxes in the assembly manifest (engine frame, mm, origin at the gimbal pivot, +z forward). '
+                            'An axis-aligned box does not bound the radial extent; the pose clearance check is listed in §4.6. The bay requirement is '
+                            'REQUIREMENTS.md §1 (the airframe ICD draft 0.2 is not used, see §4.5).'))
+    o.append(doc.h(2, '4.2 Assembly views'))
+    gabs = glb_absent(ctx, D)
+    o.append(note_box('<b>What the renders do not show.</b> ' + gabs.h(), 'info'))
+    if R.get('iso'):
+        o.append(f'<figure class="render iso"><img src="{R["iso"]["file"]}"><figcaption>Isometric view, FINAL CAD {esc(a.cad_version)}, neutral pose '
+                 f'(render {esc(R["iso"]["png_sha16"])}). Visualisation only; parts not in the GLB are listed above the figure.</figcaption></figure>')
+    if R.get('layout'):
+        o.append(f'<figure class="render layout">{svg_layout(ctx, R["layout"])}<figcaption>Thrust chamber and pintle stack laid out side by side '
+                 'along the axis order (pintle drive at left, nozzle joint at right), true scale. Axial positions are not preserved; the CAD z range '
+                 'of each group is printed under it. Visualisation only.</figcaption></figure>')
+    if R.get('section'):
+        svg, shown, missing = svg_section(ctx, R['section'], D['bom_by_pn'], SECTION_CALLOUTS)
+        D['section_shown'] = shown
+        refs = [D['bom_by_pn'][p].row_tv.tid for p in shown if p in D['bom_by_pn']]
+        o.append(f'<figure class="render section">{svg}<figcaption>Half section in the plane y = 0 (the y &lt; 0 half removed; cut faces darkened). '
+                 'Labels: BOM name, part number and material, placed at the area-weighted centroid of each part\'s cut face. '
+                 'Visualisation of display geometry, not a drawing. The section shows no screw, spring or other standard hardware (not in the GLB; see the note in §4.2).'
+                 + (f' Parts without a cut face in this plane: {esc(", ".join(missing))}.' if missing else '')
+                 + ' <span class="figref">BOM rows: ' + ', '.join(f'<a class="tr" href="#{r}">{r}</a>' for r in refs) + '</span></figcaption></figure>')
+    o.append(doc.h(2, '4.3 Part families'))
+    cards = []
+    for fam, info in D['families'].items():
+        Rf = R.get('family_' + fam)
+        img = f'<img src="{Rf["file"]}">' if Rf else '<div class="miss">render missing</div>'
+        cards.append(f'<div class="fam"><div class="fimg">{img}</div><div class="fcap"><b>{esc(fam)} · {esc(FAMILY_NAMES.get(fam, fam))}</b><br>'
+                     f'{info["n_tv"].h()} lines · {info["mass_tv"].h(".3f")}</div></div>')
+        CELL_STATS['data_cells'] += 2
+        CELL_STATS['traced'] += 2
+    o.append('<div class="famgrid">' + ''.join(cards) + '</div>')
+    hwfam = (R.get('family_HW') or {}).get('meta', {}).get('pns') or []
+    o.append('<p class="small">Each family is rendered at its assembly position (not exploded). Line counts and masses are sums over the BOM lines '
+             'of the family (qty × unit mass, DERIVED by this generator; the transport lock and the standard hardware lines are excluded). '
+             + (f'The HW family render shows the modelled BOM lines {esc(", ".join(hwfam))} (render metadata) and no fastener or spring: ' if hwfam else '')
+             + 'the standard hardware of BOM /hardware and the transport lock are not in the GLB (§4.2).</p>')
+
+    o.append(doc.h(2, '4.4 Mass'))
+    states = ['wet', 'mid', 'burnout', 'nograin']
+    groups = ['engine', 'ring', 'horn', 'pushrod', 'fixed', 'all']
+    rows = []
+    for gname in groups:
+        cells = [f'{GROUP_NAMES.get(gname, gname)}']
+        for s_ in states:
+            t = ctx.v('MP', f'/states/{s_}/{gname}/m_kg', 'kg', tag='DERIVED', note='CAD volume × density, COTS masses and the hardware CALC (massprops hardware_rule)')
+            cells.append(num_cell(t, '.4f'))
+        rows.append(cells)
+    o.append(dtable(['Group', 'Wet (full grain)', 'Mid-burn', 'Burn-out', 'No grain'], rows, widths=['32%', '17%', '17%', '17%', '17%'],
+                    caption=f'Mass by subassembly and state, massprops {esc(src_label(ctx, "MP"))}. The states include the standard hardware carried as '
+                            'max(0.20 kg allowance, CALC sum) at the host parts (lead 188 (11)). Group "all" is the CAD model total. Not weighed.'))
+    G = '/gimballed_mass_properties_v352/states'
+    rows = []
+    for s_ in states:
+        m = ctx.v('MEC', f'{G}/{s_}/engine/m_kg', 'kg', tag='DERIVED', note='mechanical.json _v352 (FINAL set massprops)')
+        cg = ctx.v('MEC', f'{G}/{s_}/engine/cg_mm', 'mm', tag='DERIVED')
+        ip = ctx.v('MEC', f'{G}/{s_}/engine/I_pivot_kgm2', 'kg·m²', tag='DERIVED')
+        diag = ctx.d([ip.value[i][i] for i in range(3)] if isinstance(ip.value, list) else None, 'kg·m²', 'diagonal of I_pivot (Ixx, Iyy, Izz)', [ip])
+        rows.append([esc(s_), num_cell(m, '.5f'), Cell(f'<span class="v">{esc(", ".join(f"{x:.3f}" for x in cg.value)) if isinstance(cg.value, list) else "MISSING"}</span>'
+                                                       f'<span class="u">&#8239;mm</span> {cg.pill()}{cg.ref()}', [cg]),
+                     Cell(f'<span class="v">{esc(", ".join(f"{x:.5f}" for x in diag.value)) if isinstance(diag.value, list) else "MISSING"}</span>'
+                          f'<span class="u">&#8239;kg·m²</span> {diag.pill()}{diag.ref()}', [diag])])
+    o.append(dtable(['State', 'Gimballed engine mass', 'CG (x, y, z) from the pivot', 'I about the pivot: Ixx, Iyy, Izz'], rows,
+                    widths=['14%', '22%', '30%', '34%'],
+                    caption='Gimballed body (group "engine": thrust chamber, grain, collar and levers, inner pins, pintle stack, engine shares of hose and lines, '
+                            'J-FWD hardware), mechanical.json /gimballed_mass_properties_v352 (GNC input). Full inertia tensors in the source.'))
+    hc = '/hardware_carried'
+    gm = gnc_mass_cells(ctx, D)
+    rows = [['Hardware carried: allowance / CALC sum / carried', cat(ctx.v('MP', f'{hc}/allowance_kg', 'kg', tag='LEAD', tag_ptr='/hardware_rule').h('.2f'), ' / ',
+                                                                    ctx.v('MP', f'{hc}/calc_sum_kg', 'kg', tag='CALC').h('.5f'), ' / ',
+                                                                    ctx.v('MP', f'{hc}/carried_kg', 'kg', tag='CALC').h('.5f'))],
+            ['Hardware lines without a mass', tvtxt(ctx.v('MP', f'{hc}/lines_without_mass', tag='MISSING'))],
+            ['Landing-mass change vs v3.5.1: as built / without the conditional TC-09 thinning / the thinning',
+             cat(gm['dl'].h('+.4f'), ' / ', gm['dl0'].h('+.4f'), ' / ', gm['thin'].h('+.4f'))],
+            ['GNC re-fly trigger and verdict', cat(gm['trig'].h('.2f'), '<br>', tvtxt(gm['verdict'], 300), '<br>', tvtxt(gm['evid'], 300))],
+            ['CAD set mass statement', tvtxt(ctx.v('SET', '/mass', tag='CALC'), 500)],
+            ['Electronics mass statement vs the trigger', tvtxt(ctx.v('ELE', '/mass_statement/against_trigger', tag_ptr='/mass_statement/against_trigger'), 500)]]
+    o.append(dtable(['Item', 'Value'], rows, widths=['30%', '70%']))
+    fam_rows = []
+    for fam, info in D['families'].items():
+        fam_rows.append([f'{fam} · {FAMILY_NAMES.get(fam, fam)}', Cell(info['n_tv'].h(), [info['n_tv']]), num_cell(info['mass_tv'], '.4f')])
+    fam_rows.append(['Sum of BOM part lines (transport lock and standard hardware excluded)', '', num_cell(D['bom_sum_tv'], '.4f')])
+    fam_rows.append(['BOM mass_sum_kg as published (BOM header)', '', num_cell(D['bom_mass_sum'], '.4f')])
+    fam_rows.append(['Standard hardware lines (BOM /hardware, CALC)', '', num_cell(D['hw_sum_tv'], '.5f')])
+    o.append(dtable(['BOM family', 'Lines', 'Mass'], fam_rows, widths=['56%', '14%', '30%'], free_cols=(),
+                    caption='Mass by BOM part family (DERIVED: Σ qty × unit mass over the BOM lines).'))
+    ex = D['exclusions']
+    o.append(dtable(['Not in the CAD mass', 'Mass', 'Status / source'], [[e[0], e[1], e[2]] for e in ex], widths=['34%', '24%', '42%'],
+                    caption='Items excluded from the CAD mass. They are not zero: each is carried at its source value or as UNKNOWN. '
+                            'Rows from mechanical.json v2.1 sections are labelled: they were not re-derived for v3.5.2.'))
+    src = plot_mass(a, [(f'{f} {FAMILY_NAMES.get(f, f)}', info['mass_tv'].value) for f, info in D['families'].items()], D['excl_plot'])
+    o.append(fig_html(src, 'CAD mass by BOM family (solid) and items outside the CAD mass (hatched; ranges where the source gives one).',
+                      [i['mass_tv'].tid for i in D['families'].values()] + D['excl_refs'], 'wide'))
+    o.append(doc.h(2, '4.5 Airframe interface and engine mounting (current sources)'))
+    cl = D['cl']
+    rows = [subrow('Bay, attachment and gimbal', 2)]
+    rows.append(['Engine-bay inner diameter (REQUIREMENTS.md §1)', tvtxt(bay['req'])])
+    rows.append(['Thrust ring outer diameter / radial gap to the bay bore (CAD bounds)', cat(bay['ring_od'].h('.2f'), ' / ', bay['gap'].h('.3f'))])
+    for pn in ('ENG-GM-09', 'ENG-GM-10'):
+        r = D['bom_by_pn'].get(pn)
+        if r is not None:
+            rows.append([f'Airframe attachment: {pn} (BOM)', bom_name_cell(r)])
+    scr = [D['bom_by_pn'][pn] for pn in ('ENG-HW-125', 'ENG-HW-126') if pn in D['bom_by_pn']]
+    for r in scr:
+        rows.append([f'Airframe screws: {r.pn} (BOM /hardware)', Cell(f'<span class="v">{esc(r.l.get("qty"))} × {esc(r.l.get("size") or "")}</span> '
+                                                               f'<span class="small">{esc(clipw(r.l.get("name"), 110))}</span> {r.row_tv.pill()}{r.row_tv.ref()}', [r.row_tv])])
+    if scr:
+        nsc = ctx.d(sum(int(r.qty or 0) for r in scr), '', 'Σ qty of the airframe screw lines ' + ' + '.join(r.pn for r in scr), [r.row_tv for r in scr])
+        rows.append(['Airframe screws in total', Cell(f'{nsc.h("d")} <span class="small">(the mounting holes of §9.6)</span>', [nsc])])
+    rows.append(['Gimbal range / mechanical stop (REQ ENG-07)', cat(bay['rng'].h('.0f'), ' / ', bay['stop'].h('.0f'))])
+    bl6 = D['bom_by_pn'].get('ENG-BL-06')
+    if bl6 is not None:
+        rows.append(['Head-end bleed vent through the bay wall (BOM)', bom_name_cell(bl6)])
+    rows.append(['Feed across the gimbal (mechanical.json v2.1 record, not re-derived for v3.5.2)',
+                 tvtxt(ctx.v('MEC', '/feed_across_gimbal/hose', note='mechanical.json /not_re_derived_v352 lists feed_across_gimbal'), 300)])
+    rows.append(subrow('Loads into the airframe', 2))
+    rows.append(['Max thrust (requirement ENG-01)', num_cell(bay['fmax'], '.0f')])
+    rows.append(['Rated thrust (sea level), throttle point at the software Pc cap', num_cell(D['rated']['F'], '.1f')])
+    ci = D['cause_idx'].get('OVER_THRUST')
+    if ci is not None:
+        rows.append([f'Over-thrust abort threshold (firmware {fw_ver(D)} config)', num_cell(ctx.v('ELE', f'/abort_matrix/causes/{ci}/thresholds/kOverThrust_N', 'N'), '.0f')])
+    meop = ctx.v('CMB', '/operating_points/pressure_limits/chamber_MEOP_Pa', 'Pa')
+    proof = ctx.v('CMB', '/operating_points/pressure_limits/proof_Pa', 'Pa')
+    rows.append(['Chamber MEOP / proof pressure', cat(Cell(pres(ctx, meop), [meop]), ' / ', Cell(pres(ctx, proof), [proof]))])
+    rows.append(['Lateral thrust at the gimbal range (max thrust × sin range)', num_cell(bay['flat'], '.1f')])
+    DL = '/design_limit_loads'
+    for k, lab in (('axial_accel_flight_g', 'Axial acceleration in flight, max of the dispersed set'),
+                   ('axial_accel_touchdown_g', 'Axial acceleration after first contact (touchdown), max'),
+                   ('lateral_accel_at_pivot_touchdown_g', 'Lateral acceleration at the pivot, touchdown, max'),
+                   ('axial_accel_landing_shock_envelope_g', 'Landing shock envelope')):
+        tv = ctx.v('GNC', f'{DL}/{k}', 'g')
+        nt = ctx.raw('GNC', f'{DL}/{k}/note', default=None)
+        p99 = rx(ctx, 'GNC', f'{DL}/{k}/note', r'p99 ([\d.]+) g', 'g', tag='SIM',
+                 note='p99 of the same dispersed set, from the record note') if (isinstance(nt, str) and re.search(r'p99 [\d.]+ g', nt)) else None
+        rows.append([f'{lab} (gnc.json {esc(ctx.src("GNC").version or "")})',
+                     cat(num_cell(tv, '.2f'), *(['; p99 ', p99.h('.2f')] if p99 is not None else []))])
+    rows.append(subrow('Mass', 2))
+    rows.append(['CAD mass, wet, all groups (hardware CALC carried; not weighed)', num_cell(D['mass_wet_all'], '.4f')])
+    rows.append(['GNC vehicle basis (massprops v3.5.1): liftoff mass / liftoff T/W (DATASHEET-INPUTS-GNC row 4)', cat(gm['lift'].h('.2f'), ' / ', gm['tw'].h('.2f'))])
+    rows.append(['Landing-mass change v3.5.2 vs v3.5.1 / without the conditional TC-09 thinning; GNC re-fly trigger',
+                 cat(gm['dl'].h('+.4f'), ' / ', gm['dl0'].h('+.4f'), '; trigger ', gm['trig'].h('.2f'))])
+    rows.append(['Verdict (massdelta v3.5.2)', tvtxt(gm['verdict'], 300)])
+    o.append(dtable(['Item', 'Value'], rows, widths=['40%', '60%'],
+                    caption='Airframe-facing engine data from the current sources: REQUIREMENTS.md rev 2, the CAD v3.5.2 BOM and assembly manifest, '
+                            f'combustion.json {esc(ctx.src("CMB").version or "")}, electronics.json {esc(ctx.src("ELE").version or "")}, '
+                            f'gnc.json {esc(ctx.src("GNC").version or "")} and massdelta v3.5.2. Engine mounting hole loads and ring resultants of the v3.5.2 FEA: §9.6 '
+                            '(they govern for the airframe).'))
+    c222 = cl.clip(222, None, 'ICD-AIRFRAME v2.1 is REMOVED', '(superseded in places, not updated).')
+    k222 = cl.clip(222, None, 'The items that were queued for it', 'the 2.20 kg tank option (line 219).')
+    o.append(note_box('<b>ICD-AIRFRAME.</b> ' + inl(c222) + ' No value in this datasheet is taken from ICD-AIRFRAME draft 0.2 (2026-10-13): '
+                      'every row above has a current source. ' + inl(k222) + ' In this datasheet: bay bore and envelope §4.1 and above; mounting loads §9.6; '
+                      'engine-mount modes and axis stiffness §9.7; the BL-06 vent above; tank station and the 210 m apogee §11.1; the airframe first bending mode '
+                      'and the 2.20 kg tank option §11.2 (rows 11d, 11g).', 'info'))
+    o.append(doc.h(2, '4.6 CAD build, fit and interference checks'))
+    rows = [['Build record', tvtxt(ctx.v('SET', '/build_evidence', tag='DERIVED'), 400)],
+            ['STEP round trips (parts)', cat(ctx.v('CHK', '/roundtrip_parts/n_passed', tag='DERIVED').h('d'), ' of ', ctx.v('CHK', '/roundtrip_parts/n', tag='DERIVED').h('d'))],
+            ['Final set vs the interim set', tvtxt(ctx.v('SET', '/final_vs_interim', tag='DERIVED'), 600)],
+            ['Parts changed vs v3.5.1 (STL sha256)', tvtxt(ctx.v('SET', '/how_changed_was_found', tag='DERIVED'), 400)],
+            ['Interference checks of record', tvtxt(ctx.v('SET', '/interference', tag='DERIVED'), 900)],
+            ['Rebuild proof', tvtxt(ctx.v('SET', '/rebuild_proof/claim', tag='DERIVED'), 400)]]
+    o.append(dtable(['Check', 'Record (quoted)'], rows, widths=['26%', '74%']))
+    poses = ctx.raw('CLR', '/poses', default=[]) or []
+    rows = []
+    for k, p in enumerate(poses):
+        base = f'/poses/{k}'
+        pn = ctx.v('CLR', base + '/pose', tag='DESIGN')
+        itf = ctx.v('CLR', base + '/interference', tag='DERIVED')
+        nw = ctx.v('CLR', base + '/not_whitelisted', tag='DERIVED')
+        cl3 = ctx.v('CLR', base + '/close_lt_3mm', tag='DERIVED')
+        n_itf = ctx.d(len(itf.value or []), '', 'count of interference records at the pose (whitelisted thread overlaps included)', [itf])
+        n_nw = ctx.d(len(nw.value or []), '', 'count of not-whitelisted interferences at the pose', [nw])
+        n_cl = ctx.d(len(cl3.value or []), '', 'count of pairs closer than 3 mm at the pose', [cl3])
+        dmin = ctx.d(min((c.get('dist_mm') for c in (cl3.value or []) if isinstance(c.get('dist_mm'), (int, float))), default=None), 'mm',
+                     'smallest pair distance among the pairs closer than 3 mm', [cl3])
+        rows.append([Cell(f'{esc(pn.value)}{pn.ref()}', [pn]), num_cell(n_itf, 'd'), num_cell(n_nw, 'd'), num_cell(n_cl, 'd'), num_cell(dmin, '.3f')])
+    o.append(dtable(['Pose', 'Interference records (whitelisted)', 'Not whitelisted', 'Pairs closer than 3 mm', 'Smallest of those'], rows,
+                    widths=['20%', '20%', '16%', '22%', '22%'],
+                    caption=f'Software geometric check at 18 poses ({esc(src_label(ctx, "CLR"))}; run on the interim set, whose geometry the final set keeps except the '
+                            'ENG-TC-01 material removal, see the CAD set record above). Pairs closer than 3 mm include expected contacts; a clean software check is not a physical fit check.'))
+    return '\n'.join(o)
+
+
+def sec_bom(ctx, doc, a, D):
+    o = [doc.h(1, '5 Parts list')]
+    deliv = ctx.v('BOM', '/delivery', tag='REQ')
+    curr = ctx.v('BOM', '/currency', tag='DESIGN')
+    nl = ctx.v('BOM', '/n_lines', tag='DERIVED')
+    ni = ctx.v('BOM', '/n_instances', tag='DERIVED')
+    rows = [['Delivery address for quotations', tvtxt(deliv)], ['Price status', tvtxt(curr)],
+            ['BOM part lines / placed instances', cat(nl.h('d'), ' / ', ni.h('d'))],
+            ['Standard hardware: lines / items', cat(ctx.v('BOM', '/hardware/n_lines', tag='DERIVED').h('d'), ' / ', ctx.v('BOM', '/hardware/n_items', tag='DERIVED').h('d'))],
+            ['Hardware mass rule', tvtxt(ctx.v('BOM', '/hardware/mass_rule', tag='CALC'), 300)],
+            ['Total cost', Cell(D['cost_tv'].h(), [D['cost_tv']])]]
+    o.append(dtable(['Item', 'Value'], rows, widths=['30%', '70%'],
+                    caption=f'BOM {esc(src_label(ctx, "BOM"))}. Price rule: every line TO-QUOTE delivered to Sønderborg DK-6400 unless dated; no zero and no "from" prices.'))
+    o.append('<p class="small">Columns: part number (with its BOM-row trace), name and supplier as written in the BOM, quantity, material, process, unit mass with its evidence class, '
+             'and price status. COTS = commercial part. Wetted oxygen-clean parts are marked O<sub>2</sub>.</p>')
+    k = 0
+    for fam in D['family_order']:
+        rs = [r for r in D['bom'] if r.kind == 'lines' and r.fam == fam]
+        if not rs:
+            continue
+        k += 1
+        info = D['families'].get(fam)
+        o.append(doc.h(2, f'5.{k} {fam} — {FAMILY_NAMES.get(fam, fam)}'))
+        rows = []
+        for r in rs:
+            l = r.l
+            nm = esc(clipw(l.get('name', ''), 110))
+            sup = esc(clipw(l.get('supplier'), 80))
+            o2 = ' <span class="o2">O<sub>2</sub></span>' if str(l.get('oxygen_clean')) == 'True' else ''
+            lock = ' <span class="q">transport lock, not placed, excluded from mass</span>' if l.get('groups') == 'lock' else ''
+            rows.append([
+                Cell(f'<span class="pn">{esc(r.pn)}</span>{r.row_tv.ref()}', [r.row_tv]),
+                Cell(f'{nm}{o2}{lock}<div class="sup">{sup}</div>', [r.row_tv]),
+                Cell(esc(l.get('qty', '')), [r.row_tv]),
+                Cell(esc(short_mat(l.get('material_name'), l.get('material'))) + ('<div class="sup">COTS</div>' if str(l.get('cots')) == 'True' else ''), [r.row_tv]),
+                Cell('<span class="small">' + esc(clipw(l.get('process'), 70)) + '</span>', [r.row_tv]),
+                Cell(r.mass_tv.h('.4f', unit=False), [r.mass_tv]),
+                price_cell(r)])
+        o.append(dtable(['PN', 'Part and supplier', 'Qty', 'Material', 'Process', 'Unit mass [kg]', 'Price'], rows, label_cols=0, cls='bom',
+                        widths=['9%', '33%', '4%', '13%', '15%', '11%', '15%'],
+                        caption=(f'{fam} family: {info["n_tv"].value} lines, {info["mass_tv"].value:.4f} kg (Σ qty × unit mass).' if info else None)))
+    k += 1
+    o.append(doc.h(2, f'5.{k} Standard hardware (fasteners, springs, bearings; BOM /hardware, CALC masses)'))
+    rows = []
+    for r in D['hw']:
+        l = r.l
+        nm = esc(clipw(l.get('name', ''), 120))
+        notes = l.get('notes') or ''
+        m = re.search(r'torque ([^;(]+)', notes)
+        tq = esc(clipw(m.group(1).strip(), 40)) if m else ''
+        rows.append([Cell(f'<span class="pn">{esc(r.pn)}</span>{r.row_tv.ref()}', [r.row_tv]),
+                     Cell(f'{nm}<div class="sup">{esc(clipw(l.get("supplier_pn") or l.get("supplier"), 90))}</div>', [r.row_tv]),
+                     Cell(esc(l.get('qty', '')), [r.row_tv]), Cell(esc(l.get('groups', '')), [r.row_tv]),
+                     Cell(esc(short_mat(l.get('material_name'), l.get('material'))), [r.row_tv]),
+                     Cell(f'<span class="small">{tq}</span>', [r.row_tv]),
+                     Cell(r.mass_tv.h('.5f', unit=False), [r.mass_tv]), price_cell(r)])
+    o.append(dtable(['PN', 'Item and standard', 'Qty', 'Group', 'Material', 'Torque (notes)', 'Unit mass [kg]', 'Price'], rows, label_cols=0, cls='bom',
+                    widths=['9%', '34%', '4%', '7%', '13%', '10%', '9%', '14%'],
+                    caption='Torque as written in the line notes (DESIGN; J-FWD: set per flight lot by J-F1, see M-T1J). Unit masses are CALC on standard nominal geometry, not datasheet.'))
+    tm = ctx.raw('BOM', '/tightening_methods', default={}) or {}
+    rows = [[Cell(f'<b>{esc(kk)}</b>', []), tvtxt(ctx.v('BOM', ptr_join('tightening_methods', kk), tag='DESIGN'), 900)] for kk in tm]
+    rows.append([Cell('<b>Preload scatter rule</b>', []), tvtxt(ctx.v('BOM', '/preload_scatter_rule', tag='ASSUMED'), 600)])
+    o.append(dtable(['Method', 'Tightening method (BOM)'], rows, widths=['16%', '84%'], cls='tight'))
+    k += 1
+    D['sec_gse'] = f'§5.{k}'
+    o.append(doc.h(2, f'5.{k} Ground support tools, provisions and contingency (not flight mass)'))
+    rows = []
+    for r in D['gse'] + [x for x in D['bom'] if x.kind != 'lines']:
+        l = r.l
+        rows.append([Cell(f'<span class="pn">{esc(r.pn)}</span>{r.row_tv.ref()}', [r.row_tv]),
+                     Cell(esc(clipw(l.get('name', ''), 140)) + f'<div class="sup">{esc(clipw(l.get("supplier"), 80))}</div>', [r.row_tv]),
+                     Cell(esc(l.get('qty', '')), [r.row_tv]), Cell(esc(l.get('groups', '')), [r.row_tv]),
+                     Cell(r.mass_tv.h('.4f', unit=False), [r.mass_tv]), price_cell(r)])
+    pm = ctx.v('BOM', '/provision_mass_estimate_kg/estimate_range_kg', 'kg', tag='ASSUMED', tag_ptr='/provision_mass_estimate_kg/note')
+    o.append(dtable(['PN', 'Item', 'Qty', 'Status', 'Unit mass [kg]', 'Price'], rows, label_cols=0, cls='bom', widths=['10%', '44%', '5%', '15%', '11%', '15%']))
+    o.append(note_box(f'Bleed provision mass estimate (excluding the valves): {pm.h(".3f")}. Valve mass: {tvtxt(ctx.v("BOM", "/provision_mass_estimate_kg/valves", tag="TO-VERIFY")).html}', 'info'))
+    return '\n'.join(o)
+
+
+def sec_materials(ctx, doc, a, D):
+    o = [doc.h(1, '6 Materials and thermal protection')]
+    o.append(doc.h(2, '6.1 Materials'))
+    rows = []
+    for mname, info in sorted(D['mat_usage'].items(), key=lambda kv: -kv[1]['mass_tv'].value):
+        rows.append([esc(mname), Cell(info['n_tv'].h(), [info['n_tv']]), num_cell(info['mass_tv'], '.4f'), Cell(info['o2_tv'].h(), [info['o2_tv']])])
+    o.append(dtable(['Material (BOM material_name)', 'Lines', 'Mass', 'Oxygen-clean lines'], rows, widths=['52%', '12%', '20%', '16%'],
+                    caption='Material usage over the BOM part lines (DERIVED by this generator; transport lock and standard hardware excluded).'))
+    o.append(doc.h(2, '6.2 Short-time exposure of the 6061-T6 case and head (T-F1)'))
+    tf = ctx.v('TXT5', '/T-F1', tag='CALC')
+    av = ctx.v('TXT5', '/T-F1_exposure_basis_R9/abort_value', tag='LEAD')
+    al = ctx.raw('TXT5', '/T-F1_engmat_10000h_values_used_by_the_cells', default={}) or {}
+    rows = [['T-F1 founder action (text v5)', cat(tvtxt(tf, 1400), gnote('continues; printed in full in §12.3 with routes (i) and (ii), the coupon test and its pass rules', []))],
+            ['Criteria status', tf1_status_cell(ctx, D)], ['Abort value', tvtxt(av)]]
+    for T in al:
+        rows.append([f'6061-T6 allowables at {esc(T)} C (10 000 h basis): Fty / Ftu',
+                     cat(ctx.v('TXT5', ptr_join('T-F1_engmat_10000h_values_used_by_the_cells', T, 'Fty_MPa'), 'MPa', tag='LITERATURE').h('.1f'), ' / ',
+                         ctx.v('TXT5', ptr_join('T-F1_engmat_10000h_values_used_by_the_cells', T, 'Ftu_MPa'), 'MPa', tag='LITERATURE').h('.1f'))])
+    o.append(dtable(['Item', 'Value'], rows, widths=['36%', '64%'], cls='tight',
+                    caption='04-fea/v352/texts/item_c_tf1_texts_v352_v5.json. The 10 000 h values are conservative for a short exposure; (d) stays OPEN until a sourced short-time allowable exists.'))
+    o.append(doc.h(2, '6.3 Thermal protection and thermal loads'))
+    T = '/thermal_and_loads'
+    pf = ctx.v('CMB', f'{T}/peak_convective_heat_flux_W_m2', 'MW/m²', conv=(1e-6, 0, 'W/m² to MW/m²'))
+    hg = ctx.v('CMB', f'{T}/peak_h_g_W_m2K', 'W/(m²·K)')
+    taw = ctx.v('CMB', f'{T}/T_aw_throat_K', 'K')
+    pfi = ctx.v('CMB', f'{T}/peak_incident_flux_cold_wall_transient_W_m2', 'MW/m²', conv=(1e-6, 0, 'W/m² to MW/m²'))
+    ci = D['cause_idx'].get('OVER_TEMP', 0)
+    cot = ctx.v('ELE', f'/abort_matrix/causes/{ci}/thresholds/kCaseOverTemp_K', 'K')
+    crl = ctx.v('ELE', f'/abort_matrix/causes/{ci}/thresholds/kCaseRelightMax_K', 'K')
+    nht = ctx.v('ELE', f'/abort_matrix/causes/{ci}/thresholds/kNozzleHolderOverTemp_K', 'K')
+    rows = [
+        ['Grain-zone liner thickness', num_cell(ctx.v('CMB', '/gas_path/liner_grain_zone/thickness_m', 'mm', conv=(1000, 0, 'm to mm')), '.1f')],
+        ['Post-chamber insulator', tvtxt(ctx.v('CMB', '/gas_path/post_chamber_insulator'), 300)],
+        ['Peak convective heat flux at the throat (Bartz, 600 K wall)', num_cell(pf, '.2f')],
+        ['Peak gas-side heat-transfer coefficient', num_cell(hg, '.0f')],
+        ['Adiabatic wall temperature at the throat', Cell(temp_k(taw, 0), [taw])],
+        ['Incident flux on a cold wall at start (nominal–conservative)', num_cell(pfi, '.2f')],
+        ['Throat insert replacement rule', tvtxt(ctx.v('CMB', f'{T}/throat_replacement_rule'))],
+        ['Throat insert acceptance (NZ-01 criterion)', tvtxt(ctx.v('CMB', '/nz01_criterion_v2p4b/v/criterion', tag_ptr='/nz01_criterion_v2p4b'), 500)],
+        ['Nozzle gasket NZ-03 finding / joint J1', cat(tvtxt(ctx.v('CMB', '/nozzle_joint/v/NZ03_gasket', tag_ptr='/nozzle_joint')), '<br>',
+                                                     tvtxt(ctx.v('CMB', '/nozzle_joint/v/proposal_J1', tag_ptr='/nozzle_joint')))],
+        [f'Case-TC abort A / start and relight limit / nozzle-holder limit (firmware {fw_ver(D)})', cat(temp_k(cot, 2), ' / ', temp_k(crl, 2), ' / ', temp_k(nht, 2), Cell('', [cot, crl, nht]))],
+        ['Case-TC decisions (CHANGELOG 257)', tvtxt(D['cl'].part(257, ['423.15', '403.15']), 600)],
+    ]
+    o.append(dtable(['Item', 'Value'], rows, widths=['36%', '64%']))
+    o.append('<p class="small">Thermal margins of the parts: 3D FEA thermal and thermo-mechanical cases, §9 (margin matrix columns LC3, TD, LC6, TB70, TBS).</p>')
+    return '\n'.join(o)
+
+
+def glb_absent(ctx, D):
+    """Statement of the BOM parts that are not in the GLB display mesh, so in no render (lead 2026-10-21 12:13Z item 12):
+    render metadata /pns of the isometric view against BOM /lines and BOM /hardware/lines (computed, not typed)."""
+    if 'gabs' in D:
+        return D['gabs']
+    R = D['R'].get('iso')
+    if not R:
+        D['gabs'] = ctx.missing('render metadata of the isometric view (part list)')
+        return D['gabs']
+    pns_tv = ctx.v(R['sid'], '/pns', tag='DERIVED', note='part numbers of the GLB objects in the render (render script, from the GLB)')
+    pns = set(pns_tv.value or [])
+    ml = [r for r in D['bom'] if r.kind == 'lines' and r.pn not in pns]
+    mh = [r for r in D['hw'] if r.pn not in pns]
+    hwd = ctx.raw('HWD', '/lines', default=[]) or []
+    parts = []
+    if mh:
+        named = [r.pn for r in mh if r.pn in ('ENG-HW-101', 'ENG-HW-170')]
+        parts.append(f'all {len(mh)} of the {len(D["hw"])} standard-hardware lines of BOM /hardware ({mh[0].pn} to {mh[-1].pn}; hardware_v352 lists '
+                     f'{len(hwd)} lines), so no screw, spring, pin or insert' + (f', among them {" and ".join(named)} (the J-FWD radial screw and the disc spring under its head)' if named else ''))
+    for r in ml:
+        parts.append(f'{r.pn} ({r.l.get("name") or ""})')
+    txt = ('Not in the GLB display mesh, so shown in no render: ' + '; '.join(parts) + '.') if parts else 'Every BOM line is in the GLB display mesh.'
+    D['gabs'] = ctx.d(txt, '', 'BOM /lines and BOM /hardware/lines whose part number is not among the render metadata /pns (isometric view)',
+                      [pns_tv] + [r.row_tv for r in ml] + [r.row_tv for r in mh])
+    return D['gabs']
+
+
+def bay_cells(ctx, D):
+    """Bay bore (REQUIREMENTS.md §1), thrust-ring size from the CAD bounds, the gimbal range and stop (ENG-07), the
+    max thrust (ENG-01) and the lateral thrust at the range: current sources for the airframe-facing rows (lead 12:13Z item 3)."""
+    if 'bay' in D:
+        return D['bay']
+    import math
+    B = {}
+    B['req'] = md_row(ctx, 'REQ', '1. Mission', 'Engine-bay inner diameter', 1, tag_col=2)
+    bore = rx_text(ctx, B['req'], r'≥\s*([\d.]+)\s*mm', 'mm')
+    ods = []
+    for pfx in ('ENG-GM-09', 'ENG-GM-10'):
+        lo, hi, n = manifest_extent(ctx, pn_prefix=pfx)
+        if n:
+            ods.append(max(hi[0] - lo[0], hi[1] - lo[1]))
+    od = max(ods) if ods else None
+    B['ring_od'] = man_tv(ctx, od, 'largest x or y extent of the thrust rings', pn_prefix='ENG-GM-09 / ENG-GM-10')
+    B['gap'] = ctx.d((bore.value - od) / 2 if (bore.value is not None and od is not None) else None, 'mm',
+                     '(bay inner diameter − thrust-ring outer diameter) / 2', [bore, B['ring_od']])
+    out, refs = [], [B['ring_od']]
+    if od is not None:
+        for it in ctx.raw('MAN', '/instances', default=[]) or []:
+            b = it['bounds_mm']
+            rr = max(abs(b[0]), abs(b[1]), abs(b[3]), abs(b[4]))
+            pn = it['inst'].split('#')[0]
+            if rr > od / 2 + 1e-6 and pn not in ('ENG-GM-09', 'ENG-GM-10'):
+                br = D['bom_by_pn'].get(pn)
+                if br is not None:
+                    refs.append(br.row_tv)
+                nm = (br.l.get('name') if br else '') or ''
+                if len(nm) > 200:  # never cut a name silently (rev1 phase 2: the 110-character cut dropped 'ICD-14)')
+                    nm = nm[:nm.rfind(' ', 0, 199)] + ' …'
+                out.append(f'{it["inst"]}: {rr:.2f} mm from the axis ({nm})')
+    B['beyond'] = ctx.d('; '.join(out) if out else 'none', '', 'instances whose bounding box reaches beyond the thrust-ring radius (largest |x| or |y| of the bounds)', refs)
+    e07 = md_row(ctx, 'REQ', '2. Top-level', 'ENG-07', 1, tag_col=2)
+    B['rng'] = rx_text(ctx, e07, r'Range ±(\d+)°', '°', tag='REQ')
+    B['stop'] = rx_text(ctx, e07, r'(\d+)° conical mechanical stop', '°', tag='REQ')
+    e01 = md_row(ctx, 'REQ', '2. Top-level', 'ENG-01', 1, tag_col=2)
+    B['fmax'] = rx_text(ctx, e01, r'Max thrust (\d+) N', 'N', tag='REQ')
+    f, r_ = B['fmax'].value, B['rng'].value
+    B['flat'] = ctx.d(f * math.sin(math.radians(r_)) if (f is not None and r_ is not None) else None, 'N', 'max thrust × sin(gimbal range)', [B['fmax'], B['rng']])
+    D['bay'] = B
+    return B
+
+
+def gnc_mass_cells(ctx, D):
+    """GNC vehicle basis (massprops v3.5.1, DATASHEET-INPUTS-GNC row 4) and the CAD v3.5.2 landing-mass change against GNC's re-fly
+    trigger (03-cad/v3.5.2/massdelta /gnc_trigger; lead 12:13Z item 6). gnc.json /reference_vehicle/liftoff_mass_kg is not used."""
+    if 'gncm' in D:
+        return D['gncm']
+    G = {}
+    G['row4'] = md_find(ctx, 'DSIG', None, {0: '4'}, 4, tag_col=3)
+    G['lift'] = rx_text(ctx, G['row4'], r'liftoff mass ([\d.]+) kg', 'kg', note='GNC basis: massprops v3.5.1 (row 4 basis text)')
+    G['tw'] = rx_text(ctx, md_find(ctx, 'DSIG', None, {0: '4'}, 2, tag_col=3), r'([\d.]+)', '')
+    T = '/gnc_trigger'
+    G['dl'] = ctx.v('MDEL', f'{T}/dm_landing_kg', 'kg', tag_ptr=f'{T}/evidence')
+    G['dl0'] = ctx.v('MDEL', f'{T}/dm_landing_without_TC09_thinning_kg', 'kg', tag_ptr=f'{T}/evidence')
+    G['thin'] = ctx.v('MDEL', f'{T}/TC09_thinning_kg', 'kg', tag_ptr=f'{T}/evidence')
+    G['trig'] = rx(ctx, 'MDEL', f'{T}/rule', r'>= ([\d.]+) kg', 'kg', tag='LEAD', note="GNC's re-fly trigger as written in the rule (lead / GNC trigger)")
+    G['verdict'] = ctx.v('MDEL', f'{T}/verdict', tag_ptr=f'{T}/evidence')
+    G['evid'] = ctx.v('MDEL', f'{T}/evidence', tag_ptr=f'{T}/evidence')
+    D['gncm'] = G
+    return G
+
+
+def bom_name_cell(r, maxlen=200):
+    """BOM line name in full (row trace of the line)."""
+    nm = (r.l.get('name') or '')
+    nm = nm if len(nm) <= maxlen else nm[:maxlen].rsplit(' ', 1)[0] + ' …'
+    return Cell(f'<span class="qt">{esc(r.pn)}: {esc(nm)}</span> {r.row_tv.pill()}{r.row_tv.ref()}', [r.row_tv])
+
+
+# ---------------------------------------------------------------------------------------------
+# section 9: structural analysis, 3D FEA of the assembled engine on CAD v3.5.2 (FEA3D-2) and the
+# rows-v8 margin matrix; J-FWD joint rows; mounting data; stiffness and modes; F4 joints
+# ---------------------------------------------------------------------------------------------
+MX_GROUPS = [('Static, pressure and FA-1 cases', ['LC1', 'LC2', 'LC2F', 'FA1Q', 'FA1D', 'FA1U', 'FA1S', 'FA1T']),
+             ('Landing, gimbal-stop and thermal cases', ['LC3 cold', 'LC3 hot bound', 'GS', 'TD', 'LC6 F2', 'F2 hot bound', 'LC6 soak']),
+             ('Thermal-abort states, joints and the part minimum', ['TB70', 'TBS', 'J-FWD', 'J-FD01', 'J-FD09', 'min'])]
+MX_TAG = 'margin matrix v3.5.2 on rows v8 (lead re-run; 234 (4) all-node rule; MS = allowable / (SF x stress) - 1)'
+NUMRE = re.compile(r'[+\-−]?\d+\.\d+')
+
+
+def mx_display(txt, fn, label):
+    """Matrix cell text -> compact html: the 'y / u' pair and flags; a long parenthetical goes to a footnote."""
+    t = txt.strip()
+    if t in ('-', ''):
+        return '–'
+    main, note = t, None
+    k = t.find('(')
+    if k > 0:
+        main, note = t[:k].rstrip(), t[k:]
+    main = re.sub(r'(?<![\w.])-(?=\d)', '−', main)
+    h = esc(main)
+    if note and len(note) <= 18:
+        h += f' <span class="small">{esc(note)}</span>'
+    elif note:
+        fn.append(f'{label}: {txt}')
+        h += f'<sup>{len(fn)}</sup>'
+    return h
+
+
+def mx_numbers(txt):
+    v = [float(x.replace('−', '-')) for x in NUMRE.findall(txt or '')[:2]]
+    return v
+
+
+def plot_min_margin(a, rows):
+    """rows: [(part, value, col, cls)] lowest margin per part (bar chart, negatives red)."""
+    plt = mpl_setup()
+    n = len(rows)
+    fig, ax = plt.subplots(figsize=(6.9, 0.165 * n + 0.75))
+    cap = 2.0
+    for i, (p, v, col, cls) in enumerate(rows):
+        y = n - 1 - i
+        if v is None:
+            ax.text(0.01, y, 'MISSING', va='center', fontsize=5.8, color=C_BAD)
+            continue
+        vv = min(v, cap)
+        c = C_BAD if v < 0 else (C_WARN if v < 0.05 else C_ACC)
+        ax.barh(y, vv, height=0.66, color=c)
+        lab = f'{v:+.3f}  {col}' + (f'  [{cls}]' if cls else '')
+        if v > cap:
+            ax.text(cap + 0.03, y, f"> {lab}", va='center', fontsize=5.6, color='#333')
+        elif v < 0:
+            ax.text(0.03, y, lab, va='center', fontsize=5.6, color='#8c1d24')
+        else:
+            ax.text(vv + 0.03, y, lab, va='center', fontsize=5.6, color='#333')
+    ax.set_yticks(range(n))
+    ax.set_yticklabels([r[0] for r in rows][::-1], fontsize=6.0)
+    ax.axvline(0, color='#333', lw=0.7)
+    ax.axvline(0.05, color=C_WARN, lw=0.6, ls=':')
+    ax.set_xlim(-0.7, cap + 1.15)
+    ax.set_xlabel('lowest margin of safety over every case (MS_y or MS_u, the lower); bars clipped at +2.0')
+    ax.grid(axis='y', visible=False)
+    fig.tight_layout()
+    return save_plot(fig, a, 'plot_min_margin')
+
+
+def mx_part_rows(ctx):
+    rows = md_rows_where(ctx, 'MMXMD', 'FEA3D margin matrix v3.5.2')
+    hdr = md_rows_all(ctx.src('MMXMD').text or '', 'FEA3D margin matrix v3.5.2')[0][1]
+    return hdr, rows
+
+
+def mx_json_row(ctx, part):
+    for i, r in enumerate(ctx.raw('MMX', '/rows', default=[]) or []):
+        if r.get('part') == part.split(' (')[0] or r.get('part') == part:
+            return i, r
+    return None, None
+
+
+def mx_jfwd_tag(ctx, part, extra=''):
+    """Tag text of a J-FWD matrix cell: the class of each governing entry as margin_matrix_v352.json gives it (REV-DS-1 D1-07:
+    TC-01 governing[0] SOAK MS_y 'CALC / DERIVED', governing[1] FA1S MS_u 'CALC'); the pill is CALC."""
+    _, jr = mx_json_row(ctx, part)
+    g = (((jr or {}).get('cells') or {}).get('J-FWD') or {}).get('governing') or []
+    gs = []
+    for k, e in enumerate(g):
+        ms = '; '.join(f'{m} {e.get(m):+.3f}' for m in ('MS_y', 'MS_u') if isinstance(e.get(m), (int, float)))
+        gs.append(f'governing[{k}] {e.get("state")} ({ms}): {e.get("tag")}')
+    return MX_TAG + ('; J-FWD cell classes (margin_matrix_v352.json): ' + ' | '.join(gs) if gs else '') + extra
+
+
+def sec_fea_matrix(ctx, doc, a, D, o):
+    hdr, rows = mx_part_rows(ctx)
+    colidx = {c: j for j, c in enumerate(hdr)}
+    o.append(doc.h(2, '9.2 Margin matrix: every part × every load case'))
+    o.append(f'<p>{inl(md_line_starting(ctx, "MMXMD", "Cell = MS_y", "DERIVED", tag_raw=MX_TAG))}</p>')
+    o.append(note_box('Read the matrix as found: a negative cell is a FOUND NEGATIVE of the model and is never shown as passing. '
+                      'Cells are MS_y / MS_u (yield / ultimate; one value for brittle parts). Red cells are negative; amber cells are below +0.05. '
+                      '"–" means the case is not evaluated for that part (§9.2.4). Classes and closures of every negative cell are in §9.3.', 'neg'))
+    nmis = 0
+    for gi, (gname, cols) in enumerate(MX_GROUPS):
+        fn = []
+        body = []
+        for ln, r in rows:
+            part = re.sub(r'\*\*', '', r[0]).strip()
+            cells = [Cell(f'<b>{esc(part)}</b>', [])]
+            ji, jr = mx_json_row(ctx, part)
+            for c in cols:
+                j = colidx.get(c)
+                if j is None or j >= len(r):
+                    cells.append(ctx.missing(f'matrix column {c}'))
+                    continue
+                txt = re.sub(r'\*\*', '', r[j]).strip()
+                ev = 'DERIVED' if c == 'min' else ('CALC' if c == 'J-FWD' else 'SIM')
+                tv = md_cell_ln(ctx, 'MMXMD', ln, r, j, ev, tag_raw=(mx_jfwd_tag(ctx, part) if c == 'J-FWD' else MX_TAG), label=part)
+                html_ = mx_display(txt, fn, f'{part} {c}')
+                if html_ == '–':
+                    cells.append(Cell('–', [tv]))
+                else:
+                    cells.append(Cell(f'{html_}{tv.ref()}', [tv], cls=val_class(txt)))
+                # generator cross-check of the md cell against the matrix JSON (same publication)
+                if jr is not None and c != 'min' and txt not in ('-', '') and not txt.startswith('>'):
+                    jv = ((jr.get('cells') or {}).get(c) or {}).get('value')
+                    mv = mx_numbers(txt)
+                    if isinstance(jv, list) and mv:
+                        jn_ = [x for x in jv if isinstance(x, (int, float))]
+                        if jn_ and abs(jn_[0] - mv[0]) > 0.0015:
+                            nmis += 1
+                            ctx.issue('WARN', f'matrix md vs json differ: {part} {c}: md {txt!r} json {jv}')
+            body.append(cells)
+        heads = ['Part'] + [esc(c) for c in cols]
+        w0 = '13%'
+        wc = f'{87 / len(cols):.1f}%'
+        o.append(dtable(heads, body, cls='mx', widths=[w0] + [wc] * len(cols),
+                        caption=f'Table 9.{gi + 1}: {esc(gname)} (MS_y / MS_u; flags r, a, c, p, s, w as defined in the matrix text above; MF / BT classes; '
+                                f'source MMXMD {esc(src_label(ctx, "MMXMD"))}).'))
+        if fn:
+            o.append('<div class="fn">' + ''.join(f'<p><sup>{i + 1}</sup> {esc(t)}</p>' for i, t in enumerate(fn)) + '</div>')
+    D['mx_mismatch'] = nmis
+    # lowest margin per part (JSON min) chart
+    prow, refs = [], []
+    neg_parts = []
+    for i, jr in enumerate(ctx.raw('MMX', '/rows', default=[]) or []):
+        tv = ctx.v('MMX', f'/rows/{i}/min/0', tag='DERIVED', note='lowest cell of the part (matrix json min)')
+        col = ctx.v('MMX', f'/rows/{i}/min/1', tag='DERIVED')
+        refs += [tv.tid, col.tid]
+        cls_ = ''
+        cell = ((jr.get('cells') or {}).get(col.value) or {})
+        if isinstance(cell, dict) and cell.get('class'):
+            cls_ = cell.get('class')
+        prow.append((jr.get('part'), tv.value, f'{col.value} {ctx.raw("MMX", f"/rows/{i}/min/2", default="")}', cls_))
+        if tv.value is not None and tv.value < 0:
+            neg_parts.append(jr.get('part'))
+    src = plot_min_margin(a, prow)
+    o.append(fig_html(src, 'Lowest margin of safety per part over every load case (the matrix "min" field; red = negative, amber = below +0.05; '
+                           'class of the governing cell in brackets where the matrix gives one). Bars are clipped at +2.0. DERIVED from SIM / CALC cells.',
+                      refs, 'wide'))
+    D['neg_parts'] = neg_parts
+    # columns not evaluated
+    o.append(doc.h(3, '9.2.4 Cells shown "–" and why'))
+    items = []
+    for ln, r in []:
+        pass
+    L = (ctx.src('MMXMD').text or '').splitlines()
+    on = False
+    for i, ln in enumerate(L, 1):
+        if ln.startswith('## '):
+            on = ln.startswith("## Cells shown '-' and why")
+            continue
+        if on and ln.startswith('- '):
+            items.append(ctx.t('MMXMD', f'§Cells shown "-" and why line {i}', ln[2:].strip(), 'DERIVED', tag_raw=MX_TAG))
+    o.append(dtable(['Column', 'Why'], [[Cell(esc(re.sub(r'\*\*', '', it.value).split(':')[0]), []), tvtxt(it)] for it in items],
+                    widths=['14%', '86%']))
+
+
+def mx_negatives(ctx, D):
+    """Negative-cell table of the matrix (computed once in prepare; section 1 and section 9 both use it)."""
+    if 'neg_body' in D:
+        return D['neg_body']
+    rows = md_rows_where(ctx, 'MMXMD', 'Negative cells and their classes')
+    body, by_cls = [], {}
+    for ln, r in rows:
+        part = re.sub(r'\*\*', '', r[0]).strip()
+        jf = len(r) > 1 and re.sub(r'\*\*', '', r[1]).strip() == 'J-FWD'  # a J-FWD cell is CALC (REV-DS-1 D1-07)
+        tg = mx_jfwd_tag(ctx, part, '; negative-cell table') if jf else MX_TAG + '; negative-cell table'
+        tvs = [md_cell_ln(ctx, 'MMXMD', ln, r, j, ev, tag_raw=tg, label=part)
+               for j, ev in ((1, 'SIM'), (2, 'CALC' if jf else 'SIM'), (3, 'CALC' if jf else 'SIM'), (4, 'DERIVED'), (5, 'DERIVED'), (6, 'REF'))]
+        by_cls.setdefault(tvs[3].value, []).append(tvs[3])
+        refc = tvtxt(tvs[5])
+        if isinstance(tvs[5].value, str) and re.search(r'select-fit band APPLIES \(IN718 \[[\d.]+, [\d.]+\] mm', tvs[5].value):
+            refc = cat(refc, r2b_sup_note(ctx, D))  # the line-240 band and its one re-size, superseded by R2-B (lead 2026-10-21 13:47Z, REV-DS-1 D1-01)
+            D['neg_band_tv'] = tvs[5]  # a side of contradiction C-11
+        body.append([Cell(f'<b>{esc(part)}</b>', []), tvtxt(tvs[0]), Cell(f'<b>{esc(tvs[1].value.replace("-", "−"))}</b>{tvs[1].ref()}', [tvs[1]], cls='neg'),
+                     tvtxt(tvs[2], 120), Cell(f'<span class="neg-tag">{esc(tvs[3].value)}</span>{tvs[3].ref()}', [tvs[3]]), tvtxt(tvs[4], 260), refc])
+    D['neg_total'] = ctx.d(len(body), '', 'count of rows of the matrix table "Negative cells and their classes"',
+                           [c for row in body for c in row if isinstance(c, TV)])
+    D['neg_by_class'] = {k: ctx.d(len(by_cls[k]), '', f'count of negative cells with class {k}', by_cls[k]) for k in sorted(by_cls)}
+    D['neg_body'] = body
+    return body
+
+
+def sec_fea_negatives(ctx, doc, a, D, o):
+    o.append(doc.h(2, '9.3 Found negatives: every negative cell, its class and its closure'))
+    body = mx_negatives(ctx, D)
+    ntot = D['neg_total']
+    cnt = [cat(f'<b>{esc(k)}</b> ', t.h(pill=False)) for k, t in D['neg_by_class'].items()]
+    cls_doc = {'BT': 'bad-tet node (mesh defect; lead 21:15:29Z (4))', 'MF': 'model fidelity (a named sub-model governs; lead 21:15:29Z (3))',
+               'BR': 'brittle part (graphite), thermal', 'DC': 'design change route (J-FWD seat line)', 'TS-183': 'thermal stress, 183 (1) (c) LCF / (d) time at temperature',
+               'TS-212': 'thermal stress, 212 (1) (d) time at temperature', 'CH': 'char layer against an ASSUMED strength'}
+    o.append(f'<p>{ntot.h(pill=True)} cells of the matrix are negative. By class (REV-MECH-2 section 10 classes; class rules of CHANGELOG 234 (4)): '
+             + ' · '.join(c.html for c in cnt) + '.</p>')
+    o.append(dtable(['Part', 'Column', 'Cell y / u', 'Governing record', 'Class', 'Closure (what closes it)', 'Ref'], body, label_cols=1, cls='tight',
+                    widths=['8%', '9%', '10%', '22%', '6%', '33%', '12%'],
+                    caption='Every negative matrix cell (MMXMD, section "Negative cells and their classes"). The class decides the closure route; '
+                            'no class turns a negative into a pass. Owners: see §9.10.'))
+    o.append('<p class="small">Class key (matrix class rules): ' + '; '.join(f'<b>{esc(k)}</b> {esc(v)}' for k, v in cls_doc.items()) + '. '
+             'The key is a reading aid written for this datasheet; the class of each cell is the traced value in the table.</p>')
+    sec_fea_info_negatives(ctx, doc, a, D, o)
+
+
+def sec_fea_info_negatives(ctx, doc, a, D, o):
+    """Negative cells of the information columns (margin_matrix_v352.json /info_columns): shown as information, not governing
+    (lead 2026-10-21 12:13Z item 13); a cell without a class is flagged."""
+    info = ctx.raw('MMX', '/info_columns', default=[]) or []
+    body, unc = [], []
+    for i, r in enumerate(ctx.raw('MMX', '/rows', default=[]) or []):
+        for c in info:
+            cell = (r.get('cells') or {}).get(c)
+            if not isinstance(cell, dict):
+                continue
+            v = cell.get('value')
+            vals = [x for x in (v if isinstance(v, list) else [v]) if isinstance(x, (int, float)) and not isinstance(x, bool)]
+            if not vals or min(vals) >= 0:
+                continue
+            b = ptr_join('rows', i, 'cells', c)
+            ty = ctx.v('MMX', b + '/value/0', tag='SIM', note=f'{r.get("part")} {c}: y')
+            u = v[1] if isinstance(v, list) and len(v) > 1 else None
+            tu = ctx.v('MMX', b + '/value/1', tag='SIM', note=f'{r.get("part")} {c}: u') if u is not None else None
+            cls = ctx.v('MMX', b + '/class', tag='DERIVED')
+            clo = ctx.v('MMX', b + '/closure', tag='DERIVED')
+            flag = cls.value in (None, 'UNCLASSIFIED')
+            if flag:
+                unc.append((r.get('part'), c, ty, cls, clo))
+            yu = f'<b>{esc(fmt_num(ty.value, "+.3f").replace("-", "−"))}</b> / ' + (esc(fmt_num(tu.value, '+.3f').replace('-', '−')) if tu is not None else 'n/a')
+            body.append([Cell(f'<b>{esc(r.get("part"))}</b>', []), Cell(esc(c), [ty]), Cell(f'{yu} {ty.pill()}{ty.ref()}' + (tu.ref() if tu is not None else ''), [ty] + ([tu] if tu else []), cls='neg'),
+                         Cell((f'<span class="neg-tag">{esc(cls.value)}</span>' if flag else f'<b>{esc(cls.value)}</b>') + f' {cls.pill()}{cls.ref()}', [cls]), tvtxt(clo, 220)])
+    D['info_neg_total'] = ctx.d(len(body), '', 'count of negative cells in the information columns of margin_matrix_v352.json', [c for row in body for c in row if isinstance(c, TV)])
+    o.append(doc.h(3, '9.3.1 Negative cells in the information columns (information, not governing)'))
+    o.append(f'<p>{D["info_neg_total"].h()} more cells are negative in the information columns ({esc(", ".join(info))}). They are shown as information: '
+             'they do not govern and are not in the count above.'
+             + (' <b>Flagged:</b> ' + '; '.join(f'{esc(p)} {esc(c)} {t.h(".3f")} has no class ({esc(cl_.value)}; closure: {esc(str(co.value))})'
+                                                for p, c, t, cl_, co in unc) + '.' if unc else '') + '</p>')
+    o.append(dtable(['Part', 'Column', 'Cell y / u', 'Class', 'Closure (quoted)'], body, label_cols=1, cls='tight', widths=['9%', '17%', '16%', '14%', '44%'],
+                    caption='margin_matrix_v352.json (rows v8), information columns /info_columns; cell values and classes as published.'))
+
+
+def sec_fea_named(ctx, doc, a, D, o):
+    o.append(doc.h(2, '9.4 Named findings stated plainly'))
+    hdr, rows = mx_part_rows(ctx)
+    colidx = {c: j for j, c in enumerate(hdr)}
+
+    def cell(part, col):
+        for ln, r in rows:
+            if re.sub(r'\*\*', '', r[0]).strip() == part:
+                jf = col == 'J-FWD'  # a J-FWD cell is CALC, with the classes the matrix JSON gives (REV-DS-1 D1-07, T2265)
+                return md_cell_ln(ctx, 'MMXMD', ln, r, colidx[col], 'CALC' if jf else 'SIM', tag_raw=(mx_jfwd_tag(ctx, part) if jf else MX_TAG), label=part)
+        return ctx.missing(f'matrix {part} {col}')
+    t1 = cell('TC-01', 'J-FWD')
+    neg = [r for ln, r in md_rows_where(ctx, 'MMXMD', 'Negative cells and their classes') if r[0].strip() == 'TC-04']
+    f3d10 = md_find(ctx, 'F3D', '13. Open items and owners', {0: '10'}, 2, ev='DERIVED', tag_raw='FEA3D-2 report §13 item 10')
+    f3d10o = md_find(ctx, 'F3D', '13. Open items and owners', {0: '10'}, 3, ev='LEAD', tag_raw='FEA3D-2 report §13 item 10 owner')
+    c96 = ctx.v('TXT5', '/item_C/C9_founder_texts_remap_v352/(6)_TC-02_select_fit_band_R2', tag='CALC')
+    c6 = ctx.v('TXT5', '/item_C/C6_founder_action_list_related', tag='CALC')
+    fil = ctx.v('FIL', '/verdict', tag='CALC', tag_ptr='/status')
+    lcf_st = ctx.v('LCF', '/status_183_1c', tag='LEAD')
+    k30 = ctx.v('LCF', '/governing/i_firing|Kf3.0|worst_of_histories|3750/MS_cycles_vs_50', tag='CALC')
+    k30n = ctx.v('LCF', '/governing/i_firing|Kf3.0|worst_of_histories|3750/N_allow', tag='CALC')
+    k30z = ctx.v('LCF', '/governing/ii_assembly_from_zero|Kf3.0|worst_of_histories|3750/MS_cycles_vs_50', tag='CALC')
+    k30zn = ctx.v('LCF', '/governing/ii_assembly_from_zero|Kf3.0|worst_of_histories|3750/N_allow', tag='CALC')
+    hw = cell('HW-101 (J-FWD)', 'J-FWD')
+    rows_ = [
+        ['TC-04 hot-bound cells (class BT)', cat(f3d10, Cell('', [])), tvtxt(f3d10o)],
+        ['TC-01 J-FWD seat-line P+Q (class DC)',
+         cat(Cell('Matrix cell (drawn fit): ', []), Cell(f'<b class="miss">{esc(t1.value)}</b>{t1.ref()}', [t1]),
+             '<br>R2-B select fit and the band (Mechanical, CALC on SIM): ', tvtxt(c96, 1700),
+             gnote('a build procedure: printed in full in §12.3 (R2-B select fit)', []) if len(_plain_text(c96.value or '')) > 1700 else Cell('', [])),
+         Cell('Founder / shop: select-fit process with U TO-DEFINE (R2-B, CHANGELOG 254 (1)); Mechanical / FEA3D: convergence (not shown)', [c96])],
+        ['J-FWD screw LCF at the thread root (C6 OPEN, single-use screws)',
+         cat(lcf_st, '<br>Kf 3.0, per firing: N_allow ', k30n, ', MS ', k30, '; assembly from zero: N_allow ', k30zn, ', MS ', k30z,
+             '<br>', tvtxt(c6, 2300),
+             gnote('a founder action: printed in full in §12.3 (founder rule C6, mechanical.json /jfwd_v352/founder_rules/C6, the same text)', []) if len(_plain_text(c6.value or '')) > 2300 else Cell('', [])),
+         Cell('Mechanical (closure path 2) / founder (path 3, qualification test TO-DEFINE); until then every J-FWD screw is single-use', [c6])],
+        ['J-FWD screw head-to-shank fillet from zero', tvtxt(fil, 1400), Cell('Mechanical: Kt page and T-head Kt TO-SOURCE', [fil])],
+        ['HW-101 IN718 screw, J-FWD cell (positive; rows v8)', cat(hw), Cell('Mechanical (rows v8, R6 basis)', [hw])],
+    ]
+    o.append(dtable(['Finding', 'What the sources say (quoted)', 'Owner / route'], rows_, widths=['17%', '63%', '20%'], cls='tight',
+                    caption='Named findings of the brief, each quoted from its source. The TC-01 seat-line P+Q is a FOUND NEGATIVE at the drawn fit; '
+                            'the R2-B select fit closes it only in the CALC-on-SIM band model and only if the select-fit process is carried out.'))
+    if neg:
+        o.append('<p class="small">TC-04 negative cells as listed in §9.3: ' + ', '.join(esc(f'{r[1]} {r[2]}') for r in neg) + '.</p>')
+
+
+def jfwd_rows_table(ctx, pi, part, sel, title, cls='tight'):
+    base = f'/rows/{pi}/cells/J-FWD/rows'
+    rs = ctx.raw('MMX', base, default=[]) or []
+    body = []
+    for k, r in enumerate(rs):
+        if not sel(r):
+            continue
+        p = f'{base}/{k}'
+        st = ctx.v('MMX', p + '/state', tag='DERIVED')
+        desc = ctx.v('MMX', p + '/row', tag_ptr=p + '/tag')
+        y = ctx.v('MMX', p + '/MS_y', tag_ptr=p + '/tag') if 'MS_y' in r else None
+        u = ctx.v('MMX', p + '/MS_u', tag_ptr=p + '/tag') if 'MS_u' in r else None
+        pre = ctx.v('MMX', p + '/preload_N', 'N', tag_ptr=p + '/tag') if r.get('preload_N') is not None else None
+        crit = ctx.v('MMX', p + '/criterion', tag='LEAD') if r.get('criterion') else None
+        note = ctx.v('MMX', p + '/note', tag_ptr=p + '/tag') if r.get('note') else None
+
+        def ms(tv):
+            if tv is None:
+                return Cell('–', [])
+            if tv.value is None:
+                return Cell('–', [tv])
+            c = 'neg' if tv.value < 0 else ('thin' if tv.value < 0.05 else '')
+            return Cell(f'{esc(fmt_num(tv.value, "+.3f"))}{tv.ref()}', [tv], cls=c)
+        extra = []
+        if crit is not None:
+            extra.append(crit)
+        if note is not None:
+            extra.append(note)
+        body.append([Cell(f'{esc(st.value)}{st.ref()}', [st]), tvtxt(desc, 150), ms(y), ms(u),
+                     Cell(esc(str(pre.value)) + pre.ref(), [pre]) if pre is not None else Cell('–', []),
+                     Cell(f'{esc(str(r.get("tag") or ""))} {desc.pill()}', [desc]),
+                     cat(*[Cell(f'<div class="small">{esc(clipw(e.value, 140))}{e.ref()}</div>', [e]) for e in extra]) if extra else Cell('–', [])])
+    return body
+
+
+def sec_fea_jfwd(ctx, doc, a, D, o):
+    o.append(doc.h(2, '9.5 J-FWD joint rows (TC-01 / TC-02 / HW-101 screw)'))
+    o.append(f'<p>{inl(md_heading(ctx, "MMXMD", "J-FWD column rows", "DERIVED", tag_raw=MX_TAG))}. '
+             'The criterion rows set the matrix cell; the hand-form LC2N / LC2M rows are shown beside them as information (lead 03:30:46Z, CHANGELOG 250 (2)); '
+             'every other information row follows in a third table. Values are from the matrix JSON (MMX), row by row.</p>')
+    heads = ['State', 'Row', 'MS_y', 'MS_u', 'Preload', 'Tag', 'Criterion / note']
+    widths = ['7%', '41%', '7%', '7%', '7%', '10%', '21%']
+    for part in ('TC-01', 'TC-02', 'HW-101 (J-FWD)'):
+        pi, jr = mx_json_row(ctx, part)
+        if pi is None:
+            o.append(f'<p class="miss">{esc(part)}: no J-FWD rows found</p>')
+            continue
+        cv = ctx.v('MMX', f'/rows/{pi}/cells/J-FWD/value', tag='CALC', note='J-FWD cell = minimum over the criterion rows')
+        o.append(doc.h(3, f'9.5.{("TC-01", "TC-02", "HW-101 (J-FWD)").index(part) + 1} {part}: J-FWD cell {fmt_num(cv.value[0], "+.3f")} / {fmt_num(cv.value[1], "+.3f")}'
+                       if isinstance(cv.value, list) and len(cv.value) == 2 and None not in cv.value else f'9.5 {part}'))
+        crit = jfwd_rows_table(ctx, pi, part, lambda r: not r.get('info'), 'criterion')
+        lc2 = jfwd_rows_table(ctx, pi, part, lambda r: r.get('info') and r.get('state') in ('LC2N', 'LC2M'), 'LC2 info')
+        oth = jfwd_rows_table(ctx, pi, part, lambda r: r.get('info') and r.get('state') not in ('LC2N', 'LC2M'), 'other info')
+        o.append(dtable(heads, crit, label_cols=0, cls='tight', widths=widths,
+                        caption=f'{esc(part)}: criterion rows ({len(crit)}); cell {cv.h(pill=False)}.'))
+        if lc2:
+            o.append(dtable(heads, lc2, label_cols=0, cls='tight', widths=widths,
+                            caption=f'{esc(part)}: hand-form LC2N / LC2M rows, INFORMATION beside the criterion (rule (A), lead 03:30:46Z) ({len(lc2)}).'))
+        if oth:
+            o.append(dtable(heads, oth, label_cols=0, cls='tight', widths=widths,
+                            caption=f'{esc(part)}: other information rows ({len(oth)}); they do not set the cell.'))
+
+
+def sec_fea_mount(ctx, doc, a, D, o):
+    o.append(doc.h(2, '9.6 Mounting data: loads at the 16 airframe holes'))
+    rule = ctx.v('MOUNT', '/datasheet_v352_governing/rule', tag='DERIVED')
+    o.append(f'<p>{inl(md_line_starting(ctx, "MOUNTMD", "Generated", "SIM", tag_raw="FEA3D mounting data (SIM unless tagged)"))}</p>')
+    o.append(f'<p>Governing rule: {inl(rule)} The CHANGELOG ruling: {inl(D["cl"].item(249, 6))}</p>')
+    sec = 'v3.5.2 model: DATASHEET per-hole values, governing'
+    allr = md_rows_all(ctx.src('MOUNTMD').text or '', sec)
+    if not allr:
+        o.append('<p class="miss">mounting table not found</p>')
+        return
+    hdr = allr[0][1]
+    rows = allr[1:]
+    o.append(f'<p class="small">{inl(md_line_starting(ctx, "MOUNTMD", "Cell = max shear", "DERIVED", tag_raw="FEA3D mounting data legend"))}</p>')
+    for gi, (lo, hi) in enumerate(((1, 8), (8, len(hdr)))):
+        body = []
+        for ln, r in rows:
+            lab = re.sub(r'\*\*', '', r[0]).strip()
+            cells = [Cell(f'<span class="mono">{esc(lab)}</span>', [])]
+            for j in range(lo, hi):
+                tv = md_cell_ln(ctx, 'MOUNTMD', ln, r, j, 'DERIVED', tag_raw='FEA3D mounting rows: SIM as found, moment-free estimate DERIVED (! = estimate governs)', label=lab)
+                cells.append(Cell(f'{esc(tv.value)}{tv.ref()}', [tv]))
+            body.append(cells)
+        o.append(dtable(['Hole (x, y, z mm)'] + [esc(h) for h in hdr[lo:hi]], body, cls='mount',
+                        widths=['17%'] + [f'{83 / (hi - lo):.1f}%'] * (hi - lo),
+                        caption=f'Per-hole governing loads, part {gi + 1} of 2: max shear / max |axial| / max pull-out [N] per case; '
+                                f'"!" = the moment-free estimate governs that value by 0.5 N or more; "*" = a compliant-airframe value exceeds the rigid one '
+                                f'(MOUNTMD {esc(src_label(ctx, "MOUNTMD"))}).'))
+    # totals on the airframe (rigid)
+    body = []
+    for case in (ctx.raw('MOUNT', '/datasheet_v352_governing/groups', default={}) or {}):
+        base = f'/datasheet_v352_governing/groups/{case}/total_on_airframe_rigid'
+        F = ctx.v('MOUNT', base + '/max_abs_F_N', 'N', tag='DERIVED', tag_ptr=f'/datasheet_v352_governing/groups/{case}/tag')
+        M = ctx.v('MOUNT', base + '/max_abs_M_Nmm', 'N mm', tag='DERIVED', tag_ptr=f'/datasheet_v352_governing/groups/{case}/tag')
+        body.append([esc(case), Cell(esc(', '.join(fmt_num(x, '.1f') for x in (F.value or []))) + F.ref(), [F]),
+                     Cell(esc(', '.join(fmt_num(x, '.0f') for x in (M.value or []))) + M.ref(), [M])])
+    o.append(dtable(['Case', 'Total force on the airframe, max |Fx|, |Fy|, |Fz| [N]', 'Total moment, max |Mx|, |My|, |Mz| [N mm]'], body,
+                    widths=['16%', '42%', '42%'], cls='tight', caption='Resultant of the 16 hole loads on the airframe, rigid airframe, per case (DERIVED).'))
+    ms = [('Included FE model mass, v3.5.2 (L1)', '/mass/v352/model_kg'), ('Engine group in the model', '/mass/v352/engine'),
+          ('Excluded airframe-wall equipment (loads go to the wall directly)', '/mass/v352/excluded_kg')]
+    o.append(dtable(['Mounting data header', 'Value'], [[l, num_cell(ctx.v('MOUNT', p, 'kg', tag='DERIVED'), '.3f')] for l, p in ms], widths=['60%', '40%']))
+
+
+def sec_fea_stiff(ctx, doc, a, D, o):
+    o.append(doc.h(2, '9.7 Gimbal axis stiffness (R3 poses) and rocking modes'))
+    o.append(f'<p>{inl(ctx.v("KTAB", "/evidence", tag="SIM"))}</p>')
+    body = []
+    for i, r in enumerate(ctx.raw('KTAB', '/rows', default=[]) or []):
+        b = f'/rows/{i}/values'
+        cells = [Cell(f'<b>{esc(r.get("pose"))}</b> <span class="small">{esc(str(r.get("kind") or ""))}</span>', [])]
+        for key in ('FE_coupled_alpha', 'FE_coupled_beta', 'k_s58_coupled_alpha', 'k_s58_coupled_beta', 'k_s174_coupled_alpha', 'k_s174_coupled_beta'):
+            tv = ctx.v('KTAB', f'{b}/{key}/R3', 'N m/rad', tag='DERIVED' if key.startswith('k_s') else 'SIM')
+            cells.append(num_cell(tv, '.0f', unit=False))
+        fr = ctx.v('KTAB', f'/rows/{i}/fraction_max', tag='DERIVED')
+        cells.append(num_cell(fr, '.3f'))
+        body.append(cells)
+    o.append(dtable(['Pose', 'FE α', 'FE β', 'k_s 58: α', 'k_s 58: β', 'k_s 174: α', 'k_s 174: β', 'Fraction max'], body, cls='tight',
+                    widths=['22%', '10%', '10%', '11%', '11%', '11%', '11%', '14%'],
+                    caption='Axis stiffness K at the 17 R3 poses [N m/rad], coupled values: FE alone (SIM) and with the servo in series at k_s 58 and 174 N m/rad '
+                            '(ASSUMED, TO-VERIFY at B-TVC-1). Fraction = the pose change over the stop045 change (KTAB).'))
+    body = []
+    for ks in ('58', '174'):
+        for J in ('J_free', 'J_low', 'J_nom', 'J_high'):
+            tv = ctx.v('ROCK', f'/pose_range_Hz/{ks}/{J}', 'Hz', tag_ptr='/tag')
+            body.append([f'k_s {ks} N m/rad, {J.replace("_", " ")}', Cell(esc(' – '.join(fmt_num(x, '.1f') for x in (tv.value or []))) + ' Hz ' + tv.pill() + tv.ref(), [tv])])
+    Jv = ctx.v('ROCK', '/J_kgm2', 'kg m2', tag_ptr='/tag')
+    o.append(dtable(['Servo stiffness and inertia case', 'Rocking-mode range over the 17 poses'], body, widths=['45%', '55%'], cls='tight',
+                    caption=f'Lumped 2-DOF rocking frequencies (ROCK; rigid airframe). Servo J values: {esc(readable(Jv.value))} {Jv.ref()}.'))
+
+
+def sec_fea_f4(ctx, doc, a, D, o):
+    o.append(doc.h(2, '9.8 Secondary joints J-FD01 / J-FD09 (F4)'))
+    body = []
+    for jn_ in ('J-FD01', 'J-FD09'):
+        b = f'/joints/{jn_}'
+        hwv = ctx.v('F4J', b + '/hardware', tag='DESIGN')
+        tq = ctx.v('F4J', b + '/preload/T_Nm', 'N m', tag='DESIGN')
+        fnom = ctx.v('F4J', b + '/preload/F_nom_N', 'N', tag='DERIVED')
+        for var in (ctx.raw('F4J', b + '/worst', default={}) or {}):
+            w = f'{b}/worst/{var}'
+            wb = ctx.v('F4J', w + '/bounding/MS', tag='SIM')
+            wc = ctx.v('F4J', w + '/bounding/case', tag='SIM')
+            wa = ctx.v('F4J', w + '/bounding/area', tag='SIM')
+            wp = ctx.v('F4J', w + '/phi02/MS', tag='SIM')
+            body.append([f'<b>{jn_}</b>', tvtxt(hwv, 200), cat(tq.h('.1f'), ' / ', fnom.h('.0f')),
+                         cat(f'<span class="small">{esc(var)}:</span> ', wa.h(pill=False)),
+                         cat(wb.h('+.3f'), '<br><span class="small">', wc.h(pill=False), '</span>'), num_cell(wp, '+.3f')])
+    o.append(dtable(['Joint', 'Hardware', 'Torque / nominal preload', 'Variant / area', 'Worst bolt MS_y (bounding)', 'MS_y with Φ 0.2'], body, cls='tight',
+                    widths=['8%', '34%', '14%', '14%', '18%', '12%'],
+                    caption='F4 secondary joints on the v3.5.2 hardware (F4J; preload scatter ±25 % and K 0.20 ASSUMED). The matrix cells J-FD01 / J-FD09 are in Table 9.3.'))
+
+
+def sec_fea_followups(ctx, doc, a, D, o):
+    o.append(doc.h(2, '9.9 Mechanical follow-ups after FEA3D-2: tap wall v3, LC-TB70 v2, C1 seat'))
+    st = ctx.v('TAPW', '/status', tag='CALC')
+    vd = ctx.v('TAPW', '/verdict', tag='CALC', tag_ptr='/status')
+    g = '/rows/3750/governing'
+    rows = [['Governing (TC-02 thread, SOAK52)', cat(ctx.v('TAPW', g + '/TC02_thread_T/MS_y', tag='CALC').h('+.3f'), ' / ',
+                                                    ctx.v('TAPW', g + '/TC02_thread_T/MS_u', tag='CALC').h('+.3f'))],
+            ['Screw-temperature sensitivity (SOAK70)', cat(ctx.v('TAPW', g + '/worst_with_screw_T_sensitivity/MS_y', tag='CALC').h('+.3f'), ' / ',
+                                                           ctx.v('TAPW', g + '/worst_with_screw_T_sensitivity/MS_u', tag='CALC').h('+.3f'))],
+            ['Verdict', tvtxt(vd, 900)], ['Status', tvtxt(st, 400)]]
+    o.append(dtable(['TC-02 torch-tap wall at FA1S (R4-01)', 'Value'], rows, widths=['30%', '70%'], cls='tight',
+                    caption=f'Tap wall v3 (TAPW {esc(src_label(ctx, "TAPW"))}); R4-01 CLOSED in CHANGELOG 259 (1).'))
+    rows = [['Z3 v2 (ruled)', tvtxt(ctx.v('TB70', '/Z3_v2_text', tag='LEAD'), 1500)],
+            ['J-FWD replace rule on Q_JFWD', tvtxt(ctx.v('TB70', '/jfwd_rule_v2_text', tag='LEAD'), 1500)],
+            ['F4 TB-state abort set', tvtxt(ctx.v('TB70', '/F4_abort_set/verdict', tag='CALC'), 700)],
+            ['Status', tvtxt(ctx.v('TB70', '/status', tag='CALC'), 500)]]
+    o.append(dtable(['LC-TB70 envelope v2', 'Text (quoted)'], rows, widths=['22%', '78%'], cls='tight',
+                    caption=f'LC-TB70 envelope v2 (TB70 {esc(src_label(ctx, "TB70"))}); ruled in CHANGELOG 258 (3).'))
+
+
+def sec_fea(ctx, doc, a, D):
+    o = [doc.h(1, '9 Structural analysis: 3D FEA of the assembled engine (CAD v3.5.2)')]
+    o.append(note_box(f'<b>{esc(PAGE_STATEMENT)}.</b> Every margin below is a model result (SIM), a hand calculation on model loads (CALC) or a value derived '
+                      'from them (DERIVED). Negatives are shown as found. ' + inl(md_line_starting(ctx, 'F3D', 'Delivered by', 'DERIVED',
+                                                                                                  tag_raw='FEA3D-2 report §0 checkpoint')), 'warn'))
+    o.append(doc.h(2, '9.1 Model, loads and status'))
+    rows = []
+    for k in ('Status', 'Author', 'Configuration', 'Tool', 'Units', 'Tags'):
+        tv = md_find(ctx, 'F3D', 'REPORT FEA3D v3.5.2', {0: k}, 1, ev='DERIVED', tag_raw='FEA3D-2 report header table')
+        c = tvtxt(tv, 900)
+        if k == 'Configuration':
+            # the CAD manifest of record (REV-DS-1 N-04): the issues quoted in this row are earlier issues of the same file
+            cm = src_tv(ctx, 'CADMAN')
+            ctext = ctx.src('CADMAN').text or ''
+            nrow = ctx.d(len([x for x in ctext.splitlines() if x.strip()]), '', 'count of the non-empty rows of 03-cad/v3.5.2/MANIFEST_v3.5.2.sha256', [cm])
+            c = cat(c, gnote(f'manifest of record: 03-cad/v3.5.2/MANIFEST_v3.5.2.sha256 {esc(ctx.src("CADMAN").sha16 or "MISSING")}{cm.ref()}, '
+                             f'{nrow.value} rows{nrow.ref()}; the issues quoted in this row are its earlier issues', [cm, nrow]))
+        rows.append([k, c])
+    rows.append(['Independent review', tvtxt(D['cl'].item(262, 3))])
+    rows.append(['Margin matrix of record', cat(md_line_starting(ctx, 'MMXMD', 'Cell = MS_y', 'DERIVED', tag_raw=MX_TAG), Cell('', []))])
+    rows.append(['Matrix delta vs the FEA3D-2 table', cat(tvtxt(ctx.v('MMXD', '/why', tag='DERIVED', tag_ptr='/tag'), 600))])
+    o.append(dtable(['Item', 'Value'], rows, widths=['18%', '82%'], cls='tight',
+                    caption=f'FEA3D v3.5.2 report header (F3D {esc(src_label(ctx, "F3D"))}) and the rows-v8 matrix of record.'))
+    o.append(doc.h(3, '9.1.1 Mesh convergence status'))
+    rows = [['Seat-line P+Q (J-FWD)', tvtxt(md_line_starting(ctx, 'F3D', 'MF note', 'SIM', tag_raw='FEA3D-2 report §5.3 MF note', after_heading='5. Mesh convergence'))],
+            ['Check cD (finer mesh, FINAL TC-01)', tvtxt(D['cl'].item(252, 1))],
+            ['Ruling on cD', tvtxt(D['cl'].item(250, 10), 900)]]
+    o.append(dtable(['Point', 'Status (quoted)'], rows, widths=['22%', '78%'], cls='tight',
+                    caption='The seat-line P+Q is NOT shown mesh-converged; s6 + C1 stand in every state (CHANGELOG 250 (10), 252 (1)).'))
+    sec_fea_matrix(ctx, doc, a, D, o)
+    sec_fea_negatives(ctx, doc, a, D, o)
+    sec_fea_named(ctx, doc, a, D, o)
+    sec_fea_jfwd(ctx, doc, a, D, o)
+    sec_fea_mount(ctx, doc, a, D, o)
+    sec_fea_stiff(ctx, doc, a, D, o)
+    sec_fea_f4(ctx, doc, a, D, o)
+    sec_fea_followups(ctx, doc, a, D, o)
+    o.append(doc.h(2, '9.10 FEA3D-2 open items and owners'))
+    rows = []
+    for ln, r in md_rows_where(ctx, 'F3D', '13. Open items and owners'):
+        lab = re.sub(r'\*\*', '', r[0]).strip()
+        tvs13 = [md_cell_ln(ctx, 'F3D', ln, r, j, ev, tag_raw='FEA3D-2 report §13 open items') for j, ev in ((1, 'DERIVED'), (2, 'SIM'), (3, 'LEAD'), (4, 'DERIVED'))]
+        if lab == '1':
+            D['f3d_item1'] = tvs13  # sides of contradiction C-11 (status / numbers, closure)
+        cells = [tvtxt(t, 420) for t in tvs13]
+        if lab == '1' and '0.0761' in _plain_text(tvs13[3].value or ''):
+            cells[3] = cat(cells[3], r2b_sup_note(ctx, D))  # the line-240 band quoted in the closure is superseded by R2-B (D1-01), at the quote
+        rows.append([Cell(f'<b>{esc(lab)}</b>', [])] + cells)
+    # header notes on items 1 and 2 (v0.3.1; item 1: lead 2026-10-21 13:47Z, REV-DS-1 D1-01); the item-2 numbers are traced to the matrix delta
+    r2 = r2b_ruling(D)
+    old = ctx.v('MMXD', '/cell_value_changes/0/old_MS_y_MS_u/1', tag_ptr='/tag')
+    new = ctx.v('MMXD', '/cell_value_changes/0/new_MS_y_MS_u/1', tag_ptr='/tag')
+    hn = cat('<b>Item 1</b> quotes the select-fit band of line 240 (10) and its one re-size by Mechanical ', r2b_sup_note(ctx, D),
+             ' Closure: R2-B select fit (254 (1)', r2.ref(), '); stays a found negative at the drawn fit (contradiction register C-11, §13.3). ',
+             '<b>Item 2</b> quotes ', old.h('+.3f'), ' for the HW-101 J-FWD u cell: the rows-v8 matrix of record gives ', new.h('+.3f'),
+             ' (§9.5.3; contradiction register C-01, §13.3).')
+    o.append(dtable(['#', 'Item', 'Status / numbers', 'Owner', 'Closure'], rows, cls='tight', widths=['4%', '20%', '40%', '14%', '22%'],
+                    caption='FEA3D-2 §13 as published (05:45Z). ' + hn.html))
+    o.append(doc.h(2, '9.11 Not run, superseded, and runs that wait for the lead'))
+    L = (ctx.src('F3D').text or '').splitlines()
+    on, items = False, []
+    for i, ln in enumerate(L, 1):
+        if ln.startswith('## '):
+            on = ln.startswith('## 11. Not run')
+            continue
+        if on and ln.startswith('- '):
+            items.append(ctx.t('F3D', f'§11 line {i}', ln[2:].strip(), 'DERIVED', tag_raw='FEA3D-2 report §11'))
+    o.append(dtable(['Item (quoted)'], [[tvtxt(t, 700)] for t in items], label_cols=0, cls='tight', widths=['100%'],
+                    caption='FEA3D-2 §11: nothing in this list is a margin.'))
+    return '\n'.join(o)
+
+
+# ---------------------------------------------------------------------------------------------
+# section 7 (v0.3.0): combustion, sequences, purge, abort set, FA-1 rulings, tests
+# ---------------------------------------------------------------------------------------------
+def sec_combustion(ctx, doc, a, D):
+    cl = D['cl']
+    o = [doc.h(1, '7 Combustion, sequences and the abort set')]
+    if ctx.ovr and any(e['status'] == 'ACTIVE' for e in ctx.ovr.entries):
+        o.append(note_box(f'<b>Reading this section.</b> combustion.json {esc(ctx.src("CMB").version or "")} is the source of every value here unless a row names '
+                          'another source. Where a quoted text still carries wording that a newer lead decision replaced, the old words are '
+                          '<del class="stale">struck through</del> and the decision is <ins class="dec">inserted</ins> with its override id (§13.1).', 'info'))
+    o.append(doc.h(2, '7.1 Design point'))
+    rows = [
+        ['Fuel', tvtxt(ctx.v('CMB', '/decisions/fuel'))],
+        ['Oxidiser load and tank volume', cat(ctx.v('CMB', '/decisions/N2O_load_and_tank/v/m_N2O_kg', 'kg', tag_ptr='/decisions/N2O_load_and_tank').h('.2f'), ' in ',
+                                              ctx.v('CMB', '/decisions/N2O_load_and_tank/v/V_tank_m3', 'L', conv=(1000, 0, 'm³ to L'), tag_ptr='/decisions/N2O_load_and_tank').h('.2f'), Cell('', ctx.recent[-2:]))],
+        ['Tank conditioning', tvtxt(ctx.v('CMB', '/decisions/tank_pressurisation'), 400)],
+        ['Ignition interlock guard band', tvtxt(ctx.v('CMB', '/interlock_guard_band/v/thresholds', tag_ptr='/interlock_guard_band'), 300)],
+        ['Model basis', tvtxt(ctx.v('CMB', '/operating_points/basis', tag='SIM'), 300)],
+        ['Combustion and nozzle efficiencies η<sub>c*</sub> / η<sub>cf</sub>', cat(rx(ctx, 'CMB', '/operating_points/basis', r'eta_c\* ([\d.]+)', tag='ASSUMED').h('.3f'), ' / ',
+                                                                                   rx(ctx, 'CMB', '/operating_points/basis', r'eta_cf ([\d.]+)', tag='ASSUMED').h('.3f'), Cell('', ctx.recent[-2:]))],
+        ['Oxidiser flux at the head, rated, initial port', num_cell(ctx.v('CMB', '/operating_points/max_thrust/G_ox_initial_kg_m2s', 'kg/(m²·s)'), '.0f')],
+        ['Regression law (form)', tvtxt(ctx.v('CMB', '/gas_path/grain/regression_law/form', tag='ASSUMED'))],
+        ['Regression coefficient a / exponent n', cat(ctx.v('CMB', '/gas_path/grain/regression_law/a', 'm/s·(kg/m²s)^-n').h('.3e'), ' / ', ctx.v('CMB', '/gas_path/grain/regression_law/n').h('.2f'), Cell('', ctx.recent[-2:]))],
+        ['Regression law note', tvtxt(ctx.v('CMB', '/gas_path/grain/regression_law/note', tag='ASSUMED'), 300)],
+        ['MEOP basis (SIM)', tvtxt(ctx.v('CMB', '/meop_basis_v2p4'), 300)],
+        ['Stored energy (flight tank)', tvtxt(ctx.v('CMB', '/stored_energy/v/flight_tank_20C', tag_ptr='/stored_energy'), 200)],
+    ]
+    o.append(dtable(['Item', 'Value'], rows, widths=['32%', '68%']))
+
+    o.append(doc.h(2, '7.2 Fuel grain'))
+    G = '/gas_path/grain'
+    segs = [D['bom_by_pn'].get('ENG-GR-01'), D['bom_by_pn'].get('ENG-GR-02')]
+    seg_len = []
+    for pn in ('ENG-GR-01', 'ENG-GR-02'):
+        lo, hi, n = manifest_extent(ctx, pn_prefix=pn + '#')
+        seg_len.append(man_tv(ctx, (hi[2] - lo[2]) if n else None, f'z extent of {pn}', pn_prefix=pn + '#'))
+    rows = [
+        ['Segments (BOM)', cat(*[Cell(f'{esc(r.l.get("name", ""))} {r.row_tv.ref()}<br>', [r.row_tv]) for r in segs if r])],
+        ['Segment length from the CAD manifest (GR-01 / GR-02)', cat(seg_len[0].h('.1f'), ' / ', seg_len[1].h('.1f'))],
+        ['Grain outer diameter / total length', cat(ctx.v('CMB', f'{G}/outer_diameter_m', 'mm', conv=(1000, 0, 'm to mm')).h('.1f'), ' / ',
+                                                   ctx.v('CMB', f'{G}/length_m', 'mm', conv=(1000, 0, 'm to mm')).h('.1f'), Cell('', ctx.recent[-2:]))],
+        ['Port', cat(ctx.v('CMB', f'{G}/port/type').h(), ', initial Ø ', ctx.v('CMB', f'{G}/port/initial_diameter_m', 'mm', conv=(1000, 0, 'm to mm')).h('.1f'), Cell('', ctx.recent[-2:]))],
+        ['Initial web', num_cell(ctx.v('CMB', f'{G}/port/initial_web_m', 'mm', conv=(1000, 0, 'm to mm')), '.2f')],
+        ['Port entrance (decided)', tvtxt(cl.item(160, 4), 400)],
+        ['Density (printed ABS)', num_cell(ctx.v('CMB', f'{G}/density_kg_m3', 'kg/m³'), '.0f')],
+        ['Grain mass: Combustion / CAD', cat(ctx.v('CMB', f'{G}/mass_kg', 'kg').h('.3f'), ' / ', ctx.v('MP', '/grain_mass_wet_kg', 'kg', tag='DERIVED').h('.4f'), Cell('', ctx.recent[-2:]))],
+        ['Residual web rule', tvtxt(ctx.v('CMB', f'{G}/residual_web_rule'))],
+        ['Retention', tvtxt(ctx.v('CMB', f'{G}/retention', tag='DESIGN'), 300)],
+    ]
+    o.append(dtable(['Item', 'Value'], rows, widths=['32%', '68%']))
+
+    o.append(doc.h(2, '7.3 Injector, feed and igniter'))
+    V = '/valves_and_actuators'
+    I = '/igniter'
+    ts = f'{I}/torch_sizing'
+    el = f'{I}/electrical'
+    igm = ctx.v('CMB', f'{I}/mass_kg', 'kg')
+    ig_bom = D['bom_by_pn'].get('ENG-IG-01')
+    rows = [
+        ['Feed architecture', tvtxt(ctx.v('CMB', f'{V}/architecture', tag='DESIGN'), 400)],
+        ['Injector flow model', tvtxt(ctx.v('CMB', '/gas_path/injector/flow_model', tag='LITERATURE'))],
+        ['Filter', tvtxt(ctx.v('CMB', '/gas_path/injector/filter'))],
+        ['Isolation valve: minimum Cv / MEOP / closing time', cat(ctx.v('CMB', f'{V}/isolation_valve/Cv_min').h('.1f'), ' / ',
+                                                                  Cell(pres(ctx, ctx.v('CMB', f'{V}/isolation_valve/MEOP_Pa', 'Pa')), [ctx.recent[-1]]), ' / ',
+                                                                  ctx.v('CMB', f'{V}/isolation_valve/close_time_max_s', 's').h('.2f'), Cell('', [ctx.recent[-1], ctx.recent[-3]]))],
+        ['Relief: trapped liquid, back-relief and tank', tvtxt(ctx.v('CMB', f'{V}/isolation_valve/trapped_liquid_relief'))],
+        ['Tank relief (v2.4a)', tvtxt(ctx.v('CMB', '/relief_v2p4a'), 400)],
+        ['Hose across the gimbal', tvtxt(ctx.v('CMB', f'{V}/hose', tag='DERIVED'), 300)],
+        ['Pc tap and sense line', cat(tvtxt(ctx.v('CMB', '/gas_path/pc_tap/location', tag='DESIGN')), '<br>', tvtxt(ctx.v('CMB', '/gas_path/pc_tap/sense_line')))],
+        ['Igniter type', tvtxt(ctx.v('CMB', f'{I}/type', tag='DESIGN'))],
+        ['Torch chamber pressure / O/F / throat diameter', cat(ctx.v('CMB', f'{ts}/v/Pc_torch_bar', 'bar', tag='DERIVED', tag_ptr=ts).h('.1f'), ' / ',
+                                                               ctx.v('CMB', f'{ts}/v/OF', tag='DERIVED', tag_ptr=ts).h('.1f'), ' / ',
+                                                               ctx.v('CMB', f'{ts}/v/throat_d_m', 'mm', conv=(1000, 0, 'm to mm'), tag='DERIVED', tag_ptr=ts).h('.1f'), Cell('', ctx.recent[-3:]))],
+        ['Torch flows N2O / propane', cat(ctx.v('CMB', f'{ts}/v/mdot_n2o_kg_s', 'g/s', conv=(1000, 0, 'kg/s to g/s'), tag='DERIVED', tag_ptr=ts).h('.3f'), ' / ',
+                                          ctx.v('CMB', f'{ts}/v/mdot_propane_kg_s', 'g/s', conv=(1000, 0, 'kg/s to g/s'), tag='DERIVED', tag_ptr=ts).h('.3f'), Cell('', ctx.recent[-2:]))],
+        ['Spark: supply / energy / rate', cat(ctx.v('CMB', f'{el}/v/spark_supply_V', 'V', tag_ptr=el).h('.0f'), ' / ', ctx.v('CMB', f'{el}/v/spark_energy_J', 'J', tag_ptr=el).h('.2f'), ' / ',
+                                              ctx.v('CMB', f'{el}/v/rate_Hz', 'Hz', tag_ptr=el).h('.0f'), Cell('', ctx.recent[-3:]))],
+        ['Igniter system mass: Combustion / BOM ENG-IG-01', cat(igm.h('.2f'), ' / ', ig_bom.mass_tv.h('.3f') if ig_bom else 'MISSING', Cell('', [igm] + ([ig_bom.mass_tv] if ig_bom else [])))],
+        ['Starts per flight', tvtxt(ctx.v('CMB', f'{I}/starts_per_flight'))],
+        ['Light windows W from the lift command', cat(ctx.v('CMB', '/light_windows/v/flight_first_start', 's', tag_ptr='/light_windows').h('.2f'), ' first start · ',
+                                                      ctx.v('CMB', '/light_windows/v/flight_relight', 's', tag_ptr='/light_windows').h('.2f'), ' relight · ',
+                                                      ctx.v('CMB', '/light_windows/v/stand', 's', tag_ptr='/light_windows').h('.2f'), ' stand')],
+    ]
+    o.append(dtable(['Item', 'Value'], rows, widths=['32%', '68%']))
+
+    o.append(doc.h(2, '7.4 Start and relight sequence'))
+    SQ = f'{I}/sequence/v'
+    seq = ctx.raw('CMB', SQ + '/start', default=[]) or []
+    rows = []
+    for k, e in enumerate(seq):
+        ep = ctx.v('CMB', f'{SQ}/start/{k}/epoch', tag='LEAD', tag_ptr=f'{I}/sequence')
+        tt = ctx.v('CMB', f'{SQ}/start/{k}/t_s', 's', tag='LEAD', tag_ptr=f'{I}/sequence')
+        ac = ctx.v('CMB', f'{SQ}/start/{k}/action', tag='LEAD', tag_ptr=f'{I}/sequence')
+        rows.append([Cell(f'<b>{esc(ep.value)}</b>', [ep]), num_cell(tt, '.3f') if tt.value is not None else Cell('—', [tt]), tvtxt(ac, 1600)])
+    o.append(dtable(['Epoch', 't [s]', 'Action'], rows, label_cols=0, widths=['12%', '8%', '80%'], cls='tight',
+                    caption=f'Start and relight sequence (combustion.json {esc(ctx.src("CMB").version or "")} /igniter/sequence; times relative to E0 where the source states one).'))
+    F = '/igniter_sequence_fields_v2p4c/v/fields'
+    fl = ctx.raw('CMB', F, default=[]) or []
+    rows = []
+    for k, f in enumerate(fl):
+        tv = ctx.v('CMB', f'{F}/{k}', f.get('unit', ''))
+        val = tv.value
+        vs = (', '.join(f'{x:g}' for x in val) if isinstance(val, list) and all(isinstance(x, (int, float)) for x in val) else
+              (f'{val:g}' if isinstance(val, (int, float)) and not isinstance(val, bool) else str(val)))
+        rows.append([Cell(f'<span class="mono small">{esc(f.get("id", ""))}</span>', []),
+                     Cell(f'<span class="v">{esc(vs)}</span><span class="u">&#8239;{esc(f.get("unit", ""))}</span> {tv.pill()}{tv.ref()}', [tv]),
+                     tvtxt(ctx.v('CMB', f'{F}/{k}/src', tag='DESIGN'), 160)])
+    o.append(dtable(['Field', 'Value', 'Source (as written)'], rows, widths=['30%', '26%', '44%'], cls='tight',
+                    caption='One field per value (combustion.json /igniter_sequence_fields_v2p4c, the generated-table input for Electronics); the pill is each field\'s own tag.'))
+    rows = []
+    for lab, key in (('ARM preconditions', 'arm_preconditions'), ('Relight', 'relight'), ('Shutdown', 'shutdown'), ('Abort if no ignition', 'abort_if_no_ignition')):
+        items = ctx.raw('CMB', f'{SQ}/{key}', default=[]) or []
+        for j, _ in enumerate(items):
+            tv = ctx.v('CMB', f'{SQ}/{key}/{j}', tag='LEAD', tag_ptr=f'{I}/sequence')
+            cell = tvtxt(tv, 700)
+            if key == 'arm_preconditions' and isinstance(tv.value, str) and 'P_torch 0-70 bar class' in tv.value:
+                # the P_torch clause vs lead 264 (4) (lead 2026-10-21 13:47Z, REV-DS-1 D1-04: pointer at T1427, C-14)
+                p4 = D['cl'].clip(264, 4, 'P_torch (J901', 'same part as P_mid (ENG-BL-08) and C1.')
+                cell = cat(tvtxt(tv), gnote(f'P_torch: lead 264 (4){p4.ref()} selects the C1-family Kulite XTL-190SM-2000A; the "0-70 bar class" '
+                                            'and "or isolation" wording is superseded (isolation is rejected); the threshold re-base is OPEN: '
+                                            'contradiction register C-14', [p4]))
+                D.setdefault('c14_sides', []).append((f'combustion.json /igniter/sequence ARM precondition {j + 1} (P_torch clause)', tv))
+            rows.append([lab if j == 0 else '', cell])
+    o.append(dtable(['Phase', 'Rule'], rows, widths=['18%', '82%'], cls='tight'))
+    o.append(note_box('<b>Stand safing after a no-light.</b> ' + tvtxt(ctx.v('CMB', '/stand_safing_v2p4a', tag_ptr='/stand_safing_v2p4a'), 500).html, 'info'))
+
+    o.append(doc.h(2, '7.5 Relight purge (decided schedule and conditions)'))
+    P = '/purge_decision_v2p4c/v'
+    rows = [['Commit rule', tvtxt(ctx.v('CMB', '/purge_commit_rule_v2p4b/v/rule', tag_ptr='/purge_commit_rule_v2p4b'), 400)],
+            ['Decision', tvtxt(ctx.v('CMB', f'{P}/decision', tag_ptr='/purge_decision_v2p4c'), 400)],
+            ['Scheduled flow / both-open overlap / both-open cap / flow at the cap',
+             cat(ctx.v('CMB', f'{P}/flow_s', 's', tag_ptr='/purge_decision_v2p4c').h(), ' / ', ctx.v('CMB', f'{P}/both_open_overlap_s', 's', tag_ptr='/purge_decision_v2p4c').h(), ' / ',
+                 ctx.v('CMB', f'{P}/cap_both_open_s', 's', tag_ptr='/purge_decision_v2p4c').h(), ' / ', ctx.v('CMB', f'{P}/flow_at_cap_s', 's', tag_ptr='/purge_decision_v2p4c').h())],
+            ['Needed flow, unlined line (283.15 / 289.5 / 297.15 K)', tvtxt(ctx.v('CMB', f'{P}/needed_flow_unlined_s', 's', tag='DERIVED'))],
+            ['Margins at 2.43 s, unlined', tvtxt(ctx.v('CMB', f'{P}/margins_at_2p43s_unlined_s', 's', tag='DERIVED'))],
+            ['Vented N2O bound (law) at 2.43 s', tvtxt(ctx.v('CMB', f'{P}/vented_N2O_bound_law_g', 'g', tag='DERIVED'))],
+            ['Vented N2O at Cd 0.80, fixed schedule', cat(tvtxt(ctx.v('CMB', f'{P}/vented_N2O_Cd0p80_fixed_schedule_g', 'g', tag='ESTIMATE')), '<br>',
+                                                         tvtxt(ctx.v('CMB', f'{P}/vented_N2O_Cd0p80_tag', tag='ESTIMATE'), 300))],
+            ['A1 reserve test (REV-GNC-7)', tvtxt(ctx.v('CMB', f'{P}/a1_reserve_test_REV_GNC_7', tag='DERIVED'), 500)],
+            ['Condition (a), LEAD 256 (2)', tvtxt(ctx.v('CMB', f'{P}/conditions_LEAD_256_2/a', tag='LEAD'))],
+            ['Condition (b), LEAD 256 (2)', tvtxt(ctx.v('CMB', f'{P}/conditions_LEAD_256_2/b', tag='LEAD'))],
+            ['Condition (c), LEAD 256 (2)', tvtxt(ctx.v('CMB', f'{P}/conditions_LEAD_256_2/c', tag='LEAD'))],
+            ['Condition (d), LEAD 257 (2)', tvtxt(ctx.v('CMB', f'{P}/condition_d_LEAD_257_2', tag='LEAD'), 1400)],
+            ['Condition (d1), LEAD 258 (2)', tvtxt(ctx.v('CMB', f'{P}/conditions_LEAD_258_2/d1', tag='LEAD'), 600)],
+            ['Condition (d2), LEAD 258 (2)', tvtxt(ctx.v('CMB', f'{P}/conditions_LEAD_258_2/d2', tag='LEAD'), 600)],
+            ['PURGE command time (open)', tvtxt(ctx.v('CMB', f'{P}/PURGE_command_time', tag='DERIVED'), 400)],
+            ['CF-4', tvtxt(ctx.v('CMB', f'{P}/CF4', tag='LEAD'), 500)],
+            ['Electronics constants', cat(tvtxt(ctx.v('CMB', f'{P}/electronics', tag='DESIGN'), 500),
+                                          *([gnote(f'implemented in electronics.json v4.1 as the purge FINAL calibration constants: ACCEPTED (REV-ELEC-4, line '
+                                                   f'{D["ele"]["line"]}){D["ele"]["acc_tv"].ref()}; §10.6', [D['ele']['acc_tv']])] if D['ele']['promo'] else []))],
+            ['Vented-mass reserve', tvtxt(ctx.v('CMB', f'{P}/reserve', tag='LEAD'), 500)]]
+    o.append(dtable(['Item', 'Value'], rows, widths=['28%', '72%'], cls='tight',
+                    caption='combustion.json /purge_decision_v2p4c (decided by LEAD 253 (7)(ii), final in 256 (2); conditions 256 (2), 257 (2), 258 (2)). '
+                            'The v2.4b records were run with 2.5 s of flow (the analysed basis, more flow than decided).'))
+
+    o.append(doc.h(2, '7.6 Abort set (Combustion matrix; firmware causes in §10.5)'))
+    cm = '/abort_matrix_v2p4/v'
+    rows = []
+    for k in (ctx.raw('CMB', cm, default={}) or {}):
+        if k.endswith('_superseded'):
+            continue
+        rows.append([Cell(f'<b>{esc(k)}</b>', []), tvtxt(ctx.v('CMB', ptr_join('abort_matrix_v2p4', 'v', k), tag_ptr='/abort_matrix_v2p4'), 700)])
+    o.append(dtable(['ID', 'Combustion abort matrix (as published)'], rows, widths=['14%', '86%'], cls='tight',
+                    caption=f'combustion.json /abort_matrix_v2p4 ({esc(str(ctx.raw("CMB", "/abort_matrix_v2p4/tag", default="")))}). '
+                            + (f'The F4 PC_SENSOR HIGH abort (TB-state) and the flight J-FWD indication (JFWD_LS; Q_JFWD on the stand at B-DPC-1), routed to '
+                               f'Electronics v2.12 by LEAD 258 (4), are implemented in electronics.json v4.1: <span class="ev ev-status">ACCEPTED (REV-ELEC-4, line '
+                               f'{D["ele"]["line"]})</span>{D["ele"]["acc_tv"].ref()}; §10.' if D['ele']['promo'] else
+                               'The F4 PC_SENSOR HIGH abort and the Q_JFWD logging are routed to Electronics v2.12 (LEAD 258 (4)): PENDING.')))
+    o.append(note_box(f'<b>Abort action (firmware {fw_ver(D)}, SIL only).</b> {tvtxt(ctx.v("ELE", "/abort_matrix/actions", tag="LEAD"), 600).html}', 'info'))
+
+    o.append(doc.h(2, '7.7 FA-1 hard start: rulings of record'))
+    Z = '/z3_jfwd_rulings_v2p4d/v'
+    rows = [subrow('Z3 v2 (FA-1 class; LEAD 258 (3))', 2)]
+    rows += [[esc(k.replace('_', ' ')), tvtxt(ctx.v('CMB', f'{Z}/Z3_v2/{k}', tag_ptr='/z3_jfwd_rulings_v2p4d'), 800)] for k in ('decision', 'grid', 'flight', 'not_adopted')]
+    rows.append(subrow('J-FWD replace rule on Q_JFWD (LEAD 258 (3))', 2))
+    rows += [[esc(k.replace('_', ' ')), tvtxt(ctx.v('CMB', f'{Z}/jfwd_replace_rule/{k}', tag_ptr='/z3_jfwd_rulings_v2p4d'), 800)]
+             for k in ('decision', 'grid', 'why', 'normal_lights', 'measured_traces', 'basis', 'band', 'replaces', 'electronics')]
+    rows.append(subrow('Open before flight acceptance (LEAD 258 (3))', 2))
+    ob = ctx.raw('CMB', f'{Z}/open_before_flight_acceptance', default=[]) or []
+    rows += [[f'open item {j + 1}', tvtxt(ctx.v('CMB', f'{Z}/open_before_flight_acceptance/{j}', tag='TO-VERIFY'), 400)] for j in range(len(ob))]
+    rows.append(subrow('Torch passage pressure and the J-FWD rows', 2))
+    rows.append(['P_torch design case (FA1S)', tvtxt(ctx.v('CMB', '/fa1_p_torch_v2p4c/v/design_case', tag='LEAD'), 600)])
+    rows.append(['Mechanical row (tap wall v3)', tvtxt(ctx.v('CMB', '/fa1_p_torch_v2p4c/v/mechanical_row', tag='CALC'), 600)])
+    rows.append(['Grid statistics status', tvtxt(ctx.v('CMB', '/fa1_grid_statistics_v2p4c/v/status', tag='LEAD'), 400)])
+    rows.append(['Combustion side', tvtxt(ctx.v('CMB', f'{Z}/combustion_side', tag_ptr='/z3_jfwd_rulings_v2p4d'), 500)])
+    o.append(dtable(['Item', 'Value (quoted)'], rows, widths=['22%', '78%'], cls='tight',
+                    caption='combustion.json /z3_jfwd_rulings_v2p4d and /fa1_p_torch_v2p4c. Grid counts are on an ASSUMED construct, not probabilities. '
+                            'The FA-1 pressure spectrum is in §2.4; the J-FWD criterion rows in §9.5.'))
+
+    o.append(doc.h(2, '7.8 Stability'))
+    st = '/stability/points_initial_port'
+    pts = ctx.raw('CMB', st + '/v', default={}) or {}
+    rows = []
+    for fr in pts:
+        base = f'{st}/v/{fr}'
+        cells = [Cell(f'{float(fr) * 100:.1f} %', [])]
+        for key, unit, f in (('dP_over_Pc', '', '.2f'), ('GM_tau5ms', '', '.1f'), ('GM_tau10ms', '', '.1f'), ('f_1L_Hz', 'Hz', '.0f'),
+                             ('f_Helmholtz_Hz', 'Hz', '.0f'), ('f_thermal_lag_Hz', 'Hz', '.2f')):
+            cells.append(num_cell(ctx.v('CMB', f'{base}/{key}', unit, tag_ptr=st), f))
+        rows.append(cells)
+    o.append(dtable(['Throttle', 'dP/Pc', 'Chug gain margin, 5 ms', 'Chug gain margin, 10 ms', '1L acoustic', 'Helmholtz', 'Thermal lag'], rows,
+                    caption='Stability indicators at the initial port (SIM).'))
+    o.append(note_box(tvtxt(ctx.v('CMB', '/stability/criteria', tag='DERIVED')).html + '<br>' + tvtxt(ctx.v('CMB', '/stability/hybrid_LF_note', tag='TO-VERIFY')).html, 'info'))
+
+    o.append(doc.h(2, '7.9 Test specifications: CF-4 and T1-T4'))
+    rows = [['CF-4 claim', tvtxt(ctx.v('CMB', '/cf4_gate/v/claim', tag='LEAD', tag_ptr='/cf4_gate'))],
+            ['CF-4 specification', tvtxt(ctx.v('CMB', '/cf4_gate/spec_version', tag='DESIGN'))]]
+    pcs = ctx.raw('CMB', '/cf4_gate/v/pass_criteria', default=[]) or []
+    for k, _ in enumerate(pcs):
+        rows.append([f'CF-4 pass criterion {k + 1}', tvtxt(ctx.v('CMB', f'/cf4_gate/v/pass_criteria/{k}', tag='LEAD', tag_ptr='/cf4_gate'), 600)])
+    rows.append(['T1-T4 law rule', tvtxt(ctx.v('CMB', '/t1t4_law_v2/v/rule', tag_ptr='/t1t4_law_v2'), 400)])
+    rows.append(['T1-T4 specification', tvtxt(md_heading(ctx, 'T14', 'T1-T4', 'DESIGN', tag_raw='document heading'), 200)])
+    rows.append(['T4 duration (N-07) and re-size', tvtxt(ctx.v('CMB', '/t4_duration_note_v2p4c/v/status', tag='LEAD'), 900)])
+    rows.append(['T4 decision (CHANGELOG 261 (2))', cat(tvtxt(cl.item(261, 2), 900), gnote('the relight length of 261 (2) is superseded by 264 (5), next row; '
+                                                                                          'contradiction register C-15'))])
+    # the 264 (5) statement (REV-DS-1 D1-10; lead 2026-10-21 13:47Z): what T4 demonstrates
+    i5 = cl.item(264, 5)
+    t4d = cl.clip(264, 5, 'T4 then demonstrates', 'say so.')
+    rows.append(['T4 relight (CHANGELOG 264 (5), N-07, OI-T4-RESIZE)',
+                 cat(tvtxt(i5), Cell(f'<div class="dec"><b>What T4 demonstrates (264 (5)):</b> {tvtxt(t4d).html}</div>', [t4d]),
+                     gnote('the length is OPEN: Combustion sets it in the T4 re-run with Mechanical\'s soak-back'
+                           + (f'; T4 is a stand relight and waits for v2.13 ({D["ele"]["line"]} (6)){D["ele"]["cons_tv"].ref()}' if D['ele']['promo'] else '')
+                           + '; contradiction register C-15', [D['ele']['cons_tv']] if D['ele']['promo'] else []))])
+    rows.append(['Test budgets', tvtxt(ctx.v('CMB', '/test_budgets_v2p4b', tag_ptr='/test_budgets_v2p4b'), 500)])
+    o.append(dtable(['Item', 'Value (quoted)'], rows, widths=['24%', '76%'], cls='tight',
+                    caption='Physical tests are run by the founders; none has been run. The T4 rows of T1-T4 v3.2 stay the DC-D computation [SIM] until Combustion re-runs them (OPEN).'))
+    return '\n'.join(o)
+
+
+# ---------------------------------------------------------------------------------------------
+# section 8 (v0.3.0): plume CFD. Every table and figure names its operating point (the v1 point,
+# O/F 7.76) and how it relates to the current max-thrust point (lead 12:13Z item 5); currency of
+# RPL v2.2b and PVAL v2.1a checked against the 05-plume-cfd folder (item 11)
+# ---------------------------------------------------------------------------------------------
+def plume_points(ctx, a, D):
+    """Operating points of the plume package and the current max-thrust point (computed once)."""
+    if 'plume_pts' in D:
+        return D['plume_pts']
+    b1 = md_bullet(ctx, 'RPL', '0. Checkpoint', 'v1 (combustion.json v1)', 'SIM')
+    b2 = md_bullet(ctx, 'RPL', '0. Checkpoint', 'v2 (combustion.json v2.1 S230 point)', 'SIM')
+    of1 = rx_text(ctx, b1, r'O/F ([\d.]+)')
+    pc1 = rx_text(ctx, b1, r'Pc ([\d.]+) bar', 'bar')
+    of2 = ctx.v('PVAL', '/v2op/gas/OF', tag='SIM', note='validation_v2.json carries no tags: the v2-point inputs of the CFD run')
+    p02 = ctx.v('PVAL', '/v2op/gas/p0', 'bar', conv=(1e-5, 0, 'Pa to bar'), tag='SIM')
+    B = '/operating_points'
+    F = ctx.v('CMB', f'{B}/max_thrust/F_N', 'N')
+    pc = ctx.v('CMB', f'{B}/max_thrust/Pc_Pa', 'bar', conv=(1e-5, 0, 'Pa to bar'))
+    of = ctx.v('CMB', f'{B}/throttle_points_20C_initial_port/0/OF', tag_ptr=f'{B}/basis')
+    t0 = ctx.v('CMB', f'{B}/throttle_points_20C_initial_port/0/T0_delivered_K', 'K', tag_ptr=f'{B}/basis')
+    V = '/v2op_vs_v1'
+    dF = ctx.v('PVAL', f'{V}/thrust_exit_N/diff_pct', '%', tag='SIM')
+    dx = ctx.v('PVAL', f'{V}/x_mach_disk_De/diff_pct', '%', tag='SIM')
+    dm = ctx.v('PVAL', f'{V}/mdot_throat_kg_s/diff_pct', '%', tag='SIM')
+    dT = ctx.v('PVAL', f'{V}/T_axis_10De_K/diff_pct', '%', tag='SIM')
+    same = None
+    if None not in (of.value, of2.value, pc.value, p02.value):
+        same = abs(of.value - of2.value) < 1e-6 and abs(pc.value - p02.value) < 1e-6
+    ver = ctx.src('CMB').version or ''
+    if same is None:
+        rel = ctx.missing('relation of the plume points to the current max-thrust point (an input is MISSING)')
+    else:
+        txt = (f'The current max-thrust point (combustion.json {ver}: {F.num(".0f")} N, Pc {pc.num(".2f")} bar, O/F {of.num(".3f")}) '
+               + ('is the plume v2 point (same Pc and O/F; coarse grid only). ' if same else
+                  f'is not a plume point (the plume v2 point is Pc {p02.num(".2f")} bar, O/F {of2.num(".3f")}). ')
+               + f'The fine-grid results and the field figures of §8.1-8.2 are at the v1 point (O/F {of1.num(".2f")}, Pc {pc1.num(".2f")} bar). '
+               f'On the coarse grid the v2 point differs from the v1 point by {dF.num("+.3f")} % in thrust, {dx.num("+.2f")} % in the Mach disk '
+               f'position, {dm.num("+.2f")} % in mass flow and {dT.num("+.1f")} % in the axis temperature at 10 De (validation_v2.json /v2op_vs_v1).')
+        rel = ctx.d(txt, '', 'statement built from the traced operating points and the v2-vs-v1 coarse-grid differences',
+                    [b1, of1, pc1, of2, p02, F, pc, of, dF, dx, dm, dT])
+    tag_ = f'v1 point, O/F {of1.num(".2f")} (current max-thrust point O/F {of.num(".3f")}: Table 8.0)'
+    D['plume_pts'] = {'b1': b1, 'b2': b2, 'of1': of1, 'pc1': pc1, 'of2': of2, 'p02': p02, 'F': F, 'pc': pc, 'of': of, 't0': t0,
+                      'rel': rel, 'same': same, 'tag': tag_}
+    return D['plume_pts']
+
+
+def plume_currency(ctx, a):
+    """Generator check: RPL and PVAL against the newest files of 05-plume-cfd (no newer report or result)."""
+    root = os.path.join(a.hub, '05-plume-cfd')
+    newest, newest_f = None, None
+    for dp, dn, fn in os.walk(root):
+        for f in fn:
+            p = os.path.join(dp, f)
+            try:
+                t = os.path.getmtime(p)
+            except OSError:
+                continue
+            if newest is None or t > newest:
+                newest, newest_f = t, p
+    rpl, pval = ctx.src('RPL'), ctx.src('PVAL')
+    alt = os.path.join(root, 'REPORT_v2p2b.txt')
+    same_txt = os.path.exists(alt) and sha16_file(alt) == rpl.sha16
+    stamp = datetime.datetime.fromtimestamp(newest, datetime.timezone.utc).strftime('%Y-%m-%dT%H:%MZ') if newest else 'MISSING'
+    txt = (f'RPL (05-plume-cfd/REPORT.md, text revision {rpl.version}, {rpl.sha16}) and PVAL (validation_v2.json {pval.version}, {pval.sha16}) '
+           f'are the current plume files: the newest file in 05-plume-cfd/ is {os.path.relpath(newest_f, a.hub) if newest_f else "MISSING"} '
+           f'({stamp}); REPORT.md {"equals" if same_txt else "differs from"} REPORT_v2p2b.txt.')
+    return ctx.d(txt, '', 'generator check on this build: newest modification time under 05-plume-cfd/ and the REPORT.md / REPORT_v2p2b.txt sha', [])
+
+
+def sec_plume(ctx, doc, a, D):
+    o = [doc.h(1, '8 Plume CFD')]
+    P = 'PVAL'
+    De = ctx.v('CMB', '/gas_path/nozzle/exit_diameter_m', 'm')
+    stl = md_line(ctx, 'RPL', 'Version ', 'SIM')
+    o.append(note_box('<b>Simulation, not measurement.</b> ' + tvtxt(stl, 700).html, 'info'))
+    pp = plume_points(ctx, a, D)
+    o.append(doc.h(2, '8.0 Operating points'))
+    rows = [['Plume v1 point: every grid level, sensitivity and OpenFOAM run', tvtxt(pp['b1'], 300)],
+            ['Plume v2 point: coarse grid only', tvtxt(pp['b2'], 300)],
+            ['Current max-thrust point (combustion.json): thrust / Pc / O/F / delivered T0',
+             cat(pp['F'].h('.0f'), ' / ', pp['pc'].h('.2f'), ' / ', pp['of'].h('.3f'), ' / ', pp['t0'].h('.0f'))],
+            ['Relation of the plume points to the current max-thrust point', tvtxt(pp['rel'], 900)],
+            ['Currency of the plume report and results', tvtxt(plume_currency(ctx, a), 600)]]
+    o.append(dtable(['Item', 'Value'], rows, widths=['34%', '66%'],
+                    caption='Table 8.0: operating points of the plume CFD (RPL §0) and the current max-thrust point (combustion.json /operating_points). '
+                            'Every table and figure of this section names its point.'))
+
+    def mm(tv):
+        return ctx.d(tv.value * De.value * 1000 if (tv.value is not None and De.value) else None, 'mm',
+                     'x/De × De (exit diameter from combustion.json, tagged v1 geometry)', [tv, De])
+
+    S = lambda ptr, unit='', tag='SIM': ctx.v(P, ptr, unit, tag=tag, note='validation_v2.json carries no tags: CFD outputs SIM, 1-D and correlation values DERIVED')
+    o.append(doc.h(2, f'8.1 Key results at the v1 point (O/F {pp["of1"].num(".2f")})'))
+    xmd, xlc = S('/correlations/own_f_2s_rans/x_md_cfd', 'De'), S('/correlations/own_f_2s_rans/x_md_lewis_carlson', 'De', 'DERIVED')
+    sp1, sp3, ppt = S('/correlations/own_f_2s_rans/spacing_first_mach', 'De'), S('/correlations/own_f_2s_rans/spacing_mean3_mach', 'De'), \
+        S('/correlations/own_f_2s_rans/spacing_pp_tam', 'De', 'DERIVED')
+    core = S('/gci/core_length_Z095_De/fine', 'De')
+    t10, t20 = S('/gci/T_axis_10De_K/fine', 'K'), S('/gci/T_axis_20De_K/fine', 'K')
+    fcfd, f1d, fdev = S('/thrust_vs_1d/own_f_2s_rans/F_cfd', 'N'), S('/one_d/F_ideal_lambda_N', 'N', 'DERIVED'), S('/thrust_vs_1d/own_f_2s_rans/dev_vs_ideal_lambda_pct', '%')
+    mcfd, m1d, mdev = S('/thrust_vs_1d/own_f_2s_rans/mdot_cfd', 'kg/s'), S('/one_d/mdot', 'kg/s', 'DERIVED'), S('/thrust_vs_1d/own_f_2s_rans/mdot_dev_pct', '%')
+    rows = [
+        ['Exit Mach number / pe/pa / fully expanded Mach number (1-D)', cat(S('/one_d/Me', '', 'DERIVED').h('.3f'), ' / ', S('/one_d/pe_over_pa', '', 'DERIVED').h('.3f'), ' / ',
+                                                                              S('/one_d/Mj', '', 'DERIVED').h('.3f'))],
+        ['Mach disk position, fine grid (in mm) and Lewis–Carlson correlation', cat(xmd.h('.3f'), ' (', mm(xmd).h('.1f'), ') — correlation ', xlc.h('.3f'))],
+        ['Mach disk resolvability', tvtxt(S('/gci_resolvability/x_mach_disk_De/verdict'), 240)],
+        ['Shock-cell spacing, first / mean of three (in mm)', cat(sp1.h('.2f'), ' (', mm(sp1).h('.1f'), ') / ', sp3.h('.2f'), ' (', mm(sp3).h('.1f'), ')')],
+        ['Shock-cell spacing, Prandtl–Pack–Tam correlation', num_cell(ppt, '.2f')],
+        ['Shock-cell spacing grid sensitivity', cat(S('/gci/spacing_mean_3_De/gci_fine_pct', '%').h('.2f'), ' — ', tvtxt(S('/gci/spacing_mean_3_De/note')))],
+        ['Peak Mach number before the disk', num_cell(S('/gci/M_max_before_disk/fine'), '.2f')],
+        ['Potential core length, axis Z ≥ 0.95 (in mm)', cat(core.h('.1f'), ' (', mm(core).h('.0f'), ')')],
+        ['Axis temperature at 10 De / 20 De (frozen, no afterburning)', cat(Cell(temp_k(t10, 0), [t10]), ' / ', Cell(temp_k(t20, 0), [t20]))],
+        ['Thrust, exit integral (fine) vs 1-D with divergence factor; deviation', cat(fcfd.h('.1f'), ' vs ', f1d.h('.1f'), '; ', fdev.h('.2f'))],
+        ['Thrust grid sensitivity', cat(S('/gci/thrust_exit_N/gci_fine_pct', '%').h('.2f'), ' — ', tvtxt(S('/gci/thrust_exit_N/note')))],
+        ['Mass flow, CFD vs 1-D; deviation', cat(mcfd.h('.4f'), ' vs ', m1d.h('.4f'), '; ', mdev.h('.2f'))],
+        ['Starting-jet front at the end of the run', num_cell(S('/jet_front_x_De/own_f_2s_rans', 'De'), '.1f')],
+        ['v2 point (= the current max-thrust point when Table 8.0 says so), coarse grid: Mach disk CFD / correlation; thrust deviation',
+         cat(S('/v2op/x_md_cfd', 'De').h('.3f'), ' / ', S('/v2op/x_md_lewis_carlson', 'De', 'DERIVED').h('.3f'), '; ', S('/v2op/thrust_dev_vs_ideal_lambda_pct', '%').h('.2f'))],
+        ['v2 point remark', tvtxt(S('/v2op/note'), 320)],
+    ]
+    o.append(dtable(['Quantity', 'Value'], rows, widths=['38%', '62%'],
+                    caption=f'Plume CFD results ({esc(src_label(ctx, "PVAL"))}), fine grid at the {esc(pp["tag"])} unless a row says otherwise; '
+                            'lengths in exit diameters De.'))
+    o.append(doc.h(2, '8.2 Fields'))
+    pt = f'{esc(pp["tag"])}'
+    o.append(img_fig(ctx, a, 'PF-MACH', f'<b>Mach number, near field</b> (SIM, fine grid, {pt}).', 'wide'))
+    o.append(img_fig(ctx, a, 'PF-SCHL', f'<b>Numerical schlieren</b> |∇ρ| (SIM, fine grid, {pt}): Mach disk, reflected shocks and the shock-cell train.', 'wide'))
+    o.append(img_fig(ctx, a, 'PF-TEMP', f'<b>Static temperature, full domain</b> (SIM, fine grid, {pt}; frozen chemistry, no afterburning). The far field is not statistically stationary.', 'wide'))
+    o.append(img_fig(ctx, a, 'PF-AXIS', f'<b>Centreline profiles</b> (SIM, fine grid, {pt}).', 'half'))
+    o.append(img_fig(ctx, a, 'PF-V2MACH', f'<b>Mach number at the v2 point</b> (SIM, coarse grid; O/F {esc(pp["of2"].num(".3f"))}, '
+                                          + ('the current max-thrust point' if pp['same'] else 'not the current max-thrust point') +
+                     ', Table 8.0). v2-v1 differences carry the grid error of the coarse level.', 'wide'))
+    o.append(doc.h(2, '8.3 Afterburning and model limits'))
+    rows = [[f'Afterburning at the v1 point (O/F {esc(pp["of1"].num(".2f"))})', tvtxt(md_bullet(ctx, 'RPL', '0. Checkpoint', 'adds 172', 'SIM'), 400)],
+            [f'Afterburning at the v2 point (O/F {esc(pp["of2"].num(".3f"))}; the current max-thrust point when Table 8.0 says so)',
+             tvtxt(md_bullet(ctx, 'RPL', '0. Checkpoint', 'adds nothing', 'SIM'), 400)],
+            ['Afterburning at the stretch floor (12.5 %)', tvtxt(md_bullet(ctx, 'RPL', '0. Checkpoint', 'adds up to', 'SIM'), 300)]]
+    for k in ('**Soot and radiation', '**Finite-rate chemistry', '**Exhaust gas model', '**Geometry and setting', '**Duration', '**No acoustics'):
+        rows.append(['Limit: ' + k.strip('*'), tvtxt(md_bullet(ctx, 'RPL', '10. What the model cannot show', k, 'SIM'), 360)])
+    o.append(dtable(['Item', 'Report statement'], rows, widths=['24%', '76%'],
+                    caption='Afterburning by operating point (RPL §0) and the model limits (RPL §10); operating points in Table 8.0.'))
+    o.append(doc.h(2, '8.4 Illustration'))
+    o.append(img_fig(ctx, a, 'PF-ART', '<b>Illustration, not simulation.</b> Blender render of revolved CFD fields with exposure, colour and emitter chosen '
+                     'for appearance (ARTISTIC); it is not a radiation prediction, carries no data and is not tied to an operating point for any value.', 'wide art'))
+    o.append(doc.h(2, '8.5 Review status'))
+    sup_ = ctx.raw('SUP', '/reviews', default=[]) or []
+    ids = [k for k, r in enumerate(sup_) if str(r.get('id', '')).startswith('REV-PLUME')]
+    if ids:
+        rows = []
+        for i in ids:
+            hs = ctx.raw('SUP', f'/reviews/{i}/hashes_sha256_16', default={}) or {}
+            same, changed, missing = hash_status(ctx, a, hs)
+            hst = ctx.d(f'{len(same)} unchanged, {len(changed)} changed since review ({", ".join(changed) or "none"}), {len(missing)} not found', '',
+                        'sha256/16 of each reviewed hub file vs the register', [], ev='DERIVED')
+            rid = ctx.v('SUP', f'/reviews/{i}/id', tag='REF')
+            key = 'comments' if sup_[i].get('comments') else 'criteria'
+            rows.append([Cell(f'<b>{esc(rid.value)}</b> {rid.ref()}', [rid]), num_cell(ctx.v('SUP', f'/reviews/{i}/verdict', tag='DERIVED')),
+                         tvtxt(ctx.v('SUP', f'/reviews/{i}/{key}', tag='DERIVED'), 300), Cell(hst.h(), [hst])])
+        o.append(dtable(['Review', 'Verdict', 'Comments (or criteria)', 'Reviewed file hashes vs current files'], rows, label_cols=0,
+                        widths=['13%', '17%', '42%', '28%'],
+                        caption='Independent reviews of the plume CFD in register order, newest last (reviews/SUPERVISION.json). A review verdict is not physical approval.'))
+        o.append(dtable(['Item', 'Value'], [['Report text revision answering the comments', tvtxt(stl, 400)]], widths=['30%', '70%']))
+    else:
+        o.append(Cell(ctx.missing('REV-PLUME entry in the review register').h()).html)
+    return '\n'.join(o)
+
+
+# ---------------------------------------------------------------------------------------------
+# sections 10-11 (v0.3.1): electronics (electronics.json v4, firmware v2.11 SIL), mission (GNC v3.2)
+# rev1 phase 2 (lead 2026-10-21 13:47Z and 14:05Z, REV-DS-1 batches 1 and 2): every firmware constant with its unit at source
+# precision (D1-08); the v2.11 BASE constants as design values with the not-accepted note (D1-03); the purge-cap note (D1-02);
+# the proof-requirement note (D1-05); kBayArmMax_K TO-VERIFY / TO-DEFINE and the SIL result of the A7 blank as SIM (D1-07);
+# OI-A1-BASE-AMB closed by 264 (3) (D1-04, C-16); carve-out notes of the promoted-v4.1 build at their anchors
+# ---------------------------------------------------------------------------------------------
+BASE_KEYS = ('kPcRezeroMax_Pa', 'kIgnBaseCheck_Pa')  # 253 (5): the C1 re-zero and BASE constants of v2.11, not accepted (R3-01)
+BASE_BASIS = 'Design value, Electronics v2.11 (electronics.json v4)'
+BASE_WHY = 'not accepted by the lead: 253 (5), R3-01 (lead 2026-10-21 13:47Z, REV-DS-1 D1-03)'
+CLOSED_BY_LEAD = {'OI-A1-BASE-AMB': (264, 3)}  # open issues of electronics.json closed by a lead line (lead 2026-10-21 13:47Z, C-16)
+
+
+def node_unit(node):
+    u = node.get('unit') if isinstance(node, dict) else None
+    return '' if u in (None, '', '-') else str(u)
+
+
+def const_name(node, ptr):
+    m = re.search(r'config\.h (k\w+)', str(node.get('src') or '')) if isinstance(node, dict) else None
+    return m.group(1) if m else str(ptr).rstrip('/').rsplit('/', 1)[-1].replace('~1', '/').replace('~0', '~')
+
+
+def r301_vals(ctx, D):
+    """Line 264 (2) values (R3-01) and the 253 (5) not-accepted clause, created once: the BASE notes, §10.8 and C-13 cite the same traces."""
+    if 'r301' not in D:
+        cl = D['cl']
+        i2 = cl.item(264, 2)
+        D['r301'] = {'i2': i2,
+                     'rz': rx_text(ctx, i2, r'kPcRezeroMax_Pa stays ([\d.]+) bar', 'bar'),
+                     'bc': rx_text(ctx, i2, r'kIgnBaseCheck_Pa ([\d.]+) / [\d.]+ bar', 'bar'),
+                     'bc2': rx_text(ctx, i2, r'kIgnBaseCheck_Pa [\d.]+ / ([\d.]+) bar', 'bar'),
+                     'lim': cl.clip(264, 2, 'kPcRezeroMax_Pa stays', '(default / B-PC-1-shown build)'),
+                     'na': cl.clip(253, 5, 'EXCEPT the C1 re-zero and BASE constants', 'open MAJOR)')}
+    return D['r301']
+
+
+def base_note(ctx, D):
+    """'[not accepted, 253 (5) (R3-01); 264 (2): ...; v4.1 implementation PENDING REVIEW (REV-ELEC-4)]' (lead 2026-10-21 13:47Z, D1-03)."""
+    r = r301_vals(ctx, D)
+    w, wt = impl_txt(D, 'base', 'v4.1 implementation PENDING REVIEW (REV-ELEC-4)', 'v4.1 implementation promoted, line {n}')
+    return gnote(f'not accepted, 253 (5) (R3-01){r["na"].ref()}; 264 (2): kPcRezeroMax_Pa {r["rz"].h()} on the compensated residual, '
+                 f'kIgnBaseCheck_Pa {r["bc"].h(unit=False, pill=False)} / {r["bc2"].h()} (default / B-PC-1-shown build); {esc(w)}'
+                 + ''.join(t.ref() for t in wt) + '; contradiction register C-13', [r['na'], r['rz'], r['bc'], r['bc2']] + wt)
+
+
+def purge_parts(ctx, D):
+    """Line 256 (2) FINAL purge values and the condition lines 257 (2) / 258 (2), created once (§10.3, §10.6, §10.9, §12.3, C-12)."""
+    if 'purge' not in D:
+        cl = D['cl']
+        i256 = cl.item(256, 2)
+        D['purge'] = {'i256': i256,
+                      'flow': rx_text(ctx, i256, r'the ([\d.]+) s scheduled flow', 's'),
+                      'cap': rx_text(ctx, i256, r'with the ([\d.]+) s cap', 's'),
+                      'i257': cl.item(257, 2), 'i258': cl.item(258, 2), 'i203': cl.item(203, 3),
+                      'i263': cl.clip(263, 3, 'Purge FINAL 2.43 / 2.39 s', '(d) (d1) (d2)', ev='REF',
+                                      why=("the Electronics author's record of the v2.12 implementation (v4.1, promoted, line "
+                                           f"{D['ele']['line']} (7)); no value is taken from it" if D['ele']['promo'] else
+                                           "the Electronics author's record of the v2.12 implementation, PENDING REVIEW; no value is taken from it"))}
+    return D['purge']
+
+
+def purge_note(ctx, D):
+    """'[v2.11 value; superseded by 256 (2) FINAL: ...; implemented in v2.12 (v4.1), PENDING REVIEW]' (lead 2026-10-21 13:47Z, D1-02)."""
+    p = purge_parts(ctx, D)
+    w, wt = impl_txt(D, 'purge', 'implemented in v2.12 (v4.1), PENDING REVIEW', 'implemented in v2.12 (v4.1), promoted, line {n}')
+    return gnote(f'v2.11 value; superseded by 256 (2) FINAL{p["i256"].ref()}: {p["flow"].h(pill=False)} flow, {p["cap"].h()} cap, conditions (a)-(d), (d1), (d2) '
+                 f'of 256 (2) / 257 (2){p["i257"].ref()} / 258 (2){p["i258"].ref()}; {esc(w)}{p["i263"].ref()}' + ''.join(t.ref() for t in wt)
+                 + '; contradiction register C-12', [p['i256'], p['flow'], p['cap'], p['i257'], p['i258'], p['i263']] + wt)
+
+
+def cap_text_note(ctx, D):
+    """Pointer on a v2.11 text that quotes the 2.55 s both-open cap (rev1 phase 2, with C-12)."""
+    p = purge_parts(ctx, D)
+    w, wt = impl_txt(D, 'purge', 'implemented in v2.12 (v4.1), PENDING REVIEW', 'implemented in v2.12 (v4.1), promoted, line {n}')
+    return gnote(('v2.11 text, still carried in v4.1' if D['ele']['promo'] else 'v2.11 text')
+                 + f'; the both-open cap is superseded by 256 (2){p["i256"].ref()} ({p["flow"].h(pill=False)} flow, {p["cap"].h(pill=False)} cap), '
+                 f'{esc(w)}' + ''.join(t.ref() for t in wt) + ': contradiction register C-12', [p['i256'], p['flow'], p['cap']] + wt)
+
+
+def proof_req_note(ctx, D):
+    """'[requirement 166.14 bar abs DERIVED, 256 (R4-12), 264 (4)]' on the v4 proof basis (lead 2026-10-21 13:47Z, D1-05)."""
+    cl = D['cl']
+    i4 = cl.clip(264, 4, 'P_torch (J901', 'same part as P_mid (ENG-BL-08) and C1.')
+    rq = rx_text(ctx, i4, r'against the ([\d.]+) bar abs requirement', 'bar abs', tag='DERIVED')
+    r412 = cl.clip(256, 5, 'R4-12 (070BG proof rating', 'state saturation and recovery)')
+    return gnote(f'requirement {rq.h()}, 256 (R4-12){r412.ref()}, 264 (4){i4.ref()}', [rq, r412, i4])
+
+
+def carve(ctx, D, anchor):
+    """Carve-out notes of the lead at one anchor of §10 (promoted-v4.1 build; the text is the lead's, supplied at the verdict)."""
+    out = [gnote(f'<b>{esc(e["id"])}</b>: {tvtxt(e["tv"]).html}', [e['tv']]) for e in D['ele'].get('carve', []) if anchor in e['anchors']]
+    return cat(*out) if out else Cell('', [])
+
+
+def ele_const(ctx, D, E, ptr, label=None, name=True, notes=True):
+    """One firmware constant ({v, unit, tag, src}) as a traced cell 'name = value unit' and its TV. The unit is printed and the value
+    keeps its source precision (D1-08); a source tag that names no class is a design value; a tag that says TO-DEFINE is TO-VERIFY with
+    the status TO-DEFINE (D1-07); a v2.11 BASE constant is a design value with the not-accepted note (D1-03); the v2.11 both-open cap
+    carries the 256 (2) note (D1-02)."""
+    node = ctx.raw(E, ptr, default=None)
+    raw = node.get('tag') if isinstance(node, dict) else None
+    tag = 'DESIGN' if (raw is not None and normalise_tag(raw) is None) else None
+    tdef = bool(raw) and 'TO-DEFINE' in str(raw).upper()
+    if tdef:
+        tag = 'TO-VERIFY'
+    t = ctx.v(E, ptr, node_unit(node), tag=tag, tag_default='DESIGN')
+    cname = const_name(node, ptr)
+    extra = []
+    if t.value is not None and tdef:
+        t.status = 'TO-DEFINE'
+        if 'class set at the call site: TO-VERIFY, status TO-DEFINE' not in str(t.tag_raw):
+            t.tag_raw = f'{raw} (class set at the call site: TO-VERIFY, status TO-DEFINE: the source tag says the value is still to be defined; REV-DS-1 D1-07)'
+    if t.value is not None and not D['ele']['promo'] and cname in BASE_KEYS and getattr(t, 'basis_kind', None) != 'DESIGN':
+        as_design(t, BASE_BASIS, BASE_WHY)  # the class is set wherever the constant is read (D1-03); the note only where notes=True
+    D.setdefault('ele_tv', {}).setdefault(ptr, t)  # the first object of each constant: the C-12 / C-13 register sides reuse it
+    if t.value is not None and notes and D['ele']['promo']:
+        extra += ele41_const_notes(ctx, D, cname, t)
+    if t.value is not None and notes and not D['ele']['promo']:
+        if cname in BASE_KEYS:
+            extra.append(base_note(ctx, D))
+        if cname == 'kHbleedCap_s':
+            p = purge_parts(ctx, D)
+            if isinstance(t.value, (int, float)) and p['cap'].value is not None and abs(t.value - p['cap'].value) > 1e-9:
+                extra.append(purge_note(ctx, D))
+    disp = label or cname
+    if label and cname.startswith('k') and cname != label:
+        disp = f'{label} ({cname})'
+    head = f'<b>{esc(disp)}</b> = ' if name else ''
+    return cat(Cell(head + t.h(), [t]), *extra), t
+
+
+def thr_cells(ctx, D, sid, base, th):
+    out = []
+    for kk in (th or {}):
+        ptr = ptr_join(*[x for x in base.strip('/').split('/') if x], kk)
+        c, _t = ele_const(ctx, D, sid, ptr, label=kk)
+        out.append(Cell(f'<div class="small">{c.html}</div>', c.tvs))
+    return out
+
+
+def a7_blank_cell(ctx, E):
+    """start_monitors.A7_flight_blank in its parts: the lead decision quote, the blind window (design) and the four conditions. A
+    condition whose status reports a passing SIL test is SIM (firmware in SIL only; REV-DS-1 D1-07, T4182 'SIM (SIL)'); an OPEN condition
+    is TO-VERIFY; a condition the author reports DONE in the file is a design record (design value)."""
+    B = '/start_monitors/A7_flight_blank'
+    ver = ctx.src(E).version or ''
+    fw = 'v2.12' if ver == 'v4.1' else 'v2.11'
+    node = ctx.raw(E, B, default=None)
+    if not isinstance(node, dict):
+        return tvtxt(ctx.v(E, B, tag_default='DESIGN'), 500)
+    parts = []
+    dec = None
+    if 'decision' in node:
+        dec = ctx.v(E, B + '/decision', tag='LEAD')
+        m = re.search(r'CHANGELOG line (\d+)', str(dec.value)) if isinstance(dec.value, str) else None
+        k = re.search(r'\((\d+)\) RE-12', str(dec.value)) if isinstance(dec.value, str) else None
+        if m and dec.value is not None:
+            dec.basis = f'Lead decision, line {m.group(1)}' + (f' ({k.group(1)})' if k else '') + f', as quoted in electronics.json {ver}'
+        parts.append(Cell(f'<div class="small"><b>decision:</b> {tvtxt(dec, 500).html}</div>', [dec]))
+    if 'blind_window' in node:
+        bw = ctx.v(E, B + '/blind_window', tag_default='DESIGN')
+        parts.append(Cell(f'<div class="small"><b>blind window:</b> {tvtxt(bw, 500).html}</div>', [bw]))
+    for i, c in enumerate(node.get('conditions') or []):
+        p = f'{B}/conditions/{i}'
+        st = str((c or {}).get('status') or '')
+        if st.upper().startswith('DONE: PASS'):
+            t = ctx.v(E, p, tag='SIM')
+            mv = re.search(r'PASS (v\d+\.\d+)', st)  # the firmware the status names, else the firmware of this interface version
+            t.tag_raw = (f'(class set at the call site: SIM: the status reports a passing SIL unit test of firmware {mv.group(1) if mv else fw}, '
+                         f'as recorded in electronics.json {ver}; REV-DS-1 D1-07)')
+        elif st.upper().startswith('OPEN'):
+            t = ctx.v(E, p, tag='TO-VERIFY')
+            t.tag_raw = (f'(class set at the call site: TO-VERIFY: an open condition of the 216 (8) acceptance, status as stated in electronics.json {ver}; '
+                         'REV-DS-1 D1-07)')
+        else:
+            t = ctx.v(E, p, tag='DESIGN')
+            t.tag_raw = (f'(class set at the call site: DESIGN: a condition of the 216 (8) acceptance that the Electronics author reports DONE in '
+                         f'electronics.json {ver}; REV-DS-1 D1-07)')
+        parts.append(Cell(f'<div class="small"><b>condition {esc((c or {}).get("n", i + 1))}:</b> {tvtxt(t, 500).html}</div>', [t]))
+    return cat(*parts)
+
+
+def sec_electronics(ctx, doc, a, D):
+    o = [doc.h(1, '10 Electronics and control')]
+    cl = D['cl']
+    E = 'ELE'
+    promo = D['ele']['promo']
+    pend = {lab: tv for lab, tv in D['pending']}
+    if not promo:
+        o.append(note_box('<b>electronics.json v4 (firmware v2.11, SIL only) is the published interface and the source of record of this section.</b> '
+                          + inl(cl.item(253, 5)) + ' <b>PENDING:</b> ' + ' '.join(inl(tv) for tv in pend.values())
+                          + ' <b>Lead rulings on the v2.12 handback (CHANGELOG 264, §10.8):</b> they decide the C1 thermal zero (R3-01, option (b)), the A1 BASE_AMB '
+                          'outcome, the P_torch transducer, the T4 relight and the A1 flight T0 range; §10.8 quotes them with the values the lead decided (DECIDED, '
+                          'line 264). The v2.12 firmware and the electronics.json v4.1 file that implement them are PENDING REVIEW (REV-ELEC-4); no value in this '
+                          'section is taken from the v4.1 file. Where a later lead line supersedes a v2.11 value shown below, a bracketed note at the value says so.',
+                          'warn'))
+    else:
+        o.append(ele41_head_note(ctx, doc, D))
+    o.append(doc.h(2, '10.1 Engine control unit and firmware'))
+    rows = [
+        ['Interface status', tvtxt(ctx.v(E, '/status', tag='DESIGN'), 900)],
+        ['Architecture', tvtxt(ctx.v(E, '/ecu/architecture'))],
+        ['Microcontroller', tvtxt(ctx.v(E, '/ecu/mcu', tag='DESIGN'), 300)],
+        ['PCB outline / enclosure reservation', cat(ctx.v(E, '/ecu/pcb_outline_mm', 'mm', tag_default='DESIGN').h(), ' / ', ctx.v(E, '/ecu/enclosure_envelope_mm', 'mm', tag_default='DESIGN').h())],
+        ['ECU mass', (lambda t: Cell(t.h(), [t]) if is_number(t.value) else tvtxt(t, 300))(ctx.v(E, '/ecu/mass_kg', 'kg', tag_default='ASSUMED'))],
+        ['Schematic', tvtxt(ctx.v(E, '/ecu/schematic', tag='DESIGN'), 500)],
+        ['Firmware version', tvtxt(ctx.v(E, '/firmware/version', tag='DESIGN'))],
+        ['Firmware target', tvtxt(ctx.v(E, '/firmware/target', tag='TO-VERIFY'), 400)],
+        ['Firmware unit tests' + (' (the v2.11 record, as carried in v4.1; v2.12 below)' if promo else ''), tvtxt(ctx.v(E, '/firmware/unit_tests', tag='SIM'), 400)],
+        ['SIL record v2.11', tvtxt(ctx.v(E, '/firmware/sil_record_v2p11', tag='SIM'), 400)],
+        ['CAN link', tvtxt(ctx.v(E, '/can_interface/physical'), 240)],
+        ['Change summary v3 to v4', tvtxt(ctx.v(E, '/change_summary_v3_to_v4/0', tag='DESIGN'), 300)],
+    ]
+    if promo:
+        g7 = cl.clip(D['ele']['line'], 7, 'Until v4.2 this line governs v4.1 where they differ: its STAGED status text is superseded;',
+                     'Until v4.2 this line governs v4.1 where they differ: its STAGED status text is superseded;')
+        rows[0][1] = cat(rows[0][1], gnote(f'{D["ele"]["line"]} (7){g7.ref()}: the STAGED status text is superseded; v4.1 is the source of record; '
+                                           'contradiction register C-02', [g7]))
+        rows += ele41_fw_rows(ctx, D, E)
+    o.append(dtable(['Item', 'Value'], rows, widths=['26%', '74%'], cls='tight'))
+    if promo:
+        o.append(ele41_changes_table(ctx, doc, D, E))
+    o.append(doc.h(2, '10.2 Sensors'))
+    PT = '/sensors/pressure_transducers'
+    TC = '/sensors/thermocouples'
+    CR = f'{PT}/coast_rezero'
+    crn = ctx.raw(E, CR, default=None)
+    if isinstance(crn, dict) and 'v' not in crn:
+        crc = []
+        for kk, x in crn.items():
+            p = ptr_join(*[s for s in CR.strip('/').split('/') if s], kk)
+            if isinstance(x, dict) and 'v' in x:
+                c, _t = ele_const(ctx, D, E, p, label=kk)
+            else:
+                c = cat(f'<b>{esc(kk)}:</b> ', tvtxt(ctx.v(E, p, tag_default='DESIGN'), 400))
+            crc.append(Cell(f'<div class="small">{c.html}</div>', c.tvs))
+        crcell = cat(*crc, carve(ctx, D, 'opt_b_comp'))
+    else:
+        crcell = cat(tvtxt(ctx.v(E, CR, tag_default='DESIGN'), 400), carve(ctx, D, 'opt_b_comp'))
+    rows = [
+        ['Pressure transducers (selection, electronics.json ' + ('v4.1)' if promo else 'v4)'), sel_cell(ctx, D, E, PT)],
+        ['P_torch transducer: lead 264 (4) supersedes the v4 selection', ptorch_cell(ctx, D)],
+        ['Hardware over-pressure comparator', tvtxt(ctx.v(E, f'{PT}/hw_ovp'), 300)],
+        ['Coast re-zero', crcell],
+        ['Thermocouple channels', tc_channels_cell(ctx, D, E, TC)],
+        ['Case abort / relight refusal', cat(Cell(temp_k(ctx.v(E, f'{TC}/case_abort', 'K'), 2), [ctx.recent[-1]]), ' / ',
+                                             Cell(temp_k(ctx.v(E, f'{TC}/relight_refusal', 'K'), 2), [ctx.recent[-1]]))],
+        ['Case abort rule', tvtxt(ctx.v(E, f'{TC}/case_abort_rule', tag_default='LEAD'), 500)],
+        ['Persistence', (lambda t: Cell(t.h(), [t]))(ctx.v(E, f'{TC}/persistence', 's', tag_default='DESIGN'))],
+        ['Start and ARM limit / stand ARM maximum', (lambda t1, t2: Cell(f'{temp_k(t1, 2)} / {temp_k(t2, 2)}', [t1, t2]))(
+            ctx.v(E, f'{TC}/start_and_arm_limit', 'K', tag_default='LEAD'), ctx.v(E, f'{TC}/stand_arm_max', 'K', tag_default='LEAD'))],
+        ['Nozzle-holder limit', (lambda t: Cell(temp_k(t, 2), [t]))(ctx.v(E, f'{TC}/nozzle_holder_limit', 'K', tag_default='ASSUMED'))],
+        ['Photodiode', tvtxt(ctx.v(E, '/sensors/photodiode', tag='DESIGN'))],
+        ['Encoders', tvtxt(ctx.v(E, '/sensors/encoders', tag='DESIGN'))],
+        ['Stand dynamic Pc channel', tvtxt(ctx.v(E, '/sensors/stand_dynamic_pc', tag='DESIGN'))],
+    ]
+    o.append(dtable(['Item', 'Value'], rows, widths=['26%', '74%'], cls='tight'))
+    fw = 'v2.12' if promo else 'v2.11'
+    o.append(doc.h(2, f'10.3 Limits of firmware {fw}'))
+    lims = ctx.raw(E, '/limits_v2p11', default=[]) or []
+    rows = []
+    for k, l in enumerate(lims):
+        b = f'/limits_v2p11/{k}'
+        vn = l.get('value')
+        if isinstance(vn, dict) and 'v' in vn and not isinstance(vn.get('v'), str):
+            vc, _vt = ele_const(ctx, D, E, b + '/value')
+        elif isinstance(vn, dict) and 'v' not in vn:
+            vcs = [ele_const(ctx, D, E, ptr_join('limits_v2p11', k, 'value', kk))[0] for kk in vn]
+            vc = cat(*[Cell(f'<div class="small">{c.html}</div>', c.tvs) for c in vcs])
+        else:
+            vc = tvtxt(ctx.v(E, b + '/value', tag_default='DESIGN'), 200)
+        bt = ctx.v(E, b + '/basis', tag='DERIVED')
+        bc = tvtxt(bt, 500)
+        if 'proof' in str(l.get('limit', '')).lower() and isinstance(bt.value, str) and '166.1 bar abs' in bt.value:
+            bc = cat(bc, proof_req_note(ctx, D))
+        if promo:
+            ex = ele41_limit_notes(ctx, D, k)
+            if ex:
+                bc = cat(bc, *ex)
+        rows.append([Cell(f'<b>{esc(l.get("limit", ""))}</b>', []), vc, bc])
+    o.append(dtable(['Limit', 'Value', 'Basis (quoted)'], rows, widths=['24%', '30%', '46%'], cls='tight',
+                    caption=f'electronics.json /limits_v2p11. Values are firmware constants (config.h), SIL only; each with its unit, at the precision of the source.'))
+    if promo:
+        o.append(ele41_missing_limits(ctx, D))
+    o.append(doc.h(2, '10.4 Light rule and start monitors'))
+    LR = '/light_rule'
+    rows = [['Light rule', cat(tvtxt(ctx.v(E, f'{LR}/rule'), 900), carve(ctx, D, 'relight'))]]
+    for kk in ('kIgnRise_Pa', 'kIgnConfirmRelN', 'kIgnPreN', 'kIgnResidual_Pa', 'kIgnBaseCheck_Pa', 'kIgnFloorAbs_Pa'):
+        c, _t = ele_const(ctx, D, E, f'{LR}/{kk}', label=kk, name=False)
+        rows.append([esc(kk), c])
+    for kk in ('A3', 'A7', 'E3', 'A7_flight_blank', 'light_spike_record'):
+        cell = a7_blank_cell(ctx, E) if kk == 'A7_flight_blank' else tvtxt(ctx.v(E, f'/start_monitors/{kk}', tag_default='DESIGN'), 500)
+        rows.append([f'Start monitor {esc(kk)}', cell])
+    if promo:
+        rows += ele41_relight_rows(ctx, D, E)
+    o.append(dtable(['Item', 'Value'], rows, widths=['24%', '76%'], cls='tight'))
+    o.append(doc.h(2, f'10.5 Abort and refusal causes (firmware {fw})'))
+    cs = ctx.raw(E, '/abort_matrix/causes', default=[]) or []
+    rows = []
+    for k, c in enumerate(cs):
+        b = f'/abort_matrix/causes/{k}'
+        code = ctx.v(E, b + '/code', tag='DESIGN')
+        cause = ctx.v(E, b + '/cause', tag='DESIGN')
+        trig = ctx.v(E, b + '/trigger', tag='DESIGN')
+        trc = tvtxt(trig)  # abort triggers in full (REV-DS-1 D1-06: gates are never cut)
+        if c.get('cause') == 'PC_SENSOR' and isinstance(trig.value, str) and 'by more than 0.7 bar' in trig.value:
+            r = r301_vals(ctx, D)
+            if not promo:
+                trc = cat(trc, gnote(f'0.7 bar here is the v2.11 kIgnBaseCheck_Pa (not accepted, 253 (5){r["na"].ref()}); 264 (2) sets '
+                                     f'{r["bc"].h(unit=False, pill=False)} / {r["bc2"].h()}: contradiction register C-13', [r['na'], r['bc'], r['bc2']]))
+            else:
+                trc = cat(trc, gnote(f'0.7 bar in this trigger text is the v2.11 kIgnBaseCheck_Pa; v4.1 holds kIgnBaseCheck_Pa at the 264 (2) values '
+                                     f'{r["bc"].h(unit=False, pill=False)} / {r["bc2"].h()} (§10.4; ACCEPTED, REV-ELEC-4, line {D["ele"]["line"]}): '
+                                     'contradiction register C-13', [r['bc'], r['bc2'], D['ele']['acc_tv']]))
+        th = thr_cells(ctx, D, E, b + '/thresholds', c.get('thresholds'))
+        rows.append([Cell(f'{esc(code.num())}{code.ref()}', [code]), Cell(f'<b>{esc(cause.value)}</b>{cause.ref()}', [cause]), trc,
+                     cat(*th) if th else Cell('<span class="small">no threshold</span>', [trig])])
+    o.append(dtable(['Code', 'Cause', 'Trigger', 'Thresholds'], rows, label_cols=0, cls='abort tight',
+                    widths=['6%', '16%', '42%', '36%'], caption=f'{len(cs)} causes in electronics.json /abort_matrix/causes (SIL only; no hardware); '
+                                                                f'thresholds with their units, at the precision of the source.'))
+    o.append(doc.h(2, '10.6 Power, head-end bleed provision and fail-safe states'))
+    PB = '/power_budget'
+    rows = [['Battery', tvtxt(ctx.v(E, f'{PB}/battery', tag='DESIGN'))],
+            ['Logic power, typical / peak', (lambda t1, t2: cat(t1.h(unit=False, pill=False), ' / ', t2.h()))(
+                ctx.v(E, f'{PB}/logic_W/v/typ', 'W', tag_ptr=f'{PB}/logic_W'), ctx.v(E, f'{PB}/logic_W/v/peak', 'W', tag_ptr=f'{PB}/logic_W'))],
+            ['Energy per flight day', num_cell(ctx.v(E, f'{PB}/flight_day_Wh', 'Wh'))],
+            ['Energy per static-fire session', num_cell(ctx.v(E, f'{PB}/static_fire_session_Wh', 'Wh'))],
+            ['Peak current', num_cell(ctx.v(E, f'{PB}/peak_current_A', 'A'))],
+            ['Minimum voltage at the ECU', num_cell(ctx.v(E, f'{PB}/min_voltage_at_ECU_V', 'V'))],
+            ['Fusing', tvtxt(ctx.v(E, f'{PB}/fusing', tag='DESIGN'), 300)]]
+    HB = '/head_end_bleed_provision'
+    for kk in ('architecture', 'schedule', 'closure_rule', 'cap_decision_230_3', 'hardware_both_open_timer', 'pad_bit'):
+        t = ctx.v(E, f'{HB}/{kk}', tag_default='DESIGN')
+        c = tvtxt(t, 500)
+        if '2.55 s' in _plain_text(t.value):
+            c = cat(c, cap_text_note(ctx, D))
+        if promo and kk == 'schedule':
+            c = cat(c, lab_acc(D, 'purge FINAL 2.43 / 2.39 s with rule (d), (d1), (d2)'))
+        if promo and kk == 'hardware_both_open_timer':
+            c = cat(c, gnote(f'routed ({D["ele"]["line"]} (8)){D["ele"]["routed_tv"].ref()}: E4-N08, the backstop allows up to 2.741 s against '
+                             'the 2.39 s never-above value; Combustion and the lead at B-BLEED-1', [D['ele']['routed_tv']]))
+        if promo and '73.0 g' in _plain_text(t.value):
+            c = cat(c, corr(ctx, D, rv4(ctx, '9. The stale'), 'E4-05 (9)'))
+        rows.append([esc('bleed: ' + kk.replace('_', ' ')), c])
+    if promo:
+        rows += ele41_purge_rows(ctx, D, E)
+    fs = ctx.raw(E, '/fail_safe_states', default={}) or {}
+    for kk in fs:
+        if kk.startswith('superseded'):
+            continue
+        rows.append([f'Fail-safe: {esc(kk)}', tvtxt(ctx.v(E, ptr_join('fail_safe_states', kk), tag='DESIGN'), 300)])
+    o.append(dtable(['Item', 'Value'], rows, widths=['26%', '74%'], cls='tight'))
+    o.append(doc.h(2, '10.7 Lead rulings on v2.11 and items routed to Electronics v2.12'))
+    rows = []
+    for kk in (ctx.raw(E, '/lead_rulings_v2p11', default={}) or {}):
+        if kk in ('record',):
+            continue
+        rows.append([esc(kk.replace('_', ' ')), tvtxt(ctx.v(E, ptr_join('lead_rulings_v2p11', kk), tag='LEAD'))])  # in full (D1-06)
+    rows.append(['Routed to v2.12 (LEAD 258 (4))', tvtxt(cl.item(258, 4))])
+    rows.append(['Electronics v2.12 (LEAD 261 (3))', tvtxt(cl.item(261, 3))])
+    o.append(dtable(['Item', 'Value (quoted)'], rows, widths=['24%', '76%'], cls='tight',
+                    caption='electronics.json /lead_rulings_v2p11 and the CHANGELOG items that route work to Electronics v2.12'
+                            + (' (PENDING; its interface is electronics.json v4.1, not yet reviewed).' if not promo else '.')))
+    o.append(doc.h(2, '10.8 Lead rulings on the Electronics v2.12 handback (CHANGELOG 264)' + ('; v4.1 PENDING REVIEW' if not promo else
+                                                                                              f' and on its review (CHANGELOG {D["ele"]["line"]})')))
+    o.append(rulings_264(ctx, D))
+    o.append(doc.h(2, '10.9 Electronics open issues'))
+    oi = ctx.raw(E, '/open_issues', default=[]) or []
+    ropen, rclosed, topen, tclosed = [], [], [], []
+    for k, x in enumerate(oi):
+        b = f'/open_issues/{k}'
+        idt = ctx.v(E, b + '/id', tag='DESIGN')
+        clo = ctx.v(E, b + '/closure', tag='DESIGN')
+        cc = tvtxt(clo)
+        if promo and x.get('id') in ('OI-PURGE-CAP', 'OI-C1-SEAT-DRIFT', 'OI-STAND-RELIGHT-COEF', 'OI-PTORCH-PROOF', 'OI-T4-RESIZE', 'OI-JFWD-FLIGHT'):
+            cc = cat(cc, ele41_oi_note(ctx, D, x.get('id')))
+        if not promo and x.get('id') == 'OI-PURGE-CAP':
+            p = purge_parts(ctx, D)
+            cc = cat(cc, gnote(f'lead decision made, 256 (2){p["i256"].ref()}; open: measured-time form after CF-4 / B-BLEED-1{p["i257"].ref()}; '
+                               'contradiction register C-12', [p['i256'], p['i257']]))
+        itv = ctx.v(E, b + '/issue', tag='TO-VERIFY')
+        D.setdefault('ele_oi_tv', {})[x.get('id')] = {'id': idt, 'issue': itv, 'closure': clo}  # sides of C-12 / C-16
+        row = [Cell(f'<b>{esc(x.get("id"))}</b>', [idt]), tvtxt(ctx.v(E, b + '/severity', tag='DESIGN')),
+               tvtxt(itv), tvtxt(ctx.v(E, b + '/owner', tag='DESIGN')), cc]
+        if x.get('id') in CLOSED_BY_LEAD:
+            row[4] = cat(cc, oi_closed_note(ctx, D, x.get('id')))
+            rclosed.append(row)
+            tclosed.append(idt)
+        elif str(x.get('severity') or '').upper().startswith('CLOSED'):
+            rclosed.append(row)  # closed in the interface file itself (severity CLOSED ...)
+            tclosed.append(idt)
+        else:
+            ropen.append(row)
+            topen.append(idt)
+    no = ctx.d(len(ropen), '', 'count of electronics.json /open_issues not closed (by a lead line or in the file)', topen)
+    nc = ctx.d(len(rclosed), '', 'count of electronics.json /open_issues closed by a lead line or marked CLOSED in the file (shown for the record)', tclosed)
+    D['ele_oi'] = {'open': no, 'closed': nc}
+    rows = [f'<tr class="grp"><td colspan="5">Open: {no.h(pill=False)}</td></tr>'] + ropen
+    if rclosed:
+        rows += [f'<tr class="grp"><td colspan="5">Closed by a lead line or marked CLOSED in the file (kept for the record): {nc.h(pill=False)}</td></tr>'] + rclosed
+    o.append(dtable(['ID', 'Severity', 'Issue', 'Owner', 'Closure'], rows, label_cols=0, widths=['13%', '9%', '46%', '12%', '20%'], cls='tight',
+                    caption=f'electronics.json /open_issues ({len(oi)} items as published). An item a later lead line closes is listed under the closed group, '
+                            'with the line that closes it; only a residual that a lead line names stays open.'))
+    return '\n'.join(o)
+
+
+def oi_closed_note(ctx, D, oid):
+    cl = D['cl']
+    if oid == 'OI-A1-BASE-AMB':
+        i3 = cl.item(264, 3)
+        nr = cl.item(264, 2, contains='NEW RULE')
+        s5 = cl.clip(253, 5, "the '0 of 500' evidence of OI-A1-BASE-AMB", 'not an occurrence rate')
+        if D['ele']['promo']:
+            n = D['ele']['line']
+            return cat(gnote(f'closed by 264 (3){i3.ref()} (BASE_AMB at the A1 relight ADOPTED as built); the evidence (not the decision) of 264 (3) is '
+                             f'suspended until v2.13 and is re-shown on v2.13 ({n} (6)); open only for the residual a lead line names: the A1 pad no-go rule '
+                             f'of 264 (2){nr.ref()} (NEW RULE; NO-GO until v2.13, {n} (6); §12.4). 253 (5){s5.ref()}: the "0 of 500" evidence is structural, '
+                             'not an occurrence rate. Contradiction register C-16', [i3, nr, s5]), lab_susp(D, 'the evidence of 264 (3)'))
+        return gnote(f'closed by 264 (3){i3.ref()} (BASE_AMB at the A1 relight ADOPTED as built); open only for the residual a lead line names: the A1 pad '
+                     f'no-go rule of 264 (2){nr.ref()} (NEW RULE, not implemented yet; §12.4). 253 (5){s5.ref()}: the "0 of 500" evidence is structural, '
+                     'not an occurrence rate. Contradiction register C-16', [i3, nr, s5])
+    n, k = CLOSED_BY_LEAD[oid]
+    t = cl.item(n, k)
+    return gnote(f'closed by {n} ({k}){t.ref()}', [t])
+
+
+def dsig_rows(ctx, keys):
+    allr = md_rows_all(ctx.src('DSIG').text or '', None)
+    out = []
+    for key in keys:
+        hit = [x for x in allr if x[1] and x[1][0].strip() == key]
+        if not hit:
+            out.append((key, None, None))
+            continue
+        out.append((key,) + hit[0])
+    return out
+
+
+def sec_mission(ctx, doc, a, D):
+    o = [doc.h(1, '11 Mission and landing (GNC v3.2)')]
+    o.append(note_box('<b>Basis.</b> ' + inl(md_line_starting(ctx, 'DSIG', 'The basis is the published gnc.json v3.2', 'DESIGN', tag_raw='GNC datasheet inputs header')), 'info'))
+    o.append(doc.h(2, '11.1 Mission headline numbers'))
+    rows = []
+    for key, ln, r in dsig_rows(ctx, ['1', '2', '3', '4', '5', '9', '10']):
+        if r is None:
+            m = ctx.missing(f'DSIG row {key}')
+            rows.append([key, Cell(m.h(), [m]), '', ''])
+            continue
+        tag = r[3].strip() if len(r) > 3 else None
+        ev = normalise_tag(tag)
+        rows.append([Cell(f'<b>{esc(r[1].strip())}</b>', []), tvtxt(md_cell_ln(ctx, 'DSIG', ln, r, 2, ev, tag_raw=tag, label=r[1].strip()), 900),
+                     tvtxt(md_cell_ln(ctx, 'DSIG', ln, r, 4, ev, tag_raw=tag, label=r[1].strip()), 500),
+                     tvtxt(md_cell_ln(ctx, 'DSIG', ln, r, 5, 'REF', tag_raw='source column (reference)', label=r[1].strip()), 200)])
+    o.append(dtable(['Item', 'Value for the datasheet', 'Basis', 'Source'], rows, widths=['14%', '44%', '28%', '14%'], cls='tight',
+                    caption=f'01-systems-gnc/DATASHEET-INPUTS-GNC.md ({esc(src_label(ctx, "DSIG"))}); rows 6-8 (gimbal, slew, servo stiffness) are in §3.2. '
+                            '<b>Vehicle basis of rows 1-5 and 9: massprops v3.5.1</b> (the basis column names it); the CAD v3.5.2 mass change is in the table below.'))
+    gm = gnc_mass_cells(ctx, D)
+    rows = [['GNC vehicle basis (row 4): liftoff mass / liftoff T/W (massprops v3.5.1)', cat(gm['lift'].h(), ' / ', gm['tw'].h())],
+            ['Landing-mass change v3.5.2 vs v3.5.1: as built / without the conditional TC-09 thinning', cat(gm['dl'].h('+.4f'), ' / ', gm['dl0'].h('+.4f'))],
+            ["GNC's re-fly trigger (landing-mass growth)", num_cell(gm['trig'])],
+            ['Verdict and evidence (03-cad/v3.5.2/massdelta_v3.5.2_vs_v3.5.1.json /gnc_trigger)', cat(tvtxt(gm['verdict'], 300), '<br>', tvtxt(gm['evid'], 300))]]
+    o.append(dtable(['Item', 'Value'], rows, widths=['40%', '60%'], cls='tight',
+                    caption='The GNC figures above (rows 1-5 and 9: the A1 apogee, the landing P, the liftoff mass and T/W) are on massprops v3.5.1. The CAD v3.5.2 '
+                            'landing-mass change is below GNC\'s re-fly trigger with and without the conditional TC-09 thinning: no re-fly by mass. The change is CALC, not weighed. '
+                            'gnc.json /reference_vehicle/liftoff_mass_kg is the ledger-v3d reference vehicle and is not quoted as current (lead 262 (5)).'))
+    o.append(doc.h(2, '11.2 GNC open items'))
+    keys = [f'11{c}' for c in 'abcdefghijklmnopq']
+    rows = []
+    for key, ln, r in dsig_rows(ctx, keys):
+        if r is None:
+            continue
+        tag = r[3].strip() if len(r) > 3 else None
+        ev = normalise_tag(tag)
+        traw = tag
+        if ev is None and (tag or '').strip().lower() == 'not flown':
+            ev, traw = 'MISSING', f'{tag} (class set at the call site: MISSING: the source tag says no flight or simulation exists for the item)'
+        rows.append([Cell(f'<b>{esc(key)}</b> {esc(r[1].strip())}', []), tvtxt(md_cell_ln(ctx, 'DSIG', ln, r, 2, ev, tag_raw=traw, label=key), 700),
+                     tvtxt(md_cell_ln(ctx, 'DSIG', ln, r, 5, 'REF', tag_raw='owner / source column (reference)', label=key), 200)])
+    o.append(dtable(['Open item', 'What is needed (quoted)', 'Owner / source'], rows, widths=['20%', '60%', '20%'], cls='tight'))
+    return '\n'.join(o)
+
+
+def ptorch_cell(ctx, D):
+    """P_torch transducer after lead 264 (4) (OI-PTORCH-PROOF): the v4 selection names the TE 070BG; the lead moves P_torch to a
+    C1-family Kulite. Quoted with its tagged numbers; the threshold re-base is OPEN (§12.4)."""
+    cl = D['cl']
+    i4 = cl.clip(264, 4, 'P_torch (J901', 'same part as P_mid (ENG-BL-08) and C1.')
+    pr = rx_text(ctx, i4, r'proof ([\d.]+) bar abs \[DATASHEET\]', 'bar abs', tag='DATASHEET')
+    rq = rx_text(ctx, i4, r'against the ([\d.]+) bar abs requirement', 'bar abs', tag='DERIVED')
+    out = cat(tvtxt(i4, 700), '<br>New unit: proof ', pr.h(), ' against the required ', rq.h(),
+              '. Its thresholds are re-based in a later Electronics round (OPEN, §12.4; contradiction register C-10, C-14).')
+    if D['ele']['promo']:
+        n = D['ele']['line']
+        t = cl.clip(n, 8, 'E4-N04 (the P_torch re-base needs compensation or a photodiode-guarded gate; torch local heat MISSING)',
+                    'E4-N04 (the P_torch re-base needs compensation or a photodiode-guarded gate; torch local heat MISSING)')
+        out = cat(out, gnote(f'{n} (8){t.ref()}: E4-N04, queued with v2.13', [t]))
+    return out
+
+
+def rulings_264(ctx, D):
+    """Lead rulings on the Electronics v2.12 handback (CHANGELOG 264 (1)-(8)); each item DECIDED (lead decision, line 264 (k)),
+    the numbers it quotes keep their own tags (lead 2026-10-21 12:52Z). v0.3.1: the 264 (2) limits keep DECIDED (lead) with
+    'PENDING REVIEW (v4.1 implementation)' beside them (lead 13:47Z, D1-03); pointers to the contradiction register."""
+    cl = D['cl']
+    r = r301_vals(ctx, D)
+    w, wt = impl_txt(D, 'r264', 'PENDING REVIEW (v4.1 implementation)', 'v4.1 implementation promoted, line {n}')
+    rows = []
+    rows.append(['Electronics v2.12 staged (Electronics, line 263)',
+                 tvtxt(cl.part(263, 'candidate results/electronics_v4.1.json', ev='REF', why='provenance record of the staged candidate'), 500)])
+    promo = D['ele']['promo']
+    n = D['ele']['line']
+    rows.append(['Source of record and the v4.1 candidate (264 (1))', cat(tvtxt(D['ele']['pend_tv'], 500),
+                 gnote(f'superseded by the promotion, {n} (7){D["ele"]["promo_tv"].ref()}', [D['ele']['promo_tv']]) if promo else Cell('', []))])
+    rows.append(['R3-01 Pc zero, OI-C1-SEAT-DRIFT (264 (2))', cat(tvtxt(r['i2'], 2400), carve(ctx, D, 'opt_b_comp'),
+                                                                  e4_02_cell(ctx, D) if promo else Cell('', []),
+                                                                  tc4_corr(ctx, D) if promo else Cell('', []))])
+    if not promo:
+        rows.append(['Pc re-zero limit on the compensated residual; BASE check, default / B-PC-1-shown build (264 (2))',
+                     cat(r['rz'].h(), '; ', r['bc'].h(unit=False, pill=False), ' / ', r['bc2'].h(), f' <span class="ev ev-status">{esc(w)}</span>',
+                         Cell(''.join(t.ref() for t in wt), wt), gnote('the v2.11 values these replace are shown in §10.2-§10.5 with the not-accepted note: '
+                                                                       'contradiction register C-13'), carve(ctx, D, 'lim_264_2'))])
+    else:
+        rows.append(['Pc re-zero limit on the compensated residual; BASE check, default / B-PC-1-shown build (264 (2))',
+                     cat(r['rz'].h(), '; ', r['bc'].h(unit=False, pill=False), ' / ', r['bc2'].h(), ' ', lab_acc(D, 'kIgnBaseCheck_Pa 0.76 / 0.46 bar'),
+                         gnote('the v2.11 values these replace (electronics.json v4): contradiction register C-13'), carve(ctx, D, 'lim_264_2'))])
+    rows.append(['A1 BASE_AMB outcome (264 (3))', cat(tvtxt(cl.item(264, 3), 800), gnote('closes OI-A1-BASE-AMB (§10.9): contradiction register C-16'),
+                                                      lab_susp(D, 'the evidence (not the decision) of 264 (3); re-shown on v2.13') if promo else Cell('', []),
+                                                      carve(ctx, D, 'relight'))])
+    rows.append(['P_torch transducer, OI-PTORCH-PROOF (264 (4))', cat(tvtxt(cl.item(264, 4), 1600), gnote('contradiction register C-10 and C-14'))])
+    rows.append(['T4 relight, OI-T4-RESIZE (264 (5))', cat(tvtxt(cl.item(264, 5), 900), gnote('§7.9; contradiction register C-15'),
+                                                           (gnote(f'T4 is a stand relight: it waits for v2.13 ({n} (6)){D["ele"]["cons_tv"].ref()}', [D['ele']['cons_tv']])
+                                                            if promo else Cell('', [])), carve(ctx, D, 'relight'))])
+    i6 = cl.item(264, 6)
+    t0a = rx_text(ctx, i6, r'T0 (\d+)-\d+ C', '°C')
+    t0b = rx_text(ctx, i6, r'T0 \d+-(\d+) C', '°C')
+    for t in (t0a, t0b):
+        if t.value is not None and t.basis:
+            t.basis += '; an ASSUMED design range (264 (6))'
+    rows.append(['A1 flight T0 range (264 (6))', cat(tvtxt(i6, 500), '<br>Range ', t0a.h(), ' to ', t0b.h())])
+    rows.append(['OI-JFWD-FLIGHT, PROVISIONAL (264 (7))', cat(tvtxt(cl.item(264, 7), 800), ele41_oi_note(ctx, D, 'OI-JFWD-FLIGHT') if promo else Cell('', []))])
+    rows.append(['REV-ELEC-4 and work not done (264 (8))', tvtxt(cl.clip(264, 8, 'v4.1 is promoted only after its verdict', 'can affect.'), 500)])
+    if promo:
+        rows += ele41_rulings_266_rows(ctx, D)
+    cap = ('CHANGELOG line 264 (lead). Each item is a lead decision (DECIDED, Lead decision, line 264 (k)); numbers quoted in an item keep their own tags. '
+           + ('The firmware v2.12 and electronics.json v4.1 that implement them are PENDING REVIEW (REV-ELEC-4); interfaces/electronics.json v4 stays the source of record.'
+              if not D['ele']['promo'] else f'electronics.json v4.1 implements them; it is the source of record under line {D["ele"]["line"]} (§10.0), with '
+                                              f'option (b) carved out of every start with ignition until a reviewed v2.13 delta ({D["ele"]["line"]} (6)).'))
+    return dtable(['Ruling', 'Text (quoted) and values'], rows, widths=['24%', '76%'], cls='tight', caption=cap)
+
+
+def ele41_head_note(ctx, D):
+    """Top note of §10 in the promoted-v4.1 build (filled in when that build is implemented)."""
+    m = ctx.missing('promoted-v4.1 head note (not implemented in this generator yet)', 'MISSING')
+    return note_box(m.h(), 'warn')
+
+
+def tc_channels_cell(ctx, D, E, TC):
+    """Thermocouple channels; in the promoted build the TC4 label correction of line 266 (7) (C1 seat, not bore top)."""
+    t = ctx.v(E, f'{TC}/channels', tag='DESIGN')
+    c = tvtxt(t, 500)
+    if D['ele']['promo'] and 'bore top' in _plain_text(t.value):
+        c = cat(c, tc4_corr(ctx, D))
+    return c
+
+
+def tc4_corr(ctx, D):
+    """The TC4 label correction of line 266 (7), quoted from that line (C1 seat TC, not bore top)."""
+    n = D['ele']['line']
+    return corr(ctx, D, D['cl'].clip(n, 7, 'TC4 is the C1 seat TC (MAX31856 U904, J904, BOM row 205), not bore top',
+                                     'the file keeps the old label until v4.2)'), 'TC4 label')
+
+
+def sel_cell(ctx, D, E, PT):
+    """Pressure-transducer selection; in the promoted build the 264 (4) fold that line 266 (7) applies (P_TORCH is the XTL-190SM-2000A)."""
+    t = ctx.v(E, f'{PT}/selection')
+    c = tvtxt(t, 500)
+    if D['ele']['promo'] and '070BG' in _plain_text(t.value):
+        n = D['ele']['line']
+        f7 = D['cl'].clip(n, 7, 'the 264 (1)-(8) folds such as P_TORCH XTL-190SM-2000A', 'the 264 (1)-(8) folds such as P_TORCH XTL-190SM-2000A')
+        c = cat(c, gnote(f'{n} (7), E4-05 (7){f7.ref()}: the 264 (4) fold applies: P_TORCH is the XTL-190SM-2000A; the file keeps the 070BG entry until v4.2; '
+                         'contradiction register C-10', [f7]))
+    return c
+
+
+# ---------------------------------------------------------------------------------------------
+# promoted-v4.1 build (v0.3.1; lead GO 2026-10-21 14:48:44Z; CHANGELOG 266): electronics.json v4.1 is the source of record (266 (7));
+# option (b) is carved out of every start with ignition until a reviewed v2.13 delta (266 (6)). Per-parameter labels replace PENDING
+# REVIEW: SUSPENDED UNTIL v2.13 (266 (6)) and ACCEPTED (REV-ELEC-4, line 266); every other value keeps its own evidence tag. Where line
+# 266 (7) corrects a v4.1 item, the corrected text (REV-ELEC-4 section 2, as written in the review) is printed at the item with 266 (7).
+# ---------------------------------------------------------------------------------------------
+ACC_CONST = {'kIgnBaseCheck_Pa': 'kIgnBaseCheck_Pa 0.76 / 0.46 bar', 'kHbleedCap_s': 'purge FINAL 2.43 / 2.39 s with rule (d), (d1), (d2)',
+             'kPurgeFlow_s': 'purge FINAL 2.43 / 2.39 s with rule (d), (d1), (d2)', 'kPtorchRezeroMax_Pa': 're-base OPEN, 264 (4)', 'kJfwdLsRawAbs_Pa': 'JFWD_LS'}
+RV4_TAG = 'REV-ELEC-4 review text (section 2), the correction that CHANGELOG line 266 (7) applies to v4.1 as written in the review'
+
+
+def lab_susp(D, what=''):
+    e = D['ele']
+    return Cell(f'<span class="ev ev-status">SUSPENDED UNTIL v2.13 ({e["line"]} (6))</span>{e["susp_tv"].ref()}'
+                + (f' <span class="small">{esc(what)}</span>' if what else ''), [e['susp_tv']])
+
+
+def lab_acc(D, what=''):
+    e = D['ele']
+    return Cell(f'<span class="ev ev-status">ACCEPTED (REV-ELEC-4, line {e["line"]})</span>{e["acc_tv"].ref()}'
+                + (f' <span class="small">{esc(what)}</span>' if what else ''), [e['acc_tv']])
+
+
+def rv4(ctx, starts, after='E4-05'):
+    """A line of the REV-ELEC-4 review text (RELE4), after its finding heading, quoted in full."""
+    return md_line_starting(ctx, 'RELE4', starts, 'DERIVED', tag_raw=RV4_TAG, after_heading=after)
+
+
+def corr(ctx, D, tv, label):
+    """'Corrected by 266 (7), <label>:' + the quoted correction."""
+    return Cell(f'<div class="dec"><b>Corrected by {D["ele"]["line"]} (7), {esc(label)}:</b> {tvtxt(tv).html}</div>', [tv])
+
+
+def ele41_head_note(ctx, doc, D):
+    """§10.0: the status of electronics.json v4.1 under line 266, every text quoted from that line."""
+    e = D['ele']
+    n = e['line']
+    o = [note_box(f'<b>electronics.json v4.1 (firmware v2.12, SIL only) is the published interface and the source of record of this section (CHANGELOG {n} (7)).</b> '
+                  f'Line {n} governs v4.1 where they differ. The labels at the values: <span class="ev ev-status">SUSPENDED UNTIL v2.13 ({n} (6))</span> and '
+                  f'<span class="ev ev-status">ACCEPTED (REV-ELEC-4, line {n})</span>, as listed in {n} (6); every other value keeps its own evidence tag. Where '
+                  f'line {n} (7) corrects a v4.1 item, the corrected text is printed at the item, quoted from the REV-ELEC-4 review as {n} (7) applies it. '
+                  'SIL and CALC evidence only: no hardware exists.', 'warn')]
+    o.append(doc.h(2, f'10.0 Status of electronics.json v4.1 under line {n}'))
+    rows = [[f'Promotion ({n} (7))', dq(e['promo_tv'])],
+            [f'REV-ELEC-4 verdict ({n} (4))', dq(e['verdict_tv'])],
+            [f'Carve-out ({n} (6), verbatim)', cat(dq(e['carve_tv']))],
+            [f'Consequences ({n} (6))', dq(e['cons_tv'])],
+            [f'SUSPENDED UNTIL v2.13 ({n} (6))', dq(e['susp_tv'])],
+            [f'ACCEPTED (REV-ELEC-4, line {n})', dq(e['acc_tv'])],
+            [f'Corrections that line {n} (7) applies to v4.1', dq(e['gov_tv'])],
+            [f'E4-01, the MAJOR finding ({n} (5))', dq(e['e401_tv'])],
+            [f'Queued and routed ({n} (8))', cat(dq(e['q8_tv']), dq(e['routed_tv']))]]
+    o.append(dtable(['Item', f'Text of CHANGELOG line {n} (quoted in full)'], rows, widths=['22%', '78%'], cls='tight',
+                    caption=f'CHANGELOG line {n} (lead). Each item is a lead decision; the numbers it quotes keep their own tags. Not physical approval.'))
+    return '\n'.join(o)
+
+
+def ele41_const_notes(ctx, D, cname, t):
+    """Labels of a v4.1 firmware constant (266 (6)) and the basis of the two 264 (2) constants."""
+    n = D['ele']['line']
+    out = []
+    if cname == 'kIgnBaseCheck_Pa' and t.ev == 'DECIDED':
+        t.basis = 'Lead decision, line 264 (2) (kIgnBaseCheck_Pa 0.76 / 0.46 bar, default / B-PC-1-shown build)'
+    if cname == 'kPcRezeroMax_Pa' and t.ev == 'DECIDED':
+        t.basis = f'Lead decision, line 264 (2) (kPcRezeroMax_Pa stays 0.30 bar on the compensated residual); v4.1 is the source of record ({n} (7))'
+    if cname in ACC_CONST:
+        out.append(lab_acc(D, ACC_CONST[cname]))
+    if cname == 'kIgnBaseCheck_Pa':
+        out.append(lab_susp(D, 'the kIgnBaseDrift 0.06 bar basis for any relight'))
+    return out
+
+
+def ele41_limit_notes(ctx, D, k):
+    """Corrections of line 266 (7) on the basis texts of the limit rows of v4.1 /limits_v2p11 (REV-ELEC-4 E4-05 (1), (2), (4)); the
+    labels of 266 (6) are on the value cells."""
+    if k == 4:
+        return [corr(ctx, D, rv4(ctx, '1. limits_v2p11[4]: the basis text is stale'), 'E4-05 (1)')]
+    if k == 14:
+        return [corr(ctx, D, rv4(ctx, '2. limits_v2p11[14]: the basis'), 'E4-05 (2)')]
+    if k == 7:
+        return [corr(ctx, D, rv4(ctx, '4. limits_v2p11[7] still says'), 'E4-05 (4)')]
+    return []
+
+
+def ele41_missing_limits(ctx, D):
+    """The limit rows that v4.1 lacks (REV-ELEC-4 E4-05 (3), applied by 266 (7)), each with its label."""
+    n = D['ele']['line']
+    head = rv4(ctx, '3. Missing limit rows, each with its value, tag and source:')
+    rows = []
+    for starts, lab in (('the seat constants (kPcSeatCoefMax_PaPerK', [lab_susp(D, 'option (b) firmware rows')]),
+                        ('kIgnBaseDrift 0.06 bar;', [lab_susp(D, 'the basis for any relight'), lab_acc(D, 'as a part of kIgnBaseCheck_Pa 0.76 / 0.46 bar')]),
+                        ('kPtorchRezeroMax_Pa 0.60 bar;', [lab_acc(D, 're-base OPEN, 264 (4)')]),
+                        ('kJfwdLsRawAbs 47.5 bar abs.', [lab_acc(D, 'JFWD_LS'),
+                                                         gnote(f'E4-N03: 47.5 against 47.75 bar abs, TO-VERIFY ({n} (8))',
+                                                               [D['cl'].clip(n, 8, 'E4-N03 (47.5 against 47.75 bar abs, TO-VERIFY)',
+                                                                             'E4-N03 (47.5 against 47.75 bar abs, TO-VERIFY)')])])):
+        t = rv4(ctx, starts)
+        rows.append([tvtxt(t), cat(*lab)])
+    return dtable([f'Limit row that v4.1 lacks (REV-ELEC-4 E4-05 (3), applied by {n} (7))', 'Label'], rows, widths=['70%', '30%'], cls='tight',
+                  caption=f'{tvtxt(head).html} The values are firmware v2.12 config.h constants as the review lists them; v4.2 adds the rows.')
+
+
+def ele41_fw_rows(ctx, D, E):
+    """§10.1 additions: firmware v2.12 tests and the REV-ELEC-4 reproduction (266 (4))."""
+    n = D['ele']['line']
+    rep = D['cl'].clip(n, 4, 'Reproduction [CALC / SIM, a repeat]', 'as predicted.')
+    return [['Firmware v2.12 unit tests (SIL)', cat(tvtxt(ctx.v(E, '/firmware/v2p12/tests/test_core', tag='SIM')), ' / no hooks: ',
+                                                    tvtxt(ctx.v(E, '/firmware/v2p12/tests/test_core_nohooks', tag='SIM')))],
+            [f'REV-ELEC-4 reproduction ({n} (4))', tvtxt(rep)]]
+
+
+def ele41_changes_table(ctx, doc, D, E):
+    """§10.1.1: the firmware v2.12 changes of v4.1 with their labels under line 266 (6), and the corrections of 266 (7)."""
+    n = D['ele']['line']
+    cl = D['cl']
+    chg = ctx.raw(E, '/firmware/v2p12/changes', default=[]) or []
+    rows = []
+    for j, x in enumerate(chg):
+        t = ctx.v(E, f'/firmware/v2p12/changes/{j}', tag='DESIGN')
+        s = str(x)
+        lab = []
+        if s.startswith('seat compensation'):
+            lab = [lab_susp(D, 'option (b) firmware row')]
+        elif s.startswith('ARM sanity static term'):
+            lab = [lab_susp(D, 'option (b) firmware row'),
+                   corr(ctx, D, cl.clip(n, 7, 'E4-03 (canArm subtracts the static term twice after an earlier ARM', 'fixed in v2.13)'), 'E4-03')]
+        elif s.startswith('TB-state'):
+            lab = [lab_acc(D, 'TB-state')]
+        elif 'J-FWD indication' in s:
+            lab = [lab_acc(D, 'JFWD_LS'), gnote(f'E4-N03, TO-VERIFY ({n} (8))', [cl.clip(n, 8, 'E4-N03 (47.5 against 47.75 bar abs, TO-VERIFY)',
+                                                                                    'E4-N03 (47.5 against 47.75 bar abs, TO-VERIFY)')])]
+        elif s.startswith('torch re-zero limit'):
+            lab = [lab_acc(D, 're-base OPEN, 264 (4)'),
+                   gnote(f'E4-N04 ({n} (8))', [cl.clip(n, 8, 'E4-N04 (the P_torch re-base needs compensation or a photodiode-guarded gate; torch local heat MISSING)',
+                                                       'E4-N04 (the P_torch re-base needs compensation or a photodiode-guarded gate; torch local heat MISSING)')])]
+        elif s.startswith('kIgnBaseCheck_Pa'):
+            lab = [lab_acc(D, 'kIgnBaseCheck_Pa 0.76 / 0.46 bar'), lab_susp(D, 'the kIgnBaseDrift 0.06 bar basis for any relight')]
+        elif s.startswith('purge FINAL'):
+            lab = [lab_acc(D, 'purge FINAL')]
+        elif s.startswith('log v13'):
+            lab = [lab_acc(D, 'log v13')]
+        rows.append([tvtxt(t), cat(*lab) if lab else Cell('<span class="small">own tag (266 (6) names it in neither list)</span>', [])])
+    o = [doc.h(3, f'10.1.1 Firmware v2.12 changes and their status under line {n}')]
+    o.append(dtable(['Change (electronics.json v4.1 /firmware/v2p12/changes, quoted)', f'Label ({n} (6)) and correction ({n} (7))'], rows,
+                    widths=['58%', '42%'], cls='tight', caption='SIL only (firmware v2.12 has no Teensy HAL); no hardware exists.'))
+    return '\n'.join(o)
+
+
+def ele41_relight_rows(ctx, D, E):
+    """§10.4 additions: the stand relight after B1 (SUSPENDED; E4-02) and the U330 band rows (ACCEPTED; E4-04)."""
+    n = D['ele']['line']
+    cl = D['cl']
+    rows = []
+    sr = ctx.v(E, '/r3_01_c1_drift/stand_relight_after_B1')
+    rows.append(['Stand relight after B1 (v4.1 r3_01_c1_drift)', cat(tvtxt(sr), lab_susp(D, 'the stand relight after B1'), e4_02_cell(ctx, D))])
+    u = ctx.raw(E, '/r3_01_c1_drift/A8_U330', default=None)
+    if u is not None:
+        ut = ctx.v(E, '/r3_01_c1_drift/A8_U330', tag_default='DERIVED')
+        rows.append(['U330 band rows (v4.1 r3_01_c1_drift A8)', cat(tvtxt(ut, 900), lab_acc(D, 'the U330 band rows'),
+                                                                   corr(ctx, D, cl.clip(n, 7, 'E4-04 (the U330 ordering gains the stand relight light', '[DERIVED])'), 'E4-04'))])
+    return rows
+
+
+def ele41_purge_rows(ctx, D, E):
+    """§10.6 additions: purge FINAL of v2.12 (v4.1 /purge_final_v2p12), ACCEPTED (REV-ELEC-4, line 266), with E4-N08 routed (266 (8))."""
+    n = D['ele']['line']
+    rows = []
+    for kk in ('kPurgeFlow_s', 'kHbleedCap_s'):
+        c, _t = ele_const(ctx, D, E, f'/purge_final_v2p12/{kk}', label=kk)
+        rows.append([esc(f'purge FINAL: {kk}'), c])
+    for kk in ('calibration', 'rule_d', 'purge_command_time', 'vented_mass_DERIVED'):
+        if ctx.raw(E, f'/purge_final_v2p12/{kk}', default=None) is not None:
+            t = ctx.v(E, f'/purge_final_v2p12/{kk}', tag_default='DESIGN')
+            rows.append([esc(f'purge FINAL: {kk.replace("_", " ")}'), tvtxt(t, 900)])
+    rows.append(['purge mass basis (266 (7), E4-05 (9))', corr(ctx, D, rv4(ctx, '9. The stale'), 'E4-05 (9)')])
+    return rows
+
+
+def ele41_oi_note(ctx, D, oid):
+    """Notes of line 266 on the electronics.json v4.1 open issues (§10.9)."""
+    n = D['ele']['line']
+    cl = D['cl']
+    if oid == 'OI-PURGE-CAP':
+        p = purge_parts(ctx, D)
+        return cat(gnote(f'lead decision made, 256 (2){p["i256"].ref()}; implemented in v4.1; open: measured-time form after CF-4 / B-BLEED-1{p["i257"].ref()}; '
+                         f'E4-N08 routed ({n} (8)){D["ele"]["routed_tv"].ref()}; contradiction register C-12', [p['i256'], p['i257'], D['ele']['routed_tv']]),
+                   lab_acc(D, 'purge FINAL'))
+    if oid == 'OI-C1-SEAT-DRIFT':
+        rs = cl.item(264, 2, contains='Residuals stay OPEN')
+        return cat(gnote(f'264 (2) ruled option (b); {n} (6){D["ele"]["carve_tv"].ref()}: option (b) is not used for any start with ignition until a '
+                         f'reviewed v2.13 delta (carve-out, §10.0); residuals OPEN (264 (2)){rs.ref()}', [D['ele']['carve_tv'], rs]),
+                   lab_susp(D, 'option (b) rows and residuals'))
+    if oid == 'OI-STAND-RELIGHT-COEF':
+        return cat(e4_02_cell(ctx, D), lab_susp(D, 'the stand relight after B1'))
+    if oid == 'OI-PTORCH-PROOF':
+        t = cl.clip(n, 8, 'E4-N04 (the P_torch re-base needs compensation or a photodiode-guarded gate; torch local heat MISSING)',
+                    'E4-N04 (the P_torch re-base needs compensation or a photodiode-guarded gate; torch local heat MISSING)')
+        return gnote(f'264 (4): the C1-family Kulite; threshold re-base OPEN; {n} (8){t.ref()}: E4-N04 with v2.13; contradiction register C-10, C-14', [t])
+    if oid == 'OI-T4-RESIZE':
+        return gnote(f'264 (5): the shorter relight; T4 is a stand relight and waits for v2.13 ({n} (6)){D["ele"]["cons_tv"].ref()}; contradiction register C-15',
+                     [D['ele']['cons_tv']])
+    if oid == 'OI-JFWD-FLIGHT':
+        t = cl.clip(n, 8, 'E4-N02 (the 264 (2) pad rule and the 264 (7) inhibit implemented)', 'E4-N02 (the 264 (2) pad rule and the 264 (7) inhibit implemented)')
+        return gnote(f'264 (7) provisional inhibit; not implemented yet: {n} (8){t.ref()}, with v2.13', [t])
+    return Cell('', [])
+
+
+def ele41_rulings_266_rows(ctx, D):
+    """§10.8 rows for line 266 (4), (5), (8); (6) and (7) are in §10.0."""
+    e = D['ele']
+    n = e['line']
+    return [[f'REV-ELEC-4 verdict ({n} (4))', dq(e['verdict_tv'])],
+            [f'E4-01, the MAJOR finding ({n} (5))', dq(e['e401_tv'])],
+            [f'Carve-out and promotion ({n} (6), (7))', Cell('<span class="small">quoted in full in §10.0</span>', [e['carve_tv'], e['promo_tv']])],
+            [f'Queued and routed ({n} (8))', cat(dq(e['q8_tv']), dq(e['routed_tv']))]]
+
+
+def fw_ver(D):
+    """Firmware version of the electronics interface of record (v4.1: v2.12 SIL; v4: v2.11 SIL); a text label, read from the state of line 266."""
+    return 'v2.12' if D.get('ele', {}).get('promo') else 'v2.11'
+
+
+# ---------------------------------------------------------------------------------------------
+# section 12 (v0.3.0): verification status, founder actions, open items; contradictions register
+# ---------------------------------------------------------------------------------------------
+def r2b_ruling(D):
+    """LEAD RULING R2-B as quoted verbatim in Mechanical's line 254 (1), its operative text up to 'to the measured bore.': a lead
+    decision (DECIDED), its basis text names where it is quoted. v0.3.1: a clip, because the v0.3.0 sentence split stopped the
+    quote at the 'i.e.' of the band."""
+    if 'r2b' not in D:
+        t = D['cl'].clip(254, 1, 'LEAD RULING R2-B', 'to the measured bore.', ev='LEAD', why='the text quotes LEAD RULING R2-B verbatim')
+        if t.value is not None:
+            t.basis = 'Lead ruling R2-B (2026-10-21T07:37:34Z), quoted verbatim in Mechanical line 254 (1)'
+        D['r2b'] = t
+    return D['r2b']
+
+
+def r2b_band(ctx, D):
+    """R2-B band edges (radial gap; lead ruling R2-B, line 254 (1)) and the band file of record, for the supersede notes on the
+    line-240 band (lead 2026-10-21 13:47Z, REV-DS-1 D1-01)."""
+    if 'r2b_band' not in D:
+        r = r2b_ruling(D)
+        lo = rx_text(ctx, r, r'radial gap g in \[([\d.]+), [\d.]+\] mm', 'mm')
+        hi = rx_text(ctx, r, r'radial gap g in \[[\d.]+, ([\d.]+)\] mm', 'mm')
+        for t in (lo, hi):
+            if t.value is not None:
+                t.basis = r.basis
+        bd = src_tv(ctx, 'BAND')
+        m = re.search(r'jfwd_pq_band_v352_v1\.json ([0-9a-f]{16})', D['cl'].items(254).get(1, ''))
+        if not m or m.group(1) != ctx.src('BAND').sha16:
+            ctx.issue('WARN', 'the band file named in line 254 (1) is not the band file in the hub (sha256/16 differs or not named)')
+        D['r2b_band'] = (lo, hi, bd, r)
+    return D['r2b_band']
+
+
+def r2b_sup_note(ctx, D):
+    """'[superseded: R2-B [lo, hi] mm, 254 (1); band re-size done, band v1 <sha>]' (lead 2026-10-21 13:47Z, REV-DS-1 D1-01)."""
+    lo, hi, bd, r = r2b_band(ctx, D)
+    return gnote(f'superseded: R2-B [{lo.h(".3f", unit=False, pill=False)}, {hi.h(".4f")}], 254 (1){r.ref()}; band re-size done, band {bd.h()}',
+                 [lo, hi, bd, r])
+
+
+def sup_index(ctx, rid):
+    return next((k for k, r in enumerate(ctx.raw('SUP', '/reviews', default=[]) or []) if r.get('id') == rid), None)
+
+
+def part_tv(ctx, tv, txt, label):
+    """A verbatim part of a traced text (one step of a procedure), keeping its class and basis (Annex C4; rev1 phase 2)."""
+    # v0.3.1 final: the locator is the pointer of the whole text (the part is a verbatim substring of it, so any re-trace finds it there);
+    # the part is named in the note
+    nt = f'{label} of the text at this pointer, quoted verbatim' + (f'; {tv.note}' if tv.note else '')
+    t = TV(ctx, txt, '', tv.ev, tv.tag_raw, tv.sid, tv.ptr, note=nt, status=tv.status)
+    t.ev, t.basis, t.basis_detail, t.basis_kind = tv.ev, getattr(tv, 'basis', None), getattr(tv, 'basis_detail', None), getattr(tv, 'basis_kind', None)
+    return t
+
+
+def proc_steps(text, first=0, last=9):
+    """Start offsets of the numbered steps 'k. ' of a procedure text, k = first..last in order, each after ': ', '. ', '; ' or ') '."""
+    pos, out = 0, []
+    for k in range(first, last + 1):
+        mm = re.search(r'(?<=[:.;)] )%d\. ' % k, text[pos:])
+        if mm is None:
+            break
+        out.append((k, pos + mm.start()))
+        pos = pos + mm.start() + 2
+    return out
+
+
+def tf1_status_tv(ctx, D):
+    """T-F1 criteria status (texts v5): a result, CALC on SIM, accepted by the lead in 249 (3) (lead 2026-10-21 14:05Z, REV-DS-1 D1-07)."""
+    if 'tf1_st' not in D:
+        t = ctx.v('TXT5', '/T-F1_exposure_basis_R9/criteria_status', tag='CALC')
+        t.tag_raw = '(class set at the call site: CALC on SIM; the criteria results were accepted by the lead in 249 (3); REV-DS-1 D1-07)'
+        D['tf1_st'] = t
+    return D['tf1_st']
+
+
+def tf1_status_cell(ctx, D):
+    t = tf1_status_tv(ctx, D)
+    i3 = D['cl'].item(249, 3)
+    return cat(tvtxt(t), gnote(f'CALC on SIM; accepted, 249 (3){i3.ref()}', [i3]))
+
+
+def gse_row(D, pn):
+    return next((r for r in D.get('gse', []) if r.pn == pn), None)
+
+
+def gse_cell(D, pn):
+    """A BOM GSE tool line as the make/buy record of a founder action: name, drawing state and price as written in the BOM (row trace)."""
+    r = gse_row(D, pn)
+    if r is None:
+        return Cell(f'<span class="miss">BOM GSE line {esc(pn)} not found</span>', [])
+    l = r.l
+    sec = D.get('sec_gse', '§5')
+    return Cell(f'<div class="dec"><b>BOM GSE line ({esc(sec)}):</b> <span class="qt">{esc(r.pn)}: {esc(l.get("name", ""))}; drawing {esc(l.get("drawing") or "")}; '
+                f'price {esc(l.get("unit_price") or "")}; {esc(l.get("groups") or "")}</span> {r.row_tv.pill()}{r.row_tv.ref()}</div>', [r.row_tv])
+
+
+def dec_cells(tvs):
+    """Founder-action texts in full (lead 2026-10-21 14:05Z: a founder action, gate or build procedure is never cut)."""
+    out = []
+    for t in tvs:
+        if isinstance(t, Cell):
+            out.append(t)
+        else:
+            out.append(Cell(f'<div class="dec">{tvtxt(t).html}</div>', [t]))
+    return cat(*out)
+
+
+def sec_verification(ctx, doc, a, D):
+    o = [doc.h(1, '12 Verification status')]
+    cl = D['cl']
+    note = ctx.v('SUP', '/note', tag='DESIGN')
+    o.append(note_box(f'<b class="stmt">{esc(PAGE_STATEMENT)}.</b> {tvtxt(note).html} No value here is a measurement. '
+                      'Review verdicts, matching file hashes, clean CAD checks, passing unit tests and this document\'s own trace check '
+                      'are digital evidence only.', 'warn'))
+    o.append(doc.h(2, '12.1 Review status of the deliverables used here'))
+    rows = []
+    for rid, what, line in (('REV-COMB-4', 'Combustion v2.4b (delta re-review); folded in v2.4c / v2.4d', 256),
+                            ('REV-ELEC-3', 'Electronics v2.11 (firmware v2.11, electronics.json v4)', 253),
+                            ('REV-GNC-7', 'GNC rev4b / gnc.json v3.2', 258),
+                            ('REV-MECH-2', 'Mechanical FEA and CAD (v3.5 era)', None)):
+        i = sup_index(ctx, rid)
+        if i is None:
+            m = ctx.missing(f'{rid} in the review register')
+            rows.append([Cell(f'<b>{esc(rid)}</b>', []), esc(what), Cell(m.h(), [m]), ''])
+            continue
+        vd = ctx.v('SUP', f'/reviews/{i}/verdict', tag='DERIVED')
+        disp = cl.part(line, rid) if line else ctx.v('SUP', f'/reviews/{i}/lead_disposition', tag='LEAD') if ctx.raw('SUP', f'/reviews/{i}/lead_disposition', default=None) else ctx.missing(f'{rid} lead disposition', 'TO-VERIFY')
+        rows.append([Cell(f'<b>{esc(rid)}</b>', []), esc(what), Cell(f'<b>{esc(vd.value)}</b> {vd.pill()}{vd.ref()}', [vd]), tvtxt(disp, 500)])
+    if not D['ele']['promo']:
+        pe = cl.clip(264, 8, 'v4.1 is promoted only after its verdict', 'its verdict.')
+        rows.append([Cell('<b>REV-ELEC-4</b>', []), 'Electronics v2.12 (firmware v2.12, electronics.json v4.1 candidate)',
+                     Cell(f'<b>PENDING</b> (started; CHANGELOG 264 (8)) {pe.pill()}{pe.ref()}', [pe]),
+                     tvtxt(cl.clip(264, 1, 'interfaces/electronics.json stays v4', 'as PENDING REVIEW.'), 400)])
+    else:
+        rows.append(ele41_review_row(ctx, D))
+    fr = cl.item(262, 3)
+    rows.append([Cell('<b>FEA3D-2</b>', []), '3D FEA of the v3.5.2 assembly (REPORT-FEA3D-v352.md) and the rows-v8 matrix',
+                 Cell('<b>no independent review held in this finish run</b>', [fr]), tvtxt(fr, 300)])
+    rows.append(revds1_row(ctx, a, D))
+    o.append(dtable(['Review', 'Deliverable', 'Verdict', 'Lead disposition / plan (quoted)'], rows, label_cols=2, widths=['12%', '24%', '20%', '44%'], cls='tight',
+                    caption='Verdicts from reviews/SUPERVISION.json and, for REV-ELEC-4 and REV-DS-1 (not in the register yet), from their review files; dispositions '
+                            'from the CHANGELOG. A verdict covers the hashed files only (§12.2). A verdict is not physical approval.'))
+    o.append(doc.h(2, '12.2 Review register'))
+    sup = ctx.raw('SUP', '/reviews', default=[]) or []
+    rows = []
+    for k, r in enumerate(sup):
+        b = f'/reviews/{k}'
+        rid = ctx.v('SUP', b + '/id', tag='DERIVED')
+        dt = ctx.v('SUP', b + '/date', tag='DERIVED')
+        vd = ctx.v('SUP', b + '/verdict', tag='DERIVED')
+        dl = ctx.v('SUP', b + '/deliverable', tag='DERIVED')
+        same, changed, missing = hash_status(ctx, a, r.get('hashes_sha256_16'))
+        hs = ctx.d(f'{len(same)} of {len(same) + len(changed) + len(missing)} reviewed files unchanged'
+                   + (f'; changed since review: {", ".join(changed)}' if changed else '')
+                   + (f'; not in the hub: {", ".join(missing)}' if missing else ''), '', 'sha256/16 of each reviewed hub file vs the register entry', [], ev='DERIVED')
+        rows.append([Cell(f'<b>{esc(rid.value)}</b>{rid.ref()}<div class="small">{esc(dt.value)}</div>', [rid, dt]), tvtxt(dl, 200),
+                     cat(f'<b>{esc(vd.value)}</b> ', vd.pill(), vd.ref(), Cell('', [vd])),
+                     cat('<span class="small">', hs.h(pill=False), '</span>', Cell('', [hs]))])
+    o.append(dtable(['Review', 'Deliverable', 'Verdict', 'Reviewed files now (generator check)'], rows, label_cols=0, widths=['12%', '36%', '22%', '30%'], cls='tight',
+                    caption=f'reviews/SUPERVISION.json ({esc(ctx.src("SUP").sha16)}), {len(sup)} entries in register order. Not physical approval.'))
+
+    o.append(doc.h(2, '12.3 Founder actions (traced to their decision)'))
+    o.append('<p class="hnote">Every founder action, gate and build procedure prints in full, with its acceptance limit and its source lines, so that it '
+             'can be carried out from the printed page (lead 2026-10-21 14:05Z). The J-FWD build procedure C4 is printed step by step in '
+             '<a href="#annex-c4">Annex C4</a>, after this table.</p>')
+    MR = '/jfwd_v352/founder_rules'
+    p = purge_parts(ctx, D)
+    c4 = ctx.v('MEC', f'{MR}/C4_procedure', tag='LEAD')
+    D['c4_tv'] = c4
+    fa = [
+        ('IN718 M5 J-FWD screw: quote, and the M6 fallback', [cl.part(240, ['RULED: the J-FWD screw is IN718 M5', 'FALLBACK only if IN718'])]),
+        ('HW-170 disc spring: quote with relaxation data at about 160 C', [cl.part(243, 'Spring A (Schnorr 001 500 A in 1.4568)'), ctx.v('MEC', f'{MR}/HW-170_single_use', tag='LEAD')]),
+        ('J-F1: torque cap 3750 N per flight lot and the Prescale footprint check (TO-VERIFY)', [cl.part(245, ['J-F1 MAXIMUM PRELOAD IS CAPPED AT 3750 N', 'Prescale'])]),
+        ('J-F1b: 175 C peak with the dwell (method TO-DEFINE)', [ctx.v('MEC', f'{MR}/J-F1b', tag='LEAD'), cl.part(254, 'J-F1b method TO-DEFINE')]),
+        ('LOCTITE 243 service range (TO-VERIFY)', [cl.part(248, 'LOCTITE 243 tap zone'), cl.part(254, 'LOCTITE 243 range TO-VERIFY')]),
+        ('Single-use J-FWD screws and springs; removed-screw inspection', [ctx.v('MEC', f'{MR}/single_use', tag='LEAD'), cl.part(243, 'Founder rule until C6 closes')]),
+        ('Post-abort joint replacement rule', [ctx.v('MEC', f'{MR}/post_abort_joint_replacement', tag='LEAD'), cl.part(248, 'FOUNDER RULE: after any case-TC')]),
+        ('HW-170 orientation', [ctx.v('MEC', f'{MR}/HW-170_orientation', tag='DERIVED')]),
+        ('Stand T0 <= 24 C rule and its checklist row', [cl.item(249, 2), ctx.v('MEC', f'{MR}/stand_T0_cross_reference', tag='LEAD')]),
+        ('RA-03, J-FWD hole edges (TC-01 rev 5, C1): edge breaks, deburring and the 10x inspection before assembly (240 (5); 241 (8) C1)',
+         [ctx.v('TXT5', '/item_C/C1_TC01_drawing_callout_rev5', tag='DESIGN'), cl.item(240, 5),
+          cl.clip(241, 8, 'C1, TC-01 rev 5 at the 10 x d5.5 J-FWD holes', '(g) and (h) as item 6 (c) and (d).')]),
+        ('B-TC-1 case-TC channel: acceptance on the DESIGN install (tau and the static terms, else the tolerance is re-derived; 249 (1)); CJTO trim and mean-shift EMI pass (253 (11))',
+         [cl.part(249, 'B-TC-1 (founder'), cl.clip(249, 1, 'low-reading tolerance tol_lo', 'else the tolerance is re-derived.'), cl.item(253, 11)]),
+        ('T-F1, short-time exposure allowables of TC-01 / TC-02: a GATE before the first static fire; routes (i) and (ii) and the PASS criteria in full (241 (8), 249 (3), 254 (2))',
+         [ctx.v('TXT5', '/T-F1', tag='CALC'), tf1_status_cell(ctx, D),
+          cl.clip(241, 8, 'T-F1 (founder action, a GATE before the first static fire)', 'no recalled or estimated value replaces either route.'),
+          cl.item(249, 3), cl.clip(254, 2, 'T-F1 restated per R9', '(d) OPEN)', ev='REF', why='a source line of the founder action (the specialist\'s record line, quoted as its reference)'), cl.part(249, 'T-F1 founder text on the A 175 rows')]),
+        ('Shoulder-screw registration (F2) and the index pin (F5)', [cl.part(245, ['F2 ADOPTED into C4', 'F5: clocking'])]),
+        ('RA-06, make or buy: ENG-TC-12 J-FWD hole-plug set (GSE; TO-DRAW / TO-QUOTE, delivered to Sønderborg DK-6400; 241 (8) C3)',
+         [gse_cell(D, 'ENG-TC-12'), ctx.v('TXT5', '/item_C/C3_fitting_aid_GSE', tag='DESIGN'),
+          cl.clip(241, 8, 'C3: ENG-TC-12 J-FWD hole-plug set', 'TO-DRAW / TO-QUOTE).')]),
+        ('RA-06, make or buy: ENG-TC-13 J-FWD registration shoulder-screw pair (GSE; TO-DRAW / TO-QUOTE, delivered to Sønderborg DK-6400; 245 (4) F2, 246 (2) C3b)',
+         [gse_cell(D, 'ENG-TC-13'), ctx.v('TXT5', '/item_C/C3b_registration_shoulder_screws_GSE', tag='DESIGN'),
+          cl.clip(245, 4, 'F2 ADOPTED into C4', 'shoulder screws out last'), cl.clip(246, 2, 'new C3b (ENG-TC-13 GSE)', 'new C3b (ENG-TC-13 GSE)', ev='REF', why='a source line of the founder action (the specialist\'s record line, quoted as its reference)')]),
+        ('RA-06, make: the match-drill fixture with the index pin and the guide bushings (shop tooling, TO-DRAW; not a BOM line; 245 (4) F5)',
+         [ctx.v('TXT5', '/item_C/C8_jfwd_drawing_texts_rev5/open_items/2', tag='DESIGN'),
+          ctx.v('TXT5', '/item_C/C8_jfwd_drawing_texts_rev5/ENG-TC-02_rev5/jfwd_fits_items/0', tag='DESIGN'),
+          cl.clip(245, 4, 'F5: clocking +/-0.25 deg at match-drilling', 'tap-wall row.')]),
+        ('Preload-retention audit', [cl.part(240, 'PRELOAD-RETENTION AUDIT ADOPTED')]),
+        ('TC-02 spigot select fit (R2-B; U TO-DEFINE)', [r2b_ruling(D), ctx.v('TXT5', '/item_C/C9_founder_texts_remap_v352/(6)_TC-02_select_fit_band_R2', tag='CALC')]),
+        ('S01 / S02 and the screws replaced after any FA-1-class event', [cl.item(240, 6), ctx.v('MEC', f'{MR}/C6', tag='LEAD')]),
+        ('RA-15, C6 closure path 3: the screw qualification test (TO-DEFINE, founder; 243 (5), 254 (6))',
+         [cl.clip(243, 5, 'Closure paths:', '(3) a qualification test (TO-DEFINE, founder).'), cl.clip(245, 4, 'C6 closure path 1 is negative', 'C6 OPEN'),
+          cl.clip(254, 6, 'screw thread-root LCF paths 2 / 3', '(Mechanical / founder test TO-DEFINE)', ev='REF', why='a source line of the founder action (the specialist\'s record line, quoted as its reference)')]),
+        ('J-FWD build procedure C4 (every assembly and re-assembly)',
+         [Cell(f'<div class="dec"><b>Printed in full, step by step, in <a href="#annex-c4">Annex C4</a></b> (after this table) {c4.pill()}{c4.ref()}</div>', [c4])]),
+        ('Kulite F-10, B-PC-1 zero coefficient per serial, F-13 soak and thermometer (253 (11))', [cl.item(253, 11)]),
+        ('B-PC-1: the Pc-zero coefficient per serial and T_cal, with the bench plan v5 acceptance (264 (2))',
+         [cl.clip(264, 2, 'with the per-serial coefficient and T_cal from B-PC-1', 'at k = 3)'), cl.item(264, 2, contains='Residuals stay OPEN')]
+         + ([e4_02_cell(ctx, D)] if D['ele']['promo'] else [])),
+        ('F-10: the thermal-zero maximum from Kulite (264 (2))', [cl.item(264, 2, contains='Residuals stay OPEN')]),
+        ('RA-32, stand fallback (coefficient 0): allowed on the stand only within the 264 (2) limits, by F-10; never a flight configuration',
+         [cl.clip(264, 2, 'The fallback (coefficient 0', 'at ARM [DERIVED].')] + ([D['ele']['carve_tv'], D['ele']['cons_tv']] if D['ele']['promo'] else [])),
+        ('Confirm the A1 flight T0 design range against the launch-site climate (264 (6))', [cl.item(264, 6)]),
+        ('Decide OI-JFWD-FLIGHT at flight acceptance, with T-F1 (264 (7))', [cl.item(264, 7)]),
+        ('Buy the P_torch unit, a C1-family Kulite (264 (4)); TO-QUOTE delivered to Sønderborg DK-6400', [cl.clip(264, 4, 'the BOM gains one C1-family unit', 'DK-6400.')]),
+        ('RA-26, CF-4 / B-BLEED-1: purge acceptance (measured Cd x A) and the re-set rule of the purge flow and the both-open cap (256 (2), 257 (2), 258 (2))',
+         [cl.clip(256, 2, 'with three conditions:', 'needs 2.5 s).'), cl.clip(257, 2, 'DECIDED: after CF-4 / B-BLEED-1', 'at the measured vent.'),
+          cl.clip(258, 2, 'DECIDED: the two REV-GNC-7 additions', 'condition (b) governs.'),
+          Cell('<div class="small">The same conditions as published in combustion.json /purge_decision_v2p4c: §7.5. The test list (§12.6) points here.</div>', [])]),
+        ('Q_JFWD > 60.0 bar abs: inspection and TC-02 tap gauging before the next run', [ctx.v('CMB', '/z3_jfwd_rulings_v2p4d/v/jfwd_replace_rule/decision', tag='LEAD'),
+                                                                                       cl.part(258, 'Q_JFWD')]),
+        ('Stand no-event B-DPC-1 record for a noise-floor rule (TO-VERIFY)', [ctx.v('CMB', '/z3_jfwd_rulings_v2p4d/v/jfwd_replace_rule/measured_traces', tag='TO-VERIFY')]),
+    ]
+    if D['ele']['promo']:
+        n = D['ele']['line']
+        fa.append((f'Electronics v2.13 delta (the E4-01 fix) and its review: QUEUED, NOT STARTED; the founder says when ({n} (8)); until it is reviewed, '
+                   f'option (b) is not used for any start with ignition ({n} (6))', [D['ele']['q8_tv'], D['ele']['carve_tv']]))
+    rows = []
+    for what, tvs in fa:
+        rows.append([Cell(f'<b>{esc(what)}</b>', []), dec_cells(tvs)])
+    rows.append(ele_founder_block_row(ctx, D))
+    o.append(dtable(['Founder action', 'Decision and text (quoted in full)'], rows, widths=['26%', '74%'], cls='tight',
+                    caption='The founders run every physical step; none has been run. Purchases: TO-QUOTE delivered to Sønderborg DK-6400. '
+                            + ('Bench plan v4 is REVISE (text) and does not go to the founders before v5 (CHANGELOG 253 (5)).' if not D['ele']['promo'] else
+                               f'Bench plan v5 does not go to the founders before the corrections of CHANGELOG {D["ele"]["line"]} (7).')))
+    o.append(annex_c4(ctx, doc, D, c4))
+
+    o.append(doc.h(2, '12.4 Open items with owners'))
+    Z = '/z3_jfwd_rulings_v2p4d/v/open_before_flight_acceptance'
+    ob = ctx.raw('CMB', Z, default=[]) or []
+    eo = D.get('ele_oi') or {}
+    items = [('Before flight acceptance (LEAD 258 (3))', [ctx.v('CMB', f'{Z}/{j}', tag='TO-VERIFY') for j in range(len(ob))], 'LEAD / Mechanical'),
+             ('Noise-floor rule for the J-FWD trigger on measured traces', [ctx.v('CMB', '/z3_jfwd_rulings_v2p4d/v/jfwd_replace_rule/measured_traces', tag='TO-VERIFY')], 'founders (B-DPC-1) / review'),
+             ('OI-T4-RESIZE: the T4 re-run with the shorter relight', [cl.item(261, 2), cl.clip(264, 5, 'Combustion sets the length', 'soak-back.'),
+                                                                    cl.clip(264, 5, 'T4 then demonstrates', 'say so.')], 'Combustion / Mechanical'),
+             ('OI-C1-SEAT-DRIFT residuals (B-PC-1; F-10; the seat-TC mount; the P_mid temperature, MISSING)', [cl.item(264, 2, contains='Residuals stay OPEN')],
+              'founders / Mechanical'),
+             ('A1 pad no-go rule (NEW RULE, not implemented yet)', [cl.item(264, 2, contains='NEW RULE')],
+              'Electronics, after REV-ELEC-4' if not D['ele']['promo'] else 'Electronics v2.13 (E4-N02, 266 (8))'),
+             ('OI-PTORCH-PROOF: re-base of the torch thresholds on the C1 zero', [cl.clip(264, 4, 'OPEN for the next Electronics round', 'DK-6400.')],
+              'Electronics; Combustion / Mechanical (torch heat)'),
+             ('Purge: the measured-time form of the flow and the cap after CF-4 / B-BLEED-1', [p['i257']], 'founders (CF-4 / B-BLEED-1); Combustion / Electronics (re-set)'),
+             ('Electronics v2.12 work NOT DONE: the v2.12 SIL MANIFEST; the S1-S11 / S14-S17 re-runs', [cl.clip(264, 8, 'The author did NOT produce', 'can affect.')],
+              'Electronics; REV-ELEC-4 judges' if not D['ele']['promo'] else 'Electronics: v2.13 (a SIL MANIFEST_v2, 266 (8))'),
+             (('Items routed to Electronics v2.12 (in the v2.12 candidate, PENDING REVIEW)' if not D['ele']['promo'] else
+               'Items routed to Electronics v2.12 (in v4.1, promoted, line 266)'), [cl.item(258, 4)], 'Electronics'),
+             ('ENG-11 spread element (alpha / beta spread across poses): OPEN under 188 (7)', [cl.item(188, 7), eng11_spread_cell(ctx, D)],
+              'GNC (robustness assessment); lead (amendment); Mechanical (stiffening)'),
+             ('Found negatives of the margin matrix', [D['neg_total']], 'per class, §9.3; owners §9.10'),
+             ('FEA3D open items', [md_heading(ctx, 'F3D', '13. Open items and owners', 'DERIVED', tag_raw='FEA3D-2 report heading')], 'per item, §9.10'),
+             ('GNC open items 11a-11q', [md_find(ctx, 'DSIG', None, {0: '11a'}, 1, ev='TO-VERIFY', tag_raw='GNC datasheet inputs row 11a')], 'per item, §11.2'),
+             ('Electronics open issues (electronics.json), open', [eo['open'] if eo.get('open') is not None else ctx.d(len(ctx.raw('ELE', '/open_issues', default=[]) or []), '', 'count of electronics.json /open_issues', [], ev='DERIVED')], 'per item, §10.9'),
+             ('Airframe items kept for when the airframe is tackled (ICD-AIRFRAME out of the finish scope)', [cl.part(222, 'The items that were queued for it')],
+              'airframe work, deferred by the founder (222)')]
+    if D['ele']['promo']:
+        e = D['ele']
+        items[0:0] = [('A1 flight: NO-GO until v2.13 is reviewed; stand first starts on the fallback only within 264 (2); no stand relight (266 (6))',
+                       [e['carve_tv'], e['cons_tv']], 'lead; founders; Electronics (v2.13)'),
+                      ('Electronics v2.13 delta (E4-01 fix: light-window hold, TC4 step / rate checks, E4-03, UT-1 to UT-4, S13T TC-fault set, FMEA row, '
+                       'B-TC-1 TC4 row) and its review', [e['q8_tv']], 'QUEUED, NOT STARTED; the founder says when (266 (8))'),
+                      ('Routed with line 266 (8): E4-N08 (the both-open backstop up to 2.741 s against the 2.39 s never-above value); the FC rule for '
+                       'SEAT_STEP and the compensated-Pc release predicate', [e['routed_tv']],
+                       'Combustion and the lead at B-BLEED-1 (E4-N08); GNC and the lead with v2.13')]
+    if eo.get('closed') is not None and eo['closed'].value:
+        items.insert(-1, ('Electronics open issues closed by a lead line (shown for the record in §10.9; only a residual a lead line names stays open)', [eo['closed']], '§10.9'))
+    rows = []
+    for what, tvs, own in items:
+        rows.append([Cell(f'<b>{esc(what)}</b>', []), cat(*[(t if isinstance(t, Cell) else Cell(f'<div class="dec">{tvtxt(t).html if isinstance(t.value, str) or t.value is None else t.h()}</div>', [t])) for t in tvs]), esc(own)])  # in full (D1-06)
+    o.append(dtable(['Item', 'Status (quoted)', 'Owner'], rows, widths=['24%', '60%', '16%'], cls='tight', free_cols=(2,)))
+
+    o.append(doc.h(2, '12.5 Requirement verification methods'))
+    rows = []
+    am = [ln.strip()[2:] for ln in md_section_lines(ctx.src('REQ').text or '', 'Amendments after rev 2') if ln.strip().startswith('- ')]
+    for r in md_table_rows(ctx.src('REQ').text or '', '2. Top-level'):
+        if not r or not r[0].startswith('ENG-'):
+            continue
+        rq = md_row(ctx, 'REQ', '2. Top-level', r[0], 1, tag_col=2)
+        vm = md_row(ctx, 'REQ', '2. Top-level', r[0], 3, ev='REQ')
+        acell = []
+        for b in am:
+            if re.search(r'\b' + re.escape(r[0]) + r'\b', b):
+                x = sentence_with(b, r[0]) or b
+                tva = ctx.t('REQ', f'§Amendments after rev 2 bullet "{b[:48]}" [sentence containing "{r[0]}"]', x, 'REQ', tag_raw='REQ amendment bullet')
+                ac = Cell(f'<div class="dec">{tvtxt(tva, 260).html}</div>', [tva])
+                if r[0] == 'ENG-11' and '3133-7406' in x:
+                    ac = cat(ac, v5c_note(ctx, D))
+                acell.append(ac)
+        idc = f'<b>{esc(r[0])}</b>'
+        rqc = tvtxt(rq, 230)
+        if r[0] == 'ENG-11':
+            idc = '<b>ENG-11 (REQ): gimbal axis stiffness</b>'
+            rqc = cat(tvtxt(rq), eng11_spread_cell(ctx, D))
+            D['eng11_req'] = rq
+        rows.append([idc, rqc, cat(*acell) if acell else Cell('<span class="small">none</span>', []), tvtxt(vm, 120)])
+    o.append(dtable(['ID', 'Requirement (rev 2 text, start)', 'Amendments after rev 2 (sentences naming the ID)', 'Verification method'], rows,
+                    widths=['7%', '42%', '33%', '18%'], free_cols=(2,), cls='tight',
+                    caption=f'00-requirements/REQUIREMENTS.md §2 and its amendments ({esc(src_label(ctx, "REQ"))}). No requirement has been verified physically. '
+                            'ENG-11 (REQ) is the gimbal axis stiffness; the GNC servo output stiffness K_s that the GNC inputs file under ENG-11 is in §3.2.'))
+    o.append(doc.h(2, '12.6 Founder test list'))
+    rows = []
+    for r in md_table_rows(ctx.src('BENCH').text or '', '1. Order and gates'):
+        if not r or not (r[0].isdigit() or r[0] == 'F'):
+            continue
+        cells = [md_row(ctx, 'BENCH', '1. Order and gates', r[0], j, ev='DESIGN') for j in (1, 2, 3)]
+        out = []
+        for t in cells:
+            if isinstance(t.value, str) and 'executable now' in t.value:
+                if not D['ele']['promo']:
+                    b5x = cl.clip(253, 5, 'bench plan v4 is REVISE', 'before v5.')
+                    why = f'not for execution: bench plan v4 is REVISE and does not go to the founders before v5, 253 (5){b5x.ref()}'
+                else:
+                    b5x = cl.clip(D['ele']['line'], 7, 'Bench plan v5 does not go to the founders before these corrections.',
+                                  'Bench plan v5 does not go to the founders before these corrections.')
+                    why = f'not for execution: bench plan v5 does not go to the founders before the corrections of {D["ele"]["line"]} (7){b5x.ref()}'
+                out.append(Cell(f'<span class="qt"><s>{esc(t.value)}</s></span> {t.pill()}{t.ref()}<span class="gnote">[{why}]</span>', [t, b5x]))
+            else:
+                out.append(tvtxt(t))
+        if D['ele']['promo']:
+            extra = bench_row_notes(ctx, D, str(cells[0].value) if cells else '')  # the test column names the bench tests of the step
+            if extra:
+                out[-1] = cat(out[-1], *extra)
+        rows.append([f'Bench step {esc(r[0])}'] + out)
+    for r in md_table_rows(ctx.src('REQ').text or '', '4. Gating early bench tests'):
+        if not r or r[0] in ('Test',):
+            continue
+        rows.append(['Early purchase (REQ §4)', Cell(f'<b>{esc(r[0])}</b>', [md_row(ctx, 'REQ', '4. Gating early bench tests', r[0], 0, ev='REQ')]),
+                     tvtxt(md_row(ctx, 'REQ', '4. Gating early bench tests', r[0], 2, ev='REQ')), tvtxt(md_row(ctx, 'REQ', '4. Gating early bench tests', r[0], 1, ev='REQ'))])
+    b5 = cl.clip(253, 5, 'bench plan v4 is REVISE', 'before v5.')
+    if not D['ele']['promo']:
+        o.append(note_box('<b>Bench plan v4, for information, not for execution (253 (5)); v5 PENDING REVIEW.</b> ' + inl(b5) + ' Bench plan v5 is staged with the '
+                          'electronics.json v4.1 candidate and is PENDING REVIEW (REV-ELEC-4). The bench rows below are bench plan v4, the plan of electronics.json v4, '
+                          'shown for information only. The CF-4 / B-BLEED-1 purge acceptance and re-set rule: founder row in §12.3 (and §7.5).', 'warn'))
+        cap = (f'Bench plan v4 section 1 ({esc(src_label(ctx, "BENCH"))}): for information, not for execution (CHANGELOG 253 (5)); v5 PENDING REVIEW. REQ §4: early purchases. '
+               'CF-4 and T1-T4 criteria: §7.9; the CF-4 / B-BLEED-1 purge acceptance and re-set rule: §12.3. None has been run. Cost: TO-QUOTE, delivered to Sønderborg, DK-6400.')
+    else:
+        o.append(bench_promo_note(ctx, D))
+        cap = bench_promo_caption(ctx, D)
+    o.append(dtable(['Kind', 'Test', 'Gate or measurement', 'Needs / source'], rows, label_cols=1, widths=['13%', '17%', '46%', '24%'], cls='tight', caption=cap))
+    return '\n'.join(o)
+
+
+def ele_founder_block_row(ctx, D):
+    """Electronics founder block: F-1 to F-14 of bench plan v4 section 0 (electronics.json v4) with the 253 (5) status, in full; in the
+    promoted build, F-1 to F-14 of bench plan v5 section 0 (the plan of v4.1) with the 266 (7) status, each row in full."""
+    cl = D['cl']
+    if D['ele']['promo']:
+        n = D['ele']['line']
+        rows = md_rows_where(ctx, 'BENCH', '0. Founder block', r'F-\d+')
+        fbc = []
+        for ln, r in rows:
+            fid = re.sub(r'\*\*', '', r[0]).strip()
+            parts = [md_cell_ln(ctx, 'BENCH', ln, r, j, 'DESIGN', tag_raw='bench plan v5 section 0 (founder block)', label=fid) for j in range(1, min(len(r), 5))]
+            fbc.append(Cell(f'<div class="small"><b>{esc(fid)}</b> ' + ' | '.join(tvtxt(t).html for t in parts) + '</div>', parts))
+        b7 = cl.clip(n, 7, 'Bench plan v5 does not go to the founders before these corrections.', 'Bench plan v5 does not go to the founders before these corrections.')
+        return [Cell('<b>Electronics founder block F-1 to F-14 (bench plan v5 section 0; electronics.json v4.1): action | content | closes or feeds | done when</b>', []),
+                cat(Cell(f'<div class="dec"><b>Status:</b> {tvtxt(b7).html} REV-ELEC-4 found F-13 and F-14 executable as written (§12.6); the plan as a '
+                         'whole waits for the corrections.</div>', [b7]), *fbc)]
+    fb = ctx.raw('ELE', '/bench_plan/founder_block', default=[]) or []
+    fbc = []
+    for j, x in enumerate(fb):
+        t = ctx.v('ELE', f'/bench_plan/founder_block/{j}/action', tag='DESIGN')
+        fbc.append(Cell(f'<div class="small"><b>{esc(x.get("id"))}</b> ' + tvtxt(t).html + '</div>', [t]))
+    b5 = cl.clip(253, 5, 'bench plan v4 is REVISE', 'before v5.')
+    return [Cell('<b>Electronics founder block F-1 to F-14 (bench plan v4 section 0; electronics.json v4)</b>', []),
+            cat(Cell(f'<div class="dec"><b>Status:</b> {tvtxt(b5).html} v5 is staged with electronics.json v4.1 and is PENDING REVIEW (§1.4).</div>', [b5]), *fbc)]
+
+
+def annex_c4(ctx, doc, D, c4):
+    """Annex C4: the J-FWD build procedure C4 of mechanical.json v2.4 (= texts v5 C4) step by step, verbatim, with its source lines
+    241 (8) C4 and 246 (2) C4 (lead 2026-10-21 14:05Z and 14:30Z; REV-DS-1 D1-06 (c), RA-07)."""
+    cl = D['cl']
+    o = [f'<h3 id="annex-c4">Annex C4. J-FWD build procedure C4 (every assembly and re-assembly), in full</h3>']
+    s = c4.value if isinstance(c4.value, str) else ''
+    st = proc_steps(s, 0, 9)
+    rows = []
+    if not st:
+        ctx.issue('WARN', 'C4 procedure: steps 0-9 not found; printed as one text')
+        rows.append(['C4', tvtxt(c4)])
+    else:
+        pre = s[:st[0][1]].strip()
+        if pre:
+            rows.append(['Scope', tvtxt(part_tv(ctx, c4, pre, 'scope'))])
+        for n, (k, i0) in enumerate(st):
+            i1 = st[n + 1][1] if n + 1 < len(st) else len(s)
+            rows.append([f'Step {k}', tvtxt(part_tv(ctx, c4, s[i0:i1].strip(), f'step {k}'))])
+    t5 = ctx.v('TXT5', '/item_C/C4_assembly_step_founder_procedure', tag='LEAD')
+    same = ctx.d('identical' if (isinstance(c4.value, str) and t5.value == c4.value) else 'DIFFERENT', '',
+                 'string comparison of mechanical.json /jfwd_v352/founder_rules/C4_procedure with texts v5 /item_C/C4_assembly_step_founder_procedure', [c4, t5])
+    rows.append(['Check-T5', Cell(f'texts v5 C4 {t5.pill()}{t5.ref()} and the text above: {same.h()}', [same, t5])])
+    s241 = cl.clip(241, 8, 'C4: assembly order', 'proof / leak test).')
+    s246 = cl.clip(246, 2, 'C4 rewritten:', 'never re-torqued;')
+    s254 = cl.clip(254, 2, 'C4 step 1 checks the select-fit pairing record', 'select-fit pairing record', ev='REF', why='a source line of the founder action (the specialist\'s record line, quoted as its reference)')
+    rows.append(['Source, 241 (8) C4', cat(tvtxt(s241), gnote('246 (2) rewrote C4: the torque of 241 (8) is replaced by the J-F1 lot torque by method M-T1J (step 7)'))])
+    rows.append(['Source, 246 (2) C4', tvtxt(s246)])
+    rows.append(['Source, 254 (2)', tvtxt(s254)])
+    o.append(dtable(['Step', 'Text (quoted in full)'], rows, widths=['12%', '88%'], cls='tight',
+                    caption='mechanical.json /jfwd_v352/founder_rules/C4_procedure (the same text as item_c_tf1_texts_v352_v5.json /item_C/C4: the generator '
+                            'checks that they are identical, row "Check-T5"), split at its step numbers; nothing is left out. TO-SELECT, TO-CONFIRM and '
+                            'TO-VERIFY items stay as tagged in the text.'))
+    if isinstance(c4.value, str) and ctx.raw('TXT5', '/item_C/C4_assembly_step_founder_procedure', default=None) != c4.value:
+        ctx.issue('WARN', 'C4: mechanical.json and texts v5 differ')
+    return '\n'.join(o)
+
+
+# ---------------------------------------------------------------------------------------------
+# rev1 phase 2 (lead 2026-10-21 14:30:54Z, REV-DS-1 D1-13 and the review-status rows) and the promoted-v4.1 build
+# (lead GO 2026-10-21 14:48:44Z, CHANGELOG 266)
+# ---------------------------------------------------------------------------------------------
+def dq(tv, label=''):
+    """A quoted text in full in its own block (founder actions, lead lines)."""
+    if isinstance(tv, Cell):
+        return tv
+    lab = f'<b>{esc(label)}</b> ' if label else ''
+    return Cell(f'<div class="dec">{lab}{tvtxt(tv).html}</div>', [tv])
+
+
+def rx_num(ctx, tv, pattern, unit='', tag=None):
+    """A quantity written with a thousands comma (for example '3,100 N·m/rad per axis'): quoted as the source words, with a
+    [sentence containing ...] locator, so that the number keeps the digits and the unit of the source and every re-trace reads the
+    same words (a [regex] locator would hand '3,100' to a float parser). The class is the class of the quoted text."""
+    s = tv.value if isinstance(tv.value, str) else None
+    m = re.search(pattern, s) if s else None
+    if not m:
+        return rx_text(ctx, tv, pattern, unit, tag=tag)
+    words = m.group(0)
+    words = words[2:] if words.startswith('≥ ') else words
+    ev = tag or ((getattr(tv, 'basis_kind', None) or 'LEAD') if tv.ev == 'DECIDED' else tv.ev)
+    return TV(ctx, words, '', ev, tv.tag_raw, tv.sid, f'{tv.ptr} [sentence containing "{words}"]')
+
+
+def eng11_req(ctx, D):
+    """ENG-11 (REQ): gimbal axis stiffness, REQUIREMENTS.md §2 row ENG-11 (line 62), created once (§3.3, §12.5)."""
+    if 'eng11_req' not in D:
+        D['eng11_req'] = md_row(ctx, 'REQ', '2. Top-level', 'ENG-11', 1, tag_col=2)
+    return D['eng11_req']
+
+
+def eng11_spread(ctx, D):
+    """ENG-11 spread element on the v3.5.2 R3 FE values of §3.3 (lead 2026-10-21 14:30:54Z, REV-DS-1 D1-13): the half-range over
+    mid-range per axis [DERIVED from the SIM values], the +-20 % and the 3,100 N.m/rad hard minimum of the requirement."""
+    if 'eng11_spread' in D:
+        return D['eng11_spread']
+    rq = eng11_req(ctx, D)
+    out = {'req': rq, 'lim': rx_text(ctx, rq, r'spread across poses ≤ ±(\d+) %', '%'),
+           'hmin': rx_num(ctx, rq, r'≥ ([\d,]+) N·m/rad per axis', 'N·m/rad')}
+    kt = D.get('ktab') or {}
+    for ax in ('alpha', 'beta'):
+        lo, hi = kt.get(ax, (None, None))
+        if lo is None or not all(isinstance(t.value, (int, float)) for t in (lo, hi)):
+            out[ax] = ctx.missing(f'ENG-11 {ax} spread: the §3.3 FE values are missing')
+            continue
+        out[ax] = ctx.d(100.0 * (hi.value - lo.value) / (hi.value + lo.value), '%',
+                        f'half-range over mid-range of the FE-coupled {ax} axis stiffness over the 17 R3 poses: 100 x (max - min) / (max + min) (§3.3)',
+                        [lo, hi], ev='DERIVED')
+    D['eng11_spread'] = out
+    return out
+
+
+def eng11_spread_cell(ctx, D):
+    """§12.4 / §12.5: the status of the ENG-11 spread element in the lead's words (lead 2026-10-21 14:30:54Z, REV-DS-1 D1-13)."""
+    if 'eng11_spread_cell' in D:
+        return D['eng11_spread_cell']
+    s = eng11_spread(ctx, D)
+    i7 = D['cl'].item(188, 7)
+    bmin = (D.get('ktab') or {}).get('beta', (None, None))[0]
+    tvs = [s['beta'], s['lim'], s['hmin'], i7]
+    if bmin is not None:
+        tvs.append(bmin)
+        bm = bmin.h()
+    else:
+        mm = ctx.missing('beta minimum (§3.3)')
+        tvs.append(mm)
+        bm = mm.h()
+    html_ = (f'<div class="dec"><b>Spread element:</b> not met on the v3.5.2 R3 FE beta values (±{s["beta"].h(".1f")} half-range over mid-range, '
+             f'DERIVED from §3.3; the requirement is ±{s["lim"].h()}); OPEN under 188 (7){i7.ref()}: GNC robustness assessment, then the lead amends the '
+             f'requirement or Mechanical stiffens; see §3.3 and open item 11b (§11.2). Owners (188 (7)): GNC (assessment), lead (amendment), '
+             f'Mechanical (stiffening). The hard minimum ≥ {s["hmin"].h()} holds on the FE values (beta minimum {bm}).</div>')
+    D['eng11_spread_cell'] = Cell(html_, tvs)
+    return D['eng11_spread_cell']
+
+
+def v5c_note(ctx, D):
+    """Label of the 188 (7) spread range: the V5c plant, CAD v3.3 (188 (7), 227), with a pointer to the v3.5.2 values of §3.3 (lead 14:30:54Z)."""
+    cl = D['cl']
+    i7 = cl.item(188, 7)
+    p227 = cl.part(227, 'V5c plant (CAD v3.3)')
+    kt = D.get('ktab') or {}
+    per, tvs = [], [i7, p227]
+    for ax in ('alpha', 'beta'):
+        lo, hi = kt.get(ax, (None, None))
+        if lo is not None:
+            per.append(f'{ax} {lo.h(".0f", unit=False, pill=False)}–{hi.h(".0f")}')
+            tvs += [lo, hi]
+    return gnote(f'the spread range in this sentence is the V5c plant, CAD v3.3 (188 (7){i7.ref()}, 227{p227.ref()}; published in mechanical.json v2.2 per 188 (7)), '
+                 'not the v3.5.2 model; the v3.5.2 R3 FE values per axis (§3.3): ' + '; '.join(per), tvs)
+
+
+def revds1_row(ctx, a, D):
+    """REV-DS-1 in the review-status table (lead 2026-10-21 14:30:54Z): the verdict and counts quoted from the review file, the lead's
+    status text for this build and, in the promoted build, the line that records the verdict (266 (3))."""
+    vd = md_line_starting(ctx, 'RDS1', '1. VERDICT: ACCEPT WITH CORRECTIONS', 'DERIVED', tag_raw='REV-DS-1 review text, section 1')
+    nb = md_line_starting(ctx, 'RDS1', 'No finding is BLOCKING.', 'DERIVED', tag_raw='REV-DS-1 review text, section 1')
+    nm = md_line_starting(ctx, 'RDS1', 'There are 5 MAJOR findings', 'DERIVED', tag_raw='REV-DS-1 review text, section 1')
+    st = ctx.t('generator', 'REV-DS-1 status in this build (text set by the lead 2026-10-21 14:30:54Z)',
+               'REV-DS-1 (independent review of the rev1-draft): ACCEPT WITH CORRECTIONS, 0 BLOCKING, 5 MAJOR, 8 MINOR; corrections applied in this build; '
+               'the check of this final build is recorded in the CHANGELOG after it.', 'DERIVED',
+               tag_raw='status text set by the lead for this build; the counts are those of the review file (section 1)')
+    disp = [dq(st)]
+    if D['ele']['promo']:
+        disp.append(dq(D['cl'].clip(D['ele']['line'], 3, 'REV-DS-1 (independent review of the rev1-draft',
+                                    'Every finding ACCEPTED and sent to the author (13:47:38Z, 14:05:35Z, 14:30:54Z).'), f'CHANGELOG {D["ele"]["line"]} (3):'))
+    return [Cell('<b>REV-DS-1</b>', []), 'This datasheet: the rev1-draft (PDF 8e7d007d128dfb58, not published)',
+            cat(Cell(f'<b>ACCEPT WITH CORRECTIONS</b> {vd.pill()}{vd.ref()}', [vd]), Cell(f'<div class="small">{tvtxt(nb).html} {tvtxt(nm).html}</div>', [nb, nm])),
+            cat(*disp)]
+
+
+def ele41_review_row(ctx, D):
+    """REV-ELEC-4 in the review-status table of the promoted-v4.1 build (lead GO 2026-10-21 14:48:44Z; CHANGELOG 266 (4), (6), (7))."""
+    e = D['ele']
+    n = e['line']
+    vd = md_line_starting(ctx, 'RELE4', 'Overall: ACCEPT WITH COMMENTS', 'DERIVED', tag_raw='REV-ELEC-4 review text, section 1')
+    return [Cell('<b>REV-ELEC-4</b>', []), 'Electronics v2.12 (firmware v2.12 and SIL; electronics.json v4.1; bench plan v5; BOM v2.4)',
+            Cell(f'{tvtxt(vd).html}<div class="small">Review file: reviews/REVIEW-ELECTRONICS-R4.md, sha256/16 '
+                 f'{esc(ctx.src("RELE4").sha16 or "MISSING")}{(lambda st: st.ref())(src_tv(ctx, "RELE4"))}; line {n}</div>', [vd]),
+            cat(dq(e['verdict_tv'], f'CHANGELOG {n} (4):'), dq(e['carve_tv'], f'Carve-out, {n} (6), verbatim:'), dq(e['promo_tv'], f'{n} (7):'))]
+
+
+def e4_02_cell(ctx, D):
+    """The E4-02 correction that line 266 (7) applies to the 'within 5 % at k = 3' acceptance (bench plan v5, v4.1, the 264 (2) wording)."""
+    if 'e4_02' not in D:
+        n = D['ele']['line']
+        t = D['cl'].clip(n, 7, 'E4-02 (the coefficient-within-5-percent-at-k-3 acceptance', 'with no relight objective claimed)')
+        D['e4_02'] = Cell(f'<div class="dec"><b>Corrected by {n} (7), E4-02:</b> {tvtxt(t).html}</div>', [t])
+    return D['e4_02']
+
+
+def bench_promo_note(ctx, D):
+    """§12.6 status of bench plan v5 in the promoted build (lead GO 2026-10-21 14:48:44Z: v5 does not go to the founders before the
+    266 (7) corrections; REV-DS-1 D1-09: the plan is for information, not for execution)."""
+    e = D['ele']
+    n = e['line']
+    cl = D['cl']
+    b6 = cl.clip(n, 7, 'E4-06 (bench plan v5:', 'the C7 stand-DAQ TC added as a stand-only row)')
+    b7 = cl.clip(n, 7, 'Bench plan v5 does not go to the founders before these corrections.', 'Bench plan v5 does not go to the founders before these corrections.')
+    rv = md_find(ctx, 'RELE4', '1. VERDICT', {0: 'Bench plan v5'}, 1, ev='DERIVED', tag_raw='REV-ELEC-4 verdict table')
+    rw = md_find(ctx, 'RELE4', '1. VERDICT', {0: 'Bench plan v5'}, 2, ev='DERIVED', tag_raw='REV-ELEC-4 verdict table')
+    return note_box(f'<b>Bench plan v5 (the plan of electronics.json v4.1), for information, not for execution.</b> {inl(b7)} '
+                    f'<b>REV-ELEC-4:</b> {inl(rv)} {inl(rw)} <b>The corrections ({n} (7)):</b> {inl(b6)} {inl(e4_02_cell(ctx, D))} '
+                    'Under the carve-out the A1 pad is NO-GO and the stand relight (T4 among it) waits for v2.13 (§10.0). The CF-4 / B-BLEED-1 purge acceptance '
+                    'and re-set rule: founder row in §12.3 (and §7.5).', 'warn')
+
+
+def bench_promo_caption(ctx, D):
+    n = D['ele']['line']
+    return (f'Bench plan v5 section 1 ({esc(src_label(ctx, "BENCH"))}): for information, not for execution: it does not go to the founders before the '
+            f'corrections of CHANGELOG {n} (7). REQ §4: early purchases. CF-4 and T1-T4 criteria: §7.9; the CF-4 / B-BLEED-1 purge acceptance and re-set rule: '
+            '§12.3. None has been run. Cost: TO-QUOTE, delivered to Sønderborg, DK-6400.')
+
+
+def bench_row_notes(ctx, D, test_txt):
+    """Row notes of the promoted build on bench plan v5 rows that line 266 (7) corrects (E4-02, E4-06)."""
+    n = D['ele']['line']
+    cl = D['cl']
+    out = []
+    if 'B-PC-1' in test_txt or 'B-TC-1' in test_txt:
+        out.append(e4_02_cell(ctx, D))
+        t = cl.clip(n, 6, 'Suspended until v2.13, and marked so wherever shown:', 'the B-PC-1 / B-TC-1 TC4 rows.')
+        out.append(Cell(f'<span class="ev ev-status">SUSPENDED UNTIL v2.13 ({n} (6))</span> the TC4 rows of B-PC-1 / B-TC-1{t.ref()}', [t]))
+    if 'T1-T4' in test_txt:
+        t = cl.clip(n, 7, 'T4 restated as a relight-latency demonstration', 'waiting for v2.13')
+        out.append(gnote(f'{n} (7), E4-06 (2): T4 restated as a relight-latency demonstration from a soaked state, its length from Combustion\'s T4 re-run, '
+                         f'waiting for v2.13{t.ref()}', [t]))
+    return out
+
+
+# ---------------------------------------------------------------------------------------------
+# section 13.3: the contradiction register (rev1 phase 2: lead 2026-10-21 13:24Z, 13:47:38Z (D1-04) and the promoted build)
+# ---------------------------------------------------------------------------------------------
+def ele4_v(ctx, D, ptr, unit=''):
+    """A v2.11 value of electronics.json v4 for a register side: from the §10 object in the default build; from the kept v4 file
+    (staging_v2.11/results/electronics_v4.json, source ELE4) in the promoted build. A v2.11 BASE constant is a design value (D1-03)."""
+    if not D['ele']['promo']:
+        t = (D.get('ele_tv') or {}).get(ptr)
+        if t is not None:
+            return t
+        t = ctx.v('ELE', ptr, unit)
+    else:
+        t = ctx.v('ELE4', ptr, unit)
+    if any(k in ptr for k in ('kIgnBaseCheck_Pa', 'coast_rezero/max', 'limits_v2p11/14/')):
+        as_design(t, BASE_BASIS, BASE_WHY)
+    return t
+
+
+def register_contradictions(ctx, a, D):
+    cl = D['cl']
+    promo = D['ele']['promo']
+    n = D['ele']['line']
+    # C-01: FEA3D-2 text vs the rows-v8 matrix of record (HW-101 J-FWD u cell)
+    f2 = md_find(ctx, 'F3D', '13. Open items and owners', {0: '2'}, 2, ev='DERIVED', tag_raw='FEA3D-2 report §13 item 2')
+    ch = ctx.v('MMXD', '/cell_value_changes/0', tag='DERIVED')
+    if isinstance(f2.value, str) and '+0.301' in f2.value and isinstance(ch.value, dict) and ch.value.get('new_MS_y_MS_u', [None, None])[1] == 0.278:
+        ctx.contra('C-01', 'HW-101 J-FWD u cell: FEA3D-2 report text vs the rows-v8 matrix of record',
+                   [('FEA3D-2 report §13 item 2', f2), ('rows-v8 matrix delta', ch), ('rows-v8 why', ctx.v('MMXD', '/why', tag='DERIVED'))],
+                   'the rows-v8 matrix value (Eq. 22 governing, rows v8; §9.5.3)', 'the report text predates the re-map; Mechanical / FEA3D to align the report wording.',
+                   governs=[('rows-v8 matrix of record', src_tv(ctx, 'MMX')), ('CHANGELOG 255 (3)', cl.clip(255, 3, 'It supersedes only', 'stands as published.'))],
+                   status='The matrix of record governs; the FEA3D-2 report text is stale. The matrix value is shown (§9.5.3). OPEN: Mechanical / FEA3D align the report wording.')
+    # C-02: electronics.json status text vs the promotion (v4: line 253; v4.1: line 266 (7))
+    st = ctx.v('ELE', '/status', tag='DESIGN')
+    if isinstance(st.value, str) and 'STAGED for the lead' in st.value:
+        if not promo:
+            ctx.contra('C-02', 'electronics.json v4 status: "STAGED" vs promoted',
+                       [('electronics.json /status', st), ('CHANGELOG 253 (5)', cl.clip(253, 5, 'PROMOTED 07:05:56Z', 'electronics_v3.json).'))],
+                       'promoted v4 is the published interface (OVR-10)', 'Electronics v2.12 (electronics.json v4.1) to restate the status text.',
+                       governs=[('CHANGELOG 253 (5)', cl.clip(253, 5, 'PROMOTED 07:05:56Z', 'electronics_v3.json).')),
+                                ('CHANGELOG 264 (1)', cl.clip(264, 1, 'interfaces/electronics.json stays v4', 'as PENDING REVIEW.'))],
+                       status='electronics.json v4 is the source of record (line 253); its internal STAGED status string is stale and is annotated (OVR-10). '
+                              'OPEN: Electronics restates it (v4.1 is PENDING REVIEW).')
+        else:
+            g7 = cl.clip(n, 7, 'Until v4.2 this line governs v4.1 where they differ: its STAGED status text is superseded;',
+                         'Until v4.2 this line governs v4.1 where they differ: its STAGED status text is superseded;')
+            ctx.contra('C-02', 'electronics.json v4.1 status: "STAGED" vs promoted (line 266)',
+                       [('electronics.json v4.1 /status', st), (f'CHANGELOG {n} (7)', D['ele']['promo_tv'])],
+                       f'promoted v4.1 is the published interface ({n} (7); OVR-10)', 'Electronics restates the status text at v4.2.',
+                       governs=[(f'CHANGELOG {n} (7)', D['ele']['promo_tv']), (f'CHANGELOG {n} (7), the governing clause', g7)],
+                       status=f'Line {n} (7) governs: electronics.json v4.1 is the source of record and its internal STAGED status string is stale; it is '
+                              'annotated (OVR-10). OPEN: Electronics restates it at v4.2.')
+    # C-03: combustion datasheet note "until gnc.json v3.2" vs v3.2 published without a 210 m A1 record
+    nt = md_line_starting(ctx, 'DSIC', 'A1 apogee target 210 m is decided', 'DESIGN', tag_raw='combustion datasheet inputs note')
+    g11h = md_find(ctx, 'DSIG', None, {0: '11h'}, 2, ev='TO-VERIFY', tag_raw='GNC datasheet inputs row 11h')
+    if isinstance(nt.value, str) and 'until gnc.json v3.2' in nt.value:
+        ctx.contra('C-03', 'A1 mission-burn records: "300 m comparators until gnc.json v3.2" vs v3.2 published without a 210 m record',
+                   [('combustion datasheet inputs note', nt), ('GNC datasheet inputs 11h', g11h), ('CHANGELOG 260 (1)', cl.part(260, 'GNC.JSON v3.2 PUBLISHED'))],
+                   'the 300 m A1 records stay the comparators; the 210 m A1 duty-cycle record is OPEN (GNC)', 'GNC to fly the 210 m record; Combustion to restate the note.',
+                   governs=[('GNC datasheet inputs 11h', g11h), ('CHANGELOG 213', cl.part(213, 'B1 still governs thermal and erosion sizing'))],
+                   status='OPEN (GNC): the 210 m A1 mission-burn and duty-cycle record is not flown (row 11h). The 300 m records stay, labelled as 300 m '
+                          'comparators; B1 governs the thermal and erosion sizing. No 210 m value is invented here.')
+    # C-04: BOM / hardware strings superseded by drawing-note rulings
+    tc2 = D['bom_by_pn'].get('ENG-TC-02')
+    hw1 = D['bom_by_pn'].get('ENG-HW-101')
+    if tc2 is not None and '57.20 f7' in (tc2.l.get('notes') or ''):
+        cl2 = next(x.strip() for x in tc2.l['notes'].split(';') if '57.20 f7' in x)
+        n2 = ctx.t('BOM', ptr_join('lines', tc2.idx, 'notes'), cl2, 'DESIGN', tag_raw='BOM line notes (clause quoted)',
+                   note='the clause containing "57.20 f7" of the notes string at this pointer, quoted verbatim')
+        ctx.contra('C-04', 'TC-02 plug fit: BOM notes "57.20 f7" vs the R2-B select fit',
+                   [('BOM ENG-TC-02 notes', n2), ('CHANGELOG 254 (1)', r2b_ruling(D)),
+                    ('matrix TC-01 J-FWD cell (drawn fit)', md_find(ctx, 'MMXMD', 'Negative cells and their classes', {0: 'TC-01', 1: 'J-FWD'}, 2, ev='CALC',
+                                                                    tag_raw=MX_TAG + '; negative-cell table'))],
+                   'R2-B select fit; the drawn 57.20 f7 fit is FOUND NEGATIVE', 'Mechanical: drawing texts carry R2-B (texts v5 C9 (6)); the BOM note is generated from the part script (no geometry change).',
+                   governs=[('CHANGELOG 254 (1), R2-B', r2b_ruling(D))],
+                   status='The R2-B select fit governs (line 254); the BOM fit note is superseded and the drawn fit is FOUND NEGATIVE. '
+                          'OPEN: Mechanical restates the BOM note (generated from the part script; no geometry change). See also C-11.')
+    if hw1 is not None and '60 bar abs' in (hw1.l.get('notes') or ''):
+        cl1 = next(x.strip() for x in hw1.l['notes'].split(';') if '60 bar abs' in x)
+        n1 = ctx.t('BOM', ptr_join('hardware', 'lines', hw1.idx, 'notes'), cl1, 'DESIGN', tag_raw='BOM hardware notes (clause quoted)',
+                   note='the clause containing "60 bar abs" of the notes string at this pointer, quoted verbatim')
+        ctx.contra('C-05', 'HW-101 action: "after any Pc above 60 bar abs" vs the Q_JFWD replace rule',
+                   [('BOM ENG-HW-101 notes', n1), ('combustion.json z3_jfwd_rulings_v2p4d', ctx.v('CMB', '/z3_jfwd_rulings_v2p4d/v/jfwd_replace_rule/replaces', tag='LEAD'))],
+                   'the Q_JFWD rule (LEAD 258 (3)); the BOM string is superseded (no hardware-data, BOM or geometry edit)', 'Mechanical to restate the hardware string at the next hardware-data revision.',
+                   governs=[('combustion.json z3_jfwd_rulings_v2p4d (LEAD 258 (3))', ctx.v('CMB', '/z3_jfwd_rulings_v2p4d/v/jfwd_replace_rule/replaces', tag='LEAD')),
+                            ('CHANGELOG 259 (6)', cl.clip(259, 6, 'no CAD, hardware-data or BOM edit', 'superseded by the drawing texts v2.', ev='REF',
+                                                         why='Mechanical record that the string is superseded; it states no value'))],
+                   status='The Q_JFWD replace rule (258 (3)) governs; line 259 (6) states that the HW-101 string is superseded by the drawing texts v2. '
+                          'OPEN: Mechanical restates the hardware string at the next hardware-data revision.')
+    # C-06: T4 rows vs the re-size
+    t4 = md_line_starting(ctx, 'T14', '| T4, DC-D duty cycle', 'SIM', tag_raw='T1-T4 spec §3 T4 row')
+    ctx.contra('C-06', 'T4: the T1-T4 rows (DC-D, 7.02 kg) vs the re-sized shortest firing (about 2.0 kg)',
+               [('T1-T4 spec T4 row', t4), ('combustion.json t4_duration_note_v2p4c', ctx.v('CMB', '/t4_duration_note_v2p4c/v/status', tag='LEAD')),
+                ('CHANGELOG 261 (2)', cl.item(261, 2))],
+               'T4 re-sized (LEAD 261 (2)); the rows stay the DC-D computation [SIM] until re-run', 'Combustion re-runs the T4 rows (OPEN; not in the finish run).',
+               governs=[('CHANGELOG 261 (2)', cl.item(261, 2)), ('CHANGELOG 264 (5)', cl.item(264, 5))],
+               status='The re-size governs (261 (2), 264 (5)); the published T4 rows (DC-D) are superseded. OPEN (OI-T4-RESIZE): the T4 re-run sets the length. '
+                      'See also C-15.')
+    # C-07: bench plan path named in electronics.json vs the hub tree
+    bp = ctx.v('ELE', '/bench_plan/file', tag='DESIGN')
+    mb = re.match(r'(06-electronics/docs/bench_plan_v\d+\.md)', bp.value) if isinstance(bp.value, str) else None
+    if mb and not os.path.isfile(os.path.join(a.hub, mb.group(1))):
+        loc = TV(ctx, ctx.src('BENCH').path.replace(a.hub + '/', ''), '', 'DERIVED', 'generator: file found at this path (sha256/16 ' + (ctx.src('BENCH').sha16 or '') + ')', 'BENCH', '(file)')
+        ctx.contra('C-07', f'Bench plan {ctx.src("BENCH").version or ""} location: electronics.json path vs the hub tree',
+                   [('electronics.json /bench_plan/file', bp), ('file in the hub', loc)], 'the staging copy (same sha as named)', 'Electronics to state the hub path.',
+                   governs=[('file in the hub', loc)],
+                   status='The hub tree governs; the path is printed as it is in the hub (§15.2). OPEN: Electronics states the hub path.')
+    # C-08: CF-4 baseline text
+    cb = ctx.v('CMB', '/cf4_gate/v/baseline_v2p4b', tag='DESIGN')
+    if isinstance(cb.value, str) and 'not yet published' in cb.value:
+        ctx.contra('C-08', 'CF-4 baseline: "mechanical.json v2.2 not yet published" vs mechanical.json v2.4 published',
+                   [('combustion.json /cf4_gate/baseline_v2p4b', cb), ('mechanical.json version', ctx.v('MEC', '/version', tag='DESIGN'))],
+                   'mechanical.json v2.4 is published; the CF-4 bleed-path basis stays the frozen v3.5.1 path as written', 'Combustion to restate at the next text revision.',
+                   governs=[('mechanical.json version', ctx.v('MEC', '/version', tag='DESIGN'))],
+                   status='mechanical.json v2.4 is current; the CF-4 text predates it (the bleed-path basis stays the frozen v3.5.1 path as written). '
+                          'OPEN: Combustion restates it at the next text revision.')
+    # C-09: BOM mass sum vs the generator sum. Retired when they agree: the ID is kept so that the IDs of the draft stay stable (D1-04)
+    bs, gs = D['bom_mass_sum'], D['bom_sum_tv']
+    if isinstance(bs.value, (int, float)) and isinstance(gs.value, (int, float)) and abs(bs.value - gs.value) > 5e-4:
+        ctx.contra('C-09', 'BOM mass_sum_kg vs the sum of its lines', [('BOM /mass_sum_kg', bs), ('generator sum', gs)], 'both shown (§4.4)', 'Mechanical to check the BOM header sum.',
+                   status='Both are shown (§4.4). OPEN: Mechanical checks the BOM header sum.')
+    else:
+        ctx.contra('C-09', 'BOM mass_sum_kg vs the sum of its lines', [('BOM /mass_sum_kg', bs), ('generator sum of the BOM lines', gs)],
+                   'no disagreement at this build', 'none',
+                   status='RETIRED: the two agree at this build (difference below 0.0005 kg; §4.4), so there is no contradiction. The ID is kept, and not '
+                          'reused, so that the IDs of the rev1-draft stay valid (REV-DS-1 D1-04).')
+        ctx.contradictions[-1]['retired'] = True
+    # C-10: P_torch transducer: electronics.json selection vs lead 264 (4)
+    sel = ctx.v('ELE', '/sensors/pressure_transducers/selection')
+    p264 = cl.clip(264, 4, 'P_torch (J901', 'same part as P_mid (ENG-BL-08) and C1.')
+    if isinstance(sel.value, dict) and '070BG' in str(sel.value.get('P_TORCH')):
+        gov = [('CHANGELOG 264 (4)', p264)]
+        if promo:
+            f7 = cl.clip(n, 7, 'the 264 (1)-(8) folds such as P_TORCH XTL-190SM-2000A', 'the 264 (1)-(8) folds such as P_TORCH XTL-190SM-2000A')
+            gov.append((f'CHANGELOG {n} (7), E4-05 (7)', f7))
+        ver = 'v4.1' if promo else 'v4'
+        ctx.contra('C-10', f'P_torch transducer: electronics.json {ver} (TE M3234-000005-070BG) vs lead 264 (4) (C1-family Kulite XTL-190SM-2000A)',
+                   [(f'electronics.json {ver} /sensors/pressure_transducers/selection', sel), ('CHANGELOG 264 (4)', p264)],
+                   'lead 264 (4): the C1-family Kulite; its proof [DATASHEET] and the required proof [DERIVED] are quoted with their tags in §10.2',
+                   'Electronics: thresholds re-based and the selection restated (OPEN).', governs=gov,
+                   status='Line 264 (4) governs: the C1-family Kulite XTL-190SM-2000A, its proof [DATASHEET] against the required proof [DERIVED] (§2.3). '
+                          f'The electronics.json {ver} P_torch entry is superseded for the design'
+                          + (f' (line {n} (7) applies the 264 fold, E4-05 (7); the file keeps the old entry until v4.2)' if promo else '')
+                          + '. OPEN (OI-PTORCH-PROOF): the threshold re-base' + (' (E4-N04, queued with v2.13, 266 (8))' if promo else '') + '. See also C-14.')
+    # C-11: the line-240 select-fit band vs R2-B (lead 13:47:38Z, D1-04)
+    lo, hi, bd, r = r2b_band(ctx, D)
+    sides = []
+    if D.get('neg_band_tv') is not None:
+        sides.append(('margin matrix negative-cell table, TC-01 J-FWD closure (the line-240 band)', D['neg_band_tv']))
+    if D.get('f3d_item1'):
+        sides.append(('FEA3D-2 report §13 item 1, closure (the line-240 band)', D['f3d_item1'][3]))
+    sides.append(('CHANGELOG 254 (1), LEAD RULING R2-B', r))
+    ctx.contra('C-11', 'TC-01 J-FWD select-fit band: the line-240 band [0.040, 0.0761] mm quoted in the matrix and the FEA3D-2 report vs R2-B',
+               sides, 'R2-B (254 (1))', 'none: the band re-size is done; the texts quote the older band',
+               governs=[('CHANGELOG 254 (1), R2-B', r), ('band file of record', bd)],
+               status=f'R2-B governs (254 (1)): the select-fit band is the R2-B band. Band re-size done (band v1 {ctx.src("BAND").sha16}); the seat-line P+Q '
+                      'stays a found negative at the drawn fit (§9.3, §9.10 item 1). See also C-04.')
+    # C-12: the 2.55 s both-open cap of v2.11 vs the 256 (2) FINAL purge (lead 13:47:38Z, D1-02 / D1-04)
+    p = purge_parts(ctx, D)
+    capv = ele4_v(ctx, D, '/limits_v2p11/4/value', 's')
+    w, wt = impl_txt(D, 'purge_status', 'implemented in v4.1, PENDING REVIEW; the measured-time form is open after CF-4 / B-BLEED-1',
+                     'implemented in v4.1, promoted, line {n}; the measured-time form is open after CF-4 / B-BLEED-1')
+    ctx.contra('C-12', 'Purge both-open cap: 2.55 s (v2.11, electronics.json v4) vs the 256 (2) FINAL 2.43 s flow / 2.39 s cap',
+               [('electronics.json v4 /limits_v2p11/4 (v2.11 cap)' + (' [kept v4 file]' if promo else ''), capv), ('CHANGELOG 203 (3)', p['i203']),
+                ('CHANGELOG 256 (2)', p['i256'])],
+               '256 (2) FINAL', 'Electronics implements the FINAL values (v2.12 / v4.1).',
+               governs=[('CHANGELOG 256 (2)', p['i256']), ('CHANGELOG 257 (2)', p['i257']), ('CHANGELOG 258 (2)', p['i258'])] + [('implementation record', t) for t in wt],
+               status=f'256 (2) governs (2.43 s flow, 2.39 s cap, conditions (a)-(d), (d1), (d2) of 256 (2) / 257 (2) / 258 (2)); {w}.')
+    # C-13: the v2.11 BASE constants vs 264 (2) (lead 13:47:38Z, D1-03 / D1-04)
+    r3 = r301_vals(ctx, D)
+    bcv = ele4_v(ctx, D, '/light_rule/kIgnBaseCheck_Pa', 'Pa')
+    rzv = ele4_v(ctx, D, '/sensors/pressure_transducers/coast_rezero/max', 'Pa')
+    w13, wt13 = impl_txt(D, 'c13_status', 'v4.1 implementation PENDING REVIEW (REV-ELEC-4)', 'v4.1 implementation promoted, line {n}')
+    ctx.contra('C-13', 'C1 re-zero and BASE constants: v2.11 kIgnBaseCheck_Pa 70000 Pa / kPcRezeroMax_Pa 30000 Pa (not accepted, 253 (5)) vs 264 (2)',
+               [('electronics.json v4 /light_rule/kIgnBaseCheck_Pa (v2.11)' + (' [kept v4 file]' if promo else ''), bcv),
+                ('electronics.json v4 coast re-zero max, kPcRezeroMax_Pa (v2.11)' + (' [kept v4 file]' if promo else ''), rzv),
+                ('CHANGELOG 264 (2)', r3['lim'])],
+               '264 (2)', 'Electronics implements 264 (2) (v2.12 / v4.1).',
+               governs=[('CHANGELOG 253 (5)', r3['na']), ('CHANGELOG 264 (2)', r3['lim'])] + [('implementation record', t) for t in wt13],
+               status=f'253 (5) did not accept the v2.11 values; 264 (2) governs (kPcRezeroMax_Pa 0.30 bar on the compensated residual, kIgnBaseCheck_Pa '
+                      f'0.76 / 0.46 bar default / B-PC-1-shown build); {w13}.')
+    # C-14: the combustion-side P_torch texts vs 264 (4) (D1-04)
+    c14 = list(D.get('c14_sides') or [])
+    c14.append(('CHANGELOG 264 (4)', p264))
+    ctx.contra('C-14', 'P_torch on the combustion side: the 070BG / "reselected" transducer texts vs lead 264 (4)',
+               c14, '264 (4)', 'Electronics re-bases the torch thresholds; Combustion restates its texts.',
+               governs=[('CHANGELOG 264 (4)', p264)],
+               status='264 (4) governs: P_torch is the C1-family Kulite XTL-190SM-2000A. The re-base of the torch thresholds is OPEN (OI-PTORCH-PROOF; §12.4)'
+                      + (f'; it needs compensation or a photodiode-guarded gate and the torch local heat first (E4-N04, {n} (8))' if promo else '') + '. See also C-10.')
+    # C-15: the relight length of 261 (2) vs 264 (5) (D1-04)
+    i5 = cl.item(264, 5)
+    t4d = cl.clip(264, 5, 'T4 then demonstrates', 'say so.')
+    gov15 = [('CHANGELOG 264 (5)', i5)]
+    if promo:
+        gov15.append((f'CHANGELOG {n} (7), E4-06 (2)', cl.clip(n, 7, 'T4 restated as a relight-latency demonstration', 'waiting for v2.13')))
+    ctx.contra('C-15', 'T4 relight: about 4.6 s after the B1 burn (261 (2)) vs the shorter relight of 264 (5)',
+               [('CHANGELOG 261 (2)', cl.item(261, 2)), ('CHANGELOG 264 (5)', i5), ('CHANGELOG 264 (5), what T4 demonstrates', t4d)],
+               '264 (5)', 'Combustion sets the length in the T4 re-run.', governs=gov15,
+               status='264 (5) governs: the shorter relight is adopted and T4 demonstrates relight latency from a soaked state. The length is OPEN: Combustion '
+                      'sets it in the T4 re-run with Mechanical\'s soak-back (OI-T4-RESIZE)' + (f'; T4 is a stand relight and waits for v2.13 ({n} (6))' if promo else '')
+                      + '. See also C-06.')
+    # C-16: OI-A1-BASE-AMB (electronics.json open issue) vs 264 (3) (D1-04)
+    oi = (D.get('ele_oi_tv') or {}).get('OI-A1-BASE-AMB')
+    i3 = cl.item(264, 3)
+    nr = cl.item(264, 2, contains='NEW RULE')
+    if oi is not None:
+        gov16 = [('CHANGELOG 264 (3)', i3)]
+        if promo:
+            gov16.append((f'CHANGELOG {n} (6)', D['ele']['susp_tv']))
+        ctx.contra('C-16', 'OI-A1-BASE-AMB: listed open in electronics.json vs closed by 264 (3)',
+                   [('electronics.json /open_issues OI-A1-BASE-AMB, issue', oi['issue']), ('electronics.json OI-A1-BASE-AMB, closure', oi['closure']),
+                    ('CHANGELOG 264 (3)', i3)],
+                   '264 (3)', 'Electronics closes the item in the interface file.', governs=gov16,
+                   status='Closed: 264 (3) adopts the A1 BASE_AMB outcome as built; the item is listed under the closed group in §10.9. Only the residual that a '
+                          'lead line names stays open: the A1 pad no-go rule of 264 (2) (NEW RULE, §12.4)'
+                          + (f'. The evidence (not the decision) of 264 (3) is SUSPENDED UNTIL v2.13 and is re-shown on v2.13 ({n} (6))' if promo else '') + '.')
+        D['c16_nr'] = nr
+
+
+def sec_contradictions(ctx, doc, a, D):
+    """Section 13 (v0.3.1): every contradiction with its sides, its governing source and its status (lead 2026-10-21 13:24Z); retired IDs
+    are kept with the reason (REV-DS-1 D1-04)."""
+    o = [doc.h(1, '13 Decision overrides and the contradiction register')]
+    o.append(sec_overrides(ctx, doc, a, D))
+    o.append(doc.h(2, '13.3 Contradiction register'))
+    nret = sum(1 for c in ctx.contradictions if c.get('retired'))
+    o.append('<p>Each entry quotes every side, then the source that governs and the status of the disagreement. An entry is generated when the '
+             'current sources disagree; a governing source already quoted under the sides is referenced, not repeated. An ID is never reused: an '
+             f'entry whose sides agree at this build is kept as RETIRED, with the reason ({nret} at this build). "See also" links related entries.</p>')
+    rows = []
+    for c in sorted(ctx.contradictions, key=lambda c: int(re.sub(r'\D', '', c['id']) or 0)):
+        sides = cat(*[Cell(f'<div class="dec"><b>{esc(sd[0])}:</b> {(sd[1].h() if not isinstance(sd[1].value, (str, dict, list)) and sd[1].value is not None else tvtxt(sd[1], sd[2] if len(sd) > 2 else 600).html)}</div>', [sd[1]])
+                      for sd in c['sides']])
+        side_ids = {sd[1].tid for sd in c['sides']}
+        gl = []
+        for lab, tv in c.get('governs') or []:
+            if tv.tid in side_ids:
+                gl.append(Cell(f'<div class="dec"><b>{esc(lab)}</b> (quoted under the sides) {tv.pill()}{tv.ref()}</div>', [tv]))
+            else:
+                body = tv.h() if (tv.value is not None and not isinstance(tv.value, (str, dict, list))) else tvtxt(tv, 600).html
+                gl.append(Cell(f'<div class="dec"><b>{esc(lab)}:</b> {body}</div>', [tv]))
+        gov = cat(*gl) if gl else Cell('–', [])
+        txt = c.get('status') or f'{c["newest"]}. {c["resolution"]}'
+        res = ctx.t('generator', f'contradiction {c["id"]} status', txt, 'DERIVED', tag_raw='generator summary of the cited sides and the governing source')
+        idc = f'<b>{esc(c["id"])}</b>' + (' <span class="ev ev-status">RETIRED</span>' if c.get('retired') else '')
+        rows.append([Cell(f'{idc}<div class="small">{esc(c["title"])}</div>', []), sides, gov, Cell(f'{esc(res.value)} {res.pill()}{res.ref()}', [res])])
+    if rows:
+        o.append(dtable(['ID', 'Sides (quoted)', 'Governing source', 'Status'], rows, widths=['14%', '42%', '24%', '20%']))
+    else:
+        o.append('<p>No contradiction detected in the current sources.</p>')
+    return '\n'.join(o)
+
+
+# ---------------------------------------------------------------------------------------------
+# main (v0.3.0)
+# ---------------------------------------------------------------------------------------------
+def trace_key(t):
+    return f'{t.get("source")}|{t.get("key")}|{t.get("formula") or ""}'
+
+
+def diff_traces(prev_path, cur):
+    """Values that changed between a previous trace.json and this build, matched by source and key."""
+    old = json.load(open(prev_path))
+    om = {}
+    for t in old.get('traces', []):
+        om.setdefault(trace_key(t), []).append(t)
+    cm = {}
+    for t in cur:
+        cm.setdefault(trace_key(t), []).append(t)
+    changed, added, removed = [], [], []
+    for k, ts in cm.items():
+        if k not in om:
+            added.append({'key': k, 'id': ts[0]['id'], 'value': ts[0]['value'], 'class': ts[0]['class']})
+            continue
+        ov = [json.dumps(x['value'], sort_keys=True, default=str) + '|' + str(x['class']) for x in om[k]]
+        nv = [json.dumps(x['value'], sort_keys=True, default=str) + '|' + str(x['class']) for x in ts]
+        if sorted(ov) != sorted(nv):
+            changed.append({'key': k, 'id': ts[0]['id'], 'old': [x['value'] for x in om[k]], 'old_class': [x['class'] for x in om[k]],
+                            'new': [x['value'] for x in ts], 'new_class': [x['class'] for x in ts]})
+    for k, ts in om.items():
+        if k not in cm:
+            removed.append({'key': k, 'id': ts[0]['id'], 'value': ts[0]['value'], 'class': ts[0]['class']})
+    return {'against': prev_path, 'against_revision': old.get('revision'), 'n_changed': len(changed), 'n_added': len(added),
+            'n_removed': len(removed), 'changed': changed, 'added': added, 'removed': removed}
+
+
+def evidence_counters(ctx):
+    """qa_report counters of the v0.3.0 evidence model (lead 2026-10-21 12:17Z): decided_values (numbers with the DECIDED pill, by
+    source class and source file), decided texts, identifiers, and untagged (a number without one of the ten tags or DECIDED,
+    or a text that states a quantity without a class). untagged must be 0."""
+    dv, dt, ids, unt, txt_free, by_kind, by_src, by_basis = [], [], [], [], [], {}, {}, {}
+    for t in ctx.traces:
+        num = is_number(t.value)
+        if getattr(t, 'ident', False):
+            ids.append(t.tid)
+            continue
+        if t.ev == 'DECIDED':
+            (dv if num else dt).append(t.tid)
+            if num:
+                k = getattr(t, 'basis_kind', None) or '?'
+                by_kind[k] = by_kind.get(k, 0) + 1
+                src = SRC_FILE.get(t.sid) or t.sid or 'generator'
+                by_src[src] = by_src.get(src, 0) + 1
+                b = re.sub(r';.*$', '', getattr(t, 'basis', None) or '?')
+                b = re.sub(r', line (\d+).*$', r', line \1', b)
+                by_basis[b] = by_basis.get(b, 0) + 1
+            continue
+        if num:
+            if not (ev_ok(t.ev)):
+                unt.append(t.tid)
+        elif isinstance(t.value, str) or isinstance(t.value, (dict, list)):
+            if t.ev is None or (t.ev not in ('REF',) and not ev_ok(t.ev)):
+                (unt if has_quantity(_plain_text(t.value)) else txt_free).append(t.tid)
+    return {'decided_values': {'n': len(dv), 'by_source_class': by_kind, 'by_source_file': by_src, 'by_basis_text': dict(sorted(by_basis.items(), key=lambda kv: -kv[1])),
+                               'ids': dv},
+            'decided_texts': {'n': len(dt)}, 'identifiers': {'n': len(ids), 'ids': ids},
+            'untagged': {'n': len(unt), 'ids': unt,
+                         'rule': 'a number whose class is not one of the ten tags or DECIDED, or a text without a class that states a quantity'},
+            'texts_without_class': {'n': len(txt_free), 'ids': txt_free, 'note': 'texts that state no quantity and carry no class (information only)'}}
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(description='ARGOS H1 engine datasheet generator')
+    ap.add_argument('--cad-version', default='v3.5.2')
+    ap.add_argument('--cad-dir', default=DEFAULT_CAD_DIR)
+    ap.add_argument('--hub', default=DEFAULT_HUB)
+    ap.add_argument('--rev', default='rev1-draft')
+    ap.add_argument('--status', default='DRAFT', help='status word printed on the cover and in the page header (v0.3.1)')
+    ap.add_argument('--note', default='rev1 draft for the FINAL CAD v3.5.2; inputs as they stand (PENDING where an input is pending)')
+    ap.add_argument('--out', default=os.path.join(DS_ROOT, 'out', 'rev1'))
+    ap.add_argument('--renders', default=None, help='render folder (default build/renders/<cad-version>)')
+    ap.add_argument('--decisions', type=int, default=10, help='number of recent lead decision lines listed in §1')
+    ap.add_argument('--no-pdf', action='store_true')
+    ap.add_argument('--nice', type=int, default=15)
+    ap.add_argument('--node', default='/opt/node22/bin/node')
+    ap.add_argument('--pw-browsers', default='/opt/pw-browsers')
+    ap.add_argument('--overrides', default=os.path.join(HERE, 'decision_overrides.json'),
+                    help='decision override table (JSON); "none" shows every interface value as published')
+    ap.add_argument('--diff-against', default=None, help='previous trace.json: write diff_vs_<rev>.json (values that changed)')
+    ap.add_argument('--prev-sources', default=None, help='sources.json of the previous revision (revision history)')
+    ap.add_argument('--ele41-line', type=int, default=None,
+                    help='promoted-v4.1 build: the CHANGELOG line that records the promotion of electronics.json v4.1 (v0.3.1; lead GO 2026-10-21 14:48:44Z)')
+    a = ap.parse_args(argv)
+    a.overrides = None if a.overrides == 'none' else os.path.abspath(a.overrides)
+    a.hub, a.cad_dir, a.out = os.path.abspath(a.hub), os.path.abspath(a.cad_dir), os.path.abspath(a.out)
+    a.renders = os.path.abspath(a.renders or os.path.join(DS_ROOT, 'build', 'renders', a.cad_version))
+    a.build = os.path.join(DS_ROOT, 'build')
+    os.makedirs(os.path.join(a.out, 'assets'), exist_ok=True)
+    os.makedirs(a.build, exist_ok=True)
+    ctx = Ctx(a)
+    register_sources(ctx, a)
+    if ensure_fonts(ctx, a):
+        MPL_FONTS[:] = a.fonts
+    errs = [q for q in ctx.qa if q['level'] == 'ERROR']
+    if errs:
+        for q in errs:
+            print('ERROR', q['msg'], file=sys.stderr)
+        sys.exit(2)
+    if 'OVR' in ctx.sources and ctx.src('OVR').data is not None:
+        ctx.ovr = Overrides(ctx, a.overrides)
+        ctx.ovr.load({'cl': Changelog(ctx, 'CL')})
+    D = prepare(ctx, a)
+    if ctx.ovr:
+        ents = ctx.ovr.entries
+        cnt = {k: sum(1 for e in ents if e['status'] == k) for k in ('ACTIVE', 'REDUNDANT', 'ERROR')}
+        nw = sum(1 for e in ctx.ovr.sups for p in e['pointers'] if p['status'] == 'WITHHELD')
+        D['ovr_summary'] = ctx.d(f'{ctx.ovr.version}: {cnt["ACTIVE"]} active, {cnt["REDUNDANT"]} redundant, {cnt["ERROR"]} in error; '
+                                 f'{len(ctx.ovr.sups)} superseded values withheld ({nw} interface keys); see §13.1 and §13.2', '',
+                                 'count of override entries by status on this build', [e['value_tv'] for e in ents])
+    else:
+        D['ovr_summary'] = ctx.missing('decision override table not loaded (interface wording shown as published)', 'MISSING')
+    hist = []
+    for prev in [p for p in (a.prev_sources, os.path.join(DS_ROOT, 'out', 'sources.json'), os.path.join(a.out, 'sources.json')) if p]:
+        if os.path.exists(prev):
+            try:
+                for h in json.load(open(prev)).get('revision_history', []):
+                    if h.get('rev') != a.rev and not any(x.get('rev') == h.get('rev') for x in hist):
+                        hist.append(h)
+            except (ValueError, OSError):
+                pass
+    hist.append({'rev': a.rev, 'generated': D['generated'], 'cad_version': a.cad_version, 'generator': f'{GEN_NAME} {GEN_VERSION}', 'note': a.note})
+    D['history'] = hist
+    doc = Doc()
+    parts = []
+    for fn in (sec_identification, sec_performance, sec_throttle_tvc, sec_geometry_mass, sec_bom, sec_materials, sec_combustion,
+               sec_plume, sec_fea, sec_electronics, sec_mission, sec_verification):
+        parts.append(fn(ctx, doc, a, D))
+    register_contradictions(ctx, a, D)
+    parts.append(sec_contradictions(ctx, doc, a, D))
+    parts.append(sec_unknowns(ctx, doc, a, D))
+    parts.append(sec_revision_sources(ctx, doc, a, D))
+    parts.append(sec_trace(ctx, doc, a, D))
+    cover = sec_cover(ctx, doc, a, D)
+    body = '\n'.join(parts)
+    title = f'{DOC_ID} {a.rev}'
+    html_path = os.path.join(a.out, 'datasheet.html')
+    pdf_name = f'{DOC_ID}_{a.rev}.pdf'
+    pdf_path = os.path.join(a.out, pdf_name)
+
+    def write_html():
+        open(html_path, 'w', encoding='utf-8').write(html_doc(title, cover + sec_toc(doc) + body))
+    write_html()
+    leak_scan(ctx, 'datasheet.html', open(html_path, encoding='utf-8').read())
+    n_path = path_scan(ctx, 'datasheet.html', open(html_path, encoding='utf-8').read())
+    for fn in sorted(glob.glob(os.path.join(a.out, 'assets', '*.svg'))):
+        leak_scan(ctx, 'assets/' + os.path.basename(fn), open(fn, encoding='utf-8', errors='replace').read())
+        n_path += path_scan(ctx, 'assets/' + os.path.basename(fn), open(fn, encoding='utf-8', errors='replace').read())
+    toc_info = {'passes': 0, 'missing': None, 'stable': None}
+    npages = None
+    if not a.no_pdf:
+        print_pdf(a, html_path, pdf_path, D)
+        prev_pages = None
+        for p in range(3):
+            pages = pdf_pages_text(pdf_path)
+            missing = locate_heads(doc, pages)
+            cur = [h['page'] for h in doc.heads]
+            toc_info['passes'] = p + 1
+            toc_info['missing'] = missing
+            if cur == prev_pages:
+                toc_info['stable'] = True
+                break
+            prev_pages = cur
+            write_html()
+            print_pdf(a, html_path, pdf_path, D)
+        else:
+            pages = pdf_pages_text(pdf_path)
+            locate_heads(doc, pages)
+            toc_info['stable'] = [h['page'] for h in doc.heads] == prev_pages
+        npages = pdf_npages(pdf_path)
+        ptxt = pdf_pages_text(pdf_path)
+        if ptxt and not ptxt[-1].strip() and (npages is None or len(ptxt) > npages):
+            ptxt = ptxt[:-1]   # pdftotext ends the last page with a form feed
+        leak_scan(ctx, 'the PDF text', '\n'.join(ptxt))
+        n_path += path_scan(ctx, 'the PDF text', '\n'.join(ptxt))
+        annot_scan(ctx, ptxt)
+        nost = [i + 1 for i, t in enumerate(ptxt) if PAGE_STATEMENT not in re.sub(r'\s+', ' ', t)]
+        if nost:
+            ctx.issue('ERROR', f'page statement missing on pages {nost[:20]}')
+        toc_info['pages_with_statement'] = len(ptxt) - len(nost)
+        if toc_info['missing']:
+            ctx.issue('WARN', f'headings not located in the PDF text: {toc_info["missing"]}')
+    srcs = {sid: {'path': hub_rel(a, s.path) or ('OUTSIDE THE HUB: ' + os.path.basename(s.path)), 'role': s.role, 'kind': s.kind, 'version': s.version, 'sha256_16': s.sha16, 'size': s.size,
+                  'mtime_utc': s.mtime, 'exists': s.exists, 'required': s.required, 'reads': s.reads} for sid, s in ctx.sources.items()}
+    json.dump({'document': DOC_ID, 'revision': a.rev, 'generated_utc': D['generated'], 'generator': f'gen/{GEN_NAME} {GEN_VERSION}',
+               'generator_sha256_16': sha16_file(os.path.abspath(__file__)), 'cad_version': a.cad_version, 'hub': 'argos-engine (paths below are hub-relative)',
+               'cad_dir': hub_rel(a, a.cad_dir), 'renders': hub_rel(a, a.renders), 'sources': srcs, 'revision_history': hist,
+               'note': 'Digital design data only; nothing here is physical approval; no hardware has been tested.'},
+              open(os.path.join(a.out, 'sources.json'), 'w'), indent=1)
+    tr = [{'id': t.tid, 'value': t.value if not isinstance(t.value, float) or math.isfinite(t.value) else str(t.value), 'unit': t.unit, 'class': t.ev,
+           'tag_raw': t.tag_raw, 'source': t.sid, 'key': t.ptr, 'note': t.note, 'formula': t.formula, 'inputs': t.inputs, 'status': t.status,
+           'basis': getattr(t, 'basis', None), 'basis_detail': getattr(t, 'basis_detail', None), 'basis_kind': getattr(t, 'basis_kind', None),
+           'identifier': getattr(t, 'ident', False), 'masked': t.masked} for t in ctx.traces]
+    json.dump({'document': DOC_ID, 'revision': a.rev, 'n': len(tr), 'traces': tr}, open(os.path.join(a.out, 'trace.json'), 'w'), indent=0, default=str)
+    diff = None
+    if a.diff_against:
+        diff = diff_traces(a.diff_against, json.loads(json.dumps(tr, default=str)))
+        diff['against'] = hub_rel(a, a.diff_against) or os.path.basename(a.diff_against)
+        json.dump(diff, open(os.path.join(a.out, f'diff_vs_{diff.get("against_revision") or "previous"}.json'), 'w'), indent=1, default=str)
+    cls_counts = {}
+    for t in ctx.traces:
+        cls_counts[t.ev or 'UNTAGGED'] = cls_counts.get(t.ev or 'UNTAGGED', 0) + 1
+    ev_q = evidence_counters(ctx)
+    qa = {'generated_utc': D['generated'], 'generator': f'{GEN_NAME} {GEN_VERSION}', 'generator_sha256_16': sha16_file(os.path.abspath(__file__)),
+          'cells': {'data_cells': CELL_STATS['data_cells'], 'traced': CELL_STATS['traced'], 'untraced': CELL_STATS['untraced']},
+          'traces': len(ctx.traces), 'classes': cls_counts, 'evidence': ev_q, 'decided_values': ev_q['decided_values']['n'],
+          'untagged': ev_q['untagged']['ids'], 'private_paths_visible': n_path,
+          'issues': ctx.qa, 'contradictions': [c['id'] + ' ' + c['title'] + (' (RETIRED)' if c.get('retired') else '') for c in ctx.contradictions],
+          'contradictions_open': sum(1 for c in ctx.contradictions if not c.get('retired')),
+          'contradictions_retired': [c['id'] for c in ctx.contradictions if c.get('retired')],
+          'electronics_build': ({'promoted_v4.1_line': D['ele']['line']} if D['ele']['promo'] else 'v4 with v4.1 PENDING REVIEW'),
+          'unknowns': D.get('unknown_counts'), 'pending_inputs': D.get('pending_inputs'), 'pages': npages, 'toc': toc_info,
+          'diff': ({k: diff[k] for k in ('against', 'against_revision', 'n_changed', 'n_added', 'n_removed')} if diff else None),
+          'overrides': [{'id': e['id'], 'status': e['status'], 'errors': e['errors'],
+                         'targets': [{k: t[k] for k in ('sid', 'ptr', 'mode', 'status', 'shown')} for t in e['targets']],
+                         'annotation': ({'status': e['annot']['status'], 'shown': e['annot']['shown']} if e.get('annot') else None)}
+                        for e in (ctx.ovr.entries if ctx.ovr else [])],
+          'withheld': [{'id': e['id'], 'pointers': e['pointers'], 'masked_fields': (ctx.ovr.mask_hits.get(e['id'], 0) if ctx.ovr else 0),
+                        'corroborated': e['corroborated']} for e in (ctx.ovr.sups if ctx.ovr else [])],
+          'headings': [{'text': h['text'], 'page': h['page']} for h in doc.heads]}
+    json.dump(qa, open(os.path.join(a.out, 'qa_report.json'), 'w'), indent=1, default=str)
+    n_err = sum(1 for q in ctx.qa if q['level'] == 'ERROR')
+    print(f'datasheet: {html_path}')
+    if not a.no_pdf:
+        print(f'pdf: {pdf_path} ({npages} pages, contents passes {toc_info["passes"]}, stable {toc_info["stable"]})')
+    print(f'traces {len(ctx.traces)}; data cells {CELL_STATS["data_cells"]}, traced {CELL_STATS["traced"]}, untraced {len(CELL_STATS["untraced"])}; '
+          f'decided_values {ev_q["decided_values"]["n"]}; untagged {len(qa["untagged"])}; issues: {n_err} errors, {sum(1 for q in ctx.qa if q["level"] == "WARN")} warnings; '
+          f'contradictions {sum(1 for c in ctx.contradictions if not c.get("retired"))} (+{sum(1 for c in ctx.contradictions if c.get("retired"))} retired)')
+    if diff:
+        print(f'diff vs {diff["against_revision"]}: changed {diff["n_changed"]}, added {diff["n_added"]}, removed {diff["n_removed"]}')
+    return 1 if n_err else 0
+
+
+# ---------------------------------------------------------------------------------------------
+# section 15 and appendix A (v0.3.0): sources with hub-relative paths only (lead 12:13Z items 2, 9);
+# the value trace shows the class, and for a DECIDED value its source class and basis (lead 12:17Z)
+# ---------------------------------------------------------------------------------------------
+def sec_revision_sources(ctx, doc, a, D):
+    o = [doc.h(1, '15 Revision history and sources')]
+    o.append(doc.h(2, '15.1 Revision history'))
+    hist = D.get('history', [])
+    o.append(table(['Revision', 'Generated (UTC)', 'CAD', 'Generator', 'Note'],
+                   [[esc(h['rev']), esc(h['generated']), esc(h['cad_version']), esc(h['generator']), esc(h.get('note', ''))] for h in hist],
+                   cls='dt', widths=['14%', '20%', '10%', '16%', '40%']))
+    o.append(doc.h(2, '15.2 Sources'))
+    rows = []
+    for sid, s in ctx.sources.items():
+        rel = hub_rel(a, s.path)
+        if rel is None:
+            ctx.issue('ERROR', f'source {sid} is outside the hub; it may not be printed or used')
+            rel = '(outside the hub: not used)'
+        rows.append([f'<b>{esc(sid)}</b>', esc(s.role), f'<span class="mono">{esc(rel)}</span>', esc(s.version or '—'),
+                     f'<span class="mono">{esc(s.sha16 or "MISSING")}</span>', esc(s.mtime or '—'), str(s.reads)])
+    o.append(table(['ID', 'Role', 'Path (hub-relative)', 'Version', 'sha256/16', 'Modified (UTC)', 'Reads'], rows, cls='dt src',
+                   widths=['7%', '24%', '30%', '9%', '13%', '13%', '4%']))
+    o.append('<p class="small">Paths are relative to the engine programme hub (argos-engine). The same list is written to out/rev1/sources.json. '
+             '"Reads" counts JSON key reads; text sources are read by line, row or sentence (Appendix A).</p>')
+    return '\n'.join(o)
+
+
+def fmt_full(v, computed=False):
+    """Appendix A number: a value read from a source at the precision the source gives (shortest round-trip form), a value the
+    generator computes (formula) to 6 significant digits. The body may show the same value rounded (rev1 phase 2)."""
+    if isinstance(v, bool):
+        return 'yes' if v else 'no'
+    if isinstance(v, int):
+        s = str(v)
+    elif computed:
+        s = f'{v:.6g}'
+    else:
+        s = repr(float(v))
+        if s.endswith('.0'):
+            s = s[:-2]
+    return s.replace('-', '−', 1) if s.startswith('-') else s
+
+
+def trace_val_full(tv):
+    v = tv.value
+    if v is None:
+        return tv.status or 'MISSING'
+    comp = bool(tv.formula)
+    if isinstance(v, (int, float)):
+        s = fmt_full(v, comp)
+    elif isinstance(v, (list, tuple)) and all(isinstance(x, (int, float)) for x in v):
+        s = ('–' if len(v) == 2 else ', ').join(fmt_full(x, comp) for x in v)
+    else:
+        return str(v)
+    return s + (f' {tv.unit}' if tv.unit else '')
+
+
+def sec_trace(ctx, doc, a, D):
+    o = [doc.h(1, 'Appendix A Value trace')]
+    o.append('<p class="small">Every traced value used in this document: trace id, value (a value read from a source at the precision of '
+             'that source; a value the generator computes, to 6 significant digits; the body may show it rounded), class, source and version, '
+             'key (JSON pointer, markdown row, CHANGELOG line and item, or generator formula) and the source tag text. A DECIDED value also shows '
+             'its source class (design value, lead decision or requirement). Identical source keys share one id. '
+             'Display rules of the body and of this appendix (trace.json keeps the source strings): the review status written in Spanish in the FEA3D-2 report prints as '
+             '"to be reviewed" (REV-DS-1 D1-12); a bare "§n" in a combustion.json text prints as "combustion REPORT §n" (D1-11); a number read from a '
+             'source prints at the precision of that source, and a number read from a text keeps the digits of the text (D1-08).</p>')
+    rows = []
+    for tv in ctx.traces:
+        s = ctx.sources.get(tv.sid)
+        src = f'{tv.sid} {s.version or ""}'.strip() if s else (tv.sid or '—')
+        if isinstance(tv.value, str):
+            val = clipw(display_text(tv, tv.value), 90)  # display rules and a word-boundary cut with a visible ' …'; trace.json keeps the full string
+        elif isinstance(tv.value, dict) or (isinstance(tv.value, list) and not all(isinstance(x, (int, float)) for x in tv.value)):
+            val = clipw(display_text(tv, readable(tv.value)), 90)
+        else:
+            val = trace_val_full(tv)
+        if ctx.ovr:
+            val = ctx.ovr.annot_plain(val)
+        key = tv.ptr or (f'formula: {tv.formula}' if tv.formula else '')
+        extra = tv.tag_raw or ''
+        if getattr(tv, 'basis_detail', None) and tv.ev == 'DECIDED' and tv.basis_detail not in extra:
+            extra = tv.basis_detail
+        if tv.inputs:
+            extra += ' ← ' + ', '.join(tv.inputs[:8]) + (' …' if len(tv.inputs) > 8 else '')
+        if tv.note and tv.note not in extra:
+            extra += f' [{tv.note}]'
+        pill = ev_pill(tv.ev, None, getattr(tv, 'basis', None), tv.status if tv.value is not None else None)
+        rows.append(f'<tr id="{tv.tid}"><td class="mono">{tv.tid}</td><td>{esc(val)}</td><td>{pill}</td><td>{esc(src)}</td>'
+                    f'<td class="mono">{esc(clipw(key, 160))}</td><td>{esc(clipw(extra, 200))}</td></tr>')  # word-boundary cuts with a visible ' …'
+    o.append('<table class="dt trace"><colgroup><col style="width:6%"><col style="width:20%"><col style="width:11%"><col style="width:10%">'
+             '<col style="width:25%"><col style="width:28%"></colgroup><thead><tr><th>ID</th><th>Value</th><th>Class</th><th>Source</th><th>Key</th>'
+             '<th>Source tag / formula</th></tr></thead><tbody>' + '\n'.join(rows) + '</tbody></table>')
+    return '\n'.join(o)
 
 
 # =============================================================================================
@@ -4116,27 +6842,7 @@ h1.toc-h { break-before: avoid; }
 # =============================================================================================
 def html_doc(title, body):
     return (f'<!doctype html><html lang="en"><head><meta charset="utf-8"><title>{esc(title)}</title>'
-            f'<meta name="generator" content="{GEN_NAME} {GEN_VERSION}"><style>{CSS}</style></head><body>{body}</body></html>')
-
-
-def print_pdf(a, html_path, pdf_path, D):
-    hdr = (f'<div style="font-family:\'Inter DS\',Inter,sans-serif;font-size:6.6px;color:#55626f;width:100%;padding:0 14mm;display:flex;justify-content:space-between;">'
-           f'<span><b style="color:#0b3a5c">{esc(DOC_ID)}</b> · {esc(a.rev)} · <b style="color:#b4232a">DRAFT</b></span>'
-           f'<span>Not physical approval · CAD {esc(a.cad_version)}</span></div>')
-    ftr = (f'<div style="font-family:\'Inter DS\',Inter,sans-serif;font-size:6.6px;color:#55626f;width:100%;padding:0 14mm;display:flex;justify-content:space-between;">'
-           f'<span>Generated {esc(D["generated"])} · {GEN_NAME} {GEN_VERSION} · digital design data only</span>'
-           f'<span>Page <span class="pageNumber"></span> / <span class="totalPages"></span></span></div>')
-    cfg = {'header': hdr, 'footer': ftr, 'margin': {'top': '17mm', 'bottom': '15mm', 'left': '14mm', 'right': '14mm'}}
-    cfgp = os.path.join(a.build, 'print_config.json')
-    json.dump(cfg, open(cfgp, 'w'))
-    env = dict(os.environ)
-    env.setdefault('PLAYWRIGHT_BROWSERS_PATH', a.pw_browsers)
-    if getattr(a, 'fontconf', None):
-        env['FONTCONFIG_FILE'] = a.fontconf
-    r = subprocess.run([a.node, os.path.join(HERE, 'print_pdf.mjs'), html_path, pdf_path, cfgp], env=env, capture_output=True, text=True, timeout=600)
-    if r.returncode != 0:
-        raise RuntimeError('PDF printing failed: ' + r.stderr[-2000:])
-    return r.stdout.strip()
+            f'<meta name="generator" content="{GEN_NAME} {GEN_VERSION}"><style>{CSS}{CSS_REV1}</style></head><body>{body}</body></html>')
 
 
 def pdf_pages_text(pdf_path):
@@ -4188,145 +6894,6 @@ def locate_heads(doc, pages):
 # =============================================================================================
 # main
 # =============================================================================================
-def main(argv=None):
-    ap = argparse.ArgumentParser(description='ARGOS H1 engine datasheet generator')
-    ap.add_argument('--cad-version', default='v3.4.1')
-    ap.add_argument('--cad-dir', default=DEFAULT_CAD_DIR)
-    ap.add_argument('--hub', default=DEFAULT_HUB)
-    ap.add_argument('--rev', default='rev0-draft')
-    ap.add_argument('--note', default='first draft generated from the hub state; FEA, RG-01 re-fly, Electronics v2.10 and the Combustion v2.4a '
-                                      'interface patch pending (FA-1 envelope data folded in)')
-    ap.add_argument('--out', default=os.path.join(DS_ROOT, 'out'))
-    ap.add_argument('--renders', default=None, help='render folder (default build/renders/<cad-version>)')
-    ap.add_argument('--decisions', type=int, default=8, help='number of recent lead decisions listed in §1.3')
-    ap.add_argument('--no-pdf', action='store_true')
-    ap.add_argument('--node', default='/opt/node22/bin/node')
-    ap.add_argument('--pw-browsers', default='/opt/pw-browsers')
-    ap.add_argument('--overrides', default=os.path.join(HERE, 'decision_overrides.json'),
-                    help='decision override table (JSON); "none" shows every interface value as published')
-    a = ap.parse_args(argv)
-    a.overrides = None if a.overrides == 'none' else os.path.abspath(a.overrides)
-    a.hub, a.cad_dir, a.out = os.path.abspath(a.hub), os.path.abspath(a.cad_dir), os.path.abspath(a.out)
-    a.renders = os.path.abspath(a.renders or os.path.join(DS_ROOT, 'build', 'renders', a.cad_version))
-    a.build = os.path.join(DS_ROOT, 'build')
-    os.makedirs(os.path.join(a.out, 'assets'), exist_ok=True)
-    os.makedirs(a.build, exist_ok=True)
-    ctx = Ctx(a)
-    register_sources(ctx, a)
-    if ensure_fonts(ctx, a):
-        MPL_FONTS[:] = a.fonts
-    errs = [q for q in ctx.qa if q['level'] == 'ERROR']
-    if errs:
-        for q in errs:
-            print('ERROR', q['msg'], file=sys.stderr)
-        sys.exit(2)
-    if 'OVR' in ctx.sources and ctx.src('OVR').data is not None:
-        ctx.ovr = Overrides(ctx, a.overrides)
-        ctx.ovr.load({'cl': Changelog(ctx, 'CL')})
-    D = prepare(ctx, a)
-    if ctx.ovr:
-        ents = ctx.ovr.entries
-        cnt = {k: sum(1 for e in ents if e['status'] == k) for k in ('ACTIVE', 'REDUNDANT', 'ERROR')}
-        nw = sum(1 for e in ctx.ovr.sups for p in e['pointers'] if p['status'] == 'WITHHELD')
-        D['ovr_summary'] = ctx.d(f'{ctx.ovr.version}: {cnt["ACTIVE"]} active, {cnt["REDUNDANT"]} redundant, {cnt["ERROR"]} in error; '
-                                 f'{len(ctx.ovr.sups)} superseded values withheld ({nw} interface keys); see §13.1 and §13.2', '',
-                                 'count of override entries by status on this build', [e['value_tv'] for e in ents])
-    else:
-        D['ovr_summary'] = ctx.missing('decision override table not loaded (combustion.json wording shown as published)', 'MISSING')
-    # revision history carried from the previous sources.json (other revision labels only)
-    hist = []
-    prev = os.path.join(a.out, 'sources.json')
-    if os.path.exists(prev):
-        try:
-            hist = [h for h in json.load(open(prev)).get('revision_history', []) if h.get('rev') != a.rev]
-        except (ValueError, OSError):
-            hist = []
-    hist.append({'rev': a.rev, 'generated': D['generated'], 'cad_version': a.cad_version, 'generator': f'{GEN_NAME} {GEN_VERSION}', 'note': a.note})
-    D['history'] = hist
-    doc = Doc()
-    parts = []
-    for fn in (sec_identification, sec_performance, sec_throttle_tvc, sec_geometry_mass, sec_bom, sec_materials, sec_combustion,
-               sec_plume, sec_fea, sec_electronics, sec_mission, sec_verification):
-        parts.append(fn(ctx, doc, a, D))
-    register_contradictions(ctx, a, D)
-    parts.append(sec_contradictions(ctx, doc, a, D))
-    parts.append(sec_unknowns(ctx, doc, a, D))
-    parts.append(sec_revision_sources(ctx, doc, a, D))
-    parts.append(sec_trace(ctx, doc, a, D))
-    cover = sec_cover(ctx, doc, a, D)
-    body = '\n'.join(parts)
-    title = f'{DOC_ID} {a.rev}'
-    html_path = os.path.join(a.out, 'datasheet.html')
-    pdf_name = f'{DOC_ID}_{a.rev}.pdf'
-    pdf_path = os.path.join(a.out, pdf_name)
-
-    def write_html():
-        open(html_path, 'w', encoding='utf-8').write(html_doc(title, cover + sec_toc(doc) + body))
-    write_html()
-    leak_scan(ctx, 'datasheet.html', open(html_path, encoding='utf-8').read())
-    for fn in sorted(glob.glob(os.path.join(a.out, 'assets', '*.svg'))):
-        leak_scan(ctx, 'assets/' + os.path.basename(fn), open(fn, encoding='utf-8', errors='replace').read())
-    toc_info = {'passes': 0, 'missing': None, 'stable': None}
-    npages = None
-    if not a.no_pdf:
-        print_pdf(a, html_path, pdf_path, D)
-        prev_pages = None
-        for p in range(3):
-            pages = pdf_pages_text(pdf_path)
-            missing = locate_heads(doc, pages)
-            cur = [h['page'] for h in doc.heads]
-            toc_info['passes'] = p + 1
-            toc_info['missing'] = missing
-            if cur == prev_pages:
-                toc_info['stable'] = True
-                break
-            prev_pages = cur
-            write_html()
-            print_pdf(a, html_path, pdf_path, D)
-        else:
-            pages = pdf_pages_text(pdf_path)
-            locate_heads(doc, pages)
-            toc_info['stable'] = [h['page'] for h in doc.heads] == prev_pages
-        npages = pdf_npages(pdf_path)
-        ptxt = pdf_pages_text(pdf_path)
-        leak_scan(ctx, 'the PDF text', '\n'.join(ptxt))
-        annot_scan(ctx, ptxt)
-        if toc_info['missing']:
-            ctx.issue('WARN', f'headings not located in the PDF text: {toc_info["missing"]}')
-    # records
-    srcs = {sid: {'path': s.path, 'role': s.role, 'kind': s.kind, 'version': s.version, 'sha256_16': s.sha16, 'size': s.size,
-                  'mtime_utc': s.mtime, 'exists': s.exists, 'required': s.required, 'reads': s.reads} for sid, s in ctx.sources.items()}
-    json.dump({'document': DOC_ID, 'revision': a.rev, 'generated_utc': D['generated'], 'generator': f'gen/{GEN_NAME} {GEN_VERSION}',
-               'generator_sha256_16': sha16_file(os.path.abspath(__file__)), 'cad_version': a.cad_version, 'hub': a.hub, 'cad_dir': a.cad_dir,
-               'renders': a.renders, 'sources': srcs, 'revision_history': hist,
-               'note': 'Digital design data only; nothing here is physical approval.'}, open(os.path.join(a.out, 'sources.json'), 'w'), indent=1)
-    tr = [{'id': t.tid, 'value': t.value if not isinstance(t.value, float) or math.isfinite(t.value) else str(t.value), 'unit': t.unit, 'class': t.ev,
-           'tag_raw': t.tag_raw, 'source': t.sid, 'key': t.ptr, 'note': t.note, 'formula': t.formula, 'inputs': t.inputs, 'status': t.status,
-           'masked': t.masked} for t in ctx.traces]
-    json.dump({'document': DOC_ID, 'revision': a.rev, 'n': len(tr), 'traces': tr}, open(os.path.join(a.out, 'trace.json'), 'w'), indent=0, default=str)
-    cls_counts = {}
-    for t in ctx.traces:
-        cls_counts[t.ev or 'UNTAGGED'] = cls_counts.get(t.ev or 'UNTAGGED', 0) + 1
-    qa = {'generated_utc': D['generated'], 'cells': {'data_cells': CELL_STATS['data_cells'], 'traced': CELL_STATS['traced'],
-                                                     'untraced': CELL_STATS['untraced']},
-          'traces': len(ctx.traces), 'classes': cls_counts, 'untagged': [t.tid for t in ctx.traces if not t.ev],
-          'issues': ctx.qa, 'contradictions': [c['id'] + ' ' + c['title'] for c in ctx.contradictions],
-          'unknowns': D.get('unknown_counts'), 'pages': npages, 'toc': toc_info,
-          'overrides': [{'id': e['id'], 'status': e['status'], 'errors': e['errors'],
-                         'targets': [{k: t[k] for k in ('sid', 'ptr', 'mode', 'status', 'shown')} for t in e['targets']],
-                         'annotation': ({'status': e['annot']['status'], 'shown': e['annot']['shown']} if e.get('annot') else None)}
-                        for e in (ctx.ovr.entries if ctx.ovr else [])],
-          'withheld': [{'id': e['id'], 'pointers': e['pointers'], 'masked_fields': (ctx.ovr.mask_hits.get(e['id'], 0) if ctx.ovr else 0),
-                        'corroborated': e['corroborated']} for e in (ctx.ovr.sups if ctx.ovr else [])],
-          'headings': [{'text': h['text'], 'page': h['page']} for h in doc.heads]}
-    json.dump(qa, open(os.path.join(a.out, 'qa_report.json'), 'w'), indent=1, default=str)
-    n_err = sum(1 for q in ctx.qa if q['level'] == 'ERROR')
-    print(f'datasheet: {html_path}')
-    if not a.no_pdf:
-        print(f'pdf: {pdf_path} ({npages} pages, contents passes {toc_info["passes"]}, stable {toc_info["stable"]})')
-    print(f'traces {len(ctx.traces)}; data cells {CELL_STATS["data_cells"]}, traced {CELL_STATS["traced"]}, untraced {len(CELL_STATS["untraced"])}; '
-          f'issues: {n_err} errors, {sum(1 for q in ctx.qa if q["level"] == "WARN")} warnings')
-    return 1 if n_err else 0
 
 
 if __name__ == '__main__':

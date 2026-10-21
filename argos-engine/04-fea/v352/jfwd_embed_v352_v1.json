@@ -1,0 +1,1579 @@
+{
+ "id": "jfwd_embed_v352",
+ "version": "v1",
+ "date": "2026-10-20",
+ "owner": "mechanical",
+ "basis": "J-FWD HW-101 preload after embedding, with a joint stiffness consistent with FEA3D js4 (lead 06:23Z item 6).  Mechanical, 2026-10-20, v1.\nCALC on SIM temperatures; every number DERIVED unless tagged.\n\nLead 06:23Z item 6: '(c) is rejected ... (a) the d10.5 spot face if FEA3D's SCL ... stay positive, otherwise (b). Whichever lands, your\npreload-loss allowance must include flat-seat embedding (VDI 2230 f_Z for the head, the fit interface and the thread). Make its joint\nstiffness consistent with js4 ... State the in-service minimum preload after embedding against what the joint needs. In js4, about 1.4 kN\nof the 3750 N preload goes into closing the 0.025 mm fit clearance.'\n\njs4 (FEA3D contact sub-model js4_mu0_T3750, relayed by the lead 06:18Z / 06:23Z; SIM, TO-CONFIRM against FEA3D's published table):\ninstallation preload 3750 N (the +25 % bound at 3.0 N m, K 0.20), soak thermal rise +927 N (F 4677 N), about 1.4 kN of the preload closes the\n0.025 mm radial fit clearance (CAD nominal: plug r 28.600, bore r 28.625), mu 0.  js4 state: GVLO soak at the TC-01 158 C row maximum, taken\nhere as the GVLO frame 63.651 s (TC-01 row 157.9 C, TC-02 tap zone 95.8 C; ASSUMED from the lead's 'at 158 C').\n\nPer-screw model (radial, outward +; 1 DOF u = case-wall position relative to the plug OD at the screw; u < 0 = fit in contact):\n  shell (case wall pulled in at the screw, ring + local mode): F_sh = k_sh (g + d_r - u), k_sh = 1.4 kN / 0.025 mm (js4, DERIVED)\n  fit contact (wall through-thickness + contact + plug local): F_c = k_c (-u) for u < 0, k_c = the jfwd_preload_v352 clamped-wall estimate\n  screw: F_S = F_V + k_b (d_w - f + u - u0) (installation at u0, then thermal d_w / embedding f), equilibrium F_S = F_sh + F_c, F_S >= 0\n  d_w = through-wall differential expansion over L_G 3.15 mm (aluminium wall at T01, A4 screw at Ts = (T01 + T02) / 2) and\n  d_r = ring growth of the case against the plug alpha_Al (T01 - T02) r_fit (r_fit 28.6), both exactly as jfwd_variant_v352 v2.\n  k_b is calibrated so that the model reproduces js4's +927 N (k_sh, k_c fixed); the v2 stiff hand value (k_b 4.73e5, k_bm 3.65e5 N/mm) and a\n  VDI 2230-form screw resilience (head 0.4 d, free thread over A_d3, engaged thread 0.5 d over A_d3, tapped-part 0.33 d with E_Al; AS RECALLED\n  form, TO-VERIFY) are reported beside it.\nTwo regimes follow from js4's numbers: fit CLOSED (F_S > k_sh g: stiff joint, k_J = k_b (k_c + k_sh) / (k_b + k_c + k_sh)) and fit OPEN\n(F_S < k_sh g: the screw pulls the shell, k_J = k_b k_sh / (k_b + k_sh)).  The drawing gap (TC-01 fwd bore 57.25 H8 +0.046/0, TC-02 plug\n57.20 f7 -0.030/-0.060: radial 0.040-0.078, mean 0.059) is wider than the CAD's 0.025, so both regimes are evaluated at the CAD gap and at the\ndrawing min / mean / max gap.\nEmbedding f_Z (VDI 2230 guide values for steel parts, 10 <= Rz < 40 um: 3 um in the thread, 3 um per head bearing, 2 um per inner interface;\nLITERATURE: MESYS AG bolted-joint manual, https://www.mesys.ch/manual/bolted_joint.html, accessed 2026-10-20, 'fz = 3+3+2 = 8 um'):\n  (a) spot face: thread 3 + head on the 6061 spot face 3 + fit (6061 / 6061) 2 = 8 um\n  (b) saddle washer (A4 ASSUMED): thread 3 + head on washer 3 + washer on the OD 2 + fit 2 = 10 um\n  sensitivity (ASSUMED, no source): x1.5 on the head bearing and inner interfaces (transverse-loaded joint) and x2 on every interface with\n  a 6061-T6 face (the guide values are for steel parts): (a) 21 um, (b) 22.5 um.\nChecks at every frame (as jfwd_variant_v352 v2): LC2 (45 bar, SF 1.5 / 2.0) combined yield / ultimate interaction at the burn frames, soak\nscrew tension yield / ultimate after the burn, TC-02 internal-thread shear at every frame; the allowed installation preload (J-F1 maximum)\nis recomputed with this model, without embedding credit (first firing).",
+ "inputs": {
+  "jfwd_preload_v352.py": "189231a6b56b2be8",
+  "jfwd_variant_v352_v2.json": "c67c9ab17c37a2c1",
+  "row_histories_SIM": {
+   "merged": {
+    "hist_npz": "tb70/hist/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_hist.npz",
+    "sha256_16": "f53ecacdf306259f",
+    "n_frames": 363
+   },
+   "GVLO": {
+    "hist_npz": "tb70/hist/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_GVLO_hist.npz",
+    "sha256_16": "1c083a6c9246abb8",
+    "n_frames": 363
+   },
+   "GVHI": {
+    "hist_npz": "tb70/hist/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_GVHI_hist.npz",
+    "sha256_16": "2b06cf1374e06585",
+    "n_frames": 363
+   }
+  },
+  "torque_Nm": 3.0,
+  "K": 0.2,
+  "preload_N": {
+   "min": 2250.0,
+   "nom": 3000.0,
+   "max": 3750.0
+  },
+  "gaps_mm": {
+   "CAD_nominal_js4": 0.025,
+   "drawing_min_H8f7": 0.04,
+   "drawing_mean": 0.059,
+   "drawing_max": 0.078
+  },
+  "f_Z_um": {
+   "a_spot_face": {
+    "basis_um": 8,
+    "sens_um": 21.0,
+    "parts": "thread 3 (6061 tap: x2 in sens), head on 6061 spot face 3 (x1.5 x2), fit 6061/6061 2 (x1.5 x2)"
+   },
+   "b_saddle_washer": {
+    "basis_um": 10,
+    "sens_um": 22.5,
+    "parts": "thread 3 (x2), head on A4 washer 3 (x1.5), washer on 6061 OD 2 (x1.5 x2), fit 2 (x1.5 x2)"
+   }
+  }
+ },
+ "stiffness_js4_consistent": {
+  "js4": {
+   "F_V_N": 3750.0,
+   "dF_thermal_N": 927.0,
+   "F_total_N": 4677.0,
+   "F_gap_N": 1400.0,
+   "gap_mm": 0.025,
+   "frame_bound": "GVLO",
+   "frame_t_s": 63.651,
+   "screw_MS_y": 0.439,
+   "screw_MS_u": 1.33,
+   "head_band_MPa_line_contact_158C": 495.0,
+   "source": "FEA3D js4_mu0_T3750 (SIM), relayed by the lead 06:18Z / 06:23Z; TO-CONFIRM against FEA3D's published js4 table"
+  },
+  "frame": {
+   "bound": "GVLO",
+   "t_s": 63.651,
+   "T01_C": 157.9,
+   "T02_tap_C": 95.8,
+   "Ts_C": 126.9,
+   "d_w_um": 5.0,
+   "d_r_um": 42.27
+  },
+  "k_sh_N_mm_from_js4": 56000,
+  "k_c_N_mm_clamped_wall": 1595346,
+  "k_b_calibrated_N_mm": 157898,
+  "model_at_js4": {
+   "F_S_N": 4677,
+   "dF_N": 927,
+   "fit_contact_N": 879,
+   "u_um": -0.551
+  },
+  "k_J_closed_N_mm": 144118,
+  "k_J_open_N_mm": 41339,
+  "comparison": {
+   "v2_hand_k_b_N_mm": 472997,
+   "v2_hand_k_bm_N_mm": 364830,
+   "v2_hand_thermal_rise_at_js4_frame_N": 2674,
+   "VDI_form_k_b_N_mm": 234783,
+   "VDI_form_k_J_closed_N_mm": 205557,
+   "VDI_form_model_dF_at_js4_N": 1322
+  },
+  "statement": "With k_sh = 1.4 kN / 0.025 mm = 56 kN/mm (js4) and the clamped-wall k_c 1.60e6 N/mm, a screw stiffness k_b 1.58e5 N/mm reproduces js4's +927 N at the GVLO soak frame (fit stays closed, residual fit contact 879 N): the joint stiffness for an axial mismatch is 1.44e5 N/mm with the fit closed and 41 kN/mm with it open, against the v2 stiff hand value k_bm 3.65e5 (k_b 4.73e5: A_s over the grip, E_steel in the tapped part); the VDI-form screw resilience gives k_b 2.35e5 (closed k_J 2.06e5, js4 frame +1322 N). The v2 hand rise at that frame was 2674 N because it put the ring growth (d_r 42.3 um) through the screw in series with a 21 kN/mm shell; with the fit closed the ring growth mainly unloads the fit contact."
+ },
+ "embedding_cold": {
+  "a_spot_face|basis_um|CAD_nominal_js4": {
+   "F_min_2250": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 821,
+    "F_after_embedding_N": 1313,
+    "loss_N": 937,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 1.55,
+    "F_gap_cold_N": 1400
+   },
+   "F_nom_3000": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 1546,
+    "F_after_embedding_N": 1847,
+    "loss_N": 1153,
+    "fit_after": "closed",
+    "fit_contact_after_N": 432,
+    "wall_lift_um": 0.0,
+    "F_gap_cold_N": 1400
+   },
+   "F_max_3750": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 2270,
+    "F_after_embedding_N": 2597,
+    "loss_N": 1153,
+    "fit_after": "closed",
+    "fit_contact_after_N": 1156,
+    "wall_lift_um": 0.0,
+    "F_gap_cold_N": 1400
+   }
+  },
+  "a_spot_face|basis_um|drawing_min_H8f7": {
+   "F_min_2250": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 10,
+    "F_after_embedding_N": 1912,
+    "loss_N": 338,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 5.85,
+    "F_gap_cold_N": 2240
+   },
+   "F_nom_3000": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 734,
+    "F_after_embedding_N": 2127,
+    "loss_N": 873,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 2.01,
+    "F_gap_cold_N": 2240
+   },
+   "F_max_3750": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 1459,
+    "F_after_embedding_N": 2597,
+    "loss_N": 1153,
+    "fit_after": "closed",
+    "fit_contact_after_N": 345,
+    "wall_lift_um": 0.0,
+    "F_gap_cold_N": 2240
+   }
+  },
+  "a_spot_face|basis_um|drawing_mean": {
+   "F_min_2250": {
+    "installed_fit": "open",
+    "installed_fit_contact_N": 0,
+    "F_after_embedding_N": 1919,
+    "loss_N": 331,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 24.73,
+    "F_gap_cold_N": 3304
+   },
+   "F_nom_3000": {
+    "installed_fit": "open",
+    "installed_fit_contact_N": 0,
+    "F_after_embedding_N": 2669,
+    "loss_N": 331,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 11.33,
+    "F_gap_cold_N": 3304
+   },
+   "F_max_3750": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 431,
+    "F_after_embedding_N": 3101,
+    "loss_N": 649,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 3.62,
+    "F_gap_cold_N": 3304
+   }
+  },
+  "a_spot_face|basis_um|drawing_max": {
+   "F_min_2250": {
+    "installed_fit": "open",
+    "installed_fit_contact_N": 0,
+    "F_after_embedding_N": 1919,
+    "loss_N": 331,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 43.73,
+    "F_gap_cold_N": 4368
+   },
+   "F_nom_3000": {
+    "installed_fit": "open",
+    "installed_fit_contact_N": 0,
+    "F_after_embedding_N": 2669,
+    "loss_N": 331,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 30.33,
+    "F_gap_cold_N": 4368
+   },
+   "F_max_3750": {
+    "installed_fit": "open",
+    "installed_fit_contact_N": 0,
+    "F_after_embedding_N": 3419,
+    "loss_N": 331,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 16.94,
+    "F_gap_cold_N": 4368
+   }
+  },
+  "a_spot_face|sens_um|CAD_nominal_js4": {
+   "F_min_2250": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 821,
+    "F_after_embedding_N": 776,
+    "loss_N": 1474,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 11.15,
+    "F_gap_cold_N": 1400
+   },
+   "F_nom_3000": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 1546,
+    "F_after_embedding_N": 991,
+    "loss_N": 2009,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 7.31,
+    "F_gap_cold_N": 1400
+   },
+   "F_max_3750": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 2270,
+    "F_after_embedding_N": 1206,
+    "loss_N": 2544,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 3.46,
+    "F_gap_cold_N": 1400
+   }
+  },
+  "a_spot_face|sens_um|drawing_min_H8f7": {
+   "F_min_2250": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 10,
+    "F_after_embedding_N": 1375,
+    "loss_N": 875,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 15.45,
+    "F_gap_cold_N": 2240
+   },
+   "F_nom_3000": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 734,
+    "F_after_embedding_N": 1590,
+    "loss_N": 1410,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 11.61,
+    "F_gap_cold_N": 2240
+   },
+   "F_max_3750": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 1459,
+    "F_after_embedding_N": 1805,
+    "loss_N": 1945,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 7.77,
+    "F_gap_cold_N": 2240
+   }
+  },
+  "a_spot_face|sens_um|drawing_mean": {
+   "F_min_2250": {
+    "installed_fit": "open",
+    "installed_fit_contact_N": 0,
+    "F_after_embedding_N": 1382,
+    "loss_N": 868,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 34.32,
+    "F_gap_cold_N": 3304
+   },
+   "F_nom_3000": {
+    "installed_fit": "open",
+    "installed_fit_contact_N": 0,
+    "F_after_embedding_N": 2132,
+    "loss_N": 868,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 20.93,
+    "F_gap_cold_N": 3304
+   },
+   "F_max_3750": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 431,
+    "F_after_embedding_N": 2564,
+    "loss_N": 1186,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 13.22,
+    "F_gap_cold_N": 3304
+   }
+  },
+  "a_spot_face|sens_um|drawing_max": {
+   "F_min_2250": {
+    "installed_fit": "open",
+    "installed_fit_contact_N": 0,
+    "F_after_embedding_N": 1382,
+    "loss_N": 868,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 53.32,
+    "F_gap_cold_N": 4368
+   },
+   "F_nom_3000": {
+    "installed_fit": "open",
+    "installed_fit_contact_N": 0,
+    "F_after_embedding_N": 2132,
+    "loss_N": 868,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 39.93,
+    "F_gap_cold_N": 4368
+   },
+   "F_max_3750": {
+    "installed_fit": "open",
+    "installed_fit_contact_N": 0,
+    "F_after_embedding_N": 2882,
+    "loss_N": 868,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 26.54,
+    "F_gap_cold_N": 4368
+   }
+  },
+  "b_saddle_washer|basis_um|CAD_nominal_js4": {
+   "F_min_2250": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 821,
+    "F_after_embedding_N": 1230,
+    "loss_N": 1020,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 3.03,
+    "F_gap_cold_N": 1400
+   },
+   "F_nom_3000": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 1546,
+    "F_after_embedding_N": 1559,
+    "loss_N": 1441,
+    "fit_after": "closed",
+    "fit_contact_after_N": 153,
+    "wall_lift_um": 0.0,
+    "F_gap_cold_N": 1400
+   },
+   "F_max_3750": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 2270,
+    "F_after_embedding_N": 2309,
+    "loss_N": 1441,
+    "fit_after": "closed",
+    "fit_contact_after_N": 878,
+    "wall_lift_um": 0.0,
+    "F_gap_cold_N": 1400
+   }
+  },
+  "b_saddle_washer|basis_um|drawing_min_H8f7": {
+   "F_min_2250": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 10,
+    "F_after_embedding_N": 1829,
+    "loss_N": 421,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 7.33,
+    "F_gap_cold_N": 2240
+   },
+   "F_nom_3000": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 734,
+    "F_after_embedding_N": 2045,
+    "loss_N": 955,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 3.49,
+    "F_gap_cold_N": 2240
+   },
+   "F_max_3750": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 1459,
+    "F_after_embedding_N": 2309,
+    "loss_N": 1441,
+    "fit_after": "closed",
+    "fit_contact_after_N": 66,
+    "wall_lift_um": 0.0,
+    "F_gap_cold_N": 2240
+   }
+  },
+  "b_saddle_washer|basis_um|drawing_mean": {
+   "F_min_2250": {
+    "installed_fit": "open",
+    "installed_fit_contact_N": 0,
+    "F_after_embedding_N": 1837,
+    "loss_N": 413,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 26.2,
+    "F_gap_cold_N": 3304
+   },
+   "F_nom_3000": {
+    "installed_fit": "open",
+    "installed_fit_contact_N": 0,
+    "F_after_embedding_N": 2587,
+    "loss_N": 413,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 12.81,
+    "F_gap_cold_N": 3304
+   },
+   "F_max_3750": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 431,
+    "F_after_embedding_N": 3019,
+    "loss_N": 731,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 5.1,
+    "F_gap_cold_N": 3304
+   }
+  },
+  "b_saddle_washer|basis_um|drawing_max": {
+   "F_min_2250": {
+    "installed_fit": "open",
+    "installed_fit_contact_N": 0,
+    "F_after_embedding_N": 1837,
+    "loss_N": 413,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 45.2,
+    "F_gap_cold_N": 4368
+   },
+   "F_nom_3000": {
+    "installed_fit": "open",
+    "installed_fit_contact_N": 0,
+    "F_after_embedding_N": 2587,
+    "loss_N": 413,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 31.81,
+    "F_gap_cold_N": 4368
+   },
+   "F_max_3750": {
+    "installed_fit": "open",
+    "installed_fit_contact_N": 0,
+    "F_after_embedding_N": 3337,
+    "loss_N": 413,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 18.42,
+    "F_gap_cold_N": 4368
+   }
+  },
+  "b_saddle_washer|sens_um|CAD_nominal_js4": {
+   "F_min_2250": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 821,
+    "F_after_embedding_N": 714,
+    "loss_N": 1536,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 12.26,
+    "F_gap_cold_N": 1400
+   },
+   "F_nom_3000": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 1546,
+    "F_after_embedding_N": 929,
+    "loss_N": 2071,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 8.41,
+    "F_gap_cold_N": 1400
+   },
+   "F_max_3750": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 2270,
+    "F_after_embedding_N": 1144,
+    "loss_N": 2606,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 4.57,
+    "F_gap_cold_N": 1400
+   }
+  },
+  "b_saddle_washer|sens_um|drawing_min_H8f7": {
+   "F_min_2250": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 10,
+    "F_after_embedding_N": 1313,
+    "loss_N": 937,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 16.56,
+    "F_gap_cold_N": 2240
+   },
+   "F_nom_3000": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 734,
+    "F_after_embedding_N": 1528,
+    "loss_N": 1472,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 12.72,
+    "F_gap_cold_N": 2240
+   },
+   "F_max_3750": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 1459,
+    "F_after_embedding_N": 1743,
+    "loss_N": 2007,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 8.87,
+    "F_gap_cold_N": 2240
+   }
+  },
+  "b_saddle_washer|sens_um|drawing_mean": {
+   "F_min_2250": {
+    "installed_fit": "open",
+    "installed_fit_contact_N": 0,
+    "F_after_embedding_N": 1320,
+    "loss_N": 930,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 35.43,
+    "F_gap_cold_N": 3304
+   },
+   "F_nom_3000": {
+    "installed_fit": "open",
+    "installed_fit_contact_N": 0,
+    "F_after_embedding_N": 2070,
+    "loss_N": 930,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 22.04,
+    "F_gap_cold_N": 3304
+   },
+   "F_max_3750": {
+    "installed_fit": "closed",
+    "installed_fit_contact_N": 431,
+    "F_after_embedding_N": 2502,
+    "loss_N": 1248,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 14.32,
+    "F_gap_cold_N": 3304
+   }
+  },
+  "b_saddle_washer|sens_um|drawing_max": {
+   "F_min_2250": {
+    "installed_fit": "open",
+    "installed_fit_contact_N": 0,
+    "F_after_embedding_N": 1320,
+    "loss_N": 930,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 54.43,
+    "F_gap_cold_N": 4368
+   },
+   "F_nom_3000": {
+    "installed_fit": "open",
+    "installed_fit_contact_N": 0,
+    "F_after_embedding_N": 2070,
+    "loss_N": 930,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 41.04,
+    "F_gap_cold_N": 4368
+   },
+   "F_max_3750": {
+    "installed_fit": "open",
+    "installed_fit_contact_N": 0,
+    "F_after_embedding_N": 2820,
+    "loss_N": 930,
+    "fit_after": "open",
+    "fit_contact_after_N": 0,
+    "wall_lift_um": 27.65,
+    "F_gap_cold_N": 4368
+   }
+  }
+ },
+ "allowed_installation_preload_no_embedding": {
+  "CAD_nominal_js4": {
+   "F_inst_max_N": 5803,
+   "K_min_at_3Nm": 0.1034,
+   "governing_check": "soak_tension_yield",
+   "bound": "GVLO",
+   "frame_t_s": 65.651,
+   "T01_C": 158.0,
+   "T02_C": 96.2
+  },
+  "drawing_min_H8f7": {
+   "F_inst_max_N": 5803,
+   "K_min_at_3Nm": 0.1034,
+   "governing_check": "soak_tension_yield",
+   "bound": "GVLO",
+   "frame_t_s": 65.651,
+   "T01_C": 158.0,
+   "T02_C": 96.2
+  },
+  "drawing_mean": {
+   "F_inst_max_N": 5803,
+   "K_min_at_3Nm": 0.1034,
+   "governing_check": "soak_tension_yield",
+   "bound": "GVLO",
+   "frame_t_s": 65.651,
+   "T01_C": 158.0,
+   "T02_C": 96.2
+  },
+  "drawing_max": {
+   "F_inst_max_N": 5789,
+   "K_min_at_3Nm": 0.1036,
+   "governing_check": "soak_tension_yield",
+   "bound": "GVLO",
+   "frame_t_s": 62.651,
+   "T01_C": 157.8,
+   "T02_C": 95.6
+  }
+ },
+ "first_firing_max_at_3750N": {
+  "CAD_nominal_js4": {
+   "F_max_inst_3750_N": 4677,
+   "dF_thermal_N": 927,
+   "bound": "GVLO",
+   "t_s": 62.651,
+   "T01_T02_C": [
+    157.8,
+    95.6
+   ],
+   "fit": "closed"
+  },
+  "drawing_min_H8f7": {
+   "F_max_inst_3750_N": 4677,
+   "dF_thermal_N": 927,
+   "bound": "GVLO",
+   "t_s": 62.651,
+   "T01_T02_C": [
+    157.8,
+    95.6
+   ],
+   "fit": "closed"
+  },
+  "drawing_mean": {
+   "F_max_inst_3750_N": 5389,
+   "dF_thermal_N": 1639,
+   "bound": "GVLO",
+   "t_s": 61.651,
+   "T01_T02_C": [
+    157.7,
+    95.4
+   ],
+   "fit": "open"
+  },
+  "drawing_max": {
+   "F_max_inst_3750_N": 5707,
+   "dF_thermal_N": 1957,
+   "bound": "GVLO",
+   "t_s": 61.651,
+   "T01_T02_C": [
+    157.7,
+    95.4
+   ],
+   "fit": "open"
+  }
+ },
+ "in_service_minimum_after_embedding": {
+  "a_spot_face|basis_um|CAD_nominal_js4": {
+   "F_min_inst_N": 2250,
+   "f_Z_um": 8,
+   "F_cold_after_embedding_N": 1313,
+   "F_min_any_frame_N": 933,
+   "at": {
+    "bound": "GVLO",
+    "t_s": 12.501,
+    "T01_T02_C": [
+     29.1,
+     57.2
+    ]
+   },
+   "fit_at_min": "closed",
+   "frames_with_fit_open": {
+    "merged": 242,
+    "GVLO": 322,
+    "GVHI": 257
+   },
+   "need_fit_closed_cold_N": 1400,
+   "MS_vs_fit_closing_cold": -0.062,
+   "head_seated_everywhere": true
+  },
+  "a_spot_face|sens_um|CAD_nominal_js4": {
+   "F_min_inst_N": 2250,
+   "f_Z_um": 21.0,
+   "F_cold_after_embedding_N": 776,
+   "F_min_any_frame_N": 0,
+   "at": {
+    "bound": "GVLO",
+    "t_s": 12.001,
+    "T01_T02_C": [
+     28.1,
+     55.6
+    ]
+   },
+   "fit_at_min": "SLACK",
+   "frames_with_fit_open": {
+    "merged": 363,
+    "GVLO": 363,
+    "GVHI": 363
+   },
+   "need_fit_closed_cold_N": 1400,
+   "MS_vs_fit_closing_cold": -0.446,
+   "head_seated_everywhere": false
+  },
+  "b_saddle_washer|basis_um|CAD_nominal_js4": {
+   "F_min_inst_N": 2250,
+   "f_Z_um": 10,
+   "F_cold_after_embedding_N": 1230,
+   "F_min_any_frame_N": 645,
+   "at": {
+    "bound": "GVLO",
+    "t_s": 12.501,
+    "T01_T02_C": [
+     29.1,
+     57.2
+    ]
+   },
+   "fit_at_min": "closed",
+   "frames_with_fit_open": {
+    "merged": 363,
+    "GVLO": 331,
+    "GVHI": 363
+   },
+   "need_fit_closed_cold_N": 1400,
+   "MS_vs_fit_closing_cold": -0.121,
+   "head_seated_everywhere": true
+  },
+  "b_saddle_washer|sens_um|CAD_nominal_js4": {
+   "F_min_inst_N": 2250,
+   "f_Z_um": 22.5,
+   "F_cold_after_embedding_N": 714,
+   "F_min_any_frame_N": 0,
+   "at": {
+    "bound": "GVLO",
+    "t_s": 10.501,
+    "T01_T02_C": [
+     25.5,
+     50.7
+    ]
+   },
+   "fit_at_min": "SLACK",
+   "frames_with_fit_open": {
+    "merged": 363,
+    "GVLO": 363,
+    "GVHI": 363
+   },
+   "need_fit_closed_cold_N": 1400,
+   "MS_vs_fit_closing_cold": -0.49,
+   "head_seated_everywhere": false
+  },
+  "a_spot_face|basis_um|drawing_min_H8f7": {
+   "F_min_inst_N": 2250,
+   "f_Z_um": 8,
+   "F_cold_after_embedding_N": 1912,
+   "F_min_any_frame_N": 1085,
+   "at": {
+    "bound": "GVLO",
+    "t_s": 14.501,
+    "T01_T02_C": [
+     33.9,
+     63.2
+    ]
+   },
+   "fit_at_min": "open",
+   "frames_with_fit_open": {
+    "merged": 363,
+    "GVLO": 363,
+    "GVHI": 363
+   },
+   "need_fit_closed_cold_N": 2240,
+   "MS_vs_fit_closing_cold": -0.146,
+   "head_seated_everywhere": true
+  },
+  "a_spot_face|sens_um|drawing_min_H8f7": {
+   "F_min_inst_N": 2250,
+   "f_Z_um": 21.0,
+   "F_cold_after_embedding_N": 1375,
+   "F_min_any_frame_N": 548,
+   "at": {
+    "bound": "GVLO",
+    "t_s": 14.501,
+    "T01_T02_C": [
+     33.9,
+     63.2
+    ]
+   },
+   "fit_at_min": "open",
+   "frames_with_fit_open": {
+    "merged": 363,
+    "GVLO": 363,
+    "GVHI": 363
+   },
+   "need_fit_closed_cold_N": 2240,
+   "MS_vs_fit_closing_cold": -0.386,
+   "head_seated_everywhere": true
+  },
+  "b_saddle_washer|basis_um|drawing_min_H8f7": {
+   "F_min_inst_N": 2250,
+   "f_Z_um": 10,
+   "F_cold_after_embedding_N": 1829,
+   "F_min_any_frame_N": 1003,
+   "at": {
+    "bound": "GVLO",
+    "t_s": 14.501,
+    "T01_T02_C": [
+     33.9,
+     63.2
+    ]
+   },
+   "fit_at_min": "open",
+   "frames_with_fit_open": {
+    "merged": 363,
+    "GVLO": 363,
+    "GVHI": 363
+   },
+   "need_fit_closed_cold_N": 2240,
+   "MS_vs_fit_closing_cold": -0.183,
+   "head_seated_everywhere": true
+  },
+  "b_saddle_washer|sens_um|drawing_min_H8f7": {
+   "F_min_inst_N": 2250,
+   "f_Z_um": 22.5,
+   "F_cold_after_embedding_N": 1313,
+   "F_min_any_frame_N": 486,
+   "at": {
+    "bound": "GVLO",
+    "t_s": 14.501,
+    "T01_T02_C": [
+     33.9,
+     63.2
+    ]
+   },
+   "fit_at_min": "open",
+   "frames_with_fit_open": {
+    "merged": 363,
+    "GVLO": 363,
+    "GVHI": 363
+   },
+   "need_fit_closed_cold_N": 2240,
+   "MS_vs_fit_closing_cold": -0.414,
+   "head_seated_everywhere": true
+  },
+  "a_spot_face|basis_um|drawing_mean": {
+   "F_min_inst_N": 2250,
+   "f_Z_um": 8,
+   "F_cold_after_embedding_N": 1919,
+   "F_min_any_frame_N": 1093,
+   "at": {
+    "bound": "GVLO",
+    "t_s": 14.501,
+    "T01_T02_C": [
+     33.9,
+     63.2
+    ]
+   },
+   "fit_at_min": "open",
+   "frames_with_fit_open": {
+    "merged": 363,
+    "GVLO": 363,
+    "GVHI": 363
+   },
+   "need_fit_closed_cold_N": 3304,
+   "MS_vs_fit_closing_cold": -0.419,
+   "head_seated_everywhere": true
+  },
+  "a_spot_face|sens_um|drawing_mean": {
+   "F_min_inst_N": 2250,
+   "f_Z_um": 21.0,
+   "F_cold_after_embedding_N": 1382,
+   "F_min_any_frame_N": 555,
+   "at": {
+    "bound": "GVLO",
+    "t_s": 14.501,
+    "T01_T02_C": [
+     33.9,
+     63.2
+    ]
+   },
+   "fit_at_min": "open",
+   "frames_with_fit_open": {
+    "merged": 363,
+    "GVLO": 363,
+    "GVHI": 363
+   },
+   "need_fit_closed_cold_N": 3304,
+   "MS_vs_fit_closing_cold": -0.582,
+   "head_seated_everywhere": true
+  },
+  "b_saddle_washer|basis_um|drawing_mean": {
+   "F_min_inst_N": 2250,
+   "f_Z_um": 10,
+   "F_cold_after_embedding_N": 1837,
+   "F_min_any_frame_N": 1010,
+   "at": {
+    "bound": "GVLO",
+    "t_s": 14.501,
+    "T01_T02_C": [
+     33.9,
+     63.2
+    ]
+   },
+   "fit_at_min": "open",
+   "frames_with_fit_open": {
+    "merged": 363,
+    "GVLO": 363,
+    "GVHI": 363
+   },
+   "need_fit_closed_cold_N": 3304,
+   "MS_vs_fit_closing_cold": -0.444,
+   "head_seated_everywhere": true
+  },
+  "b_saddle_washer|sens_um|drawing_mean": {
+   "F_min_inst_N": 2250,
+   "f_Z_um": 22.5,
+   "F_cold_after_embedding_N": 1320,
+   "F_min_any_frame_N": 493,
+   "at": {
+    "bound": "GVLO",
+    "t_s": 14.501,
+    "T01_T02_C": [
+     33.9,
+     63.2
+    ]
+   },
+   "fit_at_min": "open",
+   "frames_with_fit_open": {
+    "merged": 363,
+    "GVLO": 363,
+    "GVHI": 363
+   },
+   "need_fit_closed_cold_N": 3304,
+   "MS_vs_fit_closing_cold": -0.601,
+   "head_seated_everywhere": true
+  },
+  "a_spot_face|basis_um|drawing_max": {
+   "F_min_inst_N": 2250,
+   "f_Z_um": 8,
+   "F_cold_after_embedding_N": 1919,
+   "F_min_any_frame_N": 1093,
+   "at": {
+    "bound": "GVLO",
+    "t_s": 14.501,
+    "T01_T02_C": [
+     33.9,
+     63.2
+    ]
+   },
+   "fit_at_min": "open",
+   "frames_with_fit_open": {
+    "merged": 363,
+    "GVLO": 363,
+    "GVHI": 363
+   },
+   "need_fit_closed_cold_N": 4368,
+   "MS_vs_fit_closing_cold": -0.561,
+   "head_seated_everywhere": true
+  },
+  "a_spot_face|sens_um|drawing_max": {
+   "F_min_inst_N": 2250,
+   "f_Z_um": 21.0,
+   "F_cold_after_embedding_N": 1382,
+   "F_min_any_frame_N": 555,
+   "at": {
+    "bound": "GVLO",
+    "t_s": 14.501,
+    "T01_T02_C": [
+     33.9,
+     63.2
+    ]
+   },
+   "fit_at_min": "open",
+   "frames_with_fit_open": {
+    "merged": 363,
+    "GVLO": 363,
+    "GVHI": 363
+   },
+   "need_fit_closed_cold_N": 4368,
+   "MS_vs_fit_closing_cold": -0.684,
+   "head_seated_everywhere": true
+  },
+  "b_saddle_washer|basis_um|drawing_max": {
+   "F_min_inst_N": 2250,
+   "f_Z_um": 10,
+   "F_cold_after_embedding_N": 1837,
+   "F_min_any_frame_N": 1010,
+   "at": {
+    "bound": "GVLO",
+    "t_s": 14.501,
+    "T01_T02_C": [
+     33.9,
+     63.2
+    ]
+   },
+   "fit_at_min": "open",
+   "frames_with_fit_open": {
+    "merged": 363,
+    "GVLO": 363,
+    "GVHI": 363
+   },
+   "need_fit_closed_cold_N": 4368,
+   "MS_vs_fit_closing_cold": -0.58,
+   "head_seated_everywhere": true
+  },
+  "b_saddle_washer|sens_um|drawing_max": {
+   "F_min_inst_N": 2250,
+   "f_Z_um": 22.5,
+   "F_cold_after_embedding_N": 1320,
+   "F_min_any_frame_N": 493,
+   "at": {
+    "bound": "GVLO",
+    "t_s": 14.501,
+    "T01_T02_C": [
+     33.9,
+     63.2
+    ]
+   },
+   "fit_at_min": "open",
+   "frames_with_fit_open": {
+    "merged": 363,
+    "GVLO": 363,
+    "GVHI": 363
+   },
+   "need_fit_closed_cold_N": 4368,
+   "MS_vs_fit_closing_cold": -0.698,
+   "head_seated_everywhere": true
+  }
+ },
+ "torque_rows_3.0_4.0Nm": {
+  "3Nm|CAD_nominal_js4": {
+   "F_min_N": 2250,
+   "F_max_N": 3750,
+   "allowed_F_inst_max_N": 5803,
+   "within_allowed": true,
+   "first_firing": {
+    "MS_min": 0.4389,
+    "check": "soak_tension_yield",
+    "bound": "GVLO",
+    "t_s": 64.651,
+    "F_S_N": 4676,
+    "head_bearing_MPa_on_spot_face": 99.2,
+    "T01_C": 158.0,
+    "Fty_6061_T01_MPa": 170.3
+   },
+   "a_spot_face|basis_um": {
+    "cold_after_embedding_N": 1313,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 933,
+    "min_at": [
+     "GVLO",
+     12.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.062
+   },
+   "a_spot_face|sens_um": {
+    "cold_after_embedding_N": 776,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 0,
+    "min_at": [
+     "GVLO",
+     12.001
+    ],
+    "slack": true,
+    "MS_vs_fit_closing_cold": -0.446
+   },
+   "b_saddle_washer|basis_um": {
+    "cold_after_embedding_N": 1230,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 645,
+    "min_at": [
+     "GVLO",
+     12.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.121
+   },
+   "b_saddle_washer|sens_um": {
+    "cold_after_embedding_N": 714,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 0,
+    "min_at": [
+     "GVLO",
+     10.501
+    ],
+    "slack": true,
+    "MS_vs_fit_closing_cold": -0.49
+   }
+  },
+  "3Nm|drawing_min_H8f7": {
+   "F_min_N": 2250,
+   "F_max_N": 3750,
+   "allowed_F_inst_max_N": 5803,
+   "within_allowed": true,
+   "first_firing": {
+    "MS_min": 0.4389,
+    "check": "soak_tension_yield",
+    "bound": "GVLO",
+    "t_s": 64.651,
+    "F_S_N": 4676,
+    "head_bearing_MPa_on_spot_face": 99.2,
+    "T01_C": 158.0,
+    "Fty_6061_T01_MPa": 170.3
+   },
+   "a_spot_face|basis_um": {
+    "cold_after_embedding_N": 1912,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 1085,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.146
+   },
+   "a_spot_face|sens_um": {
+    "cold_after_embedding_N": 1375,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 548,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.386
+   },
+   "b_saddle_washer|basis_um": {
+    "cold_after_embedding_N": 1829,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 1003,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.183
+   },
+   "b_saddle_washer|sens_um": {
+    "cold_after_embedding_N": 1313,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 486,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.414
+   }
+  },
+  "3Nm|drawing_mean": {
+   "F_min_N": 2250,
+   "F_max_N": 3750,
+   "allowed_F_inst_max_N": 5803,
+   "within_allowed": true,
+   "first_firing": {
+    "MS_min": 0.2494,
+    "check": "soak_tension_yield",
+    "bound": "GVLO",
+    "t_s": 62.651,
+    "F_S_N": 5388,
+    "head_bearing_MPa_on_spot_face": 114.3,
+    "T01_C": 157.8,
+    "Fty_6061_T01_MPa": 170.6
+   },
+   "a_spot_face|basis_um": {
+    "cold_after_embedding_N": 1919,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 1093,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.419
+   },
+   "a_spot_face|sens_um": {
+    "cold_after_embedding_N": 1382,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 555,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.582
+   },
+   "b_saddle_washer|basis_um": {
+    "cold_after_embedding_N": 1837,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 1010,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.444
+   },
+   "b_saddle_washer|sens_um": {
+    "cold_after_embedding_N": 1320,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 493,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.601
+   }
+  },
+  "3Nm|drawing_max": {
+   "F_min_N": 2250,
+   "F_max_N": 3750,
+   "allowed_F_inst_max_N": 5789,
+   "within_allowed": true,
+   "first_firing": {
+    "MS_min": 0.1797,
+    "check": "soak_tension_yield",
+    "bound": "GVLO",
+    "t_s": 62.651,
+    "F_S_N": 5706,
+    "head_bearing_MPa_on_spot_face": 121.1,
+    "T01_C": 157.8,
+    "Fty_6061_T01_MPa": 170.6
+   },
+   "a_spot_face|basis_um": {
+    "cold_after_embedding_N": 1919,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 1093,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.561
+   },
+   "a_spot_face|sens_um": {
+    "cold_after_embedding_N": 1382,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 555,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.684
+   },
+   "b_saddle_washer|basis_um": {
+    "cold_after_embedding_N": 1837,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 1010,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.58
+   },
+   "b_saddle_washer|sens_um": {
+    "cold_after_embedding_N": 1320,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 493,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.698
+   }
+  },
+  "4Nm|CAD_nominal_js4": {
+   "F_min_N": 3000,
+   "F_max_N": 5000,
+   "allowed_F_inst_max_N": 5803,
+   "within_allowed": true,
+   "first_firing": {
+    "MS_min": 0.1354,
+    "check": "soak_tension_yield",
+    "bound": "GVLO",
+    "t_s": 64.651,
+    "F_S_N": 5926,
+    "head_bearing_MPa_on_spot_face": 125.8,
+    "T01_C": 158.0,
+    "Fty_6061_T01_MPa": 170.3
+   },
+   "a_spot_face|basis_um": {
+    "cold_after_embedding_N": 1847,
+    "fit_cold": "closed",
+    "fit_contact_cold_N": 432,
+    "min_any_frame_N": 1683,
+    "min_at": [
+     "GVLO",
+     12.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": 0.319
+   },
+   "a_spot_face|sens_um": {
+    "cold_after_embedding_N": 991,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 164,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.292
+   },
+   "b_saddle_washer|basis_um": {
+    "cold_after_embedding_N": 1559,
+    "fit_cold": "closed",
+    "fit_contact_cold_N": 153,
+    "min_any_frame_N": 1395,
+    "min_at": [
+     "GVLO",
+     12.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": 0.113
+   },
+   "b_saddle_washer|sens_um": {
+    "cold_after_embedding_N": 929,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 102,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.337
+   }
+  },
+  "4Nm|drawing_min_H8f7": {
+   "F_min_N": 3000,
+   "F_max_N": 5000,
+   "allowed_F_inst_max_N": 5803,
+   "within_allowed": true,
+   "first_firing": {
+    "MS_min": 0.1354,
+    "check": "soak_tension_yield",
+    "bound": "GVLO",
+    "t_s": 64.651,
+    "F_S_N": 5926,
+    "head_bearing_MPa_on_spot_face": 125.8,
+    "T01_C": 158.0,
+    "Fty_6061_T01_MPa": 170.3
+   },
+   "a_spot_face|basis_um": {
+    "cold_after_embedding_N": 2127,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 1683,
+    "min_at": [
+     "GVLO",
+     12.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.05
+   },
+   "a_spot_face|sens_um": {
+    "cold_after_embedding_N": 1590,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 763,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.29
+   },
+   "b_saddle_washer|basis_um": {
+    "cold_after_embedding_N": 2045,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 1395,
+    "min_at": [
+     "GVLO",
+     12.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.087
+   },
+   "b_saddle_washer|sens_um": {
+    "cold_after_embedding_N": 1528,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 701,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.318
+   }
+  },
+  "4Nm|drawing_mean": {
+   "F_min_N": 3000,
+   "F_max_N": 5000,
+   "allowed_F_inst_max_N": 5803,
+   "within_allowed": true,
+   "first_firing": {
+    "MS_min": 0.1354,
+    "check": "soak_tension_yield",
+    "bound": "GVLO",
+    "t_s": 64.651,
+    "F_S_N": 5926,
+    "head_bearing_MPa_on_spot_face": 125.8,
+    "T01_C": 158.0,
+    "Fty_6061_T01_MPa": 170.3
+   },
+   "a_spot_face|basis_um": {
+    "cold_after_embedding_N": 2669,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 1843,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.192
+   },
+   "a_spot_face|sens_um": {
+    "cold_after_embedding_N": 2132,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 1305,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.355
+   },
+   "b_saddle_washer|basis_um": {
+    "cold_after_embedding_N": 2587,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 1760,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.217
+   },
+   "b_saddle_washer|sens_um": {
+    "cold_after_embedding_N": 2070,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 1243,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.374
+   }
+  },
+  "4Nm|drawing_max": {
+   "F_min_N": 3000,
+   "F_max_N": 5000,
+   "allowed_F_inst_max_N": 5789,
+   "within_allowed": true,
+   "first_firing": {
+    "MS_min": 0.0348,
+    "check": "soak_tension_yield",
+    "bound": "GVLO",
+    "t_s": 62.651,
+    "F_S_N": 6506,
+    "head_bearing_MPa_on_spot_face": 138.1,
+    "T01_C": 157.8,
+    "Fty_6061_T01_MPa": 170.6
+   },
+   "a_spot_face|basis_um": {
+    "cold_after_embedding_N": 2669,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 1843,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.389
+   },
+   "a_spot_face|sens_um": {
+    "cold_after_embedding_N": 2132,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 1305,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.512
+   },
+   "b_saddle_washer|basis_um": {
+    "cold_after_embedding_N": 2587,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 1760,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.408
+   },
+   "b_saddle_washer|sens_um": {
+    "cold_after_embedding_N": 2070,
+    "fit_cold": "open",
+    "fit_contact_cold_N": 0,
+    "min_any_frame_N": 1243,
+    "min_at": [
+     "GVLO",
+     14.501
+    ],
+    "slack": false,
+    "MS_vs_fit_closing_cold": -0.526
+   }
+  }
+ }
+}

@@ -1,0 +1,958 @@
+{
+ "id": "modal_ca2c_vs_ca2b_v352",
+ "owner": "fea3d",
+ "date_utc": "2026-10-20T17:02:03Z",
+ "doc": "RM2-06 modal re-solve, M2 (fea3d; lead 16:20Z (1), 16:32Z, 16:53Z): modal_v351ca2c_c71 (OP / PM with the L1 TC-01 face loads mapped as\nnodal forces, FREQ60 with DISP-only output) against modal_v351ca2b_c71 (2026-10-19).  Same mesh (83,554 nodes, 40,828 elements), same\nmaterials, sections, ties, BCs and steps; the stiffness / mass difference is the RBE3 coupling of two face-attached items (MASS_TC10 4.678 g\non TC-02, MASS_BLEED 33.234 g on FD-01) - ca2b attached them through the superseded v3.5 TC-10 / BL-02 surfaces (samples.instance_surface\nbefore its 2026-10-20T02:19:48Z CAD-version fix), ca2c through the v3.5.1 ones (isolation: runs/modal_v351ca2c_c71_deckchk5_prefix/).\nReports: per-mode frequency delta and MAC (unweighted, all-node displacement vectors), the OP resultant and compliance checks of\npost_modal.py, and the FA-1 band share vectors of fa1_band_sensitivity.py (J-FWD node and TC-01 LC1 node; ca2c supersedes ca2b for\nRM2-06 only; ca2b stays as published, it is cited by REVIEW-MECHANICAL-R2).  The republished share vectors and modes are an input to\nCombustion's REV-COMB-4 fold.  Evidence: SIM (ccx modal and static) + DERIVED (deltas, MAC, shares).",
+ "provenance": {
+  "ca2b": {
+   "fields_sha16": "86803cf464e24b14",
+   "modal_json_sha16": "c5f4944f4b334fb5",
+   "deck_gz_sha16": "c0dbb8d3ef7497a1"
+  },
+  "ca2c": {
+   "fields_sha16": "07325b4ed56d42a3",
+   "modal_json_sha16": "1b0d37949d7147f1",
+   "deck_gz_sha16": "6f5dc5ee0738ded6",
+   "deck_raw_sha256": "b1c76b046c38ccbcd710c29a27ea7edb89ac7fca2f7065dee8262442674b4a75 (= the checked M2 deck deckchk4, run name substituted)",
+   "U_FREQ_U_OP_S_OP": "all from this one run and deck (M2, lead 16:20Z (1) fallback; 16:53Z accepted)"
+  },
+  "deck_checks": [
+   "runs/modal_v351ca2c_c71_deckchk2/deckcheck.json (a) FAIL: 6 RBE3 equations",
+   "runs/modal_v351ca2c_c71_deckchk5_prefix/deckcheck.json (a) PASS with the pre-fix surfaces",
+   "runs/modal_v351ca2c_c71_deckchk5_prefix/ca2b_repro.json: ca2b rebuilt byte-identical except *HEADING"
+  ],
+  "post_modal": {
+   "ca2b": "results/modal_modal_v351ca2b_c71.json 9af80c657eed11ac",
+   "ca2c": "results/modal_modal_v351ca2c_c71.json 619272cd3b66072b"
+  },
+  "fa1_band": {
+   "ca2b": "results/fa1_band_sensitivity.json 794155b97167a784",
+   "ca2c": "results/v352/fa1_band_sensitivity_modal_v351ca2c_c71.json 5d1f3e2e876ca6e8"
+  }
+ },
+ "checks": {
+  "ca2b": {
+   "lumped_total_mass_kg": 4.128838277623784,
+   "F_OP_resultant_N_per_MPa": [
+    6.727951529228449e-14,
+    -1.2528034165626423e-12,
+    241.10092097270623
+   ],
+   "OP_compliance_F_dot_u_static": 241.45920872776378,
+   "OP_compliance_captured_by_modes": 0.15540801402357227,
+   "generalised_mass_lumped_min_max": [
+    0.9998032908040998,
+    1.016636593939964
+   ]
+  },
+  "ca2c": {
+   "lumped_total_mass_kg": 4.128838277623784,
+   "F_OP_resultant_N_per_MPa": [
+    2.7633451082920146e-13,
+    -2.1968538099770285e-13,
+    201.93562597733157
+   ],
+   "OP_compliance_F_dot_u_static": 242.63462263022006,
+   "OP_compliance_captured_by_modes": 0.14801776793760588,
+   "generalised_mass_lumped_min_max": [
+    0.9997519312474699,
+    1.0166957715093687
+   ]
+  }
+ },
+ "frequency_summary": {
+  "n_modes": 60,
+  "max_abs_delta_pct": 3.542456930026461,
+  "mode_of_max": 52,
+  "mean_abs_delta_pct": 0.40659920805275823,
+  "n_MAC_same_index_below_0.9": 16,
+  "min_MAC_same_index": 3.210390872282303e-05,
+  "mode_of_min_MAC": 58,
+  "n_index_swaps": 14,
+  "f_max_Hz": [
+   5130.468,
+   5167.584
+  ],
+  "paired_MAC_ge_0.9": {
+   "n": 54,
+   "max_abs_delta_pct": 0.16076506080926478,
+   "unpaired_ca2b_modes": [
+    45,
+    49,
+    50,
+    55,
+    56,
+    57
+   ]
+  },
+  "below_3900Hz": {
+   "max_abs_delta_pct": 0.10189971627592165,
+   "min_MAC": 0.9944360375911316
+  }
+ },
+ "modes": [
+  {
+   "mode": 1,
+   "f_ca2b_Hz": 51.42191,
+   "f_ca2c_Hz": 51.42191,
+   "delta_pct": 0.0,
+   "MAC_same_index": 0.9999999999993163,
+   "best_ca2c_mode": 1,
+   "MAC_best": 0.9999999999993163,
+   "delta_pct_best_match": 0.0
+  },
+  {
+   "mode": 2,
+   "f_ca2b_Hz": 59.42134,
+   "f_ca2c_Hz": 59.42138,
+   "delta_pct": 6.731588348962703e-05,
+   "MAC_same_index": 0.9999999999944222,
+   "best_ca2c_mode": 2,
+   "MAC_best": 0.9999999999944222,
+   "delta_pct_best_match": 6.731588348962703e-05
+  },
+  {
+   "mode": 3,
+   "f_ca2b_Hz": 186.271,
+   "f_ca2c_Hz": 186.2711,
+   "delta_pct": 5.3685222067834104e-05,
+   "MAC_same_index": 0.9999999999776983,
+   "best_ca2c_mode": 3,
+   "MAC_best": 0.9999999999776983,
+   "delta_pct_best_match": 5.3685222067834104e-05
+  },
+  {
+   "mode": 4,
+   "f_ca2b_Hz": 266.4785,
+   "f_ca2c_Hz": 266.4812,
+   "delta_pct": 0.0010132149498076615,
+   "MAC_same_index": 0.9999999978940912,
+   "best_ca2c_mode": 4,
+   "MAC_best": 0.9999999978940912,
+   "delta_pct_best_match": 0.0010132149498076615
+  },
+  {
+   "mode": 5,
+   "f_ca2b_Hz": 372.0663,
+   "f_ca2c_Hz": 372.081,
+   "delta_pct": 0.003950908749339455,
+   "MAC_same_index": 0.9999999714123818,
+   "best_ca2c_mode": 5,
+   "MAC_best": 0.9999999714123818,
+   "delta_pct_best_match": 0.003950908749339455
+  },
+  {
+   "mode": 6,
+   "f_ca2b_Hz": 408.2992,
+   "f_ca2c_Hz": 408.3049,
+   "delta_pct": 0.0013960350644826036,
+   "MAC_same_index": 0.9999999775258792,
+   "best_ca2c_mode": 6,
+   "MAC_best": 0.9999999775258792,
+   "delta_pct_best_match": 0.0013960350644826036
+  },
+  {
+   "mode": 7,
+   "f_ca2b_Hz": 518.2389,
+   "f_ca2c_Hz": 518.2378,
+   "delta_pct": -0.00021225731992036145,
+   "MAC_same_index": 0.9999999893694629,
+   "best_ca2c_mode": 7,
+   "MAC_best": 0.9999999893694629,
+   "delta_pct_best_match": -0.00021225731992036145
+  },
+  {
+   "mode": 8,
+   "f_ca2b_Hz": 791.6759,
+   "f_ca2c_Hz": 791.6763,
+   "delta_pct": 5.0525726491557066e-05,
+   "MAC_same_index": 0.9999999975719533,
+   "best_ca2c_mode": 8,
+   "MAC_best": 0.9999999975719533,
+   "delta_pct_best_match": 5.0525726491557066e-05
+  },
+  {
+   "mode": 9,
+   "f_ca2b_Hz": 824.6963,
+   "f_ca2c_Hz": 824.9375,
+   "delta_pct": 0.02924713012535385,
+   "MAC_same_index": 0.999994123737179,
+   "best_ca2c_mode": 9,
+   "MAC_best": 0.999994123737179,
+   "delta_pct_best_match": 0.02924713012535385
+  },
+  {
+   "mode": 10,
+   "f_ca2b_Hz": 916.9452,
+   "f_ca2c_Hz": 917.1581,
+   "delta_pct": 0.02321839952921234,
+   "MAC_same_index": 0.9999878164232884,
+   "best_ca2c_mode": 10,
+   "MAC_best": 0.9999878164232884,
+   "delta_pct_best_match": 0.02321839952921234
+  },
+  {
+   "mode": 11,
+   "f_ca2b_Hz": 1010.306,
+   "f_ca2c_Hz": 1010.349,
+   "delta_pct": 0.004256136259717103,
+   "MAC_same_index": 0.9999936590061702,
+   "best_ca2c_mode": 11,
+   "MAC_best": 0.9999936590061702,
+   "delta_pct_best_match": 0.004256136259717103
+  },
+  {
+   "mode": 12,
+   "f_ca2b_Hz": 1090.894,
+   "f_ca2c_Hz": 1090.917,
+   "delta_pct": 0.002108362499009253,
+   "MAC_same_index": 0.9999989873815122,
+   "best_ca2c_mode": 12,
+   "MAC_best": 0.9999989873815122,
+   "delta_pct_best_match": 0.002108362499009253
+  },
+  {
+   "mode": 13,
+   "f_ca2b_Hz": 1188.816,
+   "f_ca2c_Hz": 1189.162,
+   "delta_pct": 0.029104588094375217,
+   "MAC_same_index": 0.9998018073675935,
+   "best_ca2c_mode": 13,
+   "MAC_best": 0.9998018073675935,
+   "delta_pct_best_match": 0.029104588094375217
+  },
+  {
+   "mode": 14,
+   "f_ca2b_Hz": 1219.999,
+   "f_ca2c_Hz": 1220.458,
+   "delta_pct": 0.03762298165819189,
+   "MAC_same_index": 0.9998186081957543,
+   "best_ca2c_mode": 14,
+   "MAC_best": 0.9998186081957543,
+   "delta_pct_best_match": 0.03762298165819189
+  },
+  {
+   "mode": 15,
+   "f_ca2b_Hz": 1466.44,
+   "f_ca2c_Hz": 1466.435,
+   "delta_pct": -0.0003409617850058666,
+   "MAC_same_index": 0.9999999525507777,
+   "best_ca2c_mode": 15,
+   "MAC_best": 0.9999999525507777,
+   "delta_pct_best_match": -0.0003409617850058666
+  },
+  {
+   "mode": 16,
+   "f_ca2b_Hz": 1611.203,
+   "f_ca2c_Hz": 1611.207,
+   "delta_pct": 0.0002482617025956202,
+   "MAC_same_index": 0.9999994106679135,
+   "best_ca2c_mode": 16,
+   "MAC_best": 0.9999994106679135,
+   "delta_pct_best_match": 0.0002482617025956202
+  },
+  {
+   "mode": 17,
+   "f_ca2b_Hz": 1624.095,
+   "f_ca2c_Hz": 1624.093,
+   "delta_pct": -0.00012314550564829219,
+   "MAC_same_index": 0.9999993793488956,
+   "best_ca2c_mode": 17,
+   "MAC_best": 0.9999993793488956,
+   "delta_pct_best_match": -0.00012314550564829219
+  },
+  {
+   "mode": 18,
+   "f_ca2b_Hz": 1787.615,
+   "f_ca2c_Hz": 1787.766,
+   "delta_pct": 0.008447009003620387,
+   "MAC_same_index": 0.999994154764183,
+   "best_ca2c_mode": 18,
+   "MAC_best": 0.999994154764183,
+   "delta_pct_best_match": 0.008447009003620387
+  },
+  {
+   "mode": 19,
+   "f_ca2b_Hz": 1917.462,
+   "f_ca2c_Hz": 1918.176,
+   "delta_pct": 0.03723672229227759,
+   "MAC_same_index": 0.9999041270307926,
+   "best_ca2c_mode": 19,
+   "MAC_best": 0.9999041270307926,
+   "delta_pct_best_match": 0.03723672229227759
+  },
+  {
+   "mode": 20,
+   "f_ca2b_Hz": 2009.878,
+   "f_ca2c_Hz": 2008.816,
+   "delta_pct": -0.052839028040507774,
+   "MAC_same_index": 0.9998179638383037,
+   "best_ca2c_mode": 20,
+   "MAC_best": 0.9998179638383037,
+   "delta_pct_best_match": -0.052839028040507774
+  },
+  {
+   "mode": 21,
+   "f_ca2b_Hz": 2083.759,
+   "f_ca2c_Hz": 2083.757,
+   "delta_pct": -9.59803892808253e-05,
+   "MAC_same_index": 0.9999977123186953,
+   "best_ca2c_mode": 21,
+   "MAC_best": 0.9999977123186953,
+   "delta_pct_best_match": -9.59803892808253e-05
+  },
+  {
+   "mode": 22,
+   "f_ca2b_Hz": 2134.223,
+   "f_ca2c_Hz": 2134.535,
+   "delta_pct": 0.014618903460417165,
+   "MAC_same_index": 0.9998433381617873,
+   "best_ca2c_mode": 22,
+   "MAC_best": 0.9998433381617873,
+   "delta_pct_best_match": 0.014618903460417165
+  },
+  {
+   "mode": 23,
+   "f_ca2b_Hz": 2156.886,
+   "f_ca2c_Hz": 2157.052,
+   "delta_pct": 0.0076962806564662145,
+   "MAC_same_index": 0.9998196911416317,
+   "best_ca2c_mode": 23,
+   "MAC_best": 0.9998196911416317,
+   "delta_pct_best_match": 0.0076962806564662145
+  },
+  {
+   "mode": 24,
+   "f_ca2b_Hz": 2186.458,
+   "f_ca2c_Hz": 2186.433,
+   "delta_pct": -0.0011434017941347463,
+   "MAC_same_index": 0.9995958034811979,
+   "best_ca2c_mode": 24,
+   "MAC_best": 0.9995958034811979,
+   "delta_pct_best_match": -0.0011434017941347463
+  },
+  {
+   "mode": 25,
+   "f_ca2b_Hz": 2227.502,
+   "f_ca2c_Hz": 2229.17,
+   "delta_pct": 0.074882087647965,
+   "MAC_same_index": 0.9997959506347415,
+   "best_ca2c_mode": 25,
+   "MAC_best": 0.9997959506347415,
+   "delta_pct_best_match": 0.074882087647965
+  },
+  {
+   "mode": 26,
+   "f_ca2b_Hz": 2295.195,
+   "f_ca2c_Hz": 2295.244,
+   "delta_pct": 0.0021348948564314796,
+   "MAC_same_index": 0.9999456203715634,
+   "best_ca2c_mode": 26,
+   "MAC_best": 0.9999456203715634,
+   "delta_pct_best_match": 0.0021348948564314796
+  },
+  {
+   "mode": 27,
+   "f_ca2b_Hz": 2564.573,
+   "f_ca2c_Hz": 2564.106,
+   "delta_pct": -0.018209659073831208,
+   "MAC_same_index": 0.999973091750625,
+   "best_ca2c_mode": 27,
+   "MAC_best": 0.999973091750625,
+   "delta_pct_best_match": -0.018209659073831208
+  },
+  {
+   "mode": 28,
+   "f_ca2b_Hz": 2651.905,
+   "f_ca2c_Hz": 2652.057,
+   "delta_pct": 0.005731728700664185,
+   "MAC_same_index": 0.999956179558315,
+   "best_ca2c_mode": 28,
+   "MAC_best": 0.999956179558315,
+   "delta_pct_best_match": 0.005731728700664185
+  },
+  {
+   "mode": 29,
+   "f_ca2b_Hz": 2668.18,
+   "f_ca2c_Hz": 2668.144,
+   "delta_pct": -0.0013492343095333759,
+   "MAC_same_index": 0.9999781282194696,
+   "best_ca2c_mode": 29,
+   "MAC_best": 0.9999781282194696,
+   "delta_pct_best_match": -0.0013492343095333759
+  },
+  {
+   "mode": 30,
+   "f_ca2b_Hz": 2673.548,
+   "f_ca2c_Hz": 2673.548,
+   "delta_pct": 0.0,
+   "MAC_same_index": 0.9999656460774528,
+   "best_ca2c_mode": 30,
+   "MAC_best": 0.9999656460774528,
+   "delta_pct_best_match": 0.0
+  },
+  {
+   "mode": 31,
+   "f_ca2b_Hz": 2731.669,
+   "f_ca2c_Hz": 2731.789,
+   "delta_pct": 0.004392918761397802,
+   "MAC_same_index": 0.9999758460795931,
+   "best_ca2c_mode": 31,
+   "MAC_best": 0.9999758460795931,
+   "delta_pct_best_match": 0.004392918761397802
+  },
+  {
+   "mode": 32,
+   "f_ca2b_Hz": 2836.274,
+   "f_ca2c_Hz": 2836.274,
+   "delta_pct": 0.0,
+   "MAC_same_index": 0.9999996790928839,
+   "best_ca2c_mode": 32,
+   "MAC_best": 0.9999996790928839,
+   "delta_pct_best_match": 0.0
+  },
+  {
+   "mode": 33,
+   "f_ca2b_Hz": 2843.824,
+   "f_ca2c_Hz": 2843.825,
+   "delta_pct": 3.516392013125369e-05,
+   "MAC_same_index": 0.9999997759631878,
+   "best_ca2c_mode": 33,
+   "MAC_best": 0.9999997759631878,
+   "delta_pct_best_match": 3.516392013125369e-05
+  },
+  {
+   "mode": 34,
+   "f_ca2b_Hz": 2971.549,
+   "f_ca2c_Hz": 2974.577,
+   "delta_pct": 0.10189971627592165,
+   "MAC_same_index": 0.9998595353378263,
+   "best_ca2c_mode": 34,
+   "MAC_best": 0.9998595353378263,
+   "delta_pct_best_match": 0.10189971627592165
+  },
+  {
+   "mode": 35,
+   "f_ca2b_Hz": 3074.438,
+   "f_ca2c_Hz": 3074.551,
+   "delta_pct": 0.003675468492114753,
+   "MAC_same_index": 0.9999639749319548,
+   "best_ca2c_mode": 35,
+   "MAC_best": 0.9999639749319548,
+   "delta_pct_best_match": 0.003675468492114753
+  },
+  {
+   "mode": 36,
+   "f_ca2b_Hz": 3282.447,
+   "f_ca2c_Hz": 3282.956,
+   "delta_pct": 0.01550672409942333,
+   "MAC_same_index": 0.9999009615289189,
+   "best_ca2c_mode": 36,
+   "MAC_best": 0.9999009615289189,
+   "delta_pct_best_match": 0.01550672409942333
+  },
+  {
+   "mode": 37,
+   "f_ca2b_Hz": 3392.66,
+   "f_ca2c_Hz": 3392.967,
+   "delta_pct": 0.009048946844081307,
+   "MAC_same_index": 0.9999916128251293,
+   "best_ca2c_mode": 37,
+   "MAC_best": 0.9999916128251293,
+   "delta_pct_best_match": 0.009048946844081307
+  },
+  {
+   "mode": 38,
+   "f_ca2b_Hz": 3401.292,
+   "f_ca2c_Hz": 3401.192,
+   "delta_pct": -0.002940059248068838,
+   "MAC_same_index": 0.9999920798163499,
+   "best_ca2c_mode": 38,
+   "MAC_best": 0.9999920798163499,
+   "delta_pct_best_match": -0.002940059248068838
+  },
+  {
+   "mode": 39,
+   "f_ca2b_Hz": 3427.808,
+   "f_ca2c_Hz": 3427.886,
+   "delta_pct": 0.0022755066794832857,
+   "MAC_same_index": 0.9998858697845997,
+   "best_ca2c_mode": 39,
+   "MAC_best": 0.9998858697845997,
+   "delta_pct_best_match": 0.0022755066794832857
+  },
+  {
+   "mode": 40,
+   "f_ca2b_Hz": 3446.25,
+   "f_ca2c_Hz": 3446.187,
+   "delta_pct": -0.0018280739934706247,
+   "MAC_same_index": 0.9999454420010633,
+   "best_ca2c_mode": 40,
+   "MAC_best": 0.9999454420010633,
+   "delta_pct_best_match": -0.0018280739934706247
+  },
+  {
+   "mode": 41,
+   "f_ca2b_Hz": 3535.655,
+   "f_ca2c_Hz": 3537.057,
+   "delta_pct": 0.039653190144384176,
+   "MAC_same_index": 0.9996955146892096,
+   "best_ca2c_mode": 41,
+   "MAC_best": 0.9996955146892096,
+   "delta_pct_best_match": 0.039653190144384176
+  },
+  {
+   "mode": 42,
+   "f_ca2b_Hz": 3639.619,
+   "f_ca2c_Hz": 3639.62,
+   "delta_pct": 2.747540333025711e-05,
+   "MAC_same_index": 0.9999931871968653,
+   "best_ca2c_mode": 42,
+   "MAC_best": 0.9999931871968653,
+   "delta_pct_best_match": 2.747540333025711e-05
+  },
+  {
+   "mode": 43,
+   "f_ca2b_Hz": 3779.034,
+   "f_ca2c_Hz": 3781.426,
+   "delta_pct": 0.06329659907795548,
+   "MAC_same_index": 0.9973708621898734,
+   "best_ca2c_mode": 43,
+   "MAC_best": 0.9973708621898734,
+   "delta_pct_best_match": 0.06329659907795548
+  },
+  {
+   "mode": 44,
+   "f_ca2b_Hz": 3871.735,
+   "f_ca2c_Hz": 3874.586,
+   "delta_pct": 0.07363623801730501,
+   "MAC_same_index": 0.9944360375911316,
+   "best_ca2c_mode": 44,
+   "MAC_best": 0.9944360375911316,
+   "delta_pct_best_match": 0.07363623801730501
+  },
+  {
+   "mode": 45,
+   "f_ca2b_Hz": 4028.606,
+   "f_ca2c_Hz": 4084.888,
+   "delta_pct": 1.3970589330403627,
+   "MAC_same_index": 0.0027911117357905493,
+   "best_ca2c_mode": 54,
+   "MAC_best": 0.26242392616355387,
+   "delta_pct_best_match": 14.99074369645481
+  },
+  {
+   "mode": 46,
+   "f_ca2b_Hz": 4084.994,
+   "f_ca2c_Hz": 4122.83,
+   "delta_pct": 0.9262192306769501,
+   "MAC_same_index": 0.019539828924363508,
+   "best_ca2c_mode": 45,
+   "MAC_best": 0.9993691007290932,
+   "delta_pct_best_match": -0.0025948630524408323
+  },
+  {
+   "mode": 47,
+   "f_ca2b_Hz": 4120.676,
+   "f_ca2c_Hz": 4162.43,
+   "delta_pct": 1.013280345263734,
+   "MAC_same_index": 0.0005976273220830235,
+   "best_ca2c_mode": 46,
+   "MAC_best": 0.9915949830382538,
+   "delta_pct_best_match": 0.052272976569844865
+  },
+  {
+   "mode": 48,
+   "f_ca2b_Hz": 4163.095,
+   "f_ca2c_Hz": 4211.361,
+   "delta_pct": 1.1593778186661519,
+   "MAC_same_index": 0.015593216903866884,
+   "best_ca2c_mode": 47,
+   "MAC_best": 0.9981769332281658,
+   "delta_pct_best_match": -0.015973692649340343
+  },
+  {
+   "mode": 49,
+   "f_ca2b_Hz": 4192.687,
+   "f_ca2c_Hz": 4217.479,
+   "delta_pct": 0.5913153068664689,
+   "MAC_same_index": 0.44672096322663263,
+   "best_ca2c_mode": 49,
+   "MAC_best": 0.44672096322663263,
+   "delta_pct_best_match": 0.5913153068664689
+  },
+  {
+   "mode": 50,
+   "f_ca2b_Hz": 4215.648,
+   "f_ca2c_Hz": 4249.471,
+   "delta_pct": 0.8023203075778529,
+   "MAC_same_index": 0.0034385533475596837,
+   "best_ca2c_mode": 49,
+   "MAC_best": 0.5780046752389293,
+   "delta_pct_best_match": 0.04343341759085462
+  },
+  {
+   "mode": 51,
+   "f_ca2b_Hz": 4249.605,
+   "f_ca2c_Hz": 4359.386,
+   "delta_pct": 2.5833224499689056,
+   "MAC_same_index": 0.00013347604350118586,
+   "best_ca2c_mode": 50,
+   "MAC_best": 0.9404130824669777,
+   "delta_pct_best_match": -0.0031532342417706083
+  },
+  {
+   "mode": 52,
+   "f_ca2b_Hz": 4365.106,
+   "f_ca2c_Hz": 4519.738,
+   "delta_pct": 3.542456930026461,
+   "MAC_same_index": 0.11052612122305278,
+   "best_ca2c_mode": 51,
+   "MAC_best": 0.9778465731293583,
+   "delta_pct_best_match": -0.1310392004226113
+  },
+  {
+   "mode": 53,
+   "f_ca2b_Hz": 4519.418,
+   "f_ca2c_Hz": 4606.703,
+   "delta_pct": 1.9313327512525014,
+   "MAC_same_index": 0.0022996292004223715,
+   "best_ca2c_mode": 52,
+   "MAC_best": 0.996095620499783,
+   "delta_pct_best_match": 0.007080557717853431
+  },
+  {
+   "mode": 54,
+   "f_ca2b_Hz": 4607.065,
+   "f_ca2c_Hz": 4632.524,
+   "delta_pct": 0.5526077882556546,
+   "MAC_same_index": 0.002734743678353639,
+   "best_ca2c_mode": 53,
+   "MAC_best": 0.985350606172028,
+   "delta_pct_best_match": -0.007857497126673163
+  },
+  {
+   "mode": 55,
+   "f_ca2b_Hz": 4664.172,
+   "f_ca2c_Hz": 4705.914,
+   "delta_pct": 0.8949498431876091,
+   "MAC_same_index": 0.4900875893996153,
+   "best_ca2c_mode": 54,
+   "MAC_best": 0.5929365197601335,
+   "delta_pct_best_match": -0.6785341535432088
+  },
+  {
+   "mode": 56,
+   "f_ca2b_Hz": 4718.706,
+   "f_ca2c_Hz": 4730.365,
+   "delta_pct": 0.24708044959782516,
+   "MAC_same_index": 0.8181019553192922,
+   "best_ca2c_mode": 56,
+   "MAC_best": 0.8181019553192922,
+   "delta_pct_best_match": 0.24708044959782516
+  },
+  {
+   "mode": 57,
+   "f_ca2b_Hz": 4759.833,
+   "f_ca2c_Hz": 4926.192,
+   "delta_pct": 3.4950595955782537,
+   "MAC_same_index": 0.016263195272590805,
+   "best_ca2c_mode": 56,
+   "MAC_best": 0.15447555362230067,
+   "delta_pct_best_match": -0.6190973506843611
+  },
+  {
+   "mode": 58,
+   "f_ca2b_Hz": 4930.092,
+   "f_ca2c_Hz": 5038.53,
+   "delta_pct": 2.199512706862272,
+   "MAC_same_index": 3.210390872282303e-05,
+   "best_ca2c_mode": 57,
+   "MAC_best": 0.9721159454466205,
+   "delta_pct_best_match": -0.07910602885300433
+  },
+  {
+   "mode": 59,
+   "f_ca2b_Hz": 5038.53,
+   "f_ca2c_Hz": 5122.22,
+   "delta_pct": 1.6610003314458943,
+   "MAC_same_index": 0.0006943325976287592,
+   "best_ca2c_mode": 58,
+   "MAC_best": 0.9999746694564512,
+   "delta_pct_best_match": 0.0
+  },
+  {
+   "mode": 60,
+   "f_ca2b_Hz": 5130.468,
+   "f_ca2c_Hz": 5167.584,
+   "delta_pct": 0.7234427736416915,
+   "MAC_same_index": 0.0019593461927607243,
+   "best_ca2c_mode": 59,
+   "MAC_best": 0.9015649900726478,
+   "delta_pct_best_match": -0.16076506080926478
+  }
+ ],
+ "fa1_band_shares": {
+  "TC-01 J-FWD": {
+   "L2_node": [
+    2785,
+    2785
+   ],
+   "s0_principal_MPa_per_MPa": [
+    10.677055109998024,
+    10.634523898094308
+   ],
+   "s0_vm_ccx_MPa_per_MPa": [
+    14.823102187825455,
+    14.914184637686606
+   ],
+   "principal_s1.00_slow": [
+    0.01781341143578102,
+    0.013673219819556685
+   ],
+   "principal_s1.00_mid_0p1_1ms": [
+    0.6002167429689875,
+    0.6040504598128041
+   ],
+   "principal_s1.00_residual_fast": [
+    0.3819698455952314,
+    0.38227632036763914
+   ],
+   "principal_s0.90_slow": [
+    0.026196577714344967,
+    0.023072970193465533
+   ],
+   "principal_s0.90_mid_0p1_1ms": [
+    0.5918335766904237,
+    0.5946507094388952
+   ],
+   "principal_s0.90_residual_fast": [
+    0.3819698455952314,
+    0.38227632036763914
+   ],
+   "principal_s0.85_slow": [
+    0.026196577714344967,
+    0.023072970193465533
+   ],
+   "principal_s0.85_mid_0p1_1ms": [
+    0.5918335766904237,
+    0.5946507094388952
+   ],
+   "principal_s0.85_residual_fast": [
+    0.3819698455952314,
+    0.38227632036763914
+   ],
+   "principal_mode_shares": [
+    {
+     "11@1010Hz": 0.005989787248049186,
+     "12@1091Hz": 0.0023933790305147628,
+     "13@1189Hz": 0.003675633357107672
+    },
+    {
+     "11@1010Hz": 0.006911726266988288,
+     "12@1091Hz": 0.002488024106920563,
+     "13@1189Hz": 0.003136994944013698
+    }
+   ],
+   "tensor_s1.00_slow": [
+    0.016509606144475164,
+    0.012927861669035314
+   ],
+   "tensor_s1.00_mid_0p1_1ms": [
+    0.6210532860722635,
+    0.6212290377069895
+   ],
+   "tensor_s1.00_residual_fast": [
+    0.3624371077832613,
+    0.36584310062397507
+   ],
+   "tensor_s0.90_slow": [
+    0.02596772275441539,
+    0.023394662670303164
+   ],
+   "tensor_s0.90_mid_0p1_1ms": [
+    0.6115951694623233,
+    0.6107622367057216
+   ],
+   "tensor_s0.90_residual_fast": [
+    0.3624371077832613,
+    0.36584310062397507
+   ],
+   "tensor_s0.85_slow": [
+    0.02596772275441539,
+    0.023394662670303164
+   ],
+   "tensor_s0.85_mid_0p1_1ms": [
+    0.6115951694623233,
+    0.6107622367057216
+   ],
+   "tensor_s0.85_residual_fast": [
+    0.3624371077832613,
+    0.36584310062397507
+   ],
+   "tensor_mode_shares": [
+    {
+     "11@1010Hz": 0.006072218952769525,
+     "12@1091Hz": 0.0033858976571707025,
+     "13@1189Hz": 0.004827204082301473
+    },
+    {
+     "11@1010Hz": 0.006955660906821201,
+     "12@1091Hz": 0.0035111400944466483,
+     "13@1189Hz": 0.004117188161876004
+    }
+   ],
+   "MS_y_u_at_slow_share_x1.00": [
+    [
+     0.23717356805445333,
+     0.22278447700164494
+    ],
+    [
+     0.24034317421362061,
+     0.2252025811166536
+    ]
+   ],
+   "MS_y_u_at_slow_share_x0.85": [
+    [
+     0.23080502133263825,
+     0.21791735144657776
+    ],
+    [
+     0.23317029360227948,
+     0.21972632997167918
+    ]
+   ]
+  },
+  "TC-01 LC1 governing": {
+   "L2_node": [
+    2800,
+    2800
+   ],
+   "s0_principal_MPa_per_MPa": [
+    9.125542176143325,
+    9.099168715888124
+   ],
+   "s0_vm_ccx_MPa_per_MPa": [
+    8.749635577622845,
+    8.77381348417207
+   ],
+   "principal_s1.00_slow": [
+    0.034937308380014825,
+    0.030193605609535414
+   ],
+   "principal_s1.00_mid_0p1_1ms": [
+    0.5238270394973251,
+    0.5248782446290614
+   ],
+   "principal_s1.00_residual_fast": [
+    0.44123565212266,
+    0.4449281497614034
+   ],
+   "principal_s0.90_slow": [
+    0.046473309302226706,
+    0.04161060571373336
+   ],
+   "principal_s0.90_mid_0p1_1ms": [
+    0.5122910385751134,
+    0.5134612445248634
+   ],
+   "principal_s0.90_residual_fast": [
+    0.44123565212266,
+    0.4449281497614034
+   ],
+   "principal_s0.85_slow": [
+    0.046473309302226706,
+    0.04161060571373336
+   ],
+   "principal_s0.85_mid_0p1_1ms": [
+    0.5122910385751134,
+    0.5134612445248634
+   ],
+   "principal_s0.85_residual_fast": [
+    0.44123565212266,
+    0.4449281497614034
+   ],
+   "principal_mode_shares": [
+    {
+     "11@1010Hz": -0.004114919308329458,
+     "12@1091Hz": 0.015650920230541338,
+     "13@1189Hz": -0.004801247037948894
+    },
+    {
+     "11@1010Hz": -0.004747260201220253,
+     "12@1091Hz": 0.016164260305418197,
+     "13@1189Hz": -0.004097815802714095
+    }
+   ],
+   "tensor_s1.00_slow": [
+    0.03471622344444178,
+    0.030073380601218357
+   ],
+   "tensor_s1.00_mid_0p1_1ms": [
+    0.5239985825326657,
+    0.5255060024319622
+   ],
+   "tensor_s1.00_residual_fast": [
+    0.44128519402289246,
+    0.44442061696681945
+   ],
+   "tensor_s0.90_slow": [
+    0.04616057239438625,
+    0.04143038304401516
+   ],
+   "tensor_s0.90_mid_0p1_1ms": [
+    0.5125542335827213,
+    0.5141489999891653
+   ],
+   "tensor_s0.90_residual_fast": [
+    0.44128519402289246,
+    0.44442061696681945
+   ],
+   "tensor_s0.85_slow": [
+    0.04616057239438625,
+    0.04143038304401516
+   ],
+   "tensor_s0.85_mid_0p1_1ms": [
+    0.5125542335827213,
+    0.5141489999891653
+   ],
+   "tensor_s0.85_residual_fast": [
+    0.44128519402289246,
+    0.44442061696681945
+   ],
+   "tensor_mode_shares": [
+    {
+     "11@1010Hz": -0.0040914969833996066,
+     "12@1091Hz": 0.015535845933344075,
+     "13@1189Hz": -0.0048366039565324905
+    },
+    {
+     "11@1010Hz": -0.004728648098046569,
+     "12@1091Hz": 0.016085650540843374,
+     "13@1189Hz": -0.004128999308923072
+    }
+   ],
+   "MS_y_u_at_slow_share_x1.00": [
+    [
+     0.22423428708014947,
+     0.21288371949979967
+    ],
+    [
+     0.22779157504952074,
+     0.2156103592574945
+    ]
+   ],
+   "MS_y_u_at_slow_share_x0.85": [
+    [
+     0.21566889021160107,
+     0.2063036900156836
+    ],
+    [
+     0.21926475611286422,
+     0.2090686072371548
+    ]
+   ]
+  }
+ },
+ "consumers": "Combustion REV-COMB-4 fold (fa1_per_mode_peq / spectra / modal_th_bound / build_final_fold read the modal JSON and the share vectors)"
+}

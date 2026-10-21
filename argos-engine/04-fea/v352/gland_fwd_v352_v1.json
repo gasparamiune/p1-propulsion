@@ -1,0 +1,186 @@
+{
+ "id": "gland_fwd_v352",
+ "version": "v1",
+ "date": "2026-10-20",
+ "owner": "mechanical",
+ "basis": "TC-02 plug glands S01 / S02 (2x AS568-226 FKM 90A, no back-up ring): extrusion gap at the drawing maximum clearance plus the case's\nradial growth under pressure, plus the rev-4 thermal differential; squeeze / stretch / fill; seal positions vs the J-FWD holes.\nLead 07:43Z items 1 and 4.  Mechanical, 2026-10-20, v1.  CALC on SIM temperatures; DATASHEET values as cited; every other number DERIVED.\n\nSources:\n [D1] Freudenberg-NOK Sealing Technologies, 'O-Ring Design Quick Reference' (no date / edition printed), p. 6 'Maximum Recommended\n      Extrusion Gap in Inches (mm)', static applications below 1500 psi; gap = bore - piston (diameters), 'unless the hardware can ensure\n      the bore and the piston or rod remain concentric, we have to assume that all of the gap possible can shift to one side'; above\n      1500 psi 'consult Freudenberg-NOK'; no temperature note; p. 5 squeeze >= 5 %, target 20 %, max 30 %; gland fill target 75 %, max 85 %;\n      p. 16 AS568-226 ID 1.984 +/- 0.018 in (50.39 +/- 0.46 mm), CS 0.139 +/- 0.004 in (3.53 +/- 0.10 mm).\n      URL https://fst.com/~/media/files/fst,-d-,com/markets/mobility/broschueren/fnst%20o-ring%20reference%20as568%20sizes.ashx,\n      accessed 2026-10-20.  The durometer columns are not labelled 'Shore A' in the source (presumed Shore A).\n [C1] CAD v3.5.2 (parts_engine.py; TC-01 / TC-02 drawing fits): bore 57.25 H8 (+0.046 / 0), plug 57.20 f7 (-0.030 / -0.060), groove\n      51.65 h9 (0 / -0.074) x 4.85 +0.13 / 0, glands at zf + 3.0 and + 3.0 + 4.85 + 3.0 (zf = injector face z 103.513), J-FWD holes d5.5 at\n      z 127.513 (taps M5-6H), case OD 63.5.\n [M1] engmat 6061-T6 E(T), alpha (secant from 20 C), nu 0.33 (LITERATURE, project tables).\n [T1] rev-4 B1 thermal fields (v352_NF2b_R4_GVLO / _GVHI, chain 8), node histories tb70/hist/<label>_hist.npz (case_tc_hist_v352.py).\nPressure growth of the case bore: Lame thick cylinder, closed end (the case carries the end load aft of the screw row), at the g1 land\nwith E at the land's burn maximum temperature; the full far-field value is used (the land is at the end of the pressurised length, where\na shell would give about half: not credited).  Plug OD: hollow cylinder (manifold bore d10) under the same external pressure (conservative:\nthe land forward of the ring is not pressurised, and the plug's Poisson expansion under its end load would close the gap: not credited).\nThermal: the change of the bore - plug diametral clearance at the g1 forward land from the case and plug temperatures (secant alpha),\nlargest opening over the burn frames (pressurised period), both gap bounds.  Pressure across S01: chamber gauge pressure (the inter-seal\ncavity at ambient: the full differential).",
+ "o_ring": {
+  "part": "HW-150 SAE AS568-226 FKM 90A (BOM; TC-02 drawing note), qty 2 (S01, S02), no back-up ring (groove 4.85 wide, no back-up ring line in the BOM)",
+  "ID_mm": [
+   49.93,
+   50.85
+  ],
+  "CS_mm": [
+   3.43,
+   3.63
+  ],
+  "dims_source": "[D1] p. 16 (the BOM line HW-150 gives ID 47.22 = the -225 ID, AS RECALLED: corrected in hardware v1.5)"
+ },
+ "positions": {
+  "S01_z_mm": [
+   106.513,
+   111.363
+  ],
+  "S02_z_mm": [
+   114.363,
+   119.213
+  ],
+  "S01_forward_land_z_mm": [
+   111.363,
+   114.363
+  ],
+  "injector_face_z_mm": 103.5134,
+  "jfwd_hole_d5.5_z_mm": [
+   124.763,
+   130.263
+  ],
+  "tap_M5_major_z_mm": [
+   125.013,
+   130.013
+  ],
+  "hole_edge_to_S02_forward_wall_mm": 5.55,
+  "M5_major_to_S02_forward_wall_mm": 5.8,
+  "statement": "S01 (gland 1) and S02 lie between the chamber (aft of the injector face) and the J-FWD holes: from the chamber, the bore / plug annulus is gas-wetted only up to S01; the holes and taps are forward of S02 in the dry annulus, which is vented to ambient through the holes and the case end; the holes are not wetted unless both S01 and S02 leak"
+ },
+ "thermal_rev4": {
+  "GVLO": {
+   "hist": "tb70/hist/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_R4_GVLO_hist.npz",
+   "sha256_16": "b51e5672fb41058e",
+   "frd_sha256_16": "51de9afbcf4ca100",
+   "z_offset_thermal_mm": 6.578,
+   "n_nodes_land": [
+    63,
+    62
+   ],
+   "r_bore_plug_nodes_mm": [
+    28.625,
+    28.325
+   ],
+   "burn_max_opening": {
+    "t_s": 0.001,
+    "T_case_C": 20.0,
+    "T_plug_C": 20.0,
+    "dD_mm": 0.0
+   },
+   "any_frame_max_opening": {
+    "t_s": 59.651,
+    "T_case_C": 168.6,
+    "T_plug_C": 98.8,
+    "dD_mm": 0.0985
+   },
+   "burn_min_dD_mm": -0.0803,
+   "case_land_T_burn_max_C": 75.5,
+   "plug_land_T_burn_max_C": 123.7,
+   "ring_T_burn_max_C": 163.0,
+   "ring_T_max_C": 175.4,
+   "t_ring_T_max_s": 57.65
+  },
+  "GVHI": {
+   "hist": "tb70/hist/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_R4_GVHI_hist.npz",
+   "sha256_16": "e525fa1ad783b7de",
+   "frd_sha256_16": "81aaeaa3317be5c7",
+   "z_offset_thermal_mm": 6.578,
+   "n_nodes_land": [
+    63,
+    62
+   ],
+   "r_bore_plug_nodes_mm": [
+    28.625,
+    28.325
+   ],
+   "burn_max_opening": {
+    "t_s": 0.001,
+    "T_case_C": 20.0,
+    "T_plug_C": 20.0,
+    "dD_mm": 0.0
+   },
+   "any_frame_max_opening": {
+    "t_s": 47.651,
+    "T_case_C": 145.8,
+    "T_plug_C": 106.9,
+    "dD_mm": 0.0547
+   },
+   "burn_min_dD_mm": -0.0584,
+   "case_land_T_burn_max_C": 90.7,
+   "plug_land_T_burn_max_C": 118.7,
+   "ring_T_burn_max_C": 155.8,
+   "ring_T_max_C": 157.9,
+   "t_ring_T_max_s": 45.65
+  }
+ },
+ "E_case_MPa_at_T": {
+  "T_C": 90.7,
+  "E_MPa": 66514.0
+ },
+ "extrusion": {
+  "MEOP_45_bar_abs": {
+   "p_gauge_bar": 43.99,
+   "p_gauge_psi": 638.0,
+   "case_bore_growth_radial_mm": 0.0164,
+   "case_bore_growth_radial_mm_at_20C": 0.0158,
+   "plug_OD_radial_mm": -0.0014,
+   "gap_bore_minus_piston_mm": {
+    "drawing_max_rest": 0.156,
+    "plus_pressure": 0.0355,
+    "plus_thermal_burn_max": 0.0,
+    "total": 0.1915
+   },
+   "allowable_D1_90duro_mm": 0.606885994084,
+   "MS": 2.169,
+   "verdict": "PASS"
+  },
+  "proof_67.5_bar_abs": {
+   "p_gauge_bar": 66.49,
+   "p_gauge_psi": 964.0,
+   "case_bore_growth_radial_mm": 0.0248,
+   "case_bore_growth_radial_mm_at_20C": 0.0239,
+   "plug_OD_radial_mm": -0.0021,
+   "gap_bore_minus_piston_mm": {
+    "drawing_max_rest": 0.156,
+    "plus_pressure": 0.0537,
+    "plus_thermal_burn_max": 0.0,
+    "total": 0.2097
+   },
+   "allowable_D1_90duro_mm": 0.477130948168,
+   "MS": 1.275,
+   "verdict": "PASS"
+  },
+  "FA1S_151.04_bar_abs": {
+   "p_gauge_bar": 150.03,
+   "p_gauge_psi": 2176.0,
+   "case_bore_growth_radial_mm": 0.0559,
+   "case_bore_growth_radial_mm_at_20C": 0.0539,
+   "plug_OD_radial_mm": -0.0047,
+   "gap_bore_minus_piston_mm": {
+    "drawing_max_rest": 0.156,
+    "plus_pressure": 0.1212,
+    "plus_thermal_burn_max": 0.0,
+    "total": 0.2772
+   },
+   "allowable_D1_90duro_mm": null,
+   "MS": null,
+   "verdict": "OUTSIDE THE SOURCE TABLE (> 1500 psi: maker to be consulted)"
+  }
+ },
+ "gland": {
+  "gland_depth_mm": [
+   2.8,
+   2.86
+  ],
+  "squeeze_pct": [
+   16.6,
+   22.9
+  ],
+  "stretch_pct": [
+   1.43,
+   3.44
+  ],
+  "fill_max_pct": 76.2,
+  "criteria_D1": "squeeze >= 5 %, target 20 %, max 30 %; fill target 75 %, max 85 %",
+  "pass": true
+ },
+ "notes": [
+  "the [D1] table carries no temperature statement; the ring temperature at its bounding surfaces is listed per bound (FKM compound rating and hot hardness TO-SOURCE for the purchased ring)",
+  "MEOP / proof treated as absolute pressures; as gauge they change the gap by < 0.001 mm"
+ ]
+}

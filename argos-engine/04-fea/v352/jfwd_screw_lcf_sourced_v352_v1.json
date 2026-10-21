@@ -1,0 +1,4268 @@
+{
+ "id": "jfwd_screw_lcf_sourced_v352",
+ "version": "v1",
+ "date": "2026-10-20",
+ "owner": "mechanical",
+ "basis": "2(a) (lead 14:14Z, ~30 min box): the J-FWD screw LCF rows of jfwd_screw_lcf_v352_v1.json on a SOURCED IN718 strain-life basis in place\nof the Manson universal slopes.  Mechanical, 2026-10-20, v1.  Reads only; the local strain ranges (Neuber with Kf on FEA3D's curve, method\n(i) per firing and (ii) assembly from zero) are taken unchanged from the v1 rows; only the life curve changes.  CALC on LITERATURE data;\nnegatives SHOWN AS FOUND (the row stays a FOUND NEGATIVE, lead 14:14Z, until the joint ruling after (b2)).\n\nBasis (LITERATURE, a peer-reviewed test series reproduced in a public fatigue database):\n  C. R. Brinkman and G. E. Korth, 'Strain Fatigue and Tensile Behavior of Inconel 718 from Room Temperature to 650C', Journal of Testing\n  and Evaluation, Vol. 2, No. 4, July 1974, pp. 249-259, as reproduced by the University of Waterloo Fatigue Design and Evaluation (FD+E)\n  materials database (GPL v2+ data files), accessed 2026-10-20:\n  PRIMARY  'HT940C', tested 22 C, https://fde.uwaterloo.ca/Fde/Materials/Other/brinkmanIN718-HT940C-22T_fc.html\n           solution 940 C 2 h AC + 718 C 8 h FC to 621 C 8 h AC (the AMS 5662 solution range 941-1010 C and the AMS 5663 duplex age),\n           3 heats, Su 1418 MPa, Sy 1127 MPa (Fig. 3), E 205 GPa (literature, not reported), sigma_f' 1539 MPa, b -0.0587,\n           eps_f' 1.6159, c -0.7673 (fitted coefficients as printed);\n  HOT CHECK 'HT1038C', tested 427 C, https://fde.uwaterloo.ca/Fde/Materials/Other/brinkmanIN718-HT1038C-427T_fc.html\n           solution 1038 C 2 h AC + 760 C 10 h FC to 649 C 8 h AC (an AMS 5664-type high solution, NOT the AMS 5663 state), heat 2,\n           Su 1212 MPa, Sy 1020 MPa, RA 28 %, E 178 GPa (literature), sigma_f' 1889 MPa, b -0.0799, eps_f' 6.4667, c -1.0154.\n  Database warnings carried: hourglass specimens, diametral strain ('Diametral tests(?)'); E not reported (from the literature); 'difficult\n  to correlate strain-life-stress'; the fitted rows are computed from the fitted coefficients.\nStrain-life: eps_a = sigma_f' / E (2 N)^b + eps_f' (2 N)^c, eps_a = de / 2 (fully reversed; mean stress neither credited nor charged, as v1).\nCriterion 183 (1)(c) as v1: N_allow = min(N_f(2 de), N_f(de) / 20) >= 50 hot cycles.\nThe screw runs at 158.6 C at SOAK70 (127-159 C over the soak states): the 22 C curve is the closer temperature; the 427 C curve is a\ndifferent heat treatment and is shown only as a hot sensitivity.\nUsage: jfwd_screw_lcf_sourced_v352.py -> v352/jfwd/jfwd_screw_lcf_sourced_v352_v1.json",
+ "inputs": {
+  "screw_lcf_v1": {
+   "path": "/home/claude/work/mechanical/v352/jfwd/jfwd_screw_lcf_v352_v1.json",
+   "sha256_16": "1b91bb73d9d34a24"
+  }
+ },
+ "strain_life_bases": {
+  "BK74_HT940C_22C": {
+   "E": 205000.0,
+   "sf": 1539.0,
+   "b": -0.0587,
+   "ef": 1.6159,
+   "c": -0.7673,
+   "Su": 1418.0,
+   "Sy": 1127.0,
+   "url": "https://fde.uwaterloo.ca/Fde/Materials/Other/brinkmanIN718-HT940C-22T_fc.html",
+   "role": "PRIMARY (AMS 5662/5663 state, RT)"
+  },
+  "BK74_HT1038C_427C": {
+   "E": 178000.0,
+   "sf": 1889.0,
+   "b": -0.0799,
+   "ef": 6.4667,
+   "c": -1.0154,
+   "Su": 1212.0,
+   "Sy": 1020.0,
+   "url": "https://fde.uwaterloo.ca/Fde/Materials/Other/brinkmanIN718-HT1038C-427T_fc.html",
+   "role": "HOT SENSITIVITY (other heat treatment)"
+  }
+ },
+ "rows": {
+  "SOAK70|3750|js5|Kf2.2|i_firing": {
+   "local_de": 0.00441,
+   "US_v1_N_allow": 7972.7,
+   "BK74_HT940C_22C": {
+    "N_f": 580600000.0,
+    "N_f_at_2de": 23610.0,
+    "N_allow": 23610.0,
+    "MS_cycles_vs_50": 471.238
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 173700000.0,
+    "N_f_at_2de": 36670.0,
+    "N_allow": 36670.0,
+    "MS_cycles_vs_50": 732.438
+   }
+  },
+  "SOAK70|3750|js5|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.01201,
+   "US_v1_N_allow": 103.3,
+   "BK74_HT940C_22C": {
+    "N_f": 4163.0,
+    "N_f_at_2de": 595.0,
+    "N_allow": 208.2,
+    "MS_cycles_vs_50": 3.163
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 3593.0,
+    "N_f_at_2de": 493.4,
+    "N_allow": 179.6,
+    "MS_cycles_vs_50": 2.593
+   }
+  },
+  "SOAK70|3750|js5|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.00807,
+   "US_v1_N_allow": 622.9,
+   "BK74_HT940C_22C": {
+    "N_f": 52530.0,
+    "N_f_at_2de": 1549.0,
+    "N_allow": 1549.0,
+    "MS_cycles_vs_50": 29.975
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 98180.0,
+    "N_f_at_2de": 1208.0,
+    "N_allow": 1208.0,
+    "MS_cycles_vs_50": 23.153
+   }
+  },
+  "SOAK70|3750|js5|Kf3.0|i_firing": {
+   "local_de": 0.00601,
+   "US_v1_N_allow": 2058.6,
+   "BK74_HT940C_22C": {
+    "N_f": 3143000.0,
+    "N_f_at_2de": 4149.0,
+    "N_allow": 4149.0,
+    "MS_cycles_vs_50": 81.988
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 3617000.0,
+    "N_f_at_2de": 3578.0,
+    "N_allow": 3578.0,
+    "MS_cycles_vs_50": 70.564
+   }
+  },
+  "SOAK70|3750|js5|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.02168,
+   "US_v1_N_allow": 15.2,
+   "BK74_HT940C_22C": {
+    "N_f": 743.0,
+    "N_f_at_2de": 198.3,
+    "N_allow": 37.15,
+    "MS_cycles_vs_50": -0.257
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 601.6,
+    "N_f_at_2de": 195.4,
+    "N_allow": 30.08,
+    "MS_cycles_vs_50": -0.398
+   }
+  },
+  "SOAK70|3750|js5|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.0121,
+   "US_v1_N_allow": 100.4,
+   "BK74_HT940C_22C": {
+    "N_f": 4040.0,
+    "N_f_at_2de": 585.7,
+    "N_allow": 202.0,
+    "MS_cycles_vs_50": 3.04
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 3464.0,
+    "N_f_at_2de": 486.7,
+    "N_allow": 173.2,
+    "MS_cycles_vs_50": 2.464
+   }
+  },
+  "SOAK70|3750|js5|Kf3.8|i_firing": {
+   "local_de": 0.00763,
+   "US_v1_N_allow": 843.7,
+   "BK74_HT940C_22C": {
+    "N_f": 97060.0,
+    "N_f_at_2de": 1821.0,
+    "N_allow": 1821.0,
+    "MS_cycles_vs_50": 35.42
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 190400.0,
+    "N_f_at_2de": 1424.0,
+    "N_allow": 1424.0,
+    "MS_cycles_vs_50": 27.475
+   }
+  },
+  "SOAK70|3750|js5|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.03413,
+   "US_v1_N_allow": 4.8,
+   "BK74_HT940C_22C": {
+    "N_f": 300.8,
+    "N_f_at_2de": 95.95,
+    "N_allow": 15.04,
+    "MS_cycles_vs_50": -0.699
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 275.3,
+    "N_f_at_2de": 109.3,
+    "N_allow": 13.77,
+    "MS_cycles_vs_50": -0.725
+   }
+  },
+  "SOAK70|3750|js5|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.01824,
+   "US_v1_N_allow": 24.9,
+   "BK74_HT940C_22C": {
+    "N_f": 1119.0,
+    "N_f_at_2de": 267.0,
+    "N_allow": 55.94,
+    "MS_cycles_vs_50": 0.119
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 879.1,
+    "N_f_at_2de": 249.4,
+    "N_allow": 43.95,
+    "MS_cycles_vs_50": -0.121
+   }
+  },
+  "SOAK70|3750|(a)|Kf2.2|i_firing": {
+   "local_de": 0.00739,
+   "US_v1_N_allow": 973.4,
+   "BK74_HT940C_22C": {
+    "N_f": 143500.0,
+    "N_f_at_2de": 2006.0,
+    "N_allow": 2006.0,
+    "MS_cycles_vs_50": 39.115
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 280200.0,
+    "N_f_at_2de": 1574.0,
+    "N_allow": 1574.0,
+    "MS_cycles_vs_50": 30.487
+   }
+  },
+  "SOAK70|3750|(a)|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.02188,
+   "US_v1_N_allow": 14.8,
+   "BK74_HT940C_22C": {
+    "N_f": 727.9,
+    "N_f_at_2de": 195.2,
+    "N_allow": 36.4,
+    "MS_cycles_vs_50": -0.272
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 590.6,
+    "N_f_at_2de": 193.0,
+    "N_allow": 29.53,
+    "MS_cycles_vs_50": -0.409
+   }
+  },
+  "SOAK70|3750|(a)|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.01219,
+   "US_v1_N_allow": 97.5,
+   "BK74_HT940C_22C": {
+    "N_f": 3922.0,
+    "N_f_at_2de": 576.7,
+    "N_allow": 196.1,
+    "MS_cycles_vs_50": 2.922
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 3342.0,
+    "N_f_at_2de": 480.1,
+    "N_allow": 167.1,
+    "MS_cycles_vs_50": 2.342
+   }
+  },
+  "SOAK70|3750|(a)|Kf3.0|i_firing": {
+   "local_de": 0.01066,
+   "US_v1_N_allow": 167.4,
+   "BK74_HT940C_22C": {
+    "N_f": 7139.0,
+    "N_f_at_2de": 771.4,
+    "N_allow": 357.0,
+    "MS_cycles_vs_50": 6.139
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 7160.0,
+    "N_f_at_2de": 622.4,
+    "N_allow": 358.0,
+    "MS_cycles_vs_50": 6.16
+   }
+  },
+  "SOAK70|3750|(a)|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.0397,
+   "US_v1_N_allow": 3.4,
+   "BK74_HT940C_22C": {
+    "N_f": 230.4,
+    "N_f_at_2de": 76.32,
+    "N_allow": 11.52,
+    "MS_cycles_vs_50": -0.77
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 220.9,
+    "N_f_at_2de": 91.26,
+    "N_allow": 11.04,
+    "MS_cycles_vs_50": -0.779
+   }
+  },
+  "SOAK70|3750|(a)|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.02113,
+   "US_v1_N_allow": 16.3,
+   "BK74_HT940C_22C": {
+    "N_f": 787.2,
+    "N_f_at_2de": 207.1,
+    "N_allow": 39.36,
+    "MS_cycles_vs_50": -0.213
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 634.0,
+    "N_f_at_2de": 202.4,
+    "N_allow": 31.7,
+    "MS_cycles_vs_50": -0.366
+   }
+  },
+  "SOAK70|3750|(a)|Kf3.8|i_firing": {
+   "local_de": 0.01561,
+   "US_v1_N_allow": 40.6,
+   "BK74_HT940C_22C": {
+    "N_f": 1704.0,
+    "N_f_at_2de": 354.3,
+    "N_allow": 85.18,
+    "MS_cycles_vs_50": 0.704
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1330.0,
+    "N_f_at_2de": 315.8,
+    "N_allow": 66.49,
+    "MS_cycles_vs_50": 0.33
+   }
+  },
+  "SOAK70|3750|(a)|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.06262,
+   "US_v1_N_allow": 1.3,
+   "BK74_HT940C_22C": {
+    "N_f": 109.6,
+    "N_f_at_2de": 39.26,
+    "N_allow": 5.48,
+    "MS_cycles_vs_50": -0.89
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 121.4,
+    "N_f_at_2de": 54.37,
+    "N_allow": 6.072,
+    "MS_cycles_vs_50": -0.879
+   }
+  },
+  "SOAK70|3750|(a)|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.03306,
+   "US_v1_N_allow": 5.2,
+   "BK74_HT940C_22C": {
+    "N_f": 318.7,
+    "N_f_at_2de": 100.8,
+    "N_allow": 15.94,
+    "MS_cycles_vs_50": -0.681
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 289.0,
+    "N_f_at_2de": 113.6,
+    "N_allow": 14.45,
+    "MS_cycles_vs_50": -0.711
+   }
+  },
+  "SOAK70|3750|(a')|Kf2.2|i_firing": {
+   "local_de": 0.00431,
+   "US_v1_N_allow": 8866.3,
+   "BK74_HT940C_22C": {
+    "N_f": 857900000.0,
+    "N_f_at_2de": 28490.0,
+    "N_allow": 28490.0,
+    "MS_cycles_vs_50": 568.855
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 231400000.0,
+    "N_f_at_2de": 46810.0,
+    "N_allow": 46810.0,
+    "MS_cycles_vs_50": 935.135
+   }
+  },
+  "SOAK70|3750|(a')|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.01175,
+   "US_v1_N_allow": 112.6,
+   "BK74_HT940C_22C": {
+    "N_f": 4559.0,
+    "N_f_at_2de": 623.2,
+    "N_allow": 227.9,
+    "MS_cycles_vs_50": 3.559
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 4016.0,
+    "N_f_at_2de": 514.1,
+    "N_allow": 200.8,
+    "MS_cycles_vs_50": 3.016
+   }
+  },
+  "SOAK70|3750|(a')|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.00797,
+   "US_v1_N_allow": 665.4,
+   "BK74_HT940C_22C": {
+    "N_f": 59740.0,
+    "N_f_at_2de": 1604.0,
+    "N_allow": 1604.0,
+    "MS_cycles_vs_50": 31.086
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 113500.0,
+    "N_f_at_2de": 1251.0,
+    "N_allow": 1251.0,
+    "MS_cycles_vs_50": 24.024
+   }
+  },
+  "SOAK70|3750|(a')|Kf3.0|i_firing": {
+   "local_de": 0.00588,
+   "US_v1_N_allow": 2238.6,
+   "BK74_HT940C_22C": {
+    "N_f": 4504000.0,
+    "N_f_at_2de": 4542.0,
+    "N_allow": 4542.0,
+    "MS_cycles_vs_50": 89.845
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 4753000.0,
+    "N_f_at_2de": 3998.0,
+    "N_allow": 3998.0,
+    "MS_cycles_vs_50": 78.957
+   }
+  },
+  "SOAK70|3750|(a')|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.0212,
+   "US_v1_N_allow": 16.1,
+   "BK74_HT940C_22C": {
+    "N_f": 781.4,
+    "N_f_at_2de": 205.9,
+    "N_allow": 39.07,
+    "MS_cycles_vs_50": -0.219
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 629.7,
+    "N_f_at_2de": 201.5,
+    "N_allow": 31.48,
+    "MS_cycles_vs_50": -0.37
+   }
+  },
+  "SOAK70|3750|(a')|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.01188,
+   "US_v1_N_allow": 107.7,
+   "BK74_HT940C_22C": {
+    "N_f": 4354.0,
+    "N_f_at_2de": 608.8,
+    "N_allow": 217.7,
+    "MS_cycles_vs_50": 3.354
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 3794.0,
+    "N_f_at_2de": 503.6,
+    "N_allow": 189.7,
+    "MS_cycles_vs_50": 2.794
+   }
+  },
+  "SOAK70|3750|(a')|Kf3.8|i_firing": {
+   "local_de": 0.00746,
+   "US_v1_N_allow": 942.0,
+   "BK74_HT940C_22C": {
+    "N_f": 127500.0,
+    "N_f_at_2de": 1949.0,
+    "N_allow": 1949.0,
+    "MS_cycles_vs_50": 37.974
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 249900.0,
+    "N_f_at_2de": 1528.0,
+    "N_allow": 1528.0,
+    "MS_cycles_vs_50": 29.55
+   }
+  },
+  "SOAK70|3750|(a')|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.03337,
+   "US_v1_N_allow": 5.1,
+   "BK74_HT940C_22C": {
+    "N_f": 313.3,
+    "N_f_at_2de": 99.32,
+    "N_allow": 15.67,
+    "MS_cycles_vs_50": -0.687
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 284.9,
+    "N_f_at_2de": 112.3,
+    "N_allow": 14.24,
+    "MS_cycles_vs_50": -0.715
+   }
+  },
+  "SOAK70|3750|(a')|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.01785,
+   "US_v1_N_allow": 26.6,
+   "BK74_HT940C_22C": {
+    "N_f": 1182.0,
+    "N_f_at_2de": 277.5,
+    "N_allow": 59.1,
+    "MS_cycles_vs_50": 0.182
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 926.5,
+    "N_f_at_2de": 257.5,
+    "N_allow": 46.33,
+    "MS_cycles_vs_50": -0.073
+   }
+  },
+  "SOAK70|3750|(a'')|Kf2.2|i_firing": {
+   "local_de": 0.00428,
+   "US_v1_N_allow": 9178.0,
+   "BK74_HT940C_22C": {
+    "N_f": 966300000.0,
+    "N_f_at_2de": 30240.0,
+    "N_allow": 30240.0,
+    "MS_cycles_vs_50": 603.862
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 252600000.0,
+    "N_f_at_2de": 50500.0,
+    "N_allow": 50500.0,
+    "MS_cycles_vs_50": 1008.943
+   }
+  },
+  "SOAK70|3750|(a'')|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.01166,
+   "US_v1_N_allow": 115.8,
+   "BK74_HT940C_22C": {
+    "N_f": 4710.0,
+    "N_f_at_2de": 633.5,
+    "N_allow": 235.5,
+    "MS_cycles_vs_50": 3.71
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 4182.0,
+    "N_f_at_2de": 521.6,
+    "N_allow": 209.1,
+    "MS_cycles_vs_50": 3.182
+   }
+  },
+  "SOAK70|3750|(a'')|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.00794,
+   "US_v1_N_allow": 679.6,
+   "BK74_HT940C_22C": {
+    "N_f": 62170.0,
+    "N_f_at_2de": 1622.0,
+    "N_allow": 1622.0,
+    "MS_cycles_vs_50": 31.432
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 118700.0,
+    "N_f_at_2de": 1265.0,
+    "N_allow": 1265.0,
+    "MS_cycles_vs_50": 24.297
+   }
+  },
+  "SOAK70|3750|(a'')|Kf3.0|i_firing": {
+   "local_de": 0.00584,
+   "US_v1_N_allow": 2300.4,
+   "BK74_HT940C_22C": {
+    "N_f": 5043000.0,
+    "N_f_at_2de": 4675.0,
+    "N_allow": 4675.0,
+    "MS_cycles_vs_50": 92.51
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 5176000.0,
+    "N_f_at_2de": 4144.0,
+    "N_allow": 4144.0,
+    "MS_cycles_vs_50": 81.877
+   }
+  },
+  "SOAK70|3750|(a'')|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.02105,
+   "US_v1_N_allow": 16.5,
+   "BK74_HT940C_22C": {
+    "N_f": 794.1,
+    "N_f_at_2de": 208.4,
+    "N_allow": 39.7,
+    "MS_cycles_vs_50": -0.206
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 639.0,
+    "N_f_at_2de": 203.5,
+    "N_allow": 31.95,
+    "MS_cycles_vs_50": -0.361
+   }
+  },
+  "SOAK70|3750|(a'')|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.01181,
+   "US_v1_N_allow": 110.1,
+   "BK74_HT940C_22C": {
+    "N_f": 4462.0,
+    "N_f_at_2de": 616.5,
+    "N_allow": 223.1,
+    "MS_cycles_vs_50": 3.462
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 3911.0,
+    "N_f_at_2de": 509.2,
+    "N_allow": 195.5,
+    "MS_cycles_vs_50": 2.911
+   }
+  },
+  "SOAK70|3750|(a'')|Kf3.8|i_firing": {
+   "local_de": 0.00741,
+   "US_v1_N_allow": 964.7,
+   "BK74_HT940C_22C": {
+    "N_f": 138700.0,
+    "N_f_at_2de": 1989.0,
+    "N_allow": 1989.0,
+    "MS_cycles_vs_50": 38.783
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 271200.0,
+    "N_f_at_2de": 1561.0,
+    "N_allow": 1561.0,
+    "MS_cycles_vs_50": 30.214
+   }
+  },
+  "SOAK70|3750|(a'')|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.03313,
+   "US_v1_N_allow": 5.1,
+   "BK74_HT940C_22C": {
+    "N_f": 317.5,
+    "N_f_at_2de": 100.4,
+    "N_allow": 15.87,
+    "MS_cycles_vs_50": -0.683
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 288.0,
+    "N_f_at_2de": 113.3,
+    "N_allow": 14.4,
+    "MS_cycles_vs_50": -0.712
+   }
+  },
+  "SOAK70|3750|(a'')|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.01773,
+   "US_v1_N_allow": 27.2,
+   "BK74_HT940C_22C": {
+    "N_f": 1203.0,
+    "N_f_at_2de": 280.8,
+    "N_allow": 60.14,
+    "MS_cycles_vs_50": 0.203
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 942.1,
+    "N_f_at_2de": 260.1,
+    "N_allow": 47.11,
+    "MS_cycles_vs_50": -0.058
+   }
+  },
+  "SOAK70|4096|js5|Kf2.2|i_firing": {
+   "local_de": 0.00494,
+   "US_v1_N_allow": 4681.0,
+   "BK74_HT940C_22C": {
+    "N_f": 84330000.0,
+    "N_f_at_2de": 10820.0,
+    "N_allow": 10820.0,
+    "MS_cycles_vs_50": 215.5
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 41970000.0,
+    "N_f_at_2de": 12640.0,
+    "N_allow": 12640.0,
+    "MS_cycles_vs_50": 251.709
+   }
+  },
+  "SOAK70|4096|js5|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.01457,
+   "US_v1_N_allow": 51.1,
+   "BK74_HT940C_22C": {
+    "N_f": 2097.0,
+    "N_f_at_2de": 403.7,
+    "N_allow": 104.8,
+    "MS_cycles_vs_50": 1.097
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1650.0,
+    "N_f_at_2de": 352.7,
+    "N_allow": 82.49,
+    "MS_cycles_vs_50": 0.65
+   }
+  },
+  "SOAK70|4096|js5|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.00906,
+   "US_v1_N_allow": 349.0,
+   "BK74_HT940C_22C": {
+    "N_f": 19220.0,
+    "N_f_at_2de": 1138.0,
+    "N_allow": 961.2,
+    "MS_cycles_vs_50": 18.224
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 27870.0,
+    "N_f_at_2de": 893.2,
+    "N_allow": 893.2,
+    "MS_cycles_vs_50": 16.863
+   }
+  },
+  "SOAK70|4096|js5|Kf3.0|i_firing": {
+   "local_de": 0.00673,
+   "US_v1_N_allow": 1347.4,
+   "BK74_HT940C_22C": {
+    "N_f": 526600.0,
+    "N_f_at_2de": 2719.0,
+    "N_allow": 2719.0,
+    "MS_cycles_vs_50": 53.384
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 884800.0,
+    "N_f_at_2de": 2188.0,
+    "N_allow": 2188.0,
+    "MS_cycles_vs_50": 42.757
+   }
+  },
+  "SOAK70|4096|js5|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.02636,
+   "US_v1_N_allow": 9.0,
+   "BK74_HT940C_22C": {
+    "N_f": 491.5,
+    "N_f_at_2de": 143.8,
+    "N_allow": 24.57,
+    "MS_cycles_vs_50": -0.509
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 417.6,
+    "N_f_at_2de": 150.8,
+    "N_allow": 20.88,
+    "MS_cycles_vs_50": -0.582
+   }
+  },
+  "SOAK70|4096|js5|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.01426,
+   "US_v1_N_allow": 55.0,
+   "BK74_HT940C_22C": {
+    "N_f": 2245.0,
+    "N_f_at_2de": 420.8,
+    "N_allow": 112.2,
+    "MS_cycles_vs_50": 1.245
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1774.0,
+    "N_f_at_2de": 365.4,
+    "N_allow": 88.7,
+    "MS_cycles_vs_50": 0.774
+   }
+  },
+  "SOAK70|4096|js5|Kf3.8|i_firing": {
+   "local_de": 0.00862,
+   "US_v1_N_allow": 444.6,
+   "BK74_HT940C_22C": {
+    "N_f": 28490.0,
+    "N_f_at_2de": 1294.0,
+    "N_allow": 1294.0,
+    "MS_cycles_vs_50": 24.883
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 46810.0,
+    "N_f_at_2de": 1011.0,
+    "N_allow": 1011.0,
+    "MS_cycles_vs_50": 19.227
+   }
+  },
+  "SOAK70|4096|js5|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.04153,
+   "US_v1_N_allow": 3.1,
+   "BK74_HT940C_22C": {
+    "N_f": 213.3,
+    "N_f_at_2de": 71.35,
+    "N_allow": 10.66,
+    "MS_cycles_vs_50": -0.787
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 207.4,
+    "N_f_at_2de": 86.57,
+    "N_allow": 10.37,
+    "MS_cycles_vs_50": -0.793
+   }
+  },
+  "SOAK70|4096|js5|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.02208,
+   "US_v1_N_allow": 14.4,
+   "BK74_HT940C_22C": {
+    "N_f": 713.4,
+    "N_f_at_2de": 192.3,
+    "N_allow": 35.67,
+    "MS_cycles_vs_50": -0.287
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 580.0,
+    "N_f_at_2de": 190.6,
+    "N_allow": 29.0,
+    "MS_cycles_vs_50": -0.42
+   }
+  },
+  "SOAK70|4096|(a)|Kf2.2|i_firing": {
+   "local_de": 0.00798,
+   "US_v1_N_allow": 663.2,
+   "BK74_HT940C_22C": {
+    "N_f": 58960.0,
+    "N_f_at_2de": 1599.0,
+    "N_allow": 1599.0,
+    "MS_cycles_vs_50": 30.972
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 111900.0,
+    "N_f_at_2de": 1247.0,
+    "N_allow": 1247.0,
+    "MS_cycles_vs_50": 23.934
+   }
+  },
+  "SOAK70|4096|(a)|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.02542,
+   "US_v1_N_allow": 9.9,
+   "BK74_HT940C_22C": {
+    "N_f": 529.0,
+    "N_f_at_2de": 152.5,
+    "N_allow": 26.45,
+    "MS_cycles_vs_50": -0.471
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 445.2,
+    "N_f_at_2de": 158.1,
+    "N_allow": 22.26,
+    "MS_cycles_vs_50": -0.555
+   }
+  },
+  "SOAK70|4096|(a)|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.01382,
+   "US_v1_N_allow": 61.4,
+   "BK74_HT940C_22C": {
+    "N_f": 2487.0,
+    "N_f_at_2de": 447.3,
+    "N_allow": 124.3,
+    "MS_cycles_vs_50": 1.487
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1982.0,
+    "N_f_at_2de": 385.1,
+    "N_allow": 99.11,
+    "MS_cycles_vs_50": 0.982
+   }
+  },
+  "SOAK70|4096|(a)|Kf3.0|i_firing": {
+   "local_de": 0.01189,
+   "US_v1_N_allow": 107.3,
+   "BK74_HT940C_22C": {
+    "N_f": 4339.0,
+    "N_f_at_2de": 607.7,
+    "N_allow": 216.9,
+    "MS_cycles_vs_50": 3.339
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 3778.0,
+    "N_f_at_2de": 502.8,
+    "N_allow": 188.9,
+    "MS_cycles_vs_50": 2.778
+   }
+  },
+  "SOAK70|4096|(a)|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.04616,
+   "US_v1_N_allow": 2.4,
+   "BK74_HT940C_22C": {
+    "N_f": 178.6,
+    "N_f_at_2de": 61.02,
+    "N_allow": 8.931,
+    "MS_cycles_vs_50": -0.821
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 179.6,
+    "N_f_at_2de": 76.61,
+    "N_allow": 8.978,
+    "MS_cycles_vs_50": -0.82
+   }
+  },
+  "SOAK70|4096|(a)|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.02449,
+   "US_v1_N_allow": 10.9,
+   "BK74_HT940C_22C": {
+    "N_f": 571.3,
+    "N_f_at_2de": 162.0,
+    "N_allow": 28.57,
+    "MS_cycles_vs_50": -0.429
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 476.1,
+    "N_f_at_2de": 166.0,
+    "N_allow": 23.81,
+    "MS_cycles_vs_50": -0.524
+   }
+  },
+  "SOAK70|4096|(a)|Kf3.8|i_firing": {
+   "local_de": 0.01787,
+   "US_v1_N_allow": 26.5,
+   "BK74_HT940C_22C": {
+    "N_f": 1179.0,
+    "N_f_at_2de": 276.9,
+    "N_allow": 58.93,
+    "MS_cycles_vs_50": 0.179
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 924.0,
+    "N_f_at_2de": 257.1,
+    "N_allow": 46.2,
+    "MS_cycles_vs_50": -0.076
+   }
+  },
+  "SOAK70|4096|(a)|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.07282,
+   "US_v1_N_allow": 0.9,
+   "BK74_HT940C_22C": {
+    "N_f": 86.94,
+    "N_f_at_2de": 31.7,
+    "N_allow": 4.347,
+    "MS_cycles_vs_50": -0.913
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 101.1,
+    "N_f_at_2de": 46.09,
+    "N_allow": 5.056,
+    "MS_cycles_vs_50": -0.899
+   }
+  },
+  "SOAK70|4096|(a)|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.03839,
+   "US_v1_N_allow": 3.7,
+   "BK74_HT940C_22C": {
+    "N_f": 244.2,
+    "N_f_at_2de": 80.26,
+    "N_allow": 12.21,
+    "MS_cycles_vs_50": -0.756
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 231.7,
+    "N_f_at_2de": 94.95,
+    "N_allow": 11.58,
+    "MS_cycles_vs_50": -0.768
+   }
+  },
+  "SOAK70|4096|(a')|Kf2.2|i_firing": {
+   "local_de": 0.00485,
+   "US_v1_N_allow": 5055.1,
+   "BK74_HT940C_22C": {
+    "N_f": 115200000.0,
+    "N_f_at_2de": 12110.0,
+    "N_allow": 12110.0,
+    "MS_cycles_vs_50": 241.124
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 52830000.0,
+    "N_f_at_2de": 14750.0,
+    "N_allow": 14750.0,
+    "MS_cycles_vs_50": 294.085
+   }
+  },
+  "SOAK70|4096|(a')|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.01432,
+   "US_v1_N_allow": 54.3,
+   "BK74_HT940C_22C": {
+    "N_f": 2215.0,
+    "N_f_at_2de": 417.4,
+    "N_allow": 110.7,
+    "MS_cycles_vs_50": 1.215
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1749.0,
+    "N_f_at_2de": 362.9,
+    "N_allow": 87.43,
+    "MS_cycles_vs_50": 0.749
+   }
+  },
+  "SOAK70|4096|(a')|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.00896,
+   "US_v1_N_allow": 368.2,
+   "BK74_HT940C_22C": {
+    "N_f": 20890.0,
+    "N_f_at_2de": 1170.0,
+    "N_allow": 1045.0,
+    "MS_cycles_vs_50": 19.892
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 31170.0,
+    "N_f_at_2de": 917.7,
+    "N_allow": 917.7,
+    "MS_cycles_vs_50": 17.353
+   }
+  },
+  "SOAK70|4096|(a')|Kf3.0|i_firing": {
+   "local_de": 0.00662,
+   "US_v1_N_allow": 1433.1,
+   "BK74_HT940C_22C": {
+    "N_f": 675500.0,
+    "N_f_at_2de": 2880.0,
+    "N_allow": 2880.0,
+    "MS_cycles_vs_50": 56.598
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1085000.0,
+    "N_f_at_2de": 2333.0,
+    "N_allow": 2333.0,
+    "MS_cycles_vs_50": 45.666
+   }
+  },
+  "SOAK70|4096|(a')|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.0259,
+   "US_v1_N_allow": 9.4,
+   "BK74_HT940C_22C": {
+    "N_f": 509.3,
+    "N_f_at_2de": 148.0,
+    "N_allow": 25.46,
+    "MS_cycles_vs_50": -0.491
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 430.7,
+    "N_f_at_2de": 154.3,
+    "N_allow": 21.53,
+    "MS_cycles_vs_50": -0.569
+   }
+  },
+  "SOAK70|4096|(a')|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.01404,
+   "US_v1_N_allow": 58.0,
+   "BK74_HT940C_22C": {
+    "N_f": 2360.0,
+    "N_f_at_2de": 433.7,
+    "N_allow": 118.0,
+    "MS_cycles_vs_50": 1.36
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1873.0,
+    "N_f_at_2de": 375.0,
+    "N_allow": 93.64,
+    "MS_cycles_vs_50": 0.873
+   }
+  },
+  "SOAK70|4096|(a')|Kf3.8|i_firing": {
+   "local_de": 0.00846,
+   "US_v1_N_allow": 489.5,
+   "BK74_HT940C_22C": {
+    "N_f": 33520.0,
+    "N_f_at_2de": 1360.0,
+    "N_allow": 1360.0,
+    "MS_cycles_vs_50": 26.209
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 57460.0,
+    "N_f_at_2de": 1062.0,
+    "N_allow": 1062.0,
+    "MS_cycles_vs_50": 20.239
+   }
+  },
+  "SOAK70|4096|(a')|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.0408,
+   "US_v1_N_allow": 3.2,
+   "BK74_HT940C_22C": {
+    "N_f": 219.8,
+    "N_f_at_2de": 73.26,
+    "N_allow": 10.99,
+    "MS_cycles_vs_50": -0.78
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 212.6,
+    "N_f_at_2de": 88.38,
+    "N_allow": 10.63,
+    "MS_cycles_vs_50": -0.787
+   }
+  },
+  "SOAK70|4096|(a')|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.0217,
+   "US_v1_N_allow": 15.1,
+   "BK74_HT940C_22C": {
+    "N_f": 741.5,
+    "N_f_at_2de": 198.0,
+    "N_allow": 37.07,
+    "MS_cycles_vs_50": -0.259
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 600.5,
+    "N_f_at_2de": 195.2,
+    "N_allow": 30.02,
+    "MS_cycles_vs_50": -0.4
+   }
+  },
+  "SOAK70|4096|(a'')|Kf2.2|i_firing": {
+   "local_de": 0.00482,
+   "US_v1_N_allow": 5192.8,
+   "BK74_HT940C_22C": {
+    "N_f": 128000000.0,
+    "N_f_at_2de": 12590.0,
+    "N_allow": 12590.0,
+    "MS_cycles_vs_50": 250.72
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 57090000.0,
+    "N_f_at_2de": 15570.0,
+    "N_allow": 15570.0,
+    "MS_cycles_vs_50": 310.427
+   }
+  },
+  "SOAK70|4096|(a'')|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.01422,
+   "US_v1_N_allow": 55.5,
+   "BK74_HT940C_22C": {
+    "N_f": 2265.0,
+    "N_f_at_2de": 423.1,
+    "N_allow": 113.2,
+    "MS_cycles_vs_50": 1.265
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1791.0,
+    "N_f_at_2de": 367.1,
+    "N_allow": 89.56,
+    "MS_cycles_vs_50": 0.791
+   }
+  },
+  "SOAK70|4096|(a'')|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.00892,
+   "US_v1_N_allow": 375.3,
+   "BK74_HT940C_22C": {
+    "N_f": 21620.0,
+    "N_f_at_2de": 1184.0,
+    "N_allow": 1081.0,
+    "MS_cycles_vs_50": 20.62
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 32630.0,
+    "N_f_at_2de": 927.8,
+    "N_allow": 927.8,
+    "MS_cycles_vs_50": 17.556
+   }
+  },
+  "SOAK70|4096|(a'')|Kf3.0|i_firing": {
+   "local_de": 0.00658,
+   "US_v1_N_allow": 1464.2,
+   "BK74_HT940C_22C": {
+    "N_f": 741100.0,
+    "N_f_at_2de": 2942.0,
+    "N_allow": 2942.0,
+    "MS_cycles_vs_50": 57.845
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1170000.0,
+    "N_f_at_2de": 2390.0,
+    "N_allow": 2390.0,
+    "MS_cycles_vs_50": 46.81
+   }
+  },
+  "SOAK70|4096|(a'')|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.02573,
+   "US_v1_N_allow": 9.6,
+   "BK74_HT940C_22C": {
+    "N_f": 516.1,
+    "N_f_at_2de": 149.5,
+    "N_allow": 25.81,
+    "MS_cycles_vs_50": -0.484
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 435.7,
+    "N_f_at_2de": 155.6,
+    "N_allow": 21.78,
+    "MS_cycles_vs_50": -0.564
+   }
+  },
+  "SOAK70|4096|(a'')|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.01397,
+   "US_v1_N_allow": 59.2,
+   "BK74_HT940C_22C": {
+    "N_f": 2399.0,
+    "N_f_at_2de": 438.0,
+    "N_allow": 120.0,
+    "MS_cycles_vs_50": 1.399
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1906.0,
+    "N_f_at_2de": 378.1,
+    "N_allow": 95.32,
+    "MS_cycles_vs_50": 0.906
+   }
+  },
+  "SOAK70|4096|(a'')|Kf3.8|i_firing": {
+   "local_de": 0.0084,
+   "US_v1_N_allow": 506.1,
+   "BK74_HT940C_22C": {
+    "N_f": 35740.0,
+    "N_f_at_2de": 1387.0,
+    "N_allow": 1387.0,
+    "MS_cycles_vs_50": 26.736
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 62190.0,
+    "N_f_at_2de": 1082.0,
+    "N_allow": 1082.0,
+    "MS_cycles_vs_50": 20.643
+   }
+  },
+  "SOAK70|4096|(a'')|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.04054,
+   "US_v1_N_allow": 3.2,
+   "BK74_HT940C_22C": {
+    "N_f": 222.2,
+    "N_f_at_2de": 73.96,
+    "N_allow": 11.11,
+    "MS_cycles_vs_50": -0.778
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 214.5,
+    "N_f_at_2de": 89.05,
+    "N_allow": 10.72,
+    "MS_cycles_vs_50": -0.786
+   }
+  },
+  "SOAK70|4096|(a'')|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.02156,
+   "US_v1_N_allow": 15.4,
+   "BK74_HT940C_22C": {
+    "N_f": 752.3,
+    "N_f_at_2de": 200.1,
+    "N_allow": 37.61,
+    "MS_cycles_vs_50": -0.248
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 608.4,
+    "N_f_at_2de": 196.9,
+    "N_allow": 30.42,
+    "MS_cycles_vs_50": -0.392
+   }
+  },
+  "SOAK|3750|js5|Kf2.2|i_firing": {
+   "local_de": 0.01342,
+   "US_v1_N_allow": 68.8,
+   "BK74_HT940C_22C": {
+    "N_f": 2747.0,
+    "N_f_at_2de": 474.1,
+    "N_allow": 137.4,
+    "MS_cycles_vs_50": 1.747
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 2213.0,
+    "N_f_at_2de": 404.8,
+    "N_allow": 110.7,
+    "MS_cycles_vs_50": 1.213
+   }
+  },
+  "SOAK|3750|js5|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.04111,
+   "US_v1_N_allow": 3.1,
+   "BK74_HT940C_22C": {
+    "N_f": 217.0,
+    "N_f_at_2de": 72.44,
+    "N_allow": 10.85,
+    "MS_cycles_vs_50": -0.783
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 210.3,
+    "N_f_at_2de": 87.6,
+    "N_allow": 10.52,
+    "MS_cycles_vs_50": -0.79
+   }
+  },
+  "SOAK|3750|js5|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.02186,
+   "US_v1_N_allow": 14.9,
+   "BK74_HT940C_22C": {
+    "N_f": 729.4,
+    "N_f_at_2de": 195.5,
+    "N_allow": 36.47,
+    "MS_cycles_vs_50": -0.271
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 591.7,
+    "N_f_at_2de": 193.2,
+    "N_allow": 29.58,
+    "MS_cycles_vs_50": -0.408
+   }
+  },
+  "SOAK|3750|js5|Kf3.0|i_firing": {
+   "local_de": 0.02366,
+   "US_v1_N_allow": 12.0,
+   "BK74_HT940C_22C": {
+    "N_f": 614.3,
+    "N_f_at_2de": 171.5,
+    "N_allow": 30.71,
+    "MS_cycles_vs_50": -0.386
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 507.5,
+    "N_f_at_2de": 173.7,
+    "N_allow": 25.38,
+    "MS_cycles_vs_50": -0.492
+   }
+  },
+  "SOAK|3750|js5|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.07477,
+   "US_v1_N_allow": 0.9,
+   "BK74_HT940C_22C": {
+    "N_f": 83.54,
+    "N_f_at_2de": 30.54,
+    "N_allow": 4.177,
+    "MS_cycles_vs_50": -0.916
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 97.98,
+    "N_f_at_2de": 44.79,
+    "N_allow": 4.899,
+    "MS_cycles_vs_50": -0.902
+   }
+  },
+  "SOAK|3750|js5|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.03941,
+   "US_v1_N_allow": 3.5,
+   "BK74_HT940C_22C": {
+    "N_f": 233.3,
+    "N_f_at_2de": 77.16,
+    "N_allow": 11.67,
+    "MS_cycles_vs_50": -0.767
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 223.2,
+    "N_f_at_2de": 92.05,
+    "N_allow": 11.16,
+    "MS_cycles_vs_50": -0.777
+   }
+  },
+  "SOAK|3750|js5|Kf3.8|i_firing": {
+   "local_de": 0.03709,
+   "US_v1_N_allow": 4.0,
+   "BK74_HT940C_22C": {
+    "N_f": 259.3,
+    "N_f_at_2de": 84.54,
+    "N_allow": 12.97,
+    "MS_cycles_vs_50": -0.741
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 243.5,
+    "N_f_at_2de": 98.91,
+    "N_allow": 12.17,
+    "MS_cycles_vs_50": -0.757
+   }
+  },
+  "SOAK|3750|js5|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.11804,
+   "US_v1_N_allow": 0.4,
+   "BK74_HT940C_22C": {
+    "N_f": 42.72,
+    "N_f_at_2de": 16.22,
+    "N_allow": 2.136,
+    "MS_cycles_vs_50": -0.957
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 58.06,
+    "N_f_at_2de": 27.55,
+    "N_allow": 2.903,
+    "MS_cycles_vs_50": -0.942
+   }
+  },
+  "SOAK|3750|js5|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.06201,
+   "US_v1_N_allow": 1.3,
+   "BK74_HT940C_22C": {
+    "N_f": 111.3,
+    "N_f_at_2de": 39.81,
+    "N_allow": 5.564,
+    "MS_cycles_vs_50": -0.889
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 122.9,
+    "N_f_at_2de": 54.96,
+    "N_allow": 6.145,
+    "MS_cycles_vs_50": -0.877
+   }
+  },
+  "SOAK|3750|(a)|Kf2.2|i_firing": {
+   "local_de": 0.00464,
+   "US_v1_N_allow": 6295.4,
+   "BK74_HT940C_22C": {
+    "N_f": 244500000.0,
+    "N_f_at_2de": 16190.0,
+    "N_allow": 16190.0,
+    "MS_cycles_vs_50": 322.807
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 91920000.0,
+    "N_f_at_2de": 22050.0,
+    "N_allow": 22050.0,
+    "MS_cycles_vs_50": 440.029
+   }
+  },
+  "SOAK|3750|(a)|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.01259,
+   "US_v1_N_allow": 87.0,
+   "BK74_HT940C_22C": {
+    "N_f": 3461.0,
+    "N_f_at_2de": 539.4,
+    "N_allow": 173.0,
+    "MS_cycles_vs_50": 2.461
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 2881.0,
+    "N_f_at_2de": 452.8,
+    "N_allow": 144.1,
+    "MS_cycles_vs_50": 1.881
+   }
+  },
+  "SOAK|3750|(a)|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.0083,
+   "US_v1_N_allow": 548.8,
+   "BK74_HT940C_22C": {
+    "N_f": 39920.0,
+    "N_f_at_2de": 1433.0,
+    "N_allow": 1433.0,
+    "MS_cycles_vs_50": 27.654
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 71150.0,
+    "N_f_at_2de": 1118.0,
+    "N_allow": 1118.0,
+    "MS_cycles_vs_50": 21.35
+   }
+  },
+  "SOAK|3750|(a)|Kf3.0|i_firing": {
+   "local_de": 0.00633,
+   "US_v1_N_allow": 1704.6,
+   "BK74_HT940C_22C": {
+    "N_f": 1359000.0,
+    "N_f_at_2de": 3389.0,
+    "N_allow": 3389.0,
+    "MS_cycles_vs_50": 66.78
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1894000.0,
+    "N_f_at_2de": 2812.0,
+    "N_allow": 2812.0,
+    "MS_cycles_vs_50": 55.24
+   }
+  },
+  "SOAK|3750|(a)|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.02274,
+   "US_v1_N_allow": 13.4,
+   "BK74_HT940C_22C": {
+    "N_f": 668.9,
+    "N_f_at_2de": 183.1,
+    "N_allow": 33.44,
+    "MS_cycles_vs_50": -0.331
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 547.4,
+    "N_f_at_2de": 183.2,
+    "N_allow": 27.37,
+    "MS_cycles_vs_50": -0.453
+   }
+  },
+  "SOAK|3750|(a)|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.01258,
+   "US_v1_N_allow": 87.2,
+   "BK74_HT940C_22C": {
+    "N_f": 3471.0,
+    "N_f_at_2de": 540.3,
+    "N_allow": 173.5,
+    "MS_cycles_vs_50": 2.471
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 2892.0,
+    "N_f_at_2de": 453.4,
+    "N_allow": 144.6,
+    "MS_cycles_vs_50": 1.892
+   }
+  },
+  "SOAK|3750|(a)|Kf3.8|i_firing": {
+   "local_de": 0.00806,
+   "US_v1_N_allow": 639.2,
+   "BK74_HT940C_22C": {
+    "N_f": 53190.0,
+    "N_f_at_2de": 1554.0,
+    "N_allow": 1554.0,
+    "MS_cycles_vs_50": 30.083
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 99610.0,
+    "N_f_at_2de": 1212.0,
+    "N_allow": 1212.0,
+    "MS_cycles_vs_50": 23.237
+   }
+  },
+  "SOAK|3750|(a)|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.03581,
+   "US_v1_N_allow": 4.3,
+   "BK74_HT940C_22C": {
+    "N_f": 276.0,
+    "N_f_at_2de": 89.17,
+    "N_allow": 13.8,
+    "MS_cycles_vs_50": -0.724
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 256.3,
+    "N_f_at_2de": 103.1,
+    "N_allow": 12.82,
+    "MS_cycles_vs_50": -0.744
+   }
+  },
+  "SOAK|3750|(a)|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.01911,
+   "US_v1_N_allow": 21.8,
+   "BK74_HT940C_22C": {
+    "N_f": 996.8,
+    "N_f_at_2de": 246.1,
+    "N_allow": 49.84,
+    "MS_cycles_vs_50": -0.003
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 788.2,
+    "N_f_at_2de": 233.2,
+    "N_allow": 39.41,
+    "MS_cycles_vs_50": -0.212
+   }
+  },
+  "SOAK|3750|(a')|Kf2.2|i_firing": {
+   "local_de": 0.00365,
+   "US_v1_N_allow": 22074.4,
+   "BK74_HT940C_22C": {
+    "N_f": 14550000000.0,
+    "N_f_at_2de": 168000.0,
+    "N_allow": 168000.0,
+    "MS_cycles_vs_50": 3358.369
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1853000000.0,
+    "N_f_at_2de": 325300.0,
+    "N_allow": 325300.0,
+    "MS_cycles_vs_50": 6504.767
+   }
+  },
+  "SOAK|3750|(a')|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.00989,
+   "US_v1_N_allow": 235.3,
+   "BK74_HT940C_22C": {
+    "N_f": 10760.0,
+    "N_f_at_2de": 917.6,
+    "N_allow": 538.0,
+    "MS_cycles_vs_50": 9.76
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 12530.0,
+    "N_f_at_2de": 729.7,
+    "N_allow": 626.5,
+    "MS_cycles_vs_50": 11.531
+   }
+  },
+  "SOAK|3750|(a')|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.00725,
+   "US_v1_N_allow": 1046.6,
+   "BK74_HT940C_22C": {
+    "N_f": 183800.0,
+    "N_f_at_2de": 2129.0,
+    "N_allow": 2129.0,
+    "MS_cycles_vs_50": 41.574
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 353800.0,
+    "N_f_at_2de": 1676.0,
+    "N_allow": 1676.0,
+    "MS_cycles_vs_50": 32.529
+   }
+  },
+  "SOAK|3750|(a')|Kf3.0|i_firing": {
+   "local_de": 0.00498,
+   "US_v1_N_allow": 4570.1,
+   "BK74_HT940C_22C": {
+    "N_f": 73550000.0,
+    "N_f_at_2de": 10320.0,
+    "N_allow": 10320.0,
+    "MS_cycles_vs_50": 205.442
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 37940000.0,
+    "N_f_at_2de": 11830.0,
+    "N_allow": 11830.0,
+    "MS_cycles_vs_50": 235.621
+   }
+  },
+  "SOAK|3750|(a')|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.01779,
+   "US_v1_N_allow": 27.1,
+   "BK74_HT940C_22C": {
+    "N_f": 1192.0,
+    "N_f_at_2de": 279.1,
+    "N_allow": 59.62,
+    "MS_cycles_vs_50": 0.192
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 934.3,
+    "N_f_at_2de": 258.8,
+    "N_allow": 46.71,
+    "MS_cycles_vs_50": -0.066
+   }
+  },
+  "SOAK|3750|(a')|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.01038,
+   "US_v1_N_allow": 189.8,
+   "BK74_HT940C_22C": {
+    "N_f": 8197.0,
+    "N_f_at_2de": 819.6,
+    "N_allow": 409.8,
+    "MS_cycles_vs_50": 7.197
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 8624.0,
+    "N_f_at_2de": 657.7,
+    "N_allow": 431.2,
+    "MS_cycles_vs_50": 7.624
+   }
+  },
+  "SOAK|3750|(a')|Kf3.8|i_firing": {
+   "local_de": 0.0063,
+   "US_v1_N_allow": 1731.8,
+   "BK74_HT940C_22C": {
+    "N_f": 1465000.0,
+    "N_f_at_2de": 3450.0,
+    "N_allow": 3450.0,
+    "MS_cycles_vs_50": 68.003
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 2010000.0,
+    "N_f_at_2de": 2871.0,
+    "N_allow": 2871.0,
+    "MS_cycles_vs_50": 56.427
+   }
+  },
+  "SOAK|3750|(a')|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.02798,
+   "US_v1_N_allow": 7.8,
+   "BK74_HT940C_22C": {
+    "N_f": 436.7,
+    "N_f_at_2de": 130.8,
+    "N_allow": 21.84,
+    "MS_cycles_vs_50": -0.563
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 377.2,
+    "N_f_at_2de": 139.8,
+    "N_allow": 18.86,
+    "MS_cycles_vs_50": -0.623
+   }
+  },
+  "SOAK|3750|(a')|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.01508,
+   "US_v1_N_allow": 45.9,
+   "BK74_HT940C_22C": {
+    "N_f": 1887.0,
+    "N_f_at_2de": 378.1,
+    "N_allow": 94.34,
+    "MS_cycles_vs_50": 0.887
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1477.0,
+    "N_f_at_2de": 333.6,
+    "N_allow": 73.85,
+    "MS_cycles_vs_50": 0.477
+   }
+  },
+  "SOAK|3750|(a'')|Kf2.2|i_firing": {
+   "local_de": 0.00251,
+   "US_v1_N_allow": 254175.6,
+   "BK74_HT940C_22C": {
+    "N_f": 500000000000.0,
+    "N_f_at_2de": 64220000.0,
+    "N_allow": 64220000.0,
+    "MS_cycles_vs_50": 1284305.474
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 200900000000.0,
+    "N_f_at_2de": 34330000.0,
+    "N_allow": 34330000.0,
+    "MS_cycles_vs_50": 686558.32
+   }
+  },
+  "SOAK|3750|(a'')|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.00721,
+   "US_v1_N_allow": 1069.6,
+   "BK74_HT940C_22C": {
+    "N_f": 197900.0,
+    "N_f_at_2de": 2166.0,
+    "N_allow": 2166.0,
+    "MS_cycles_vs_50": 42.323
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 378500.0,
+    "N_f_at_2de": 1708.0,
+    "N_allow": 1708.0,
+    "MS_cycles_vs_50": 33.157
+   }
+  },
+  "SOAK|3750|(a'')|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.0061,
+   "US_v1_N_allow": 1959.2,
+   "BK74_HT940C_22C": {
+    "N_f": 2465000.0,
+    "N_f_at_2de": 3909.0,
+    "N_allow": 3909.0,
+    "MS_cycles_vs_50": 77.181
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 3005000.0,
+    "N_f_at_2de": 3329.0,
+    "N_allow": 3329.0,
+    "MS_cycles_vs_50": 65.588
+   }
+  },
+  "SOAK|3750|(a'')|Kf3.0|i_firing": {
+   "local_de": 0.00342,
+   "US_v1_N_allow": 32338.1,
+   "BK74_HT940C_22C": {
+    "N_f": 44080000000.0,
+    "N_f_at_2de": 414200.0,
+    "N_allow": 414200.0,
+    "MS_cycles_vs_50": 8283.528
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 4184000000.0,
+    "N_f_at_2de": 723900.0,
+    "N_allow": 723900.0,
+    "MS_cycles_vs_50": 14477.561
+   }
+  },
+  "SOAK|3750|(a'')|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.01284,
+   "US_v1_N_allow": 81.0,
+   "BK74_HT940C_22C": {
+    "N_f": 3216.0,
+    "N_f_at_2de": 518.2,
+    "N_allow": 160.8,
+    "MS_cycles_vs_50": 2.216
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 2646.0,
+    "N_f_at_2de": 437.2,
+    "N_allow": 132.3,
+    "MS_cycles_vs_50": 1.646
+   }
+  },
+  "SOAK|3750|(a'')|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.00839,
+   "US_v1_N_allow": 518.0,
+   "BK74_HT940C_22C": {
+    "N_f": 36130.0,
+    "N_f_at_2de": 1391.0,
+    "N_allow": 1391.0,
+    "MS_cycles_vs_50": 26.825
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 63030.0,
+    "N_f_at_2de": 1086.0,
+    "N_allow": 1086.0,
+    "MS_cycles_vs_50": 20.712
+   }
+  },
+  "SOAK|3750|(a'')|Kf3.8|i_firing": {
+   "local_de": 0.00433,
+   "US_v1_N_allow": 8819.2,
+   "BK74_HT940C_22C": {
+    "N_f": 792900000.0,
+    "N_f_at_2de": 27410.0,
+    "N_allow": 27410.0,
+    "MS_cycles_vs_50": 547.121
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 218400000.0,
+    "N_f_at_2de": 44530.0,
+    "N_allow": 44530.0,
+    "MS_cycles_vs_50": 889.562
+   }
+  },
+  "SOAK|3750|(a'')|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.02014,
+   "US_v1_N_allow": 18.8,
+   "BK74_HT940C_22C": {
+    "N_f": 879.4,
+    "N_f_at_2de": 224.7,
+    "N_allow": 43.97,
+    "MS_cycles_vs_50": -0.121
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 701.6,
+    "N_f_at_2de": 216.4,
+    "N_allow": 35.08,
+    "MS_cycles_vs_50": -0.298
+   }
+  },
+  "SOAK|3750|(a'')|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.0114,
+   "US_v1_N_allow": 127.9,
+   "BK74_HT940C_22C": {
+    "N_f": 5196.0,
+    "N_f_at_2de": 665.0,
+    "N_allow": 259.8,
+    "MS_cycles_vs_50": 4.196
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 4732.0,
+    "N_f_at_2de": 544.6,
+    "N_allow": 236.6,
+    "MS_cycles_vs_50": 3.732
+   }
+  },
+  "SOAK|4096|js5|Kf2.2|i_firing": {
+   "local_de": 0.01485,
+   "US_v1_N_allow": 48.3,
+   "BK74_HT940C_22C": {
+    "N_f": 1977.0,
+    "N_f_at_2de": 389.3,
+    "N_allow": 98.84,
+    "MS_cycles_vs_50": 0.977
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1551.0,
+    "N_f_at_2de": 342.0,
+    "N_allow": 77.53,
+    "MS_cycles_vs_50": 0.551
+   }
+  },
+  "SOAK|4096|js5|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.04672,
+   "US_v1_N_allow": 2.4,
+   "BK74_HT940C_22C": {
+    "N_f": 175.1,
+    "N_f_at_2de": 59.95,
+    "N_allow": 8.755,
+    "MS_cycles_vs_50": -0.825
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 176.7,
+    "N_f_at_2de": 75.55,
+    "N_allow": 8.834,
+    "MS_cycles_vs_50": -0.823
+   }
+  },
+  "SOAK|4096|js5|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.02478,
+   "US_v1_N_allow": 10.6,
+   "BK74_HT940C_22C": {
+    "N_f": 557.5,
+    "N_f_at_2de": 159.0,
+    "N_allow": 27.88,
+    "MS_cycles_vs_50": -0.442
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 466.0,
+    "N_f_at_2de": 163.4,
+    "N_allow": 23.3,
+    "MS_cycles_vs_50": -0.534
+   }
+  },
+  "SOAK|4096|js5|Kf3.0|i_firing": {
+   "local_de": 0.02648,
+   "US_v1_N_allow": 8.9,
+   "BK74_HT940C_22C": {
+    "N_f": 487.0,
+    "N_f_at_2de": 142.8,
+    "N_allow": 24.35,
+    "MS_cycles_vs_50": -0.513
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 414.3,
+    "N_f_at_2de": 149.9,
+    "N_allow": 20.72,
+    "MS_cycles_vs_50": -0.586
+   }
+  },
+  "SOAK|4096|js5|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.085,
+   "US_v1_N_allow": 0.7,
+   "BK74_HT940C_22C": {
+    "N_f": 68.94,
+    "N_f_at_2de": 25.53,
+    "N_allow": 3.447,
+    "MS_cycles_vs_50": -0.931
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 84.27,
+    "N_f_at_2de": 39.01,
+    "N_allow": 4.214,
+    "MS_cycles_vs_50": -0.916
+   }
+  },
+  "SOAK|4096|js5|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.04475,
+   "US_v1_N_allow": 2.6,
+   "BK74_HT940C_22C": {
+    "N_f": 188.1,
+    "N_f_at_2de": 63.87,
+    "N_allow": 9.403,
+    "MS_cycles_vs_50": -0.812
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 187.2,
+    "N_f_at_2de": 79.39,
+    "N_allow": 9.36,
+    "MS_cycles_vs_50": -0.813
+   }
+  },
+  "SOAK|4096|js5|Kf3.8|i_firing": {
+   "local_de": 0.04156,
+   "US_v1_N_allow": 3.1,
+   "BK74_HT940C_22C": {
+    "N_f": 213.0,
+    "N_f_at_2de": 71.27,
+    "N_allow": 10.65,
+    "MS_cycles_vs_50": -0.787
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 207.2,
+    "N_f_at_2de": 86.5,
+    "N_allow": 10.36,
+    "MS_cycles_vs_50": -0.793
+   }
+  },
+  "SOAK|4096|js5|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.13419,
+   "US_v1_N_allow": 0.3,
+   "BK74_HT940C_22C": {
+    "N_f": 35.59,
+    "N_f_at_2de": 13.62,
+    "N_allow": 1.779,
+    "MS_cycles_vs_50": -0.964
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 50.4,
+    "N_f_at_2de": 24.1,
+    "N_allow": 2.52,
+    "MS_cycles_vs_50": -0.95
+   }
+  },
+  "SOAK|4096|js5|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.07046,
+   "US_v1_N_allow": 1.0,
+   "BK74_HT940C_22C": {
+    "N_f": 91.41,
+    "N_f_at_2de": 33.21,
+    "N_allow": 4.571,
+    "MS_cycles_vs_50": -0.909
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 105.2,
+    "N_f_at_2de": 47.78,
+    "N_allow": 5.259,
+    "MS_cycles_vs_50": -0.895
+   }
+  },
+  "SOAK|4096|(a)|Kf2.2|i_firing": {
+   "local_de": 0.00516,
+   "US_v1_N_allow": 3876.6,
+   "BK74_HT940C_22C": {
+    "N_f": 40290000.0,
+    "N_f_at_2de": 8456.0,
+    "N_allow": 8456.0,
+    "MS_cycles_vs_50": 168.113
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 24330000.0,
+    "N_f_at_2de": 8997.0,
+    "N_allow": 8997.0,
+    "MS_cycles_vs_50": 178.941
+   }
+  },
+  "SOAK|4096|(a)|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.01519,
+   "US_v1_N_allow": 44.8,
+   "BK74_HT940C_22C": {
+    "N_f": 1846.0,
+    "N_f_at_2de": 372.9,
+    "N_allow": 92.31,
+    "MS_cycles_vs_50": 0.846
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1444.0,
+    "N_f_at_2de": 329.8,
+    "N_allow": 72.2,
+    "MS_cycles_vs_50": 0.444
+   }
+  },
+  "SOAK|4096|(a)|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.0093,
+   "US_v1_N_allow": 311.4,
+   "BK74_HT940C_22C": {
+    "N_f": 15950.0,
+    "N_f_at_2de": 1065.0,
+    "N_allow": 797.5,
+    "MS_cycles_vs_50": 14.951
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 21600.0,
+    "N_f_at_2de": 839.2,
+    "N_allow": 839.2,
+    "MS_cycles_vs_50": 15.783
+   }
+  },
+  "SOAK|4096|(a)|Kf3.0|i_firing": {
+   "local_de": 0.00705,
+   "US_v1_N_allow": 1155.2,
+   "BK74_HT940C_22C": {
+    "N_f": 268800.0,
+    "N_f_at_2de": 2328.0,
+    "N_allow": 2328.0,
+    "MS_cycles_vs_50": 45.556
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 498600.0,
+    "N_f_at_2de": 1845.0,
+    "N_allow": 1845.0,
+    "MS_cycles_vs_50": 35.898
+   }
+  },
+  "SOAK|4096|(a)|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.02749,
+   "US_v1_N_allow": 8.1,
+   "BK74_HT940C_22C": {
+    "N_f": 452.1,
+    "N_f_at_2de": 134.5,
+    "N_allow": 22.61,
+    "MS_cycles_vs_50": -0.548
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 388.6,
+    "N_f_at_2de": 142.9,
+    "N_allow": 19.43,
+    "MS_cycles_vs_50": -0.611
+   }
+  },
+  "SOAK|4096|(a)|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.01483,
+   "US_v1_N_allow": 48.5,
+   "BK74_HT940C_22C": {
+    "N_f": 1985.0,
+    "N_f_at_2de": 390.3,
+    "N_allow": 99.25,
+    "MS_cycles_vs_50": 0.985
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1557.0,
+    "N_f_at_2de": 342.7,
+    "N_allow": 77.87,
+    "MS_cycles_vs_50": 0.557
+   }
+  },
+  "SOAK|4096|(a)|Kf3.8|i_firing": {
+   "local_de": 0.00909,
+   "US_v1_N_allow": 347.8,
+   "BK74_HT940C_22C": {
+    "N_f": 18760.0,
+    "N_f_at_2de": 1128.0,
+    "N_allow": 938.1,
+    "MS_cycles_vs_50": 17.763
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 26970.0,
+    "N_f_at_2de": 886.1,
+    "N_allow": 886.1,
+    "MS_cycles_vs_50": 16.721
+   }
+  },
+  "SOAK|4096|(a)|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.04332,
+   "US_v1_N_allow": 2.8,
+   "BK74_HT940C_22C": {
+    "N_f": 198.6,
+    "N_f_at_2de": 67.02,
+    "N_allow": 9.929,
+    "MS_cycles_vs_50": -0.801
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 195.7,
+    "N_f_at_2de": 82.42,
+    "N_allow": 9.783,
+    "MS_cycles_vs_50": -0.804
+   }
+  },
+  "SOAK|4096|(a)|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.02301,
+   "US_v1_N_allow": 12.9,
+   "BK74_HT940C_22C": {
+    "N_f": 652.0,
+    "N_f_at_2de": 179.5,
+    "N_allow": 32.6,
+    "MS_cycles_vs_50": -0.348
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 535.1,
+    "N_f_at_2de": 180.3,
+    "N_allow": 26.76,
+    "MS_cycles_vs_50": -0.465
+   }
+  },
+  "SOAK|4096|(a')|Kf2.2|i_firing": {
+   "local_de": 0.00406,
+   "US_v1_N_allow": 12239.7,
+   "BK74_HT940C_22C": {
+    "N_f": 2373000000.0,
+    "N_f_at_2de": 49360.0,
+    "N_allow": 49360.0,
+    "MS_cycles_vs_50": 986.189
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 488800000.0,
+    "N_f_at_2de": 91410.0,
+    "N_allow": 91410.0,
+    "MS_cycles_vs_50": 1827.262
+   }
+  },
+  "SOAK|4096|(a')|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.01189,
+   "US_v1_N_allow": 108.5,
+   "BK74_HT940C_22C": {
+    "N_f": 4339.0,
+    "N_f_at_2de": 607.7,
+    "N_allow": 216.9,
+    "MS_cycles_vs_50": 3.339
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 3778.0,
+    "N_f_at_2de": 502.8,
+    "N_allow": 188.9,
+    "MS_cycles_vs_50": 2.778
+   }
+  },
+  "SOAK|4096|(a')|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.00803,
+   "US_v1_N_allow": 651.6,
+   "BK74_HT940C_22C": {
+    "N_f": 55260.0,
+    "N_f_at_2de": 1571.0,
+    "N_allow": 1571.0,
+    "MS_cycles_vs_50": 30.411
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 104000.0,
+    "N_f_at_2de": 1225.0,
+    "N_allow": 1225.0,
+    "MS_cycles_vs_50": 23.494
+   }
+  },
+  "SOAK|4096|(a')|Kf3.0|i_firing": {
+   "local_de": 0.00554,
+   "US_v1_N_allow": 2879.8,
+   "BK74_HT940C_22C": {
+    "N_f": 12160000.0,
+    "N_f_at_2de": 5917.0,
+    "N_allow": 5917.0,
+    "MS_cycles_vs_50": 117.332
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 10010000.0,
+    "N_f_at_2de": 5590.0,
+    "N_allow": 5590.0,
+    "MS_cycles_vs_50": 110.804
+   }
+  },
+  "SOAK|4096|(a')|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.02145,
+   "US_v1_N_allow": 15.7,
+   "BK74_HT940C_22C": {
+    "N_f": 761.0,
+    "N_f_at_2de": 201.9,
+    "N_allow": 38.05,
+    "MS_cycles_vs_50": -0.239
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 614.7,
+    "N_f_at_2de": 198.3,
+    "N_allow": 30.74,
+    "MS_cycles_vs_50": -0.385
+   }
+  },
+  "SOAK|4096|(a')|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.012,
+   "US_v1_N_allow": 104.6,
+   "BK74_HT940C_22C": {
+    "N_f": 4178.0,
+    "N_f_at_2de": 596.0,
+    "N_allow": 208.9,
+    "MS_cycles_vs_50": 3.178
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 3608.0,
+    "N_f_at_2de": 494.2,
+    "N_allow": 180.4,
+    "MS_cycles_vs_50": 2.608
+   }
+  },
+  "SOAK|4096|(a')|Kf3.8|i_firing": {
+   "local_de": 0.00702,
+   "US_v1_N_allow": 1170.2,
+   "BK74_HT940C_22C": {
+    "N_f": 285400.0,
+    "N_f_at_2de": 2360.0,
+    "N_allow": 2360.0,
+    "MS_cycles_vs_50": 46.208
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 525400.0,
+    "N_f_at_2de": 1873.0,
+    "N_allow": 1873.0,
+    "MS_cycles_vs_50": 36.457
+   }
+  },
+  "SOAK|4096|(a')|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.03378,
+   "US_v1_N_allow": 4.9,
+   "BK74_HT940C_22C": {
+    "N_f": 306.5,
+    "N_f_at_2de": 97.48,
+    "N_allow": 15.32,
+    "MS_cycles_vs_50": -0.694
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 279.7,
+    "N_f_at_2de": 110.7,
+    "N_allow": 13.98,
+    "MS_cycles_vs_50": -0.72
+   }
+  },
+  "SOAK|4096|(a')|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.01806,
+   "US_v1_N_allow": 25.8,
+   "BK74_HT940C_22C": {
+    "N_f": 1147.0,
+    "N_f_at_2de": 271.8,
+    "N_allow": 57.36,
+    "MS_cycles_vs_50": 0.147
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 900.4,
+    "N_f_at_2de": 253.1,
+    "N_allow": 45.02,
+    "MS_cycles_vs_50": -0.1
+   }
+  },
+  "SOAK|4096|(a'')|Kf2.2|i_firing": {
+   "local_de": 0.00273,
+   "US_v1_N_allow": 137532.5,
+   "BK74_HT940C_22C": {
+    "N_f": 500000000000.0,
+    "N_f_at_2de": 15520000.0,
+    "N_allow": 15520000.0,
+    "MS_cycles_vs_50": 310461.493
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 70210000000.0,
+    "N_f_at_2de": 12000000.0,
+    "N_allow": 12000000.0,
+    "MS_cycles_vs_50": 240022.673
+   }
+  },
+  "SOAK|4096|(a'')|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.00846,
+   "US_v1_N_allow": 497.1,
+   "BK74_HT940C_22C": {
+    "N_f": 33520.0,
+    "N_f_at_2de": 1360.0,
+    "N_allow": 1360.0,
+    "MS_cycles_vs_50": 26.209
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 57460.0,
+    "N_f_at_2de": 1062.0,
+    "N_allow": 1062.0,
+    "MS_cycles_vs_50": 20.239
+   }
+  },
+  "SOAK|4096|(a'')|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.00666,
+   "US_v1_N_allow": 1411.5,
+   "BK74_HT940C_22C": {
+    "N_f": 616300.0,
+    "N_f_at_2de": 2820.0,
+    "N_allow": 2820.0,
+    "MS_cycles_vs_50": 55.393
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1007000.0,
+    "N_f_at_2de": 2278.0,
+    "N_allow": 2278.0,
+    "MS_cycles_vs_50": 44.569
+   }
+  },
+  "SOAK|4096|(a'')|Kf3.0|i_firing": {
+   "local_de": 0.00373,
+   "US_v1_N_allow": 19522.3,
+   "BK74_HT940C_22C": {
+    "N_f": 10060000000.0,
+    "N_f_at_2de": 127500.0,
+    "N_allow": 127500.0,
+    "MS_cycles_vs_50": 2548.266
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1412000000.0,
+    "N_f_at_2de": 249900.0,
+    "N_allow": 249900.0,
+    "MS_cycles_vs_50": 4997.262
+   }
+  },
+  "SOAK|4096|(a'')|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.01516,
+   "US_v1_N_allow": 45.1,
+   "BK74_HT940C_22C": {
+    "N_f": 1857.0,
+    "N_f_at_2de": 374.3,
+    "N_allow": 92.85,
+    "MS_cycles_vs_50": 0.857
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1453.0,
+    "N_f_at_2de": 330.8,
+    "N_allow": 72.64,
+    "MS_cycles_vs_50": 0.453
+   }
+  },
+  "SOAK|4096|(a'')|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.00929,
+   "US_v1_N_allow": 313.3,
+   "BK74_HT940C_22C": {
+    "N_f": 16070.0,
+    "N_f_at_2de": 1068.0,
+    "N_allow": 803.5,
+    "MS_cycles_vs_50": 15.07
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 21830.0,
+    "N_f_at_2de": 841.3,
+    "N_allow": 841.3,
+    "MS_cycles_vs_50": 15.826
+   }
+  },
+  "SOAK|4096|(a'')|Kf3.8|i_firing": {
+   "local_de": 0.00472,
+   "US_v1_N_allow": 5799.8,
+   "BK74_HT940C_22C": {
+    "N_f": 182800000.0,
+    "N_f_at_2de": 14420.0,
+    "N_allow": 14420.0,
+    "MS_cycles_vs_50": 287.321
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 74220000.0,
+    "N_f_at_2de": 18790.0,
+    "N_allow": 18790.0,
+    "MS_cycles_vs_50": 374.847
+   }
+  },
+  "SOAK|4096|(a'')|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.02381,
+   "US_v1_N_allow": 11.8,
+   "BK74_HT940C_22C": {
+    "N_f": 606.1,
+    "N_f_at_2de": 169.7,
+    "N_allow": 30.31,
+    "MS_cycles_vs_50": -0.394
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 501.6,
+    "N_f_at_2de": 172.3,
+    "N_allow": 25.08,
+    "MS_cycles_vs_50": -0.498
+   }
+  },
+  "SOAK|4096|(a'')|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.01308,
+   "US_v1_N_allow": 75.6,
+   "BK74_HT940C_22C": {
+    "N_f": 3007.0,
+    "N_f_at_2de": 499.1,
+    "N_allow": 150.3,
+    "MS_cycles_vs_50": 2.007
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 2450.0,
+    "N_f_at_2de": 423.2,
+    "N_allow": 122.5,
+    "MS_cycles_vs_50": 1.45
+   }
+  },
+  "SOAK52|3750|js5|Kf2.2|i_firing": {
+   "local_de": 0.00836,
+   "US_v1_N_allow": 519.0,
+   "BK74_HT940C_22C": {
+    "N_f": 37330.0,
+    "N_f_at_2de": 1405.0,
+    "N_allow": 1405.0,
+    "MS_cycles_vs_50": 27.097
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 65610.0,
+    "N_f_at_2de": 1096.0,
+    "N_allow": 1096.0,
+    "MS_cycles_vs_50": 20.921
+   }
+  },
+  "SOAK52|3750|js5|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.02549,
+   "US_v1_N_allow": 9.8,
+   "BK74_HT940C_22C": {
+    "N_f": 526.1,
+    "N_f_at_2de": 151.8,
+    "N_allow": 26.3,
+    "MS_cycles_vs_50": -0.474
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 443.0,
+    "N_f_at_2de": 157.5,
+    "N_allow": 22.15,
+    "MS_cycles_vs_50": -0.557
+   }
+  },
+  "SOAK52|3750|js5|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.01386,
+   "US_v1_N_allow": 60.9,
+   "BK74_HT940C_22C": {
+    "N_f": 2463.0,
+    "N_f_at_2de": 444.8,
+    "N_allow": 123.1,
+    "MS_cycles_vs_50": 1.463
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1961.0,
+    "N_f_at_2de": 383.2,
+    "N_allow": 98.07,
+    "MS_cycles_vs_50": 0.961
+   }
+  },
+  "SOAK52|3750|js5|Kf3.0|i_firing": {
+   "local_de": 0.01274,
+   "US_v1_N_allow": 82.6,
+   "BK74_HT940C_22C": {
+    "N_f": 3310.0,
+    "N_f_at_2de": 526.5,
+    "N_allow": 165.5,
+    "MS_cycles_vs_50": 2.31
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 2736.0,
+    "N_f_at_2de": 443.3,
+    "N_allow": 136.8,
+    "MS_cycles_vs_50": 1.736
+   }
+  },
+  "SOAK52|3750|js5|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.04629,
+   "US_v1_N_allow": 2.4,
+   "BK74_HT940C_22C": {
+    "N_f": 177.8,
+    "N_f_at_2de": 60.77,
+    "N_allow": 8.89,
+    "MS_cycles_vs_50": -0.822
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 178.9,
+    "N_f_at_2de": 76.36,
+    "N_allow": 8.944,
+    "MS_cycles_vs_50": -0.821
+   }
+  },
+  "SOAK52|3750|js5|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.02456,
+   "US_v1_N_allow": 10.8,
+   "BK74_HT940C_22C": {
+    "N_f": 567.9,
+    "N_f_at_2de": 161.3,
+    "N_allow": 28.4,
+    "MS_cycles_vs_50": -0.432
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 473.7,
+    "N_f_at_2de": 165.3,
+    "N_allow": 23.68,
+    "MS_cycles_vs_50": -0.526
+   }
+  },
+  "SOAK52|3750|js5|Kf3.8|i_firing": {
+   "local_de": 0.01939,
+   "US_v1_N_allow": 20.8,
+   "BK74_HT940C_22C": {
+    "N_f": 962.3,
+    "N_f_at_2de": 239.9,
+    "N_allow": 48.12,
+    "MS_cycles_vs_50": -0.038
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 762.7,
+    "N_f_at_2de": 228.4,
+    "N_allow": 38.14,
+    "MS_cycles_vs_50": -0.237
+   }
+  },
+  "SOAK52|3750|js5|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.07304,
+   "US_v1_N_allow": 0.9,
+   "BK74_HT940C_22C": {
+    "N_f": 86.55,
+    "N_f_at_2de": 31.57,
+    "N_allow": 4.327,
+    "MS_cycles_vs_50": -0.913
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 100.8,
+    "N_f_at_2de": 45.94,
+    "N_allow": 5.038,
+    "MS_cycles_vs_50": -0.899
+   }
+  },
+  "SOAK52|3750|js5|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.0385,
+   "US_v1_N_allow": 3.6,
+   "BK74_HT940C_22C": {
+    "N_f": 243.0,
+    "N_f_at_2de": 79.92,
+    "N_allow": 12.15,
+    "MS_cycles_vs_50": -0.757
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 230.7,
+    "N_f_at_2de": 94.62,
+    "N_allow": 11.54,
+    "MS_cycles_vs_50": -0.769
+   }
+  },
+  "SOAK52|3750|(a)|Kf2.2|i_firing": {
+   "local_de": 0.00517,
+   "US_v1_N_allow": 3827.5,
+   "BK74_HT940C_22C": {
+    "N_f": 39000000.0,
+    "N_f_at_2de": 8368.0,
+    "N_allow": 8368.0,
+    "MS_cycles_vs_50": 166.358
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 23750000.0,
+    "N_f_at_2de": 8870.0,
+    "N_allow": 8870.0,
+    "MS_cycles_vs_50": 176.403
+   }
+  },
+  "SOAK52|3750|(a)|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.01424,
+   "US_v1_N_allow": 55.4,
+   "BK74_HT940C_22C": {
+    "N_f": 2255.0,
+    "N_f_at_2de": 421.9,
+    "N_allow": 112.7,
+    "MS_cycles_vs_50": 1.255
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1783.0,
+    "N_f_at_2de": 366.3,
+    "N_allow": 89.13,
+    "MS_cycles_vs_50": 0.783
+   }
+  },
+  "SOAK52|3750|(a)|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.00893,
+   "US_v1_N_allow": 374.7,
+   "BK74_HT940C_22C": {
+    "N_f": 21430.0,
+    "N_f_at_2de": 1180.0,
+    "N_allow": 1072.0,
+    "MS_cycles_vs_50": 20.434
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 32260.0,
+    "N_f_at_2de": 925.3,
+    "N_allow": 925.3,
+    "MS_cycles_vs_50": 17.505
+   }
+  },
+  "SOAK52|3750|(a)|Kf3.0|i_firing": {
+   "local_de": 0.00705,
+   "US_v1_N_allow": 1144.8,
+   "BK74_HT940C_22C": {
+    "N_f": 268800.0,
+    "N_f_at_2de": 2328.0,
+    "N_allow": 2328.0,
+    "MS_cycles_vs_50": 45.556
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 498600.0,
+    "N_f_at_2de": 1845.0,
+    "N_allow": 1845.0,
+    "MS_cycles_vs_50": 35.898
+   }
+  },
+  "SOAK52|3750|(a)|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.02576,
+   "US_v1_N_allow": 9.6,
+   "BK74_HT940C_22C": {
+    "N_f": 514.9,
+    "N_f_at_2de": 149.3,
+    "N_allow": 25.74,
+    "MS_cycles_vs_50": -0.485
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 434.8,
+    "N_f_at_2de": 155.4,
+    "N_allow": 21.74,
+    "MS_cycles_vs_50": -0.565
+   }
+  },
+  "SOAK52|3750|(a)|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.01398,
+   "US_v1_N_allow": 59.0,
+   "BK74_HT940C_22C": {
+    "N_f": 2394.0,
+    "N_f_at_2de": 437.3,
+    "N_allow": 119.7,
+    "MS_cycles_vs_50": 1.394
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1902.0,
+    "N_f_at_2de": 377.7,
+    "N_allow": 95.08,
+    "MS_cycles_vs_50": 0.902
+   }
+  },
+  "SOAK52|3750|(a)|Kf3.8|i_firing": {
+   "local_de": 0.0091,
+   "US_v1_N_allow": 342.3,
+   "BK74_HT940C_22C": {
+    "N_f": 18610.0,
+    "N_f_at_2de": 1125.0,
+    "N_allow": 930.6,
+    "MS_cycles_vs_50": 17.612
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 26670.0,
+    "N_f_at_2de": 883.7,
+    "N_allow": 883.7,
+    "MS_cycles_vs_50": 16.674
+   }
+  },
+  "SOAK52|3750|(a)|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.04059,
+   "US_v1_N_allow": 3.2,
+   "BK74_HT940C_22C": {
+    "N_f": 221.8,
+    "N_f_at_2de": 73.83,
+    "N_allow": 11.09,
+    "MS_cycles_vs_50": -0.778
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 214.1,
+    "N_f_at_2de": 88.92,
+    "N_allow": 10.71,
+    "MS_cycles_vs_50": -0.786
+   }
+  },
+  "SOAK52|3750|(a)|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.02159,
+   "US_v1_N_allow": 15.3,
+   "BK74_HT940C_22C": {
+    "N_f": 749.9,
+    "N_f_at_2de": 199.7,
+    "N_allow": 37.5,
+    "MS_cycles_vs_50": -0.25
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 606.7,
+    "N_f_at_2de": 196.5,
+    "N_allow": 30.33,
+    "MS_cycles_vs_50": -0.393
+   }
+  },
+  "SOAK52|3750|(a')|Kf2.2|i_firing": {
+   "local_de": 0.00879,
+   "US_v1_N_allow": 403.7,
+   "BK74_HT940C_22C": {
+    "N_f": 24260.0,
+    "N_f_at_2de": 1230.0,
+    "N_allow": 1213.0,
+    "MS_cycles_vs_50": 23.262
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 38010.0,
+    "N_f_at_2de": 962.3,
+    "N_allow": 962.3,
+    "MS_cycles_vs_50": 18.247
+   }
+  },
+  "SOAK52|3750|(a')|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.02706,
+   "US_v1_N_allow": 8.4,
+   "BK74_HT940C_22C": {
+    "N_f": 466.4,
+    "N_f_at_2de": 137.9,
+    "N_allow": 23.32,
+    "MS_cycles_vs_50": -0.534
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 399.2,
+    "N_f_at_2de": 145.8,
+    "N_allow": 19.96,
+    "MS_cycles_vs_50": -0.601
+   }
+  },
+  "SOAK52|3750|(a')|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.01461,
+   "US_v1_N_allow": 50.7,
+   "BK74_HT940C_22C": {
+    "N_f": 2079.0,
+    "N_f_at_2de": 401.6,
+    "N_allow": 103.9,
+    "MS_cycles_vs_50": 1.079
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1635.0,
+    "N_f_at_2de": 351.1,
+    "N_allow": 81.75,
+    "MS_cycles_vs_50": 0.635
+   }
+  },
+  "SOAK52|3750|(a')|Kf3.0|i_firing": {
+   "local_de": 0.01369,
+   "US_v1_N_allow": 63.7,
+   "BK74_HT940C_22C": {
+    "N_f": 2567.0,
+    "N_f_at_2de": 455.7,
+    "N_allow": 128.3,
+    "MS_cycles_vs_50": 1.567
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 2052.0,
+    "N_f_at_2de": 391.3,
+    "N_allow": 102.6,
+    "MS_cycles_vs_50": 1.052
+   }
+  },
+  "SOAK52|3750|(a')|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.04915,
+   "US_v1_N_allow": 2.1,
+   "BK74_HT940C_22C": {
+    "N_f": 161.1,
+    "N_f_at_2de": 55.66,
+    "N_allow": 8.056,
+    "MS_cycles_vs_50": -0.839
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 165.2,
+    "N_f_at_2de": 71.31,
+    "N_allow": 8.261,
+    "MS_cycles_vs_50": -0.835
+   }
+  },
+  "SOAK52|3750|(a')|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.02604,
+   "US_v1_N_allow": 9.3,
+   "BK74_HT940C_22C": {
+    "N_f": 503.7,
+    "N_f_at_2de": 146.7,
+    "N_allow": 25.19,
+    "MS_cycles_vs_50": -0.496
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 426.6,
+    "N_f_at_2de": 153.2,
+    "N_allow": 21.33,
+    "MS_cycles_vs_50": -0.573
+   }
+  },
+  "SOAK52|3750|(a')|Kf3.8|i_firing": {
+   "local_de": 0.02107,
+   "US_v1_N_allow": 16.4,
+   "BK74_HT940C_22C": {
+    "N_f": 792.3,
+    "N_f_at_2de": 208.1,
+    "N_allow": 39.62,
+    "MS_cycles_vs_50": -0.208
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 637.7,
+    "N_f_at_2de": 203.2,
+    "N_allow": 31.88,
+    "MS_cycles_vs_50": -0.362
+   }
+  },
+  "SOAK52|3750|(a')|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.07755,
+   "US_v1_N_allow": 0.8,
+   "BK74_HT940C_22C": {
+    "N_f": 79.06,
+    "N_f_at_2de": 29.02,
+    "N_allow": 3.953,
+    "MS_cycles_vs_50": -0.921
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 93.83,
+    "N_f_at_2de": 43.06,
+    "N_allow": 4.692,
+    "MS_cycles_vs_50": -0.906
+   }
+  },
+  "SOAK52|3750|(a')|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.04086,
+   "US_v1_N_allow": 3.2,
+   "BK74_HT940C_22C": {
+    "N_f": 219.3,
+    "N_f_at_2de": 73.1,
+    "N_allow": 10.96,
+    "MS_cycles_vs_50": -0.781
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 212.1,
+    "N_f_at_2de": 88.23,
+    "N_allow": 10.61,
+    "MS_cycles_vs_50": -0.788
+   }
+  },
+  "SOAK52|3750|(a'')|Kf2.2|i_firing": {
+   "local_de": 0.00885,
+   "US_v1_N_allow": 390.6,
+   "BK74_HT940C_22C": {
+    "N_f": 22990.0,
+    "N_f_at_2de": 1208.0,
+    "N_allow": 1149.0,
+    "MS_cycles_vs_50": 21.987
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 35400.0,
+    "N_f_at_2de": 946.1,
+    "N_allow": 946.1,
+    "MS_cycles_vs_50": 17.922
+   }
+  },
+  "SOAK52|3750|(a'')|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.02727,
+   "US_v1_N_allow": 8.3,
+   "BK74_HT940C_22C": {
+    "N_f": 459.4,
+    "N_f_at_2de": 136.2,
+    "N_allow": 22.97,
+    "MS_cycles_vs_50": -0.541
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 393.9,
+    "N_f_at_2de": 144.4,
+    "N_allow": 19.7,
+    "MS_cycles_vs_50": -0.606
+   }
+  },
+  "SOAK52|3750|(a'')|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.01472,
+   "US_v1_N_allow": 49.5,
+   "BK74_HT940C_22C": {
+    "N_f": 2031.0,
+    "N_f_at_2de": 395.8,
+    "N_allow": 101.6,
+    "MS_cycles_vs_50": 1.031
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1595.0,
+    "N_f_at_2de": 346.9,
+    "N_allow": 79.76,
+    "MS_cycles_vs_50": 0.595
+   }
+  },
+  "SOAK52|3750|(a'')|Kf3.0|i_firing": {
+   "local_de": 0.01382,
+   "US_v1_N_allow": 61.6,
+   "BK74_HT940C_22C": {
+    "N_f": 2487.0,
+    "N_f_at_2de": 447.3,
+    "N_allow": 124.3,
+    "MS_cycles_vs_50": 1.487
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1982.0,
+    "N_f_at_2de": 385.1,
+    "N_allow": 99.11,
+    "MS_cycles_vs_50": 0.982
+   }
+  },
+  "SOAK52|3750|(a'')|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.04953,
+   "US_v1_N_allow": 2.1,
+   "BK74_HT940C_22C": {
+    "N_f": 159.1,
+    "N_f_at_2de": 55.04,
+    "N_allow": 7.955,
+    "MS_cycles_vs_50": -0.841
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 163.5,
+    "N_f_at_2de": 70.68,
+    "N_allow": 8.177,
+    "MS_cycles_vs_50": -0.836
+   }
+  },
+  "SOAK52|3750|(a'')|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.02624,
+   "US_v1_N_allow": 9.1,
+   "BK74_HT940C_22C": {
+    "N_f": 496.0,
+    "N_f_at_2de": 144.9,
+    "N_allow": 24.8,
+    "MS_cycles_vs_50": -0.504
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 420.9,
+    "N_f_at_2de": 151.7,
+    "N_allow": 21.05,
+    "MS_cycles_vs_50": -0.579
+   }
+  },
+  "SOAK52|3750|(a'')|Kf3.8|i_firing": {
+   "local_de": 0.02129,
+   "US_v1_N_allow": 15.9,
+   "BK74_HT940C_22C": {
+    "N_f": 773.9,
+    "N_f_at_2de": 204.4,
+    "N_allow": 38.7,
+    "MS_cycles_vs_50": -0.226
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 624.2,
+    "N_f_at_2de": 200.3,
+    "N_allow": 31.21,
+    "MS_cycles_vs_50": -0.376
+   }
+  },
+  "SOAK52|3750|(a'')|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.07816,
+   "US_v1_N_allow": 0.8,
+   "BK74_HT940C_22C": {
+    "N_f": 78.14,
+    "N_f_at_2de": 28.7,
+    "N_allow": 3.907,
+    "MS_cycles_vs_50": -0.922
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 92.97,
+    "N_f_at_2de": 42.69,
+    "N_allow": 4.648,
+    "MS_cycles_vs_50": -0.907
+   }
+  },
+  "SOAK52|3750|(a'')|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.04118,
+   "US_v1_N_allow": 3.1,
+   "BK74_HT940C_22C": {
+    "N_f": 216.4,
+    "N_f_at_2de": 72.25,
+    "N_allow": 10.82,
+    "MS_cycles_vs_50": -0.784
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 209.8,
+    "N_f_at_2de": 87.43,
+    "N_allow": 10.49,
+    "MS_cycles_vs_50": -0.79
+   }
+  },
+  "SOAK52|4096|js5|Kf2.2|i_firing": {
+   "local_de": 0.00914,
+   "US_v1_N_allow": 334.5,
+   "BK74_HT940C_22C": {
+    "N_f": 18030.0,
+    "N_f_at_2de": 1113.0,
+    "N_allow": 901.5,
+    "MS_cycles_vs_50": 17.029
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 25540.0,
+    "N_f_at_2de": 874.5,
+    "N_allow": 874.5,
+    "MS_cycles_vs_50": 16.489
+   }
+  },
+  "SOAK52|4096|js5|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.02975,
+   "US_v1_N_allow": 6.7,
+   "BK74_HT940C_22C": {
+    "N_f": 388.0,
+    "N_f_at_2de": 118.7,
+    "N_allow": 19.4,
+    "MS_cycles_vs_50": -0.612
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 341.0,
+    "N_f_at_2de": 129.4,
+    "N_allow": 17.05,
+    "MS_cycles_vs_50": -0.659
+   }
+  },
+  "SOAK52|4096|js5|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.01599,
+   "US_v1_N_allow": 37.6,
+   "BK74_HT940C_22C": {
+    "N_f": 1590.0,
+    "N_f_at_2de": 338.8,
+    "N_allow": 79.5,
+    "MS_cycles_vs_50": 0.59
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1240.0,
+    "N_f_at_2de": 304.1,
+    "N_allow": 62.0,
+    "MS_cycles_vs_50": 0.24
+   }
+  },
+  "SOAK52|4096|js5|Kf3.0|i_firing": {
+   "local_de": 0.01445,
+   "US_v1_N_allow": 52.6,
+   "BK74_HT940C_22C": {
+    "N_f": 2152.0,
+    "N_f_at_2de": 410.2,
+    "N_allow": 107.6,
+    "MS_cycles_vs_50": 1.152
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1696.0,
+    "N_f_at_2de": 357.5,
+    "N_allow": 84.8,
+    "MS_cycles_vs_50": 0.696
+   }
+  },
+  "SOAK52|4096|js5|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.05406,
+   "US_v1_N_allow": 1.7,
+   "BK74_HT940C_22C": {
+    "N_f": 138.2,
+    "N_f_at_2de": 48.48,
+    "N_allow": 6.908,
+    "MS_cycles_vs_50": -0.862
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 146.0,
+    "N_f_at_2de": 64.03,
+    "N_allow": 7.302,
+    "MS_cycles_vs_50": -0.854
+   }
+  },
+  "SOAK52|4096|js5|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.0286,
+   "US_v1_N_allow": 7.3,
+   "BK74_HT940C_22C": {
+    "N_f": 418.5,
+    "N_f_at_2de": 126.3,
+    "N_allow": 20.93,
+    "MS_cycles_vs_50": -0.581
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 363.7,
+    "N_f_at_2de": 135.9,
+    "N_allow": 18.19,
+    "MS_cycles_vs_50": -0.636
+   }
+  },
+  "SOAK52|4096|js5|Kf3.8|i_firing": {
+   "local_de": 0.0224,
+   "US_v1_N_allow": 13.9,
+   "BK74_HT940C_22C": {
+    "N_f": 691.2,
+    "N_f_at_2de": 187.7,
+    "N_allow": 34.56,
+    "MS_cycles_vs_50": -0.309
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 563.7,
+    "N_f_at_2de": 186.9,
+    "N_allow": 28.19,
+    "MS_cycles_vs_50": -0.436
+   }
+  },
+  "SOAK52|4096|js5|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.08531,
+   "US_v1_N_allow": 0.7,
+   "BK74_HT940C_22C": {
+    "N_f": 68.57,
+    "N_f_at_2de": 25.4,
+    "N_allow": 3.429,
+    "MS_cycles_vs_50": -0.931
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 83.92,
+    "N_f_at_2de": 38.86,
+    "N_allow": 4.196,
+    "MS_cycles_vs_50": -0.916
+   }
+  },
+  "SOAK52|4096|js5|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.04491,
+   "US_v1_N_allow": 2.6,
+   "BK74_HT940C_22C": {
+    "N_f": 187.0,
+    "N_f_at_2de": 63.54,
+    "N_allow": 9.348,
+    "MS_cycles_vs_50": -0.813
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 186.3,
+    "N_f_at_2de": 79.06,
+    "N_allow": 9.315,
+    "MS_cycles_vs_50": -0.814
+   }
+  },
+  "SOAK52|4096|(a)|Kf2.2|i_firing": {
+   "local_de": 0.00584,
+   "US_v1_N_allow": 2312.1,
+   "BK74_HT940C_22C": {
+    "N_f": 5043000.0,
+    "N_f_at_2de": 4675.0,
+    "N_allow": 4675.0,
+    "MS_cycles_vs_50": 92.51
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 5176000.0,
+    "N_f_at_2de": 4144.0,
+    "N_allow": 4144.0,
+    "MS_cycles_vs_50": 81.877
+   }
+  },
+  "SOAK52|4096|(a)|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.0175,
+   "US_v1_N_allow": 28.3,
+   "BK74_HT940C_22C": {
+    "N_f": 1244.0,
+    "N_f_at_2de": 287.5,
+    "N_allow": 62.21,
+    "MS_cycles_vs_50": 0.244
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 973.5,
+    "N_f_at_2de": 265.2,
+    "N_allow": 48.67,
+    "MS_cycles_vs_50": -0.027
+   }
+  },
+  "SOAK52|4096|(a)|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.01025,
+   "US_v1_N_allow": 198.1,
+   "BK74_HT940C_22C": {
+    "N_f": 8775.0,
+    "N_f_at_2de": 843.8,
+    "N_allow": 438.7,
+    "MS_cycles_vs_50": 7.775
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 9463.0,
+    "N_f_at_2de": 675.4,
+    "N_allow": 473.2,
+    "MS_cycles_vs_50": 8.463
+   }
+  },
+  "SOAK52|4096|(a)|Kf3.0|i_firing": {
+   "local_de": 0.008,
+   "US_v1_N_allow": 657.0,
+   "BK74_HT940C_22C": {
+    "N_f": 57440.0,
+    "N_f_at_2de": 1587.0,
+    "N_allow": 1587.0,
+    "MS_cycles_vs_50": 30.745
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 108700.0,
+    "N_f_at_2de": 1238.0,
+    "N_allow": 1238.0,
+    "MS_cycles_vs_50": 23.756
+   }
+  },
+  "SOAK52|4096|(a)|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.03171,
+   "US_v1_N_allow": 5.7,
+   "BK74_HT940C_22C": {
+    "N_f": 344.2,
+    "N_f_at_2de": 107.5,
+    "N_allow": 17.21,
+    "MS_cycles_vs_50": -0.656
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 308.2,
+    "N_f_at_2de": 119.5,
+    "N_allow": 15.41,
+    "MS_cycles_vs_50": -0.692
+   }
+  },
+  "SOAK52|4096|(a)|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.01699,
+   "US_v1_N_allow": 31.0,
+   "BK74_HT940C_22C": {
+    "N_f": 1345.0,
+    "N_f_at_2de": 303.2,
+    "N_allow": 67.27,
+    "MS_cycles_vs_50": 0.345
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1050.0,
+    "N_f_at_2de": 277.2,
+    "N_allow": 52.52,
+    "MS_cycles_vs_50": 0.05
+   }
+  },
+  "SOAK52|4096|(a)|Kf3.8|i_firing": {
+   "local_de": 0.01068,
+   "US_v1_N_allow": 166.0,
+   "BK74_HT940C_22C": {
+    "N_f": 7072.0,
+    "N_f_at_2de": 768.2,
+    "N_allow": 353.6,
+    "MS_cycles_vs_50": 6.072
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 7070.0,
+    "N_f_at_2de": 620.0,
+    "N_allow": 353.5,
+    "MS_cycles_vs_50": 6.07
+   }
+  },
+  "SOAK52|4096|(a)|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.04998,
+   "US_v1_N_allow": 2.0,
+   "BK74_HT940C_22C": {
+    "N_f": 156.8,
+    "N_f_at_2de": 54.32,
+    "N_allow": 7.839,
+    "MS_cycles_vs_50": -0.843
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 161.6,
+    "N_f_at_2de": 69.96,
+    "N_allow": 8.081,
+    "MS_cycles_vs_50": -0.838
+   }
+  },
+  "SOAK52|4096|(a)|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.02647,
+   "US_v1_N_allow": 8.9,
+   "BK74_HT940C_22C": {
+    "N_f": 487.4,
+    "N_f_at_2de": 142.9,
+    "N_allow": 24.37,
+    "MS_cycles_vs_50": -0.513
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 414.6,
+    "N_f_at_2de": 150.0,
+    "N_allow": 20.73,
+    "MS_cycles_vs_50": -0.585
+   }
+  },
+  "SOAK52|4096|(a')|Kf2.2|i_firing": {
+   "local_de": 0.00958,
+   "US_v1_N_allow": 269.1,
+   "BK74_HT940C_22C": {
+    "N_f": 13100.0,
+    "N_f_at_2de": 990.5,
+    "N_allow": 654.8,
+    "MS_cycles_vs_50": 12.096
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 16450.0,
+    "N_f_at_2de": 783.6,
+    "N_allow": 783.6,
+    "MS_cycles_vs_50": 14.671
+   }
+  },
+  "SOAK52|4096|(a')|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.03127,
+   "US_v1_N_allow": 5.9,
+   "BK74_HT940C_22C": {
+    "N_f": 353.2,
+    "N_f_at_2de": 109.8,
+    "N_allow": 17.66,
+    "MS_cycles_vs_50": -0.647
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 315.0,
+    "N_f_at_2de": 121.6,
+    "N_allow": 15.75,
+    "MS_cycles_vs_50": -0.685
+   }
+  },
+  "SOAK52|4096|(a')|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.01677,
+   "US_v1_N_allow": 32.3,
+   "BK74_HT940C_22C": {
+    "N_f": 1394.0,
+    "N_f_at_2de": 310.5,
+    "N_allow": 69.68,
+    "MS_cycles_vs_50": 0.394
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1087.0,
+    "N_f_at_2de": 282.7,
+    "N_allow": 54.37,
+    "MS_cycles_vs_50": 0.087
+   }
+  },
+  "SOAK52|4096|(a')|Kf3.0|i_firing": {
+   "local_de": 0.01546,
+   "US_v1_N_allow": 41.9,
+   "BK74_HT940C_22C": {
+    "N_f": 1752.0,
+    "N_f_at_2de": 360.7,
+    "N_allow": 87.62,
+    "MS_cycles_vs_50": 0.752
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1369.0,
+    "N_f_at_2de": 320.7,
+    "N_allow": 68.43,
+    "MS_cycles_vs_50": 0.369
+   }
+  },
+  "SOAK52|4096|(a')|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.05682,
+   "US_v1_N_allow": 1.6,
+   "BK74_HT940C_22C": {
+    "N_f": 127.6,
+    "N_f_at_2de": 45.12,
+    "N_allow": 6.382,
+    "MS_cycles_vs_50": -0.872
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 137.1,
+    "N_f_at_2de": 60.56,
+    "N_allow": 6.854,
+    "MS_cycles_vs_50": -0.863
+   }
+  },
+  "SOAK52|4096|(a')|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.03004,
+   "US_v1_N_allow": 6.5,
+   "BK74_HT940C_22C": {
+    "N_f": 380.9,
+    "N_f_at_2de": 116.9,
+    "N_allow": 19.05,
+    "MS_cycles_vs_50": -0.619
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 335.8,
+    "N_f_at_2de": 127.8,
+    "N_allow": 16.79,
+    "MS_cycles_vs_50": -0.664
+   }
+  },
+  "SOAK52|4096|(a')|Kf3.8|i_firing": {
+   "local_de": 0.02403,
+   "US_v1_N_allow": 11.5,
+   "BK74_HT940C_22C": {
+    "N_f": 594.5,
+    "N_f_at_2de": 167.1,
+    "N_allow": 29.72,
+    "MS_cycles_vs_50": -0.406
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 493.1,
+    "N_f_at_2de": 170.2,
+    "N_allow": 24.65,
+    "MS_cycles_vs_50": -0.507
+   }
+  },
+  "SOAK52|4096|(a')|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.08967,
+   "US_v1_N_allow": 0.6,
+   "BK74_HT940C_22C": {
+    "N_f": 63.7,
+    "N_f_at_2de": 23.7,
+    "N_allow": 3.185,
+    "MS_cycles_vs_50": -0.936
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 79.21,
+    "N_f_at_2de": 36.84,
+    "N_allow": 3.961,
+    "MS_cycles_vs_50": -0.921
+   }
+  },
+  "SOAK52|4096|(a')|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.04719,
+   "US_v1_N_allow": 2.3,
+   "BK74_HT940C_22C": {
+    "N_f": 172.2,
+    "N_f_at_2de": 59.08,
+    "N_allow": 8.611,
+    "MS_cycles_vs_50": -0.828
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 174.3,
+    "N_f_at_2de": 74.69,
+    "N_allow": 8.717,
+    "MS_cycles_vs_50": -0.826
+   }
+  },
+  "SOAK52|4096|(a'')|Kf2.2|i_firing": {
+   "local_de": 0.00967,
+   "US_v1_N_allow": 257.2,
+   "BK74_HT940C_22C": {
+    "N_f": 12340.0,
+    "N_f_at_2de": 968.4,
+    "N_allow": 617.1,
+    "MS_cycles_vs_50": 11.342
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 15160.0,
+    "N_f_at_2de": 767.2,
+    "N_allow": 757.8,
+    "MS_cycles_vs_50": 14.155
+   }
+  },
+  "SOAK52|4096|(a'')|Kf2.2|ii_assembly_from_zero": {
+   "local_de": 0.03159,
+   "US_v1_N_allow": 5.8,
+   "BK74_HT940C_22C": {
+    "N_f": 346.6,
+    "N_f_at_2de": 108.1,
+    "N_allow": 17.33,
+    "MS_cycles_vs_50": -0.653
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 310.0,
+    "N_f_at_2de": 120.1,
+    "N_allow": 15.5,
+    "MS_cycles_vs_50": -0.69
+   }
+  },
+  "SOAK52|4096|(a'')|Kf2.2|ii_stable_reassembly_info": {
+   "local_de": 0.01693,
+   "US_v1_N_allow": 31.3,
+   "BK74_HT940C_22C": {
+    "N_f": 1358.0,
+    "N_f_at_2de": 305.1,
+    "N_allow": 67.91,
+    "MS_cycles_vs_50": 0.358
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1060.0,
+    "N_f_at_2de": 278.7,
+    "N_allow": 53.01,
+    "MS_cycles_vs_50": 0.06
+   }
+  },
+  "SOAK52|4096|(a'')|Kf3.0|i_firing": {
+   "local_de": 0.01568,
+   "US_v1_N_allow": 40.0,
+   "BK74_HT940C_22C": {
+    "N_f": 1682.0,
+    "N_f_at_2de": 351.3,
+    "N_allow": 84.09,
+    "MS_cycles_vs_50": 0.682
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 1312.0,
+    "N_f_at_2de": 313.6,
+    "N_allow": 65.62,
+    "MS_cycles_vs_50": 0.312
+   }
+  },
+  "SOAK52|4096|(a'')|Kf3.0|ii_assembly_from_zero": {
+   "local_de": 0.05742,
+   "US_v1_N_allow": 1.5,
+   "BK74_HT940C_22C": {
+    "N_f": 125.5,
+    "N_f_at_2de": 44.44,
+    "N_allow": 6.277,
+    "MS_cycles_vs_50": -0.874
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 135.3,
+    "N_f_at_2de": 59.86,
+    "N_allow": 6.764,
+    "MS_cycles_vs_50": -0.865
+   }
+  },
+  "SOAK52|4096|(a'')|Kf3.0|ii_stable_reassembly_info": {
+   "local_de": 0.03035,
+   "US_v1_N_allow": 6.3,
+   "BK74_HT940C_22C": {
+    "N_f": 373.6,
+    "N_f_at_2de": 115.1,
+    "N_allow": 18.68,
+    "MS_cycles_vs_50": -0.626
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 330.3,
+    "N_f_at_2de": 126.2,
+    "N_allow": 16.51,
+    "MS_cycles_vs_50": -0.67
+   }
+  },
+  "SOAK52|4096|(a'')|Kf3.8|i_firing": {
+   "local_de": 0.02438,
+   "US_v1_N_allow": 11.1,
+   "BK74_HT940C_22C": {
+    "N_f": 576.7,
+    "N_f_at_2de": 163.2,
+    "N_allow": 28.84,
+    "MS_cycles_vs_50": -0.423
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 480.1,
+    "N_f_at_2de": 167.0,
+    "N_allow": 24.0,
+    "MS_cycles_vs_50": -0.52
+   }
+  },
+  "SOAK52|4096|(a'')|Kf3.8|ii_assembly_from_zero": {
+   "local_de": 0.09061,
+   "US_v1_N_allow": 0.6,
+   "BK74_HT940C_22C": {
+    "N_f": 62.72,
+    "N_f_at_2de": 23.36,
+    "N_allow": 3.136,
+    "MS_cycles_vs_50": -0.937
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 78.27,
+    "N_f_at_2de": 36.43,
+    "N_allow": 3.913,
+    "MS_cycles_vs_50": -0.922
+   }
+  },
+  "SOAK52|4096|(a'')|Kf3.8|ii_stable_reassembly_info": {
+   "local_de": 0.04768,
+   "US_v1_N_allow": 2.3,
+   "BK74_HT940C_22C": {
+    "N_f": 169.3,
+    "N_f_at_2de": 58.19,
+    "N_allow": 8.466,
+    "MS_cycles_vs_50": -0.831
+   },
+   "BK74_HT1038C_427C": {
+    "N_f": 172.0,
+    "N_f_at_2de": 73.82,
+    "N_allow": 8.598,
+    "MS_cycles_vs_50": -0.828
+   }
+  }
+ },
+ "governing": {
+  "i_firing|Kf2.2|BK74_HT940C_22C|worst_of_histories": {
+   "case": "SOAK|4096|js5|Kf2.2",
+   "N_allow": 98.84,
+   "MS_cycles_vs_50": 0.977,
+   "N_f": 1977.0,
+   "local_de": 0.01485,
+   "US_v1_N_allow": 48.3
+  },
+  "i_firing|Kf2.2|BK74_HT940C_22C|js5": {
+   "case": "SOAK|4096|js5|Kf2.2",
+   "N_allow": 98.84,
+   "MS_cycles_vs_50": 0.977,
+   "N_f": 1977.0,
+   "local_de": 0.01485,
+   "US_v1_N_allow": 48.3
+  },
+  "i_firing|Kf2.2|BK74_HT1038C_427C|worst_of_histories": {
+   "case": "SOAK|4096|js5|Kf2.2",
+   "N_allow": 77.53,
+   "MS_cycles_vs_50": 0.551,
+   "N_f": 1551.0,
+   "local_de": 0.01485,
+   "US_v1_N_allow": 48.3
+  },
+  "i_firing|Kf2.2|BK74_HT1038C_427C|js5": {
+   "case": "SOAK|4096|js5|Kf2.2",
+   "N_allow": 77.53,
+   "MS_cycles_vs_50": 0.551,
+   "N_f": 1551.0,
+   "local_de": 0.01485,
+   "US_v1_N_allow": 48.3
+  },
+  "ii_assembly_from_zero|Kf2.2|BK74_HT940C_22C|worst_of_histories": {
+   "case": "SOAK|4096|js5|Kf2.2",
+   "N_allow": 8.755,
+   "MS_cycles_vs_50": -0.825,
+   "N_f": 175.1,
+   "local_de": 0.04672,
+   "US_v1_N_allow": 2.4
+  },
+  "ii_assembly_from_zero|Kf2.2|BK74_HT940C_22C|js5": {
+   "case": "SOAK|4096|js5|Kf2.2",
+   "N_allow": 8.755,
+   "MS_cycles_vs_50": -0.825,
+   "N_f": 175.1,
+   "local_de": 0.04672,
+   "US_v1_N_allow": 2.4
+  },
+  "ii_assembly_from_zero|Kf2.2|BK74_HT1038C_427C|worst_of_histories": {
+   "case": "SOAK|4096|js5|Kf2.2",
+   "N_allow": 8.834,
+   "MS_cycles_vs_50": -0.823,
+   "N_f": 176.7,
+   "local_de": 0.04672,
+   "US_v1_N_allow": 2.4
+  },
+  "ii_assembly_from_zero|Kf2.2|BK74_HT1038C_427C|js5": {
+   "case": "SOAK|4096|js5|Kf2.2",
+   "N_allow": 8.834,
+   "MS_cycles_vs_50": -0.823,
+   "N_f": 176.7,
+   "local_de": 0.04672,
+   "US_v1_N_allow": 2.4
+  },
+  "ii_stable_reassembly_info|Kf2.2|BK74_HT940C_22C|worst_of_histories": {
+   "case": "SOAK|4096|js5|Kf2.2",
+   "N_allow": 27.88,
+   "MS_cycles_vs_50": -0.442,
+   "N_f": 557.5,
+   "local_de": 0.02478,
+   "US_v1_N_allow": 10.6
+  },
+  "ii_stable_reassembly_info|Kf2.2|BK74_HT940C_22C|js5": {
+   "case": "SOAK|4096|js5|Kf2.2",
+   "N_allow": 27.88,
+   "MS_cycles_vs_50": -0.442,
+   "N_f": 557.5,
+   "local_de": 0.02478,
+   "US_v1_N_allow": 10.6
+  },
+  "ii_stable_reassembly_info|Kf2.2|BK74_HT1038C_427C|worst_of_histories": {
+   "case": "SOAK|4096|js5|Kf2.2",
+   "N_allow": 23.3,
+   "MS_cycles_vs_50": -0.534,
+   "N_f": 466.0,
+   "local_de": 0.02478,
+   "US_v1_N_allow": 10.6
+  },
+  "ii_stable_reassembly_info|Kf2.2|BK74_HT1038C_427C|js5": {
+   "case": "SOAK|4096|js5|Kf2.2",
+   "N_allow": 23.3,
+   "MS_cycles_vs_50": -0.534,
+   "N_f": 466.0,
+   "local_de": 0.02478,
+   "US_v1_N_allow": 10.6
+  },
+  "i_firing|Kf3.0|BK74_HT940C_22C|worst_of_histories": {
+   "case": "SOAK|4096|js5|Kf3.0",
+   "N_allow": 24.35,
+   "MS_cycles_vs_50": -0.513,
+   "N_f": 487.0,
+   "local_de": 0.02648,
+   "US_v1_N_allow": 8.9
+  },
+  "i_firing|Kf3.0|BK74_HT940C_22C|js5": {
+   "case": "SOAK|4096|js5|Kf3.0",
+   "N_allow": 24.35,
+   "MS_cycles_vs_50": -0.513,
+   "N_f": 487.0,
+   "local_de": 0.02648,
+   "US_v1_N_allow": 8.9
+  },
+  "i_firing|Kf3.0|BK74_HT1038C_427C|worst_of_histories": {
+   "case": "SOAK|4096|js5|Kf3.0",
+   "N_allow": 20.72,
+   "MS_cycles_vs_50": -0.586,
+   "N_f": 414.3,
+   "local_de": 0.02648,
+   "US_v1_N_allow": 8.9
+  },
+  "i_firing|Kf3.0|BK74_HT1038C_427C|js5": {
+   "case": "SOAK|4096|js5|Kf3.0",
+   "N_allow": 20.72,
+   "MS_cycles_vs_50": -0.586,
+   "N_f": 414.3,
+   "local_de": 0.02648,
+   "US_v1_N_allow": 8.9
+  },
+  "ii_assembly_from_zero|Kf3.0|BK74_HT940C_22C|worst_of_histories": {
+   "case": "SOAK|4096|js5|Kf3.0",
+   "N_allow": 3.447,
+   "MS_cycles_vs_50": -0.931,
+   "N_f": 68.94,
+   "local_de": 0.085,
+   "US_v1_N_allow": 0.7
+  },
+  "ii_assembly_from_zero|Kf3.0|BK74_HT940C_22C|js5": {
+   "case": "SOAK|4096|js5|Kf3.0",
+   "N_allow": 3.447,
+   "MS_cycles_vs_50": -0.931,
+   "N_f": 68.94,
+   "local_de": 0.085,
+   "US_v1_N_allow": 0.7
+  },
+  "ii_assembly_from_zero|Kf3.0|BK74_HT1038C_427C|worst_of_histories": {
+   "case": "SOAK|4096|js5|Kf3.0",
+   "N_allow": 4.214,
+   "MS_cycles_vs_50": -0.916,
+   "N_f": 84.27,
+   "local_de": 0.085,
+   "US_v1_N_allow": 0.7
+  },
+  "ii_assembly_from_zero|Kf3.0|BK74_HT1038C_427C|js5": {
+   "case": "SOAK|4096|js5|Kf3.0",
+   "N_allow": 4.214,
+   "MS_cycles_vs_50": -0.916,
+   "N_f": 84.27,
+   "local_de": 0.085,
+   "US_v1_N_allow": 0.7
+  },
+  "ii_stable_reassembly_info|Kf3.0|BK74_HT940C_22C|worst_of_histories": {
+   "case": "SOAK|4096|js5|Kf3.0",
+   "N_allow": 9.403,
+   "MS_cycles_vs_50": -0.812,
+   "N_f": 188.1,
+   "local_de": 0.04475,
+   "US_v1_N_allow": 2.6
+  },
+  "ii_stable_reassembly_info|Kf3.0|BK74_HT940C_22C|js5": {
+   "case": "SOAK|4096|js5|Kf3.0",
+   "N_allow": 9.403,
+   "MS_cycles_vs_50": -0.812,
+   "N_f": 188.1,
+   "local_de": 0.04475,
+   "US_v1_N_allow": 2.6
+  },
+  "ii_stable_reassembly_info|Kf3.0|BK74_HT1038C_427C|worst_of_histories": {
+   "case": "SOAK|4096|js5|Kf3.0",
+   "N_allow": 9.36,
+   "MS_cycles_vs_50": -0.813,
+   "N_f": 187.2,
+   "local_de": 0.04475,
+   "US_v1_N_allow": 2.6
+  },
+  "ii_stable_reassembly_info|Kf3.0|BK74_HT1038C_427C|js5": {
+   "case": "SOAK|4096|js5|Kf3.0",
+   "N_allow": 9.36,
+   "MS_cycles_vs_50": -0.813,
+   "N_f": 187.2,
+   "local_de": 0.04475,
+   "US_v1_N_allow": 2.6
+  },
+  "i_firing|Kf3.8|BK74_HT940C_22C|worst_of_histories": {
+   "case": "SOAK|4096|js5|Kf3.8",
+   "N_allow": 10.65,
+   "MS_cycles_vs_50": -0.787,
+   "N_f": 213.0,
+   "local_de": 0.04156,
+   "US_v1_N_allow": 3.1
+  },
+  "i_firing|Kf3.8|BK74_HT940C_22C|js5": {
+   "case": "SOAK|4096|js5|Kf3.8",
+   "N_allow": 10.65,
+   "MS_cycles_vs_50": -0.787,
+   "N_f": 213.0,
+   "local_de": 0.04156,
+   "US_v1_N_allow": 3.1
+  },
+  "i_firing|Kf3.8|BK74_HT1038C_427C|worst_of_histories": {
+   "case": "SOAK|4096|js5|Kf3.8",
+   "N_allow": 10.36,
+   "MS_cycles_vs_50": -0.793,
+   "N_f": 207.2,
+   "local_de": 0.04156,
+   "US_v1_N_allow": 3.1
+  },
+  "i_firing|Kf3.8|BK74_HT1038C_427C|js5": {
+   "case": "SOAK|4096|js5|Kf3.8",
+   "N_allow": 10.36,
+   "MS_cycles_vs_50": -0.793,
+   "N_f": 207.2,
+   "local_de": 0.04156,
+   "US_v1_N_allow": 3.1
+  },
+  "ii_assembly_from_zero|Kf3.8|BK74_HT940C_22C|worst_of_histories": {
+   "case": "SOAK|4096|js5|Kf3.8",
+   "N_allow": 1.779,
+   "MS_cycles_vs_50": -0.964,
+   "N_f": 35.59,
+   "local_de": 0.13419,
+   "US_v1_N_allow": 0.3
+  },
+  "ii_assembly_from_zero|Kf3.8|BK74_HT940C_22C|js5": {
+   "case": "SOAK|4096|js5|Kf3.8",
+   "N_allow": 1.779,
+   "MS_cycles_vs_50": -0.964,
+   "N_f": 35.59,
+   "local_de": 0.13419,
+   "US_v1_N_allow": 0.3
+  },
+  "ii_assembly_from_zero|Kf3.8|BK74_HT1038C_427C|worst_of_histories": {
+   "case": "SOAK|4096|js5|Kf3.8",
+   "N_allow": 2.52,
+   "MS_cycles_vs_50": -0.95,
+   "N_f": 50.4,
+   "local_de": 0.13419,
+   "US_v1_N_allow": 0.3
+  },
+  "ii_assembly_from_zero|Kf3.8|BK74_HT1038C_427C|js5": {
+   "case": "SOAK|4096|js5|Kf3.8",
+   "N_allow": 2.52,
+   "MS_cycles_vs_50": -0.95,
+   "N_f": 50.4,
+   "local_de": 0.13419,
+   "US_v1_N_allow": 0.3
+  },
+  "ii_stable_reassembly_info|Kf3.8|BK74_HT940C_22C|worst_of_histories": {
+   "case": "SOAK|4096|js5|Kf3.8",
+   "N_allow": 4.571,
+   "MS_cycles_vs_50": -0.909,
+   "N_f": 91.41,
+   "local_de": 0.07046,
+   "US_v1_N_allow": 1.0
+  },
+  "ii_stable_reassembly_info|Kf3.8|BK74_HT940C_22C|js5": {
+   "case": "SOAK|4096|js5|Kf3.8",
+   "N_allow": 4.571,
+   "MS_cycles_vs_50": -0.909,
+   "N_f": 91.41,
+   "local_de": 0.07046,
+   "US_v1_N_allow": 1.0
+  },
+  "ii_stable_reassembly_info|Kf3.8|BK74_HT1038C_427C|worst_of_histories": {
+   "case": "SOAK|4096|js5|Kf3.8",
+   "N_allow": 5.259,
+   "MS_cycles_vs_50": -0.895,
+   "N_f": 105.2,
+   "local_de": 0.07046,
+   "US_v1_N_allow": 1.0
+  },
+  "ii_stable_reassembly_info|Kf3.8|BK74_HT1038C_427C|js5": {
+   "case": "SOAK|4096|js5|Kf3.8",
+   "N_allow": 5.259,
+   "MS_cycles_vs_50": -0.895,
+   "N_f": 105.2,
+   "local_de": 0.07046,
+   "US_v1_N_allow": 1.0
+  },
+  "i_firing|Kf2.2|BK74_HT940C_22C|(a)": {
+   "case": "SOAK70|4096|(a)|Kf2.2",
+   "N_allow": 1599.0,
+   "MS_cycles_vs_50": 30.972,
+   "N_f": 58960.0,
+   "local_de": 0.00798,
+   "US_v1_N_allow": 663.2
+  },
+  "i_firing|Kf2.2|BK74_HT1038C_427C|(a)": {
+   "case": "SOAK70|4096|(a)|Kf2.2",
+   "N_allow": 1247.0,
+   "MS_cycles_vs_50": 23.934,
+   "N_f": 111900.0,
+   "local_de": 0.00798,
+   "US_v1_N_allow": 663.2
+  },
+  "ii_assembly_from_zero|Kf2.2|BK74_HT940C_22C|(a)": {
+   "case": "SOAK70|4096|(a)|Kf2.2",
+   "N_allow": 26.45,
+   "MS_cycles_vs_50": -0.471,
+   "N_f": 529.0,
+   "local_de": 0.02542,
+   "US_v1_N_allow": 9.9
+  },
+  "ii_assembly_from_zero|Kf2.2|BK74_HT1038C_427C|(a)": {
+   "case": "SOAK70|4096|(a)|Kf2.2",
+   "N_allow": 22.26,
+   "MS_cycles_vs_50": -0.555,
+   "N_f": 445.2,
+   "local_de": 0.02542,
+   "US_v1_N_allow": 9.9
+  },
+  "ii_stable_reassembly_info|Kf2.2|BK74_HT940C_22C|(a)": {
+   "case": "SOAK70|4096|(a)|Kf2.2",
+   "N_allow": 124.3,
+   "MS_cycles_vs_50": 1.487,
+   "N_f": 2487.0,
+   "local_de": 0.01382,
+   "US_v1_N_allow": 61.4
+  },
+  "ii_stable_reassembly_info|Kf2.2|BK74_HT1038C_427C|(a)": {
+   "case": "SOAK70|4096|(a)|Kf2.2",
+   "N_allow": 99.11,
+   "MS_cycles_vs_50": 0.982,
+   "N_f": 1982.0,
+   "local_de": 0.01382,
+   "US_v1_N_allow": 61.4
+  },
+  "i_firing|Kf3.0|BK74_HT940C_22C|(a)": {
+   "case": "SOAK70|4096|(a)|Kf3.0",
+   "N_allow": 216.9,
+   "MS_cycles_vs_50": 3.339,
+   "N_f": 4339.0,
+   "local_de": 0.01189,
+   "US_v1_N_allow": 107.3
+  },
+  "i_firing|Kf3.0|BK74_HT1038C_427C|(a)": {
+   "case": "SOAK70|4096|(a)|Kf3.0",
+   "N_allow": 188.9,
+   "MS_cycles_vs_50": 2.778,
+   "N_f": 3778.0,
+   "local_de": 0.01189,
+   "US_v1_N_allow": 107.3
+  },
+  "ii_assembly_from_zero|Kf3.0|BK74_HT940C_22C|(a)": {
+   "case": "SOAK70|4096|(a)|Kf3.0",
+   "N_allow": 8.931,
+   "MS_cycles_vs_50": -0.821,
+   "N_f": 178.6,
+   "local_de": 0.04616,
+   "US_v1_N_allow": 2.4
+  },
+  "ii_assembly_from_zero|Kf3.0|BK74_HT1038C_427C|(a)": {
+   "case": "SOAK70|4096|(a)|Kf3.0",
+   "N_allow": 8.978,
+   "MS_cycles_vs_50": -0.82,
+   "N_f": 179.6,
+   "local_de": 0.04616,
+   "US_v1_N_allow": 2.4
+  },
+  "ii_stable_reassembly_info|Kf3.0|BK74_HT940C_22C|(a)": {
+   "case": "SOAK70|4096|(a)|Kf3.0",
+   "N_allow": 28.57,
+   "MS_cycles_vs_50": -0.429,
+   "N_f": 571.3,
+   "local_de": 0.02449,
+   "US_v1_N_allow": 10.9
+  },
+  "ii_stable_reassembly_info|Kf3.0|BK74_HT1038C_427C|(a)": {
+   "case": "SOAK70|4096|(a)|Kf3.0",
+   "N_allow": 23.81,
+   "MS_cycles_vs_50": -0.524,
+   "N_f": 476.1,
+   "local_de": 0.02449,
+   "US_v1_N_allow": 10.9
+  },
+  "i_firing|Kf3.8|BK74_HT940C_22C|(a)": {
+   "case": "SOAK70|4096|(a)|Kf3.8",
+   "N_allow": 58.93,
+   "MS_cycles_vs_50": 0.179,
+   "N_f": 1179.0,
+   "local_de": 0.01787,
+   "US_v1_N_allow": 26.5
+  },
+  "i_firing|Kf3.8|BK74_HT1038C_427C|(a)": {
+   "case": "SOAK70|4096|(a)|Kf3.8",
+   "N_allow": 46.2,
+   "MS_cycles_vs_50": -0.076,
+   "N_f": 924.0,
+   "local_de": 0.01787,
+   "US_v1_N_allow": 26.5
+  },
+  "ii_assembly_from_zero|Kf3.8|BK74_HT940C_22C|(a)": {
+   "case": "SOAK70|4096|(a)|Kf3.8",
+   "N_allow": 4.347,
+   "MS_cycles_vs_50": -0.913,
+   "N_f": 86.94,
+   "local_de": 0.07282,
+   "US_v1_N_allow": 0.9
+  },
+  "ii_assembly_from_zero|Kf3.8|BK74_HT1038C_427C|(a)": {
+   "case": "SOAK70|4096|(a)|Kf3.8",
+   "N_allow": 5.056,
+   "MS_cycles_vs_50": -0.899,
+   "N_f": 101.1,
+   "local_de": 0.07282,
+   "US_v1_N_allow": 0.9
+  },
+  "ii_stable_reassembly_info|Kf3.8|BK74_HT940C_22C|(a)": {
+   "case": "SOAK70|4096|(a)|Kf3.8",
+   "N_allow": 12.21,
+   "MS_cycles_vs_50": -0.756,
+   "N_f": 244.2,
+   "local_de": 0.03839,
+   "US_v1_N_allow": 3.7
+  },
+  "ii_stable_reassembly_info|Kf3.8|BK74_HT1038C_427C|(a)": {
+   "case": "SOAK70|4096|(a)|Kf3.8",
+   "N_allow": 11.58,
+   "MS_cycles_vs_50": -0.768,
+   "N_f": 231.7,
+   "local_de": 0.03839,
+   "US_v1_N_allow": 3.7
+  },
+  "i_firing|Kf2.2|BK74_HT940C_22C|(a')": {
+   "case": "SOAK52|4096|(a')|Kf2.2",
+   "N_allow": 654.8,
+   "MS_cycles_vs_50": 12.096,
+   "N_f": 13100.0,
+   "local_de": 0.00958,
+   "US_v1_N_allow": 269.1
+  },
+  "i_firing|Kf2.2|BK74_HT1038C_427C|(a')": {
+   "case": "SOAK52|4096|(a')|Kf2.2",
+   "N_allow": 783.6,
+   "MS_cycles_vs_50": 14.671,
+   "N_f": 16450.0,
+   "local_de": 0.00958,
+   "US_v1_N_allow": 269.1
+  },
+  "ii_assembly_from_zero|Kf2.2|BK74_HT940C_22C|(a')": {
+   "case": "SOAK52|4096|(a')|Kf2.2",
+   "N_allow": 17.66,
+   "MS_cycles_vs_50": -0.647,
+   "N_f": 353.2,
+   "local_de": 0.03127,
+   "US_v1_N_allow": 5.9
+  },
+  "ii_assembly_from_zero|Kf2.2|BK74_HT1038C_427C|(a')": {
+   "case": "SOAK52|4096|(a')|Kf2.2",
+   "N_allow": 15.75,
+   "MS_cycles_vs_50": -0.685,
+   "N_f": 315.0,
+   "local_de": 0.03127,
+   "US_v1_N_allow": 5.9
+  },
+  "ii_stable_reassembly_info|Kf2.2|BK74_HT940C_22C|(a')": {
+   "case": "SOAK52|4096|(a')|Kf2.2",
+   "N_allow": 69.68,
+   "MS_cycles_vs_50": 0.394,
+   "N_f": 1394.0,
+   "local_de": 0.01677,
+   "US_v1_N_allow": 32.3
+  },
+  "ii_stable_reassembly_info|Kf2.2|BK74_HT1038C_427C|(a')": {
+   "case": "SOAK52|4096|(a')|Kf2.2",
+   "N_allow": 54.37,
+   "MS_cycles_vs_50": 0.087,
+   "N_f": 1087.0,
+   "local_de": 0.01677,
+   "US_v1_N_allow": 32.3
+  },
+  "i_firing|Kf3.0|BK74_HT940C_22C|(a')": {
+   "case": "SOAK52|4096|(a')|Kf3.0",
+   "N_allow": 87.62,
+   "MS_cycles_vs_50": 0.752,
+   "N_f": 1752.0,
+   "local_de": 0.01546,
+   "US_v1_N_allow": 41.9
+  },
+  "i_firing|Kf3.0|BK74_HT1038C_427C|(a')": {
+   "case": "SOAK52|4096|(a')|Kf3.0",
+   "N_allow": 68.43,
+   "MS_cycles_vs_50": 0.369,
+   "N_f": 1369.0,
+   "local_de": 0.01546,
+   "US_v1_N_allow": 41.9
+  },
+  "ii_assembly_from_zero|Kf3.0|BK74_HT940C_22C|(a')": {
+   "case": "SOAK52|4096|(a')|Kf3.0",
+   "N_allow": 6.382,
+   "MS_cycles_vs_50": -0.872,
+   "N_f": 127.6,
+   "local_de": 0.05682,
+   "US_v1_N_allow": 1.6
+  },
+  "ii_assembly_from_zero|Kf3.0|BK74_HT1038C_427C|(a')": {
+   "case": "SOAK52|4096|(a')|Kf3.0",
+   "N_allow": 6.854,
+   "MS_cycles_vs_50": -0.863,
+   "N_f": 137.1,
+   "local_de": 0.05682,
+   "US_v1_N_allow": 1.6
+  },
+  "ii_stable_reassembly_info|Kf3.0|BK74_HT940C_22C|(a')": {
+   "case": "SOAK52|4096|(a')|Kf3.0",
+   "N_allow": 19.05,
+   "MS_cycles_vs_50": -0.619,
+   "N_f": 380.9,
+   "local_de": 0.03004,
+   "US_v1_N_allow": 6.5
+  },
+  "ii_stable_reassembly_info|Kf3.0|BK74_HT1038C_427C|(a')": {
+   "case": "SOAK52|4096|(a')|Kf3.0",
+   "N_allow": 16.79,
+   "MS_cycles_vs_50": -0.664,
+   "N_f": 335.8,
+   "local_de": 0.03004,
+   "US_v1_N_allow": 6.5
+  },
+  "i_firing|Kf3.8|BK74_HT940C_22C|(a')": {
+   "case": "SOAK52|4096|(a')|Kf3.8",
+   "N_allow": 29.72,
+   "MS_cycles_vs_50": -0.406,
+   "N_f": 594.5,
+   "local_de": 0.02403,
+   "US_v1_N_allow": 11.5
+  },
+  "i_firing|Kf3.8|BK74_HT1038C_427C|(a')": {
+   "case": "SOAK52|4096|(a')|Kf3.8",
+   "N_allow": 24.65,
+   "MS_cycles_vs_50": -0.507,
+   "N_f": 493.1,
+   "local_de": 0.02403,
+   "US_v1_N_allow": 11.5
+  },
+  "ii_assembly_from_zero|Kf3.8|BK74_HT940C_22C|(a')": {
+   "case": "SOAK52|4096|(a')|Kf3.8",
+   "N_allow": 3.185,
+   "MS_cycles_vs_50": -0.936,
+   "N_f": 63.7,
+   "local_de": 0.08967,
+   "US_v1_N_allow": 0.6
+  },
+  "ii_assembly_from_zero|Kf3.8|BK74_HT1038C_427C|(a')": {
+   "case": "SOAK52|4096|(a')|Kf3.8",
+   "N_allow": 3.961,
+   "MS_cycles_vs_50": -0.921,
+   "N_f": 79.21,
+   "local_de": 0.08967,
+   "US_v1_N_allow": 0.6
+  },
+  "ii_stable_reassembly_info|Kf3.8|BK74_HT940C_22C|(a')": {
+   "case": "SOAK52|4096|(a')|Kf3.8",
+   "N_allow": 8.611,
+   "MS_cycles_vs_50": -0.828,
+   "N_f": 172.2,
+   "local_de": 0.04719,
+   "US_v1_N_allow": 2.3
+  },
+  "ii_stable_reassembly_info|Kf3.8|BK74_HT1038C_427C|(a')": {
+   "case": "SOAK52|4096|(a')|Kf3.8",
+   "N_allow": 8.717,
+   "MS_cycles_vs_50": -0.826,
+   "N_f": 174.3,
+   "local_de": 0.04719,
+   "US_v1_N_allow": 2.3
+  },
+  "i_firing|Kf2.2|BK74_HT940C_22C|(a'')": {
+   "case": "SOAK52|4096|(a'')|Kf2.2",
+   "N_allow": 617.1,
+   "MS_cycles_vs_50": 11.342,
+   "N_f": 12340.0,
+   "local_de": 0.00967,
+   "US_v1_N_allow": 257.2
+  },
+  "i_firing|Kf2.2|BK74_HT1038C_427C|(a'')": {
+   "case": "SOAK52|4096|(a'')|Kf2.2",
+   "N_allow": 757.8,
+   "MS_cycles_vs_50": 14.155,
+   "N_f": 15160.0,
+   "local_de": 0.00967,
+   "US_v1_N_allow": 257.2
+  },
+  "ii_assembly_from_zero|Kf2.2|BK74_HT940C_22C|(a'')": {
+   "case": "SOAK52|4096|(a'')|Kf2.2",
+   "N_allow": 17.33,
+   "MS_cycles_vs_50": -0.653,
+   "N_f": 346.6,
+   "local_de": 0.03159,
+   "US_v1_N_allow": 5.8
+  },
+  "ii_assembly_from_zero|Kf2.2|BK74_HT1038C_427C|(a'')": {
+   "case": "SOAK52|4096|(a'')|Kf2.2",
+   "N_allow": 15.5,
+   "MS_cycles_vs_50": -0.69,
+   "N_f": 310.0,
+   "local_de": 0.03159,
+   "US_v1_N_allow": 5.8
+  },
+  "ii_stable_reassembly_info|Kf2.2|BK74_HT940C_22C|(a'')": {
+   "case": "SOAK52|4096|(a'')|Kf2.2",
+   "N_allow": 67.91,
+   "MS_cycles_vs_50": 0.358,
+   "N_f": 1358.0,
+   "local_de": 0.01693,
+   "US_v1_N_allow": 31.3
+  },
+  "ii_stable_reassembly_info|Kf2.2|BK74_HT1038C_427C|(a'')": {
+   "case": "SOAK52|4096|(a'')|Kf2.2",
+   "N_allow": 53.01,
+   "MS_cycles_vs_50": 0.06,
+   "N_f": 1060.0,
+   "local_de": 0.01693,
+   "US_v1_N_allow": 31.3
+  },
+  "i_firing|Kf3.0|BK74_HT940C_22C|(a'')": {
+   "case": "SOAK52|4096|(a'')|Kf3.0",
+   "N_allow": 84.09,
+   "MS_cycles_vs_50": 0.682,
+   "N_f": 1682.0,
+   "local_de": 0.01568,
+   "US_v1_N_allow": 40.0
+  },
+  "i_firing|Kf3.0|BK74_HT1038C_427C|(a'')": {
+   "case": "SOAK52|4096|(a'')|Kf3.0",
+   "N_allow": 65.62,
+   "MS_cycles_vs_50": 0.312,
+   "N_f": 1312.0,
+   "local_de": 0.01568,
+   "US_v1_N_allow": 40.0
+  },
+  "ii_assembly_from_zero|Kf3.0|BK74_HT940C_22C|(a'')": {
+   "case": "SOAK52|4096|(a'')|Kf3.0",
+   "N_allow": 6.277,
+   "MS_cycles_vs_50": -0.874,
+   "N_f": 125.5,
+   "local_de": 0.05742,
+   "US_v1_N_allow": 1.5
+  },
+  "ii_assembly_from_zero|Kf3.0|BK74_HT1038C_427C|(a'')": {
+   "case": "SOAK52|4096|(a'')|Kf3.0",
+   "N_allow": 6.764,
+   "MS_cycles_vs_50": -0.865,
+   "N_f": 135.3,
+   "local_de": 0.05742,
+   "US_v1_N_allow": 1.5
+  },
+  "ii_stable_reassembly_info|Kf3.0|BK74_HT940C_22C|(a'')": {
+   "case": "SOAK52|4096|(a'')|Kf3.0",
+   "N_allow": 18.68,
+   "MS_cycles_vs_50": -0.626,
+   "N_f": 373.6,
+   "local_de": 0.03035,
+   "US_v1_N_allow": 6.3
+  },
+  "ii_stable_reassembly_info|Kf3.0|BK74_HT1038C_427C|(a'')": {
+   "case": "SOAK52|4096|(a'')|Kf3.0",
+   "N_allow": 16.51,
+   "MS_cycles_vs_50": -0.67,
+   "N_f": 330.3,
+   "local_de": 0.03035,
+   "US_v1_N_allow": 6.3
+  },
+  "i_firing|Kf3.8|BK74_HT940C_22C|(a'')": {
+   "case": "SOAK52|4096|(a'')|Kf3.8",
+   "N_allow": 28.84,
+   "MS_cycles_vs_50": -0.423,
+   "N_f": 576.7,
+   "local_de": 0.02438,
+   "US_v1_N_allow": 11.1
+  },
+  "i_firing|Kf3.8|BK74_HT1038C_427C|(a'')": {
+   "case": "SOAK52|4096|(a'')|Kf3.8",
+   "N_allow": 24.0,
+   "MS_cycles_vs_50": -0.52,
+   "N_f": 480.1,
+   "local_de": 0.02438,
+   "US_v1_N_allow": 11.1
+  },
+  "ii_assembly_from_zero|Kf3.8|BK74_HT940C_22C|(a'')": {
+   "case": "SOAK52|4096|(a'')|Kf3.8",
+   "N_allow": 3.136,
+   "MS_cycles_vs_50": -0.937,
+   "N_f": 62.72,
+   "local_de": 0.09061,
+   "US_v1_N_allow": 0.6
+  },
+  "ii_assembly_from_zero|Kf3.8|BK74_HT1038C_427C|(a'')": {
+   "case": "SOAK52|4096|(a'')|Kf3.8",
+   "N_allow": 3.913,
+   "MS_cycles_vs_50": -0.922,
+   "N_f": 78.27,
+   "local_de": 0.09061,
+   "US_v1_N_allow": 0.6
+  },
+  "ii_stable_reassembly_info|Kf3.8|BK74_HT940C_22C|(a'')": {
+   "case": "SOAK52|4096|(a'')|Kf3.8",
+   "N_allow": 8.466,
+   "MS_cycles_vs_50": -0.831,
+   "N_f": 169.3,
+   "local_de": 0.04768,
+   "US_v1_N_allow": 2.3
+  },
+  "ii_stable_reassembly_info|Kf3.8|BK74_HT1038C_427C|(a'')": {
+   "case": "SOAK52|4096|(a'')|Kf3.8",
+   "N_allow": 8.598,
+   "MS_cycles_vs_50": -0.828,
+   "N_f": 172.0,
+   "local_de": 0.04768,
+   "US_v1_N_allow": 2.3
+  }
+ },
+ "summary_worst_of_histories": {
+  "i_firing|Kf2.2": {
+   "sourced_22C_N_allow": 98.84,
+   "sourced_22C_MS": 0.977,
+   "case": "SOAK|4096|js5|Kf2.2",
+   "hot_427C_N_allow": 77.53,
+   "US_v1_N_allow": 48.3,
+   "verdict": "PASS"
+  },
+  "ii_assembly_from_zero|Kf2.2": {
+   "sourced_22C_N_allow": 8.755,
+   "sourced_22C_MS": -0.825,
+   "case": "SOAK|4096|js5|Kf2.2",
+   "hot_427C_N_allow": 8.834,
+   "US_v1_N_allow": 2.4,
+   "verdict": "FOUND NEGATIVE"
+  },
+  "i_firing|Kf3.0": {
+   "sourced_22C_N_allow": 24.35,
+   "sourced_22C_MS": -0.513,
+   "case": "SOAK|4096|js5|Kf3.0",
+   "hot_427C_N_allow": 20.72,
+   "US_v1_N_allow": 8.9,
+   "verdict": "FOUND NEGATIVE"
+  },
+  "ii_assembly_from_zero|Kf3.0": {
+   "sourced_22C_N_allow": 3.447,
+   "sourced_22C_MS": -0.931,
+   "case": "SOAK|4096|js5|Kf3.0",
+   "hot_427C_N_allow": 4.214,
+   "US_v1_N_allow": 0.7,
+   "verdict": "FOUND NEGATIVE"
+  },
+  "i_firing|Kf3.8": {
+   "sourced_22C_N_allow": 10.65,
+   "sourced_22C_MS": -0.787,
+   "case": "SOAK|4096|js5|Kf3.8",
+   "hot_427C_N_allow": 10.36,
+   "US_v1_N_allow": 3.1,
+   "verdict": "FOUND NEGATIVE"
+  },
+  "ii_assembly_from_zero|Kf3.8": {
+   "sourced_22C_N_allow": 1.779,
+   "sourced_22C_MS": -0.964,
+   "case": "SOAK|4096|js5|Kf3.8",
+   "hot_427C_N_allow": 2.52,
+   "US_v1_N_allow": 0.3,
+   "verdict": "FOUND NEGATIVE"
+  }
+ },
+ "finding": "On the sourced Brinkman-Korth curve the lives move by a factor of a few against the universal slopes, and the sign of the 183 (1)(c) row does not change where the v1 row was negative at Kf 3.0 (see summary): the row stays a FOUND NEGATIVE; the life-limit (2(b)) and design-change (2(c)) inputs are restated on this basis in summary."
+}

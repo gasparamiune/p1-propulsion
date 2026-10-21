@@ -1,0 +1,3043 @@
+{
+ "lc1_run": "lc1v351_c71",
+ "poses": [
+  "pose_neutral_c71",
+  "pose_alpha+_c71",
+  "pose_alpha-_c71",
+  "pose_beta+_c71",
+  "pose_beta-_c71",
+  "pose_combined045_c71",
+  "pose_combined135_c71",
+  "pose_combined225_c71",
+  "pose_combined315_c71"
+ ],
+ "date": "2026-10-19",
+ "method": "FEA3D LC3 HOT BOUND: thermal + manifold stresses added to the cold LC3 stop-pose envelopes by sub-additivity (fea3d successor 2026-10-15).\n\n  von Mises is a semi-norm of the stress tensor:  vm(A + B) <= vm(A) + vm(B);  Weyl:  s1(A + B) <= s1(A) + s1(B),  s3(A + B) >= s3(A) + s3(B).\n  A = thermo-pressure field of the L1 neutral run (TH + OP x Pc_max + PM x 7 MPa, NO LC1 inertia) at each S-AX thermal state\n      B1_21.65 / B1_19 / B1_2 / B1_1  (so hot LC3 = A + D exactly, up to the pose-mesh mapping);\n  D = LC3 increment over the cold OP field (lateral, axial, angular, bumper / runaway), envelope over the 64 sub-cases and the 8 stop poses\n      (results/lc3_env_pose_stopXXX.npz from post_lc3.py).\n  Engine-group bodies meshed identically in both runs (TC-01, GM-01, GM-02): node-wise  vm <= vm_LC1(n) + vmD(n).\n  Engine pressure parts meshed coarser in the pose runs (level 2): vm <= vm_LC1(n) + max_part vmD  (maximum over the part's REGULAR\n      nodes of the pose model: conservative away from idealisation singularities, which are excluded in both runs).\n  Ring / fixed / horn bodies (thrust direction changes with the pose, so LC1 is not a base):  vm <= vm_LC3cold(n) + vm(TH + 7 x PM incr.)(n)\n      with the LC1-run thermal + manifold field at the state (identical L1 meshes).\n  Brittle parts: s1 <= s1_LC1(n) + max_part s1D ;  s3 >= s3_LC1(n) + min_part s3D ; char zone (T > T_char): primary s3 only.\n  Allowables at the node temperature of the state; SF 1.5 / 2.0 (LC3 nominal operating, 188 (9)); brittle SF 2.0.\nThe result is a LOWER BOUND on the hot LC3 margin (exact sum not available: the pose runs carry no TH step).  Units mm, N, MPa, K.",
+ "states": {
+  "B1_21.65": [
+   {
+    "part": "TC-01",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 1.2513167952685489,
+    "MS_ult_bound": 0.8098572251126099,
+    "method": "LC1 vm + node-wise F2 cone-pose (GS + TD + LC6) increment (same mesh)",
+    "T_C": 79.02780000000052,
+    "r_theta_z": [
+     28.609,
+     -105.4,
+     125.588
+    ]
+   },
+   {
+    "part": "TC-01",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 0.7261003919302529,
+    "MS_ult_bound": 0.38726385308857814,
+    "method": "LC1 vm + node-wise F2 cone-pose (GS + TD + LC6) increment (same mesh)",
+    "T_C": 80.43059902764583,
+    "r_theta_z": [
+     31.75,
+     111.6,
+     124.805
+    ]
+   },
+   {
+    "part": "TC-02",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 0.4995340367128205,
+    "MS_ult_bound": 0.19302158565801464,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 152.92400000000004,
+    "r_theta_z": [
+     5.856,
+     -180.0,
+     107.513
+    ]
+   },
+   {
+    "part": "TC-02",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 0.3738402852683014,
+    "MS_ult_bound": 0.09302028193011336,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 152.92400000000004,
+    "r_theta_z": [
+     6.5,
+     -0.0,
+     107.513
+    ]
+   },
+   {
+    "part": "TC-03",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 0.33436687015397304,
+    "MS_ult_bound": 0.2133772071654665,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 147.48237636269585,
+    "r_theta_z": [
+     6.984,
+     52.9,
+     108.438
+    ]
+   },
+   {
+    "part": "TC-03",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 0.2017499867575605,
+    "MS_ult_bound": 0.09278573232268195,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 148.69400000000002,
+    "r_theta_z": [
+     10.0,
+     0.0,
+     105.513
+    ]
+   },
+   {
+    "part": "TC-04",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 0.585902605667193,
+    "MS_ult_bound": 0.2885458671045944,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.119739130434823,
+    "r_theta_z": [
+     20.0,
+     -180.0,
+     183.163
+    ]
+   },
+   {
+    "part": "TC-04",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 0.24756384124498543,
+    "MS_ult_bound": 0.01166766991846302,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 31.238345977753056,
+    "r_theta_z": [
+     16.826,
+     -116.3,
+     174.503
+    ]
+   },
+   {
+    "part": "TC-09",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 1.1431839540405013,
+    "MS_ult_bound": 0.8589295987075622,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 388.7361040422966,
+    "r_theta_z": [
+     27.5,
+     -9.6,
+     -220.243
+    ]
+   },
+   {
+    "part": "TC-09",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 0.9956033865811169,
+    "MS_ult_bound": 0.7331001649523354,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 377.62300000000016,
+    "r_theta_z": [
+     15.062,
+     99.0,
+     -232.105
+    ]
+   },
+   {
+    "part": "NZ-01",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": -0.2654097310778898,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 1264.8167890667696,
+    "r_theta_z": [
+     21.978,
+     131.1,
+     -229.105
+    ]
+   },
+   {
+    "part": "NZ-01",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": -0.510421101437107,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 1277.5942023712364,
+    "r_theta_z": [
+     21.872,
+     44.3,
+     -228.605
+    ]
+   },
+   {
+    "part": "NZ-02",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 2.1733727248539862,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 1351.4150484937886,
+    "r_theta_z": [
+     22.01,
+     56.3,
+     -221.065
+    ]
+   },
+   {
+    "part": "NZ-02",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 1.8030920635333296,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 1246.179999999998,
+    "r_theta_z": [
+     21.921,
+     -138.9,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-03",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 0.25884995092344587,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 1277.1686956521821,
+    "r_theta_z": [
+     21.046,
+     140.3,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-03",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": -0.20508441259022614,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 1500.33,
+    "r_theta_z": [
+     15.231,
+     -136.4,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-04",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 4.384400159071262,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 378.6526866328146,
+    "r_theta_z": [
+     16.288,
+     25.3,
+     -232.105
+    ]
+   },
+   {
+    "part": "NZ-04",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 3.3308916129112385,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 419.94399999999735,
+    "r_theta_z": [
+     15.3,
+     -0.0,
+     -231.855
+    ]
+   },
+   {
+    "part": "GM-01",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": -0.21884821595503512,
+    "MS_ult_bound": -0.32687984566338135,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 22.75400000000002,
+    "r_theta_z": [
+     35.65,
+     159.9,
+     -9.95
+    ]
+   },
+   {
+    "part": "GM-01",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": -0.2882438404444905,
+    "MS_ult_bound": -0.3866782029362099,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 23.061051272486907,
+    "r_theta_z": [
+     36.999,
+     168.0,
+     -6.708
+    ]
+   },
+   {
+    "part": "GM-02",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": -0.25841812578100576,
+    "MS_ult_bound": -0.36097732115171766,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 25.12239731075806,
+    "r_theta_z": [
+     31.238,
+     -104.0,
+     8.905
+    ]
+   },
+   {
+    "part": "GM-02",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": -0.2863615152907836,
+    "MS_ult_bound": -0.3850561993463135,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 23.355804940157043,
+    "r_theta_z": [
+     36.952,
+     -12.2,
+     -3.732
+    ]
+   },
+   {
+    "part": "PD-01R",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 1.2592879380317807,
+    "MS_ult_bound": 0.8304847894864473,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 36.221151561572015,
+    "r_theta_z": [
+     22.554,
+     112.8,
+     225.253
+    ]
+   },
+   {
+    "part": "PD-01R",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 0.6289684323551983,
+    "MS_ult_bound": 0.3197972191970462,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 36.221151561572015,
+    "r_theta_z": [
+     20.068,
+     51.5,
+     226.4
+    ]
+   },
+   {
+    "part": "PD-01S",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 1.0296274549442739,
+    "MS_ult_bound": 0.6444128798545914,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 36.221151561572015,
+    "r_theta_z": [
+     22.041,
+     109.3,
+     250.4
+    ]
+   },
+   {
+    "part": "PD-01S",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 0.5665010698035562,
+    "MS_ult_bound": 0.269185893803201,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 36.221151561572015,
+    "r_theta_z": [
+     25.749,
+     98.0,
+     248.4
+    ]
+   },
+   {
+    "part": "FD-01",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 1.2404136935734402,
+    "MS_ult_bound": 3.400102627915021,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 45.546340321390744,
+    "r_theta_z": [
+     33.712,
+     176.5,
+     148.206
+    ]
+   },
+   {
+    "part": "FD-01",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 0.2682195132548948,
+    "MS_ult_bound": 1.4503753388266243,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 36.731510356068725,
+    "r_theta_z": [
+     30.648,
+     -174.4,
+     168.013
+    ]
+   },
+   {
+    "part": "GM-03",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 2.03793867977278,
+    "MS_ult_bound": 1.4508613104894321,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     40.991,
+     -173.2,
+     -1.049
+    ]
+   },
+   {
+    "part": "GM-03",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 1.8885096322916644,
+    "MS_ult_bound": 1.3303092158822607,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     41.0,
+     -174.4,
+     -0.0
+    ]
+   },
+   {
+    "part": "GM-08a",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 15.192119784123864,
+    "MS_ult_bound": 12.063015451216367,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     51.826,
+     -13.0,
+     19.386
+    ]
+   },
+   {
+    "part": "GM-08a",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 12.398279586795088,
+    "MS_ult_bound": 9.809080935383612,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     52.405,
+     15.5,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-08b",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 17.18579941472151,
+    "MS_ult_bound": 13.671419302379059,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.365,
+     -166.8,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-08b",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 10.525207129974518,
+    "MS_ult_bound": 8.297977091606137,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.148,
+     -165.6,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-09",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 15.273367607527561,
+    "MS_ult_bound": 12.128562247228881,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     58.758,
+     -158.4,
+     27.456
+    ]
+   },
+   {
+    "part": "GM-09",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 11.951414007981562,
+    "MS_ult_bound": 9.4485715000235,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     60.107,
+     167.9,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-10",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 3.5986291391634957,
+    "MS_ult_bound": 2.709950537681067,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     58.75,
+     -112.3,
+     -93.776
+    ]
+   },
+   {
+    "part": "GM-10",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 3.5986291391634957,
+    "MS_ult_bound": 2.709950537681067,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     58.75,
+     -112.3,
+     -93.776
+    ]
+   },
+   {
+    "part": "GM-13",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 2.892398183703575,
+    "MS_ult_bound": 2.1401977192548025,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.574,
+     108.1,
+     -88.453
+    ]
+   },
+   {
+    "part": "GM-13",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 2.5642451737794527,
+    "MS_ult_bound": 1.8754598161171923,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     57.501,
+     108.0,
+     -89.8
+    ]
+   },
+   {
+    "part": "GM-14",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 3.1934410947534992,
+    "MS_ult_bound": 2.3830645119263894,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.023,
+     -108.1,
+     -88.026
+    ]
+   },
+   {
+    "part": "GM-14",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 2.4935388837917363,
+    "MS_ult_bound": 1.8184174170414797,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     57.501,
+     -108.0,
+     -89.8
+    ]
+   },
+   {
+    "part": "GM-16a",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 1.1407204758655318,
+    "MS_ult_bound": 0.8446633887777453,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.534,
+     124.9,
+     -66.3
+    ]
+   },
+   {
+    "part": "GM-16a",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 0.5619451663813795,
+    "MS_ult_bound": 0.34593147315842265,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.346,
+     123.4,
+     -73.093
+    ]
+   },
+   {
+    "part": "GM-16b",
+    "set": "regular",
+    "state": "B1_21.65",
+    "MS_bound": 1.1482657786809147,
+    "MS_ult_bound": 0.8511651922675967,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.534,
+     -124.9,
+     -74.3
+    ]
+   },
+   {
+    "part": "GM-16b",
+    "set": "all",
+    "state": "B1_21.65",
+    "MS_bound": 0.5249521108155903,
+    "MS_ult_bound": 0.31405447846875356,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.346,
+     -123.4,
+     -67.507
+    ]
+   }
+  ],
+  "B1_19": [
+   {
+    "part": "TC-01",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 1.3237502141673025,
+    "MS_ult_bound": 0.8705978847233826,
+    "method": "LC1 vm + node-wise F2 cone-pose (GS + TD + LC6) increment (same mesh)",
+    "T_C": 71.84700000000055,
+    "r_theta_z": [
+     28.599,
+     60.8,
+     125.492
+    ]
+   },
+   {
+    "part": "TC-01",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 0.8001511931778202,
+    "MS_ult_bound": 0.44887076117374214,
+    "method": "LC1 vm + node-wise F2 cone-pose (GS + TD + LC6) increment (same mesh)",
+    "T_C": 72.71693930504256,
+    "r_theta_z": [
+     31.75,
+     111.6,
+     124.805
+    ]
+   },
+   {
+    "part": "TC-02",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 0.024779340778353864,
+    "MS_ult_bound": -0.17640421628111935,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 159.15900000000005,
+    "r_theta_z": [
+     5.856,
+     -180.0,
+     107.513
+    ]
+   },
+   {
+    "part": "TC-02",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 0.0014608165171221543,
+    "MS_ult_bound": -0.195144873415669,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 159.15900000000005,
+    "r_theta_z": [
+     6.5,
+     -0.0,
+     107.513
+    ]
+   },
+   {
+    "part": "TC-03",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 0.14989317431446159,
+    "MS_ult_bound": 0.04563168291673958,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 150.05885714285716,
+    "r_theta_z": [
+     9.8,
+     -180.0,
+     105.513
+    ]
+   },
+   {
+    "part": "TC-03",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": -0.04312028961244119,
+    "MS_ult_bound": -0.12988113655172773,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 150.05885714285716,
+    "r_theta_z": [
+     9.9,
+     -0.0,
+     105.513
+    ]
+   },
+   {
+    "part": "TC-04",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 0.6484216919896926,
+    "MS_ult_bound": 0.33934262474162535,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 18.081652173913028,
+    "r_theta_z": [
+     20.0,
+     -180.0,
+     183.163
+    ]
+   },
+   {
+    "part": "TC-04",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 0.2367306715978985,
+    "MS_ult_bound": 0.003400191809971309,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 28.289000000000044,
+    "r_theta_z": [
+     12.982,
+     122.5,
+     169.513
+    ]
+   },
+   {
+    "part": "TC-09",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 1.4356724850127427,
+    "MS_ult_bound": 1.1273198068710446,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 326.3620898801936,
+    "r_theta_z": [
+     27.5,
+     -9.6,
+     -220.243
+    ]
+   },
+   {
+    "part": "TC-09",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 0.993432928812501,
+    "MS_ult_bound": 0.7402380663998922,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 330.73500000000024,
+    "r_theta_z": [
+     15.062,
+     99.0,
+     -232.105
+    ]
+   },
+   {
+    "part": "NZ-01",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": -0.2497559878861203,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 1616.77,
+    "r_theta_z": [
+     15.0,
+     37.9,
+     -238.105
+    ]
+   },
+   {
+    "part": "NZ-01",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": -0.5423876415047765,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 1308.924095573077,
+    "r_theta_z": [
+     21.5,
+     45.0,
+     -210.75
+    ]
+   },
+   {
+    "part": "NZ-02",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 2.1738553914446,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 1271.817270563391,
+    "r_theta_z": [
+     22.01,
+     56.3,
+     -221.065
+    ]
+   },
+   {
+    "part": "NZ-02",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 1.8057096508264197,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 1177.860000000002,
+    "r_theta_z": [
+     21.921,
+     -138.9,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-03",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 0.2608090059076946,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 1206.4847826086857,
+    "r_theta_z": [
+     21.046,
+     140.3,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-03",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": -0.20704900778244373,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 1418.9,
+    "r_theta_z": [
+     15.231,
+     -136.4,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-04",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 4.7795933510414725,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 331.76189974772717,
+    "r_theta_z": [
+     16.288,
+     25.3,
+     -232.105
+    ]
+   },
+   {
+    "part": "NZ-04",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 3.6782718457577275,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 369.5460000000036,
+    "r_theta_z": [
+     15.3,
+     -0.0,
+     -231.855
+    ]
+   },
+   {
+    "part": "GM-01",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": -0.2189808362072555,
+    "MS_ult_bound": -0.3269941248168904,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 21.50600000000003,
+    "r_theta_z": [
+     35.65,
+     159.9,
+     -9.95
+    ]
+   },
+   {
+    "part": "GM-01",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": -0.287960213542684,
+    "MS_ult_bound": -0.38643380103146174,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 21.68220247007855,
+    "r_theta_z": [
+     36.999,
+     168.0,
+     -6.708
+    ]
+   },
+   {
+    "part": "GM-02",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": -0.2587029792217873,
+    "MS_ult_bound": -0.36122277996771035,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 22.956517794649017,
+    "r_theta_z": [
+     31.238,
+     -104.0,
+     8.905
+    ]
+   },
+   {
+    "part": "GM-02",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": -0.28601191554570726,
+    "MS_ult_bound": -0.3847549485021521,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 21.85541467068066,
+    "r_theta_z": [
+     36.952,
+     -12.2,
+     -3.732
+    ]
+   },
+   {
+    "part": "PD-01R",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 1.5962059664869606,
+    "MS_ult_bound": 1.1046898384199912,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 32.89387590852101,
+    "r_theta_z": [
+     22.554,
+     112.8,
+     225.253
+    ]
+   },
+   {
+    "part": "PD-01R",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 0.9185448271156231,
+    "MS_ult_bound": 0.555324136184544,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 32.89387590852101,
+    "r_theta_z": [
+     20.068,
+     51.5,
+     226.4
+    ]
+   },
+   {
+    "part": "PD-01S",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 1.361176853108002,
+    "MS_ult_bound": 0.9141566553648333,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 32.89387590852101,
+    "r_theta_z": [
+     22.041,
+     109.3,
+     250.4
+    ]
+   },
+   {
+    "part": "PD-01S",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 0.8547537434346126,
+    "MS_ult_bound": 0.5036100397922243,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 32.89387590852101,
+    "r_theta_z": [
+     25.749,
+     98.0,
+     248.4
+    ]
+   },
+   {
+    "part": "FD-01",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 1.3257314965822884,
+    "MS_ult_bound": 3.531070018748803,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 41.232222164748066,
+    "r_theta_z": [
+     33.712,
+     176.5,
+     148.206
+    ]
+   },
+   {
+    "part": "FD-01",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 0.3265758315351188,
+    "MS_ult_bound": 1.5471521627707001,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 33.304783050202275,
+    "r_theta_z": [
+     30.648,
+     -174.4,
+     168.013
+    ]
+   },
+   {
+    "part": "GM-03",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 2.0374815379298012,
+    "MS_ult_bound": 1.450492510663477,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     40.991,
+     -173.2,
+     -1.049
+    ]
+   },
+   {
+    "part": "GM-03",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 1.8880852205533483,
+    "MS_ult_bound": 1.3299668211143603,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     41.0,
+     -174.4,
+     -0.0
+    ]
+   },
+   {
+    "part": "GM-08a",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 15.189730730373558,
+    "MS_ult_bound": 12.061088078737033,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     51.826,
+     -13.0,
+     19.386
+    ]
+   },
+   {
+    "part": "GM-08a",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 12.400710491442258,
+    "MS_ult_bound": 9.811042071132965,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     52.405,
+     15.5,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-08b",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 17.189050013590453,
+    "MS_ult_bound": 13.674041727596805,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.365,
+     -166.8,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-08b",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 10.527297778734503,
+    "MS_ult_bound": 8.299663725439066,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.148,
+     -165.6,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-09",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 15.276457104340906,
+    "MS_ult_bound": 12.131054703136279,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     58.758,
+     -158.4,
+     27.456
+    ]
+   },
+   {
+    "part": "GM-09",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 11.949638066314682,
+    "MS_ult_bound": 9.447138756581365,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     60.107,
+     167.9,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-10",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 3.5996147342444464,
+    "MS_ult_bound": 2.710745667901368,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     58.75,
+     -112.3,
+     -93.776
+    ]
+   },
+   {
+    "part": "GM-10",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 3.5996147342444464,
+    "MS_ult_bound": 2.710745667901368,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     58.75,
+     -112.3,
+     -93.776
+    ]
+   },
+   {
+    "part": "GM-13",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 2.891048616870459,
+    "MS_ult_bound": 2.1391089543105903,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.574,
+     108.1,
+     -88.453
+    ]
+   },
+   {
+    "part": "GM-13",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 2.563016646547171,
+    "MS_ult_bound": 1.8744687000415032,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     57.501,
+     108.0,
+     -89.8
+    ]
+   },
+   {
+    "part": "GM-14",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 3.1943530806153824,
+    "MS_ult_bound": 2.38380025780549,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.023,
+     -108.1,
+     -88.026
+    ]
+   },
+   {
+    "part": "GM-14",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 2.4942935044356727,
+    "MS_ult_bound": 1.8190262083092685,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     57.501,
+     -108.0,
+     -89.8
+    ]
+   },
+   {
+    "part": "GM-16a",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 1.139949285402425,
+    "MS_ult_bound": 0.8439988523148552,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.534,
+     124.9,
+     -66.3
+    ]
+   },
+   {
+    "part": "GM-16a",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 0.5614366091369272,
+    "MS_ult_bound": 0.34549324829884154,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.346,
+     123.4,
+     -73.093
+    ]
+   },
+   {
+    "part": "GM-16b",
+    "set": "regular",
+    "state": "B1_19",
+    "MS_bound": 1.1487544816537874,
+    "MS_ult_bound": 0.8515863086591147,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.534,
+     -124.9,
+     -74.3
+    ]
+   },
+   {
+    "part": "GM-16b",
+    "set": "all",
+    "state": "B1_19",
+    "MS_bound": 0.5252573865565746,
+    "MS_ult_bound": 0.3143175352242822,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.346,
+     -123.4,
+     -67.507
+    ]
+   }
+  ],
+  "B1_2": [
+   {
+    "part": "TC-01",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 2.028301072428704,
+    "MS_ult_bound": 1.4595422702506573,
+    "method": "LC1 vm + node-wise F2 cone-pose (GS + TD + LC6) increment (same mesh)",
+    "T_C": 22.242000000000075,
+    "r_theta_z": [
+     28.599,
+     60.8,
+     125.492
+    ]
+   },
+   {
+    "part": "TC-01",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 1.3918404612708755,
+    "MS_ult_bound": 0.9427357766293452,
+    "method": "LC1 vm + node-wise F2 cone-pose (GS + TD + LC6) increment (same mesh)",
+    "T_C": 21.89191097828052,
+    "r_theta_z": [
+     30.18,
+     -27.1,
+     126.638
+    ]
+   },
+   {
+    "part": "TC-02",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 1.1757258487384359,
+    "MS_ult_bound": 0.7504818015270467,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 74.781,
+    "r_theta_z": [
+     5.856,
+     -180.0,
+     107.513
+    ]
+   },
+   {
+    "part": "TC-02",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 0.6374936714340413,
+    "MS_ult_bound": 0.3304636080401584,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.4648948894706,
+    "r_theta_z": [
+     16.017,
+     -125.0,
+     169.513
+    ]
+   },
+   {
+    "part": "TC-03",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 0.14318377135089966,
+    "MS_ult_bound": 0.03948190976533206,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 64.92128571428577,
+    "r_theta_z": [
+     9.8,
+     -180.0,
+     105.513
+    ]
+   },
+   {
+    "part": "TC-03",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 0.14318377135089966,
+    "MS_ult_bound": 0.03948190976533206,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 64.92128571428577,
+    "r_theta_z": [
+     9.8,
+     -180.0,
+     105.513
+    ]
+   },
+   {
+    "part": "TC-04",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 1.2074948795340723,
+    "MS_ult_bound": 0.7935895896214336,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.504380876667028,
+    "r_theta_z": [
+     18.019,
+     139.4,
+     170.818
+    ]
+   },
+   {
+    "part": "TC-04",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 0.5791602458995724,
+    "MS_ult_bound": 0.2830676997934025,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.42797236829449,
+    "r_theta_z": [
+     16.826,
+     -116.3,
+     174.503
+    ]
+   },
+   {
+    "part": "TC-09",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 7.513981002994601,
+    "MS_ult_bound": 6.663753356119932,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 20.094653061226722,
+    "r_theta_z": [
+     19.0,
+     -135.0,
+     -238.105
+    ]
+   },
+   {
+    "part": "TC-09",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 6.627819849478604,
+    "MS_ult_bound": 5.866067561570852,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 20.12559015210269,
+    "r_theta_z": [
+     16.721,
+     90.6,
+     -238.105
+    ]
+   },
+   {
+    "part": "NZ-01",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": -0.11909161683339498,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 1081.6,
+    "r_theta_z": [
+     6.481,
+     60.1,
+     -223.344
+    ]
+   },
+   {
+    "part": "NZ-01",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": -0.17136400006030728,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 1083.1799999999985,
+    "r_theta_z": [
+     6.876,
+     80.0,
+     -223.613
+    ]
+   },
+   {
+    "part": "NZ-02",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 0.8651335201682904,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 398.1959008523569,
+    "r_theta_z": [
+     21.987,
+     151.7,
+     -218.015
+    ]
+   },
+   {
+    "part": "NZ-02",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 0.620167738407263,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 359.1679999999984,
+    "r_theta_z": [
+     21.921,
+     -87.4,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-03",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 0.39376772276442895,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 367.7549565217429,
+    "r_theta_z": [
+     21.166,
+     -53.0,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-03",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 0.1779104831204299,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 297.14799999999525,
+    "r_theta_z": [
+     22.221,
+     162.9,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-04",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 10.530842187162017,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 41.194000000000074,
+    "r_theta_z": [
+     16.381,
+     -103.5,
+     -231.605
+    ]
+   },
+   {
+    "part": "NZ-04",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 8.720705090941959,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 42.10900000000004,
+    "r_theta_z": [
+     15.3,
+     -27.7,
+     -231.605
+    ]
+   },
+   {
+    "part": "GM-01",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": -0.21938837178080928,
+    "MS_ult_bound": -0.3273452990877186,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.984000000000037,
+    "r_theta_z": [
+     35.65,
+     159.9,
+     -9.95
+    ]
+   },
+   {
+    "part": "GM-01",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": -0.28754840299114093,
+    "MS_ult_bound": -0.3860789430030044,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.984000000000037,
+    "r_theta_z": [
+     36.999,
+     168.0,
+     -6.708
+    ]
+   },
+   {
+    "part": "GM-02",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": -0.2593309443100853,
+    "MS_ult_bound": -0.3617638988203927,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.985000000000014,
+    "r_theta_z": [
+     31.238,
+     -104.0,
+     8.905
+    ]
+   },
+   {
+    "part": "GM-02",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": -0.28537502037659135,
+    "MS_ult_bound": -0.3842061345798288,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.984000000000037,
+    "r_theta_z": [
+     36.952,
+     -12.2,
+     -3.732
+    ]
+   },
+   {
+    "part": "PD-01R",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 3.2425999350793013,
+    "MS_ult_bound": 2.447112447251932,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.8118135941138,
+    "r_theta_z": [
+     27.057,
+     93.7,
+     220.45
+    ]
+   },
+   {
+    "part": "PD-01R",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 2.853164116721163,
+    "MS_ult_bound": 2.130695844835945,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.8118135941138,
+    "r_theta_z": [
+     27.029,
+     92.7,
+     220.013
+    ]
+   },
+   {
+    "part": "PD-01S",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 3.0076103347382936,
+    "MS_ult_bound": 2.2561833969748637,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.8118135941138,
+    "r_theta_z": [
+     12.521,
+     -43.4,
+     248.9
+    ]
+   },
+   {
+    "part": "PD-01S",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 3.0076103347382936,
+    "MS_ult_bound": 2.2561833969748637,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.8118135941138,
+    "r_theta_z": [
+     12.521,
+     -43.4,
+     248.9
+    ]
+   },
+   {
+    "part": "FD-01",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 1.6887992744009215,
+    "MS_ult_bound": 4.041498639501728,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.853242791865455,
+    "r_theta_z": [
+     31.973,
+     -175.5,
+     168.013
+    ]
+   },
+   {
+    "part": "FD-01",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 0.4054654413276766,
+    "MS_ult_bound": 1.6352477024893939,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.853242791865455,
+    "r_theta_z": [
+     30.648,
+     -174.4,
+     168.013
+    ]
+   },
+   {
+    "part": "GM-03",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 2.035344190608227,
+    "MS_ult_bound": 1.4487682027001854,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     40.991,
+     -173.2,
+     -1.049
+    ]
+   },
+   {
+    "part": "GM-03",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 1.8860734249071252,
+    "MS_ult_bound": 1.3283438021420655,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     41.0,
+     -174.4,
+     -0.0
+    ]
+   },
+   {
+    "part": "GM-08a",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 15.176594052791668,
+    "MS_ult_bound": 12.050490045587713,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     51.826,
+     -13.0,
+     19.386
+    ]
+   },
+   {
+    "part": "GM-08a",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 12.408198322053758,
+    "MS_ult_bound": 9.817082889029457,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     52.405,
+     15.5,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-08b",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 17.198488540107306,
+    "MS_ult_bound": 13.681656272163554,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.365,
+     -166.8,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-08b",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 10.533506918732446,
+    "MS_ult_bound": 8.304672957881344,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.148,
+     -165.6,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-09",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 15.28710252677585,
+    "MS_ult_bound": 12.139642912685517,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     58.758,
+     -158.4,
+     27.456
+    ]
+   },
+   {
+    "part": "GM-09",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 11.939557951963774,
+    "MS_ult_bound": 9.439006610125471,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     60.107,
+     167.9,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-10",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 3.6055418796926952,
+    "MS_ult_bound": 2.7155274008433388,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     58.75,
+     -112.3,
+     -93.776
+    ]
+   },
+   {
+    "part": "GM-10",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 3.6055418796926952,
+    "MS_ult_bound": 2.7155274008433388,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     58.75,
+     -112.3,
+     -93.776
+    ]
+   },
+   {
+    "part": "GM-13",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 2.887072882050255,
+    "MS_ult_bound": 2.1359015246424136,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.574,
+     108.1,
+     -88.453
+    ]
+   },
+   {
+    "part": "GM-13",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 2.5593977310689304,
+    "MS_ult_bound": 1.8715491348802291,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     57.501,
+     108.0,
+     -89.8
+    ]
+   },
+   {
+    "part": "GM-14",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 3.199839012066036,
+    "MS_ult_bound": 2.3882260407332114,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.023,
+     -108.1,
+     -88.026
+    ]
+   },
+   {
+    "part": "GM-14",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 2.498835398560528,
+    "MS_ult_bound": 1.8226903877942142,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     57.501,
+     -108.0,
+     -89.8
+    ]
+   },
+   {
+    "part": "GM-16a",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 1.13767693969077,
+    "MS_ult_bound": 0.8420407671803445,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.534,
+     124.9,
+     -66.3
+    ]
+   },
+   {
+    "part": "GM-16a",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 0.5599379193172409,
+    "MS_ult_bound": 0.344201824092516,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.346,
+     123.4,
+     -73.093
+    ]
+   },
+   {
+    "part": "GM-16b",
+    "set": "regular",
+    "state": "B1_2",
+    "MS_bound": 1.1516942305700955,
+    "MS_ult_bound": 0.8541194965550822,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.534,
+     -124.9,
+     -74.3
+    ]
+   },
+   {
+    "part": "GM-16b",
+    "set": "all",
+    "state": "B1_2",
+    "MS_bound": 0.52709349506326,
+    "MS_ult_bound": 0.31589971383110704,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.346,
+     -123.4,
+     -67.507
+    ]
+   }
+  ],
+  "B1_1": [
+   {
+    "part": "TC-01",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 2.0159375772350256,
+    "MS_ult_bound": 1.4503204118094972,
+    "method": "LC1 vm + node-wise F2 cone-pose (GS + TD + LC6) increment (same mesh)",
+    "T_C": 20.305000000000007,
+    "r_theta_z": [
+     28.599,
+     60.8,
+     125.492
+    ]
+   },
+   {
+    "part": "TC-01",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 1.3884853582005943,
+    "MS_ult_bound": 0.9405701991849782,
+    "method": "LC1 vm + node-wise F2 cone-pose (GS + TD + LC6) increment (same mesh)",
+    "T_C": 20.221619729981455,
+    "r_theta_z": [
+     30.18,
+     -27.1,
+     126.638
+    ]
+   },
+   {
+    "part": "TC-02",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 0.34397862027322135,
+    "MS_ult_bound": 0.07759571633443518,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 92.892,
+    "r_theta_z": [
+     5.856,
+     -180.0,
+     107.513
+    ]
+   },
+   {
+    "part": "TC-02",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 0.34397862027322135,
+    "MS_ult_bound": 0.07759571633443518,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 92.892,
+    "r_theta_z": [
+     5.856,
+     -180.0,
+     107.513
+    ]
+   },
+   {
+    "part": "TC-03",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": -0.3516077362738532,
+    "MS_ult_bound": -0.41042257992331277,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 74.37685714285709,
+    "r_theta_z": [
+     9.8,
+     -180.0,
+     105.513
+    ]
+   },
+   {
+    "part": "TC-03",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": -0.3516077362738532,
+    "MS_ult_bound": -0.41042257992331277,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 74.37685714285709,
+    "r_theta_z": [
+     9.8,
+     -180.0,
+     105.513
+    ]
+   },
+   {
+    "part": "TC-04",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 1.215653016789251,
+    "MS_ult_bound": 0.8002180761412665,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.760687469400807,
+    "r_theta_z": [
+     18.019,
+     139.4,
+     170.818
+    ]
+   },
+   {
+    "part": "TC-04",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 0.5632074030459195,
+    "MS_ult_bound": 0.27010601497480957,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.702266010634276,
+    "r_theta_z": [
+     16.826,
+     -116.3,
+     174.503
+    ]
+   },
+   {
+    "part": "TC-09",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 8.521246591342416,
+    "MS_ult_bound": 7.570503157535738,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.99000000000052,
+    "r_theta_z": [
+     19.0,
+     -135.0,
+     -238.105
+    ]
+   },
+   {
+    "part": "TC-09",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 7.669467635350204,
+    "MS_ult_bound": 6.803778531530177,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.990000000000407,
+    "r_theta_z": [
+     16.721,
+     90.6,
+     -238.105
+    ]
+   },
+   {
+    "part": "NZ-01",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": -0.44465550617723393,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 1330.1599999999999,
+    "r_theta_z": [
+     6.481,
+     60.1,
+     -223.344
+    ]
+   },
+   {
+    "part": "NZ-01",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": -0.4765755869609509,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 1332.2299999999946,
+    "r_theta_z": [
+     6.876,
+     80.0,
+     -223.613
+    ]
+   },
+   {
+    "part": "NZ-02",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 2.1937383444683882,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 248.87417433364828,
+    "r_theta_z": [
+     21.987,
+     64.2,
+     -215.89
+    ]
+   },
+   {
+    "part": "NZ-02",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 2.1937383444683882,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 248.87417433364828,
+    "r_theta_z": [
+     21.987,
+     64.2,
+     -215.89
+    ]
+   },
+   {
+    "part": "NZ-03",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 0.7007951211435197,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 298.3256521739328,
+    "r_theta_z": [
+     16.316,
+     64.1,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-03",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": -0.0013965647949581994,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 362.4,
+    "r_theta_z": [
+     15.231,
+     -136.4,
+     -229.605
+    ]
+   },
+   {
+    "part": "NZ-04",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 11.654873466440518,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 23.36139999999989,
+    "r_theta_z": [
+     16.381,
+     -103.5,
+     -231.605
+    ]
+   },
+   {
+    "part": "NZ-04",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 10.24998634778183,
+    "MS_ult_bound": null,
+    "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+    "T_C": 23.672000000000025,
+    "r_theta_z": [
+     15.3,
+     -27.7,
+     -231.605
+    ]
+   },
+   {
+    "part": "GM-01",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": -0.21939714708279412,
+    "MS_ult_bound": -0.32735286078410974,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.991000000000042,
+    "r_theta_z": [
+     35.65,
+     159.9,
+     -9.95
+    ]
+   },
+   {
+    "part": "GM-01",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": -0.28755007104909514,
+    "MS_ult_bound": -0.3860803803720927,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.9910000000001,
+    "r_theta_z": [
+     36.999,
+     168.0,
+     -6.708
+    ]
+   },
+   {
+    "part": "GM-02",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": -0.2593337747801323,
+    "MS_ult_bound": -0.3617663378424545,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.99200000000002,
+    "r_theta_z": [
+     31.238,
+     -104.0,
+     8.905
+    ]
+   },
+   {
+    "part": "GM-02",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": -0.2853776768581302,
+    "MS_ult_bound": -0.3842084236756228,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.9910000000001,
+    "r_theta_z": [
+     36.952,
+     -12.2,
+     -3.732
+    ]
+   },
+   {
+    "part": "PD-01R",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 3.240708553634726,
+    "MS_ult_bound": 2.4455756998282148,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.953962530284116,
+    "r_theta_z": [
+     27.057,
+     93.7,
+     220.45
+    ]
+   },
+   {
+    "part": "PD-01R",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 2.8507112598093753,
+    "MS_ult_bound": 2.1287028985951175,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.953962530284116,
+    "r_theta_z": [
+     27.029,
+     92.7,
+     220.013
+    ]
+   },
+   {
+    "part": "PD-01S",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 3.0082078715242826,
+    "MS_ult_bound": 2.2566688956134793,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.953962530284116,
+    "r_theta_z": [
+     12.521,
+     -43.4,
+     248.9
+    ]
+   },
+   {
+    "part": "PD-01S",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 3.0082078715242826,
+    "MS_ult_bound": 2.2566688956134793,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.953962530284116,
+    "r_theta_z": [
+     12.521,
+     -43.4,
+     248.9
+    ]
+   },
+   {
+    "part": "FD-01",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 1.7009947238782233,
+    "MS_ult_bound": 4.064365107271668,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.973000000000013,
+    "r_theta_z": [
+     31.973,
+     -175.5,
+     168.013
+    ]
+   },
+   {
+    "part": "FD-01",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 0.4029222509059065,
+    "MS_ult_bound": 1.6304792204485743,
+    "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+    "T_C": 19.973000000000013,
+    "r_theta_z": [
+     30.648,
+     -174.4,
+     168.013
+    ]
+   },
+   {
+    "part": "GM-03",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 2.035547508056857,
+    "MS_ult_bound": 1.4489322293383502,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     40.991,
+     -173.2,
+     -1.049
+    ]
+   },
+   {
+    "part": "GM-03",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 1.8862624022330912,
+    "MS_ult_bound": 1.3284962598660655,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     41.0,
+     -174.4,
+     -0.0
+    ]
+   },
+   {
+    "part": "GM-08a",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 15.177763038637615,
+    "MS_ult_bound": 12.05143312656608,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     51.826,
+     -13.0,
+     19.386
+    ]
+   },
+   {
+    "part": "GM-08a",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 12.40740965256458,
+    "MS_ult_bound": 9.816446628807796,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     52.405,
+     15.5,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-08b",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 17.197475422218933,
+    "MS_ult_bound": 13.680838937879585,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.365,
+     -166.8,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-08b",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 10.532843530042932,
+    "MS_ult_bound": 8.304137768121336,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.148,
+     -165.6,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-09",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 15.286024651828342,
+    "MS_ult_bound": 12.138773335552845,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     58.758,
+     -158.4,
+     27.456
+    ]
+   },
+   {
+    "part": "GM-09",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 11.94045183371133,
+    "MS_ult_bound": 9.439727750484826,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     60.107,
+     167.9,
+     22.0
+    ]
+   },
+   {
+    "part": "GM-10",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 3.6050658956933805,
+    "MS_ult_bound": 2.7151434000812107,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     58.75,
+     -112.3,
+     -93.776
+    ]
+   },
+   {
+    "part": "GM-10",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 3.6050658956933805,
+    "MS_ult_bound": 2.7151434000812107,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     58.75,
+     -112.3,
+     -93.776
+    ]
+   },
+   {
+    "part": "GM-13",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 2.8875361807670408,
+    "MS_ult_bound": 2.1362752915349876,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.574,
+     108.1,
+     -88.453
+    ]
+   },
+   {
+    "part": "GM-13",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 2.5598195082531854,
+    "MS_ult_bound": 1.8718894042179284,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     57.501,
+     108.0,
+     -89.8
+    ]
+   },
+   {
+    "part": "GM-14",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 3.1993984718290616,
+    "MS_ult_bound": 2.3878706342762936,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     56.023,
+     -108.1,
+     -88.026
+    ]
+   },
+   {
+    "part": "GM-14",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 2.49847077653786,
+    "MS_ult_bound": 1.822396228463659,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     57.501,
+     -108.0,
+     -89.8
+    ]
+   },
+   {
+    "part": "GM-16a",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 1.1379417062071622,
+    "MS_ult_bound": 0.8422689170508524,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.534,
+     124.9,
+     -66.3
+    ]
+   },
+   {
+    "part": "GM-16a",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 0.5601125643662448,
+    "MS_ult_bound": 0.3443523161028279,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.346,
+     123.4,
+     -73.093
+    ]
+   },
+   {
+    "part": "GM-16b",
+    "set": "regular",
+    "state": "B1_1",
+    "MS_bound": 1.1514581347247876,
+    "MS_ult_bound": 0.8539160522628491,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.534,
+     -124.9,
+     -74.3
+    ]
+   },
+   {
+    "part": "GM-16b",
+    "set": "all",
+    "state": "B1_1",
+    "MS_bound": 0.5269460492264786,
+    "MS_ult_bound": 0.315772659439838,
+    "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+    "T_C": 60.0,
+    "r_theta_z": [
+     54.346,
+     -123.4,
+     -67.507
+    ]
+   }
+  ]
+ },
+ "part_max_increment": {
+  "TC-01": {
+   "vmD": 36.860042572021484,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "TC-02": {
+   "vmD": 7.06532096862793,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "TC-03": {
+   "vmD": 14.439010620117188,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "TC-04": {
+   "vmD": 21.301044464111328,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "TC-09": {
+   "vmD": 11.368432998657227,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "NZ-01": {
+   "vmD": 1.2491990327835083,
+   "s1D": 1.1843470335006714,
+   "s3D": -1.2284213304519653
+  },
+  "NZ-02": {
+   "vmD": 0.47545480728149414,
+   "s1D": 0.4158068597316742,
+   "s3D": -0.41069456934928894
+  },
+  "NZ-03": {
+   "vmD": 2.3174633979797363,
+   "s1D": 1.7910683155059814,
+   "s3D": -1.8432765007019043
+  },
+  "NZ-04": {
+   "vmD": 0.6287610530853271,
+   "s1D": 0.6519891619682312,
+   "s3D": -0.6739485263824463
+  },
+  "GM-01": {
+   "vmD": 378.8304138183594,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "GM-02": {
+   "vmD": 405.4860534667969,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "PD-01R": {
+   "vmD": 26.096174240112305,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "PD-01S": {
+   "vmD": 25.109500885009766,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "FD-01": {
+   "vmD": 18.107135772705078,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "GM-03": {
+   "vmD": 40.46979522705078,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "GM-08a": {
+   "vmD": 7.926965236663818,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "GM-08b": {
+   "vmD": 7.219020366668701,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "GM-09": {
+   "vmD": 7.732240200042725,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "GM-10": {
+   "vmD": 35.287166595458984,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "GM-13": {
+   "vmD": 40.04813766479492,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "GM-14": {
+   "vmD": 38.702083587646484,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "GM-16a": {
+   "vmD": 146.23338317871094,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  },
+  "GM-16b": {
+   "vmD": 151.6694793701172,
+   "s1D": -Infinity,
+   "s3D": Infinity
+  }
+ },
+ "summary_min_over_states_regular": {
+  "TC-01": {
+   "part": "TC-01",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 1.2513167952685489,
+   "MS_ult_bound": 0.8098572251126099,
+   "method": "LC1 vm + node-wise F2 cone-pose (GS + TD + LC6) increment (same mesh)",
+   "T_C": 79.02780000000052,
+   "r_theta_z": [
+    28.609,
+    -105.4,
+    125.588
+   ]
+  },
+  "TC-02": {
+   "part": "TC-02",
+   "set": "regular",
+   "state": "B1_19",
+   "MS_bound": 0.024779340778353864,
+   "MS_ult_bound": -0.17640421628111935,
+   "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+   "T_C": 159.15900000000005,
+   "r_theta_z": [
+    5.856,
+    -180.0,
+    107.513
+   ]
+  },
+  "TC-03": {
+   "part": "TC-03",
+   "set": "regular",
+   "state": "B1_1",
+   "MS_bound": -0.3516077362738532,
+   "MS_ult_bound": -0.41042257992331277,
+   "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+   "T_C": 74.37685714285709,
+   "r_theta_z": [
+    9.8,
+    -180.0,
+    105.513
+   ]
+  },
+  "TC-04": {
+   "part": "TC-04",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 0.585902605667193,
+   "MS_ult_bound": 0.2885458671045944,
+   "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+   "T_C": 19.119739130434823,
+   "r_theta_z": [
+    20.0,
+    -180.0,
+    183.163
+   ]
+  },
+  "TC-09": {
+   "part": "TC-09",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 1.1431839540405013,
+   "MS_ult_bound": 0.8589295987075622,
+   "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+   "T_C": 388.7361040422966,
+   "r_theta_z": [
+    27.5,
+    -9.6,
+    -220.243
+   ]
+  },
+  "NZ-01": {
+   "part": "NZ-01",
+   "set": "regular",
+   "state": "B1_1",
+   "MS_bound": -0.44465550617723393,
+   "MS_ult_bound": null,
+   "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+   "T_C": 1330.1599999999999,
+   "r_theta_z": [
+    6.481,
+    60.1,
+    -223.344
+   ]
+  },
+  "NZ-02": {
+   "part": "NZ-02",
+   "set": "regular",
+   "state": "B1_2",
+   "MS_bound": 0.8651335201682904,
+   "MS_ult_bound": null,
+   "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+   "T_C": 398.1959008523569,
+   "r_theta_z": [
+    21.987,
+    151.7,
+    -218.015
+   ]
+  },
+  "NZ-03": {
+   "part": "NZ-03",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 0.25884995092344587,
+   "MS_ult_bound": null,
+   "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+   "T_C": 1277.1686956521821,
+   "r_theta_z": [
+    21.046,
+    140.3,
+    -229.605
+   ]
+  },
+  "NZ-04": {
+   "part": "NZ-04",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 4.384400159071262,
+   "MS_ult_bound": null,
+   "method": "LC1 principal + part-max F2 cone-pose (GS + TD + LC6) increment (Weyl)",
+   "T_C": 378.6526866328146,
+   "r_theta_z": [
+    16.288,
+    25.3,
+    -232.105
+   ]
+  },
+  "GM-01": {
+   "part": "GM-01",
+   "set": "regular",
+   "state": "B1_1",
+   "MS_bound": -0.21939714708279412,
+   "MS_ult_bound": -0.32735286078410974,
+   "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+   "T_C": 19.991000000000042,
+   "r_theta_z": [
+    35.65,
+    159.9,
+    -9.95
+   ]
+  },
+  "GM-02": {
+   "part": "GM-02",
+   "set": "regular",
+   "state": "B1_1",
+   "MS_bound": -0.2593337747801323,
+   "MS_ult_bound": -0.3617663378424545,
+   "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+   "T_C": 19.99200000000002,
+   "r_theta_z": [
+    31.238,
+    -104.0,
+    8.905
+   ]
+  },
+  "PD-01R": {
+   "part": "PD-01R",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 1.2592879380317807,
+   "MS_ult_bound": 0.8304847894864473,
+   "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+   "T_C": 36.221151561572015,
+   "r_theta_z": [
+    22.554,
+    112.8,
+    225.253
+   ]
+  },
+  "PD-01S": {
+   "part": "PD-01S",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 1.0296274549442739,
+   "MS_ult_bound": 0.6444128798545914,
+   "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+   "T_C": 36.221151561572015,
+   "r_theta_z": [
+    22.041,
+    109.3,
+    250.4
+   ]
+  },
+  "FD-01": {
+   "part": "FD-01",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 1.2404136935734402,
+   "MS_ult_bound": 3.400102627915021,
+   "method": "LC1 vm + part-max F2 cone-pose (GS + TD + LC6) increment (pose mesh differs: coarser, or refined at the lever roots)",
+   "T_C": 45.546340321390744,
+   "r_theta_z": [
+    33.712,
+    176.5,
+    148.206
+   ]
+  },
+  "GM-03": {
+   "part": "GM-03",
+   "set": "regular",
+   "state": "B1_2",
+   "MS_bound": 2.035344190608227,
+   "MS_ult_bound": 1.4487682027001854,
+   "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+   "T_C": 60.0,
+   "r_theta_z": [
+    40.991,
+    -173.2,
+    -1.049
+   ]
+  },
+  "GM-08a": {
+   "part": "GM-08a",
+   "set": "regular",
+   "state": "B1_2",
+   "MS_bound": 15.176594052791668,
+   "MS_ult_bound": 12.050490045587713,
+   "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+   "T_C": 60.0,
+   "r_theta_z": [
+    51.826,
+    -13.0,
+    19.386
+   ]
+  },
+  "GM-08b": {
+   "part": "GM-08b",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 17.18579941472151,
+   "MS_ult_bound": 13.671419302379059,
+   "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+   "T_C": 60.0,
+   "r_theta_z": [
+    54.365,
+    -166.8,
+    22.0
+   ]
+  },
+  "GM-09": {
+   "part": "GM-09",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 15.273367607527561,
+   "MS_ult_bound": 12.128562247228881,
+   "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+   "T_C": 60.0,
+   "r_theta_z": [
+    58.758,
+    -158.4,
+    27.456
+   ]
+  },
+  "GM-10": {
+   "part": "GM-10",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 3.5986291391634957,
+   "MS_ult_bound": 2.709950537681067,
+   "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+   "T_C": 60.0,
+   "r_theta_z": [
+    58.75,
+    -112.3,
+    -93.776
+   ]
+  },
+  "GM-13": {
+   "part": "GM-13",
+   "set": "regular",
+   "state": "B1_2",
+   "MS_bound": 2.887072882050255,
+   "MS_ult_bound": 2.1359015246424136,
+   "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+   "T_C": 60.0,
+   "r_theta_z": [
+    56.574,
+    108.1,
+    -88.453
+   ]
+  },
+  "GM-14": {
+   "part": "GM-14",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 3.1934410947534992,
+   "MS_ult_bound": 2.3830645119263894,
+   "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+   "T_C": 60.0,
+   "r_theta_z": [
+    56.023,
+    -108.1,
+    -88.026
+   ]
+  },
+  "GM-16a": {
+   "part": "GM-16a",
+   "set": "regular",
+   "state": "B1_2",
+   "MS_bound": 1.13767693969077,
+   "MS_ult_bound": 0.8420407671803445,
+   "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+   "T_C": 60.0,
+   "r_theta_z": [
+    54.534,
+    124.9,
+    -66.3
+   ]
+  },
+  "GM-16b": {
+   "part": "GM-16b",
+   "set": "regular",
+   "state": "B1_21.65",
+   "MS_bound": 1.1482657786809147,
+   "MS_ult_bound": 0.8511651922675967,
+   "method": "F2 cone-pose (GS + TD + LC6) cold vm (9 poses) + LC1-run thermal + manifold vm (node-wise)",
+   "T_C": 60.0,
+   "r_theta_z": [
+    54.534,
+    -124.9,
+    -74.3
+   ]
+  }
+ }
+}

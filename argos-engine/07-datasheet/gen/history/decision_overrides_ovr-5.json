@@ -1,0 +1,550 @@
+{
+ "id": "ARGOS-H1-DATASHEET-DECISION-OVERRIDES",
+ "version": "ovr-5",
+ "date": "2026-10-21",
+ "purpose": "Lead decisions that the interface files do not carry yet: combustion.json v2.4 (REV-COMB-2 R2-01, R2-02, R2-05; CHANGELOG 172 (6)) and the GNC rev2 decisions (CHANGELOG 175) on texts the datasheet quotes. While the stale text is still in a target, the datasheet shows the decision from the cited CHANGELOG or REQUIREMENTS text instead of the stale wording. Each entry checks itself: the cited source must contain every 'verify' string and every number of 'value'; a target is applied only while its stale wording is still present. Rev1 (ovr-4): the same rule on combustion.json v2.4d, gnc.json v3.2 and electronics.json v4.",
+ "drop_when": "per entry, when the generator reports it REDUNDANT (combustion.json v2.4a and gnc.json v3.1 published). Targets inside the append-only CHANGELOG never become redundant: they mark a superseded clause of an older decision for as long as it is quoted.",
+ "rules": {
+  "value": "Short statement of the decision. Every number in it must appear in the cited source text (checked by the generator; ERROR otherwise).",
+  "sources": "Locators the generator reads: CHANGELOG line and item (contains = sentence filter) or the newest lead decision citing a text (line_contains, no item), REQUIREMENTS amendment bullet (by its leading text; contains = sentence filter), a JSON pointer, a review register list entry, or a review-file line (line_contains).",
+  "targets": "Displayed source keys the decision overrides. mode annotate: stale wording struck through and the decision inserted; replace: decision shown, stale text kept below, struck through; append: decision appended (target lacks the decided term). stale_re: regex that must match for the target to be active; absent_re: target active while this regex does NOT match.",
+  "suppress": "Superseded values that are not shown at all. Display text matching a pattern is masked; numeric keys listed in pointers are withheld. corroborate_re must match a key of combustion.json /superseded_v2p4/v (the author's own withdrawal list) or the entry is reported.",
+  "short": "Optional shorter statement inserted in annotated text; its numbers are checked like those of value."
+ },
+ "overrides": [
+  {
+   "id": "OVR-01",
+   "topic": "30 bar over-pressure abort: channel and persistence",
+   "value": "30 bar firmware abort on the FILTERED channel with 5 ms persistence (amends 'raw' in CHANGELOG 160 (2))",
+   "short": "FILTERED channel, 5 ms persistence",
+   "basis": "REV-COMB-2 R2-01",
+   "sources": [
+    {
+     "sid": "CL",
+     "line": 166,
+     "item": 4,
+     "verify": [
+      "FILTERED channel",
+      "5 ms persistence",
+      "raw"
+     ]
+    },
+    {
+     "sid": "REQ",
+     "section": "Amendments after rev 2",
+     "bullet": "Electronics review decisions (CHANGELOG 166)",
+     "contains": "filtered channel, 5 ms",
+     "verify": [
+      "filtered channel, 5 ms"
+     ]
+    }
+   ],
+   "targets": [
+    {
+     "sid": "CMB",
+     "ptr": "/abort_matrix_v2p4/v/A4",
+     "mode": "annotate",
+     "stale_re": "(?<!\")\\braw\\b",
+     "stale_re_ovr3": "\\braw\\b",
+     "rev1_note": "tightened in ovr-4: the target now quotes the old wording as amended or superseded"
+    },
+    {
+     "sid": "CL",
+     "ptr": "L160(2)",
+     "mode": "annotate",
+     "stale_re": "\\braw\\b"
+    }
+   ]
+  },
+  {
+   "id": "OVR-02",
+   "topic": "E1 gate and bleed closure deadline",
+   "value": "E1 = torch confirmed (2oo2) AND (closure confirmed OR closure deadline reached), deadline <= the torch gate; at the deadline in flight the lift proceeds with BLEED_FAULT to the FC (FC action LOG-ONLY); on the stand it stays an abort",
+   "short": "E1 = torch confirmed (2oo2) AND (closure confirmed OR deadline <= torch gate); in flight the lift proceeds with BLEED_FAULT (FC LOG-ONLY); stand: abort",
+   "basis": "REV-COMB-2 R2-01",
+   "sources": [
+    {
+     "sid": "CL",
+     "line": 166,
+     "item": 3,
+     "contains": "E1 = torch confirmed",
+     "verify": [
+      "2oo2",
+      "closure deadline reached",
+      "the deadline is <= the torch gate",
+      "in flight the lift proceeds",
+      "on the stand it stays an abort"
+     ]
+    },
+    {
+     "sid": "CL",
+     "line": 168,
+     "item": 2,
+     "verify": [
+      "BLEED_FAULT",
+      "LOG-ONLY"
+     ]
+    }
+   ],
+   "targets": [
+    {
+     "sid": "CMB",
+     "ptr": "/igniter/sequence/v/start/0/action",
+     "mode": "annotate",
+     "stale_re": "closure confirmed before E1 or BLEED_FAULT to the FC \\(relight proceeds\\)"
+    },
+    {
+     "sid": "CMB",
+     "ptr": "/igniter/sequence/v/start/3/action",
+     "mode": "append",
+     "absent_re": "closure"
+    },
+    {
+     "sid": "CMB",
+     "ptr": "/abort_matrix_v2p4/v/A14",
+     "mode": "annotate",
+     "stale_re": "(?<!\")closure not confirmed by E0 - 0\\.05 s",
+     "stale_re_ovr3": "closure not confirmed by E0 - 0\\.05 s",
+     "rev1_note": "tightened in ovr-4: the target now quotes the old wording as amended or superseded"
+    },
+    {
+     "sid": "CMB",
+     "ptr": "/cf4_gate/v/pass_criteria/5",
+     "mode": "annotate",
+     "stale_re": "closure by E0 - 0\\.05 s"
+    }
+   ]
+  },
+  {
+   "id": "OVR-03",
+   "topic": "Stand safing after a no-light",
+   "value": "N2 purge >= 60 s at >= 10 g/s, then hold >= 15 min before anyone approaches (Pc at ambient, head TCs falling), then safing; 'wait >= 5 s' is withdrawn",
+   "short": "N2 purge >= 60 s at >= 10 g/s, hold >= 15 min before approach, then safing",
+   "basis": "REV-COMB-2 R2-02",
+   "sources": [
+    {
+     "sid": "CL",
+     "line": 172,
+     "item": 1,
+     "verify": [
+      "N2 purge >= 60 s at >= 10 g/s",
+      "hold >= 15 min",
+      "withdrawn"
+     ]
+    },
+    {
+     "sid": "REQ",
+     "section": "Amendments after rev 2",
+     "bullet": "Combustion re-review decisions (CHANGELOG 172)",
+     "contains": "stand safing",
+     "verify": [
+      "N2 purge >= 60 s at >= 10 g/s",
+      "hold >= 15 min"
+     ]
+    }
+   ],
+   "targets": [
+    {
+     "sid": "CMB",
+     "ptr": "/igniter/sequence/v/abort_if_no_ignition/1",
+     "mode": "annotate",
+     "stale_re": "ground: wait >= 5 s, N2 purge, safing( \\(§10\\.2\\))?"
+    }
+   ]
+  },
+  {
+   "id": "OVR-04",
+   "topic": "Tank temperature range at ARM and ignition interlock",
+   "value": "tank temperature range at ARM 15-24 C (was 15-25 C); T_tank <= 24 C at ARM and at ignition; thresholds sit below 24 C / 55.28 bar abs by the channel uncertainty",
+   "short": "ARM 15-24 C; T_tank <= 24 C at ARM and at ignition",
+   "basis": "REV-COMB-2 R2-05, R2-07",
+   "sources": [
+    {
+     "sid": "REQ",
+     "section": "Amendments after rev 2",
+     "bullet": "ENG-12:",
+     "verify": [
+      "15-24 C",
+      "was 15-25 C"
+     ]
+    },
+    {
+     "sid": "REQ",
+     "section": "Amendments after rev 2",
+     "bullet": "ENG-09:",
+     "verify": [
+      "T_tank <= 24 C at ARM and at ignition"
+     ]
+    },
+    {
+     "sid": "CL",
+     "line": 172,
+     "item": 4,
+     "verify": [
+      "24 C / 55.28 bar abs",
+      "total channel uncertainty"
+     ]
+    }
+   ],
+   "targets": [
+    {
+     "sid": "CMB",
+     "ptr": "/decisions/tank_pressurisation",
+     "mode": "annotate",
+     "stale_re": "(?<!was )15-25 C",
+     "stale_re_ovr3": "15-25 C",
+     "rev1_note": "tightened in ovr-4: the target now quotes the old wording as amended or superseded"
+    },
+    {
+     "sid": "CMB",
+     "ptr": "/igniter/sequence/v/arm_preconditions/0",
+     "mode": "annotate",
+     "stale_re": "tank 15-25 C \\(ENG-12\\)"
+    },
+    {
+     "sid": "REQ",
+     "ptr": "§2. Top-level row \"ENG-12\" col 1",
+     "mode": "annotate",
+     "stale_re": "15\\s*[-–]\\s*25\\s*°C"
+    },
+    {
+     "sid": "REQ",
+     "ptr": "§2. Top-level row \"ENG-01\" col 1",
+     "mode": "annotate",
+     "stale_re": "15\\s*[-–]\\s*25\\s*°C"
+    }
+   ]
+  },
+  {
+   "id": "OVR-05",
+   "topic": "Relief set points (feed and tank)",
+   "value": "tank relief 6.9 MPa, MAWP >= 8.42 MPa, proof >= 10.5 MPa, back-relief check MV segment to tank (Cv >= 0.1), secondary disc 9.5 MPa +/- 5 %; the trapped-liquid relief <= 7.5 MPa text is superseded",
+   "short": "tank relief 6.9 MPa, MAWP >= 8.42 MPa, proof >= 10.5 MPa, back-relief check (Cv >= 0.1), disc 9.5 MPa +/- 5 %",
+   "basis": "REV-COMB-2 R2-05; CHANGELOG 172 (6)",
+   "sources": [
+    {
+     "sid": "REQ",
+     "section": "Amendments after rev 2",
+     "bullet": "Combustion re-review decisions (CHANGELOG 172)",
+     "contains": "trapped-liquid relief",
+     "verify": [
+      "tank relief 6.9 MPa",
+      "MAWP >= 8.42 MPa",
+      "proof >= 10.5 MPa",
+      "Cv >= 0.1",
+      "9.5 MPa +/- 5 %"
+     ]
+    },
+    {
+     "sid": "CL",
+     "line": 172,
+     "item": 6,
+     "verify": [
+      "trapped-liquid relief <= 7.5 MPa",
+      "superseded",
+      "6.9 MPa",
+      "8.42 MPa",
+      "9.5 MPa disc"
+     ]
+    },
+    {
+     "sid": "REQ",
+     "section": "Amendments after rev 2",
+     "bullet": "Relief:",
+     "verify": [
+      "MV segment -> tank",
+      "Cv >= 0.1"
+     ]
+    }
+   ],
+   "targets": [
+    {
+     "sid": "CMB",
+     "ptr": "/valves_and_actuators/isolation_valve/trapped_liquid_relief",
+     "mode": "replace",
+     "stale_re": "^(?!SUPERSEDED)[\\s\\S]*<= 7\\.5 MPa",
+     "stale_re_ovr3": "<= 7\\.5 MPa",
+     "rev1_note": "tightened in ovr-4: the target now quotes the old wording as amended or superseded"
+    },
+    {
+     "sid": "CMB",
+     "ptr": "/valves_and_actuators/priming_rule/v/2",
+     "mode": "annotate",
+     "stale_re": "trapped-liquid relief between the isolation valve and the pintle stays \\(mechanical\\.json v1: <= 7\\.5 MPa\\)"
+    },
+    {
+     "sid": "REQ",
+     "ptr": "§2. Top-level row \"ENG-09\" col 1",
+     "mode": "annotate",
+     "stale_re": "Trapped-liquid relief ≤ 7\\.5 MPa\\.?"
+    }
+   ]
+  },
+  {
+   "id": "OVR-06",
+   "topic": "MEOP basis: ignition interlock instead of the v2.3 tank temperature",
+   "value": "MEOP 45 bar kept with the ignition interlock T_tank <= 24 C at ARM and at ignition; basis 44.33 bar at the interlock (meop_basis_v2p4), margin 0.67 bar",
+   "short": "ignition interlock T_tank <= 24 C; basis 44.33 bar (meop_basis_v2p4)",
+   "basis": "REV-COMB-2 R2-05 (RC-08 closed); CHANGELOG 172 (4)",
+   "sources": [
+    {
+     "sid": "REQ",
+     "section": "Amendments after rev 2",
+     "bullet": "ENG-09:",
+     "verify": [
+      "MEOP 45 bar kept",
+      "T_tank <= 24 C"
+     ]
+    },
+    {
+     "sid": "CMB",
+     "ptr": "/meop_basis_v2p4/v",
+     "verify": [
+      "44.33",
+      "0.67"
+     ]
+    }
+   ],
+   "targets": [
+    {
+     "sid": "CMB",
+     "ptr": "/decisions/chamber_MEOP_Pa/tag",
+     "mode": "replace",
+     "stale_re": "30 C tank"
+    },
+    {
+     "sid": "REQ",
+     "ptr": "§2. Top-level row \"ENG-09\" col 1",
+     "mode": "annotate",
+     "stale_re": "stuck-pintle case, 30\\s*°C tank"
+    },
+    {
+     "sid": "ICD",
+     "ptr": "§3. Loads row \"Physical worst-case thrust\" col 1",
+     "mode": "annotate",
+     "stale_re": "30\\s*°C tank"
+    }
+   ]
+  },
+  {
+   "id": "OVR-07",
+   "topic": "FA-1 relight pulse load",
+   "value": "75.5 bar is a single point at ASSUMED O/F 8. The FA-1 load is the published envelope (head peak 83.0 bar abs baseline, 88.0 upper bracket) and the FA-1 structural load = 90 bar abs quasi-static at head and aft for all parts",
+   "short": "single point at ASSUMED O/F 8; superseded by the FA-1 envelope (head peak 83.0 to 88.0 bar abs) and the structural load 90 bar abs",
+   "basis": "REV-COMB-2 R2-03; lead decision on the Combustion v2.4a envelope",
+   "sources": [
+    {
+     "sid": "SUP",
+     "review": "REV-COMB-2",
+     "field": "major",
+     "contains": "R2-03",
+     "verify": [
+      "FA-1 pulse single point at ASSUMED O/F"
+     ]
+    },
+    {
+     "sid": "RCMB",
+     "line_contains": "\"75.5 bar, <= 3 ms\" pulse check",
+     "verify": [
+      "75.5",
+      "O/F (8)"
+     ]
+    },
+    {
+     "sid": "CL",
+     "line": 172,
+     "item": 2,
+     "verify": [
+      "ENVELOPE",
+      "O/F 4-12",
+      "tf 1-7 ms",
+      "quasi-static 90 bar abs",
+      "1.8 kN for 4 ms"
+     ]
+    },
+    {
+     "sid": "CL",
+     "line_contains": "fa1_envelope_v2p4a.json",
+     "verify": [
+      "FA-1 structural load = 90 bar abs",
+      "head peak 83.0 bar abs baseline",
+      "88.0 upper bracket"
+     ]
+    }
+   ],
+   "targets": [],
+   "annotate_re": "75\\.5 bar",
+   "active_while": {
+    "sid": "CMB",
+    "absent_key_re": "(?i)fa1.*envelope|envelope.*fa1|fa-1.*envelope"
+   }
+  },
+  {
+   "id": "OVR-08",
+   "topic": "Relight purge commit: the flight computer no longer delays the fire time for the purge",
+   "value": "Line 164 \"the FC delays T_fire instead\" is WITHDRAWN. PROVISIONAL rule: PURGE commits no later than plain trigger - 1.7 s; with no commit by then the purge is NOT run and the relight proceeds unpurged",
+   "short": "WITHDRAWN; PROVISIONAL: PURGE commits no later than plain trigger - 1.7 s, otherwise the purge is NOT run and the relight proceeds unpurged",
+   "basis": "GNC rev2, H-G3 refuted",
+   "sources": [
+    {
+     "sid": "CL",
+     "line": 175,
+     "item": 3,
+     "verify": [
+      "WITHDRAWN",
+      "PROVISIONAL rule",
+      "plain trigger - 1.7 s",
+      "the purge is NOT run"
+     ]
+    },
+    {
+     "sid": "REQ",
+     "section": "Amendments after rev 2",
+     "bullet": "GNC rev2 decisions (CHANGELOG 175)",
+     "contains": "PURGE commits",
+     "verify": [
+      "PURGE commits no later than the plain relight trigger - 1.7 s"
+     ]
+    }
+   ],
+   "targets": [
+    {
+     "sid": "CMB",
+     "ptr": "/igniter/sequence/v/start/0/action",
+     "mode": "annotate",
+     "stale_re": "if T_fire would cut the flow below 1\\.9 s, the FC delays T_fire"
+    }
+   ]
+  },
+  {
+   "id": "OVR-09",
+   "topic": "Drogue release with Pc invalid: accelerometer-confirmed thrust instead of the time-only term",
+   "value": "The time-only 0xFFFF release term (line 168 (1)) is REPLACED in design by R2: with Pc invalid, release iff ECU RUN AND accelerometer thrust >= 37.16 N for 3 frames at 100 Hz; otherwise hold the drogue and command ECU ABORT at t_E2 + pcf_tmax, pcf_tmax 0.8 s (PROPOSAL to be flown)",
+   "short": "REPLACED in design by R2: with Pc invalid, release iff ECU RUN AND accelerometer thrust >= 37.16 N for 3 frames at 100 Hz; otherwise hold the drogue and command ECU ABORT at t_E2 + pcf_tmax (0.8 s, PROPOSAL)",
+   "basis": "GNC rev2 amendment c",
+   "sources": [
+    {
+     "sid": "CL",
+     "line": 175,
+     "item": 5,
+     "verify": [
+      "REPLACED in design by R2",
+      "37.16 N for 3 frames at 100 Hz",
+      "pcf_tmax 0.8 s"
+     ]
+    },
+    {
+     "sid": "REQ",
+     "section": "Amendments after rev 2",
+     "bullet": "GNC rev2 decisions (CHANGELOG 175)",
+     "contains": "accelerometer-confirmed thrust",
+     "verify": [
+      "37.16 N, 3 frames at 100 Hz"
+     ]
+    }
+   ],
+   "targets": [
+    {
+     "sid": "CL",
+     "ptr": "L168(1)",
+     "mode": "annotate",
+     "stale_re": "OR \\(d2-d3 = 0xFFFF AND t >= t_E2 \\+ 0\\.10 s\\)"
+    }
+   ]
+  },
+  {
+   "id": "OVR-10",
+   "topic": "electronics.json v4 status text: STAGED vs promoted",
+   "value": "interfaces/electronics.json is v4, PROMOTED 07:05:56Z by the lead; its 'STAGED' status text is superseded until v4.1",
+   "short": "PROMOTED 07:05:56Z (v4 is the published file); the 'STAGED' text is superseded until v4.1",
+   "basis": "CHANGELOG 253 (5)",
+   "sources": [
+    {
+     "sid": "CL",
+     "line": 253,
+     "item": 5,
+     "verify": [
+      "PROMOTED 07:05:56Z",
+      "'STAGED' status text is superseded",
+      "Until v4.1 this line governs v4"
+     ]
+    }
+   ],
+   "targets": [
+    {
+     "sid": "ELE",
+     "ptr": "/status",
+     "mode": "annotate",
+     "stale_re": "STAGED for the lead \\(06-electronics/staging_v2\\.11/; interfaces/electronics\\.json v3 stays the published file until the lead promotes this one\\)"
+    }
+   ]
+  }
+ ],
+ "suppress": [
+  {
+   "id": "SUP-01",
+   "topic": "v2.3 MEOP basis (stuck pintle, tank above the ignition interlock)",
+   "replacement": "v2.4 basis /meop_basis_v2p4 (OVR-06)",
+   "basis": "REV-COMB-2 R2-05; combustion.json /superseded_v2p4",
+   "patterns": [
+    "(?<![\\d.])42\\.85(?!\\d)"
+   ],
+   "pointers": [
+    {
+     "sid": "CMB",
+     "ptr": "/operating_points/pressure_limits/full_stroke_failure_S230_max_bar"
+    },
+    {
+     "sid": "CMB",
+     "ptr": "/operating_points/pressure_limits/full_stroke_failure_S230/v/11/Pc_bar"
+    }
+   ],
+   "corroborate_re": "42\\.85"
+  },
+  {
+   "id": "SUP-02",
+   "topic": "v2.3 throat-insert life in A1 flights",
+   "replacement": "one insert per flight (ENG-06 as amended)",
+   "basis": "REV-COMB-2 R2-05; combustion.json /superseded_v2p4",
+   "patterns": [
+    "(?<![\\d.])1\\.0\\s*[-–]\\s*4\\.3(?!\\d)",
+    "\\[\\s*1\\.0\\s*,\\s*4\\.3\\s*\\]"
+   ],
+   "pointers": [
+    {
+     "sid": "CMB",
+     "ptr": "/thermal_and_loads/flights_per_insert_A1"
+    }
+   ],
+   "corroborate_re": "1\\.0-4\\.3"
+  },
+  {
+   "id": "SUP-03",
+   "topic": "v2.3 coast seat-leak ceiling",
+   "replacement": "coast leak ceiling from the Combustion report v2.4 (§7.3 of this datasheet)",
+   "basis": "REV-COMB-2 R2-05; combustion.json /superseded_v2p4",
+   "patterns": [
+    "(?<![\\d.])0\\.039\\s*g/s"
+   ],
+   "pointers": [
+    {
+     "sid": "CMB",
+     "ptr": "/valves_and_actuators/pintle_actuator/seat_and_seal_review_v2p3/v/b_seat/leak_tightness"
+    }
+   ],
+   "corroborate_re": "0\\.039 g/s"
+  },
+  {
+   "id": "SUP-04",
+   "topic": "ICD-AIRFRAME quotes the v2.3 MEOP-basis pressure rounded",
+   "replacement": "v2.4 basis (OVR-06); worst-case thrust at that basis not published",
+   "basis": "same physical case as SUP-01 (ICD tag: SIM, Combustion v2.3)",
+   "patterns": [
+    "(?<![\\d.])42\\.9\\s*bar"
+   ],
+   "pointers": [],
+   "corroborate_re": "42\\.85"
+  }
+ ],
+ "rev1_changes": "ovr-4 (datasheet rev1, 2026-10-21): (a) three targets tightened so that text which already quotes the old wording as amended or SUPERSEDED no longer counts as stale (OVR-01 A4: \"amends line 160 \\\"raw\\\"\"; OVR-02 A14: SUPERSEDED (v2.4a) quote; OVR-04 tank_pressurisation: \"was 15-25 C\"; OVR-05 trapped_liquid_relief: SUPERSEDED (v2.4a) prefix); (b) OVR-10 added: the electronics.json v4 status text STAGED, superseded by the lead promotion; nothing else changed. ovr-3 is kept as history/decision_overrides_rev0.json. ovr-5 (2026-10-21, datasheet rev1 author): OVR-07 no longer reads reviews/REVIEW-COMBUSTION-R2.md (REV-COMB-2 is superseded by REV-COMB-4, lead 12:13Z item 2); it reads the Combustion author's own withdrawal row in 02-combustion/REPORT.md instead (the 75.5 bar pulse at one O/F (8), superseded by the FA-1 envelope); its other sources are unchanged and it has no target. The REV-COMB-2 items named in the \"basis\" fields are kept as the history of each override, not as current values. ovr-4 is kept as gen/history/decision_overrides_ovr-4.json."
+}

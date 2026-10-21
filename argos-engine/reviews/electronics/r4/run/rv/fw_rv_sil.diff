@@ -1,0 +1,47 @@
+diff -ru /dev/shm/rev_elec4/fw/sil/sc_v212.inc /dev/shm/rev_elec4/fw_rv/sil/sc_v212.inc
+--- /dev/shm/rev_elec4/fw/sil/sc_v212.inc	2026-10-21 12:03:30.149605341 +0000
++++ /dev/shm/rev_elec4/fw_rv/sil/sc_v212.inc	2026-10-21 13:26:34.407537260 +0000
+@@ -98,14 +98,22 @@
+   const auto hHI = loadSeatHist(H + "seat_hist_B1_R4_GVHI.csv");
+   const auto hLO = loadSeatHist(H + "seat_hist_B1_R4_GVLO.csv");
+   const char* only = std::getenv("S13T_ONLY");   // optional: one case name (timing / debug)
+-  struct Comp { const char* name; bool tc; double eps, err_K; };
+-  const Comp comps[] = {{"off", false, 0.0, 0.0}, {"comp", true, 0.0, 0.0}, {"comp_under", true, -0.10, -0.30}, {"comp_over", true, 0.10, 0.30}};
++  struct Comp { const char* name; bool tc; double eps, err_K, err_from; };
++  std::vector<Comp> comps = {{"off", false, 0.0, 0.0, 0.70}, {"comp", true, 0.0, 0.0, 0.70}, {"comp_under", true, -0.10, -0.30, 0.70}, {"comp_over", true, 0.10, 0.30, 0.70}};
++  static std::vector<std::string> rv_names; rv_names.reserve(64);   // REV-ELEC-4 reviewer variant (env RV_*)
++  if (const char* e = std::getenv("RV_COMPS")) {
++    comps.clear(); std::string all(e); size_t a = 0;
++    while (a < all.size()) { size_t b = all.find(';', a); if (b == std::string::npos) b = all.size(); std::string it = all.substr(a, b - a); a = b + 1;
++      if (it.empty()) continue; std::vector<std::string> f; size_t u = 0; while (true) { size_t v = it.find(':', u); f.push_back(it.substr(u, v == std::string::npos ? std::string::npos : v - u)); if (v == std::string::npos) break; u = v + 1; }
++      rv_names.push_back(f[0]); comps.push_back({rv_names.back().c_str(), true, std::atof(f[1].c_str()), std::atof(f[2].c_str()), f.size() > 3 ? std::atof(f[3].c_str()) : 0.70}); } }
+   struct Loc { const char* name; bool stand; const std::vector<std::array<double, 3>>* h; double mech_sd, coast; std::vector<double> T0C; bool unlit; };
+   const std::vector<Loc> locs = {
+       {"A1_flight", false, &hA1, 3.541, 22.211 - 3.541, {0.0, 20.0, 40.0}, true},
+       {"stand_after_B1_GVHI", true, &hHI, 21.651, 18.67, {0.0, 24.0}, true},
+       {"stand_after_B1_GVLO", true, &hLO, 21.651, 18.67, {0.0, 24.0}, false}};
+-  const double ks[] = {1.0, 1.5, 2.0, 3.0};
++  std::vector<double> ks = {1.0, 1.5, 2.0, 3.0};
++  if (const char* e = std::getenv("RV_KS")) { ks.clear(); std::string all(e); size_t a = 0; while (a < all.size()) { size_t b = all.find(',', a); if (b == std::string::npos) b = all.size(); ks.push_back(std::atof(all.substr(a, b - a).c_str())); a = b + 1; } }
++  const bool rv_stand_only = std::getenv("RV_STAND_ONLY") != nullptr; const char* rv_t0 = std::getenv("RV_T0");
+   J j; j.k("id").v(std::string("S13T_seat_drift")); j.k("version").v(std::string("v2.12")); j.k("build_kBpc1Shown").v(ecu::cfg::kBpc1Shown);
+   j.k("kIgnBaseCheck_Pa").v(ecu::cfg::kIgnBaseCheck_Pa); j.k("kPcRezeroMax_Pa").v(ecu::cfg::kPcRezeroMax_Pa);
+   j.k("tag").v(std::string("SIM (SIL plant, ASSUMED / Combustion bands) x Mechanical SIM seat history x DATASHEET typical coefficient; k ASSUMED (F-10 MISSING)"));
+@@ -114,6 +122,8 @@
+   for (const Loc& L : locs)
+     for (double T0 : L.T0C)
+       for (const Comp& cp : comps) {
++        if (rv_stand_only && !L.stand) continue;
++        if (rv_t0 && T0 != std::atof(rv_t0)) continue;
+         if (cp.eps != 0.0 && T0 != (L.stand ? 24.0 : 20.0)) continue;   // the coefficient-error variants at the reference T0 only
+         for (double sg : {1.0, -1.0})
+           for (double k : ks)
+@@ -125,7 +135,7 @@
+               SimConfig c = nominal(97);
+               c.eng.hb_fitted = true; c.test_stand = L.stand;
+               c.seat_drift = true; c.seat_s = sg; c.seat_k = k; c.seat_T0_K = 273.15 + T0; c.seat_hist = *L.h; c.seat_mech_sd_s = L.mech_sd;
+-              c.seat_tc = cp.tc; c.seat_tc_err_K = cp.err_K;
++              c.seat_tc = cp.tc; c.seat_tc_err_K = cp.err_K; c.seat_tc_err_from = cp.err_from;
+               c.seat_coef_cal = cp.tc ? sg * k * c.seat_c_PaK * (1.0 + cp.eps) : 0.0;
+               std::string csvp = (only ? OUT + "/S13T_" + std::string(nm) + ".csv" : "");
+               const DriftOut o = driftRun(c, lit == 1, L.coast, &csvp);

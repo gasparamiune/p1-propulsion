@@ -349,7 +349,7 @@ def part_margins(M, names, body, T, X, reg, F, cid, subcases, sfy, sfu, state):
                    "MS_ult": (float(np.min(np.where(msk, env["msu"], np.inf))) if not brittle and sfu else None),
                    "MS_primary_only": (float(np.min(np.where(msk, env["msp"], np.inf))) if not brittle else None),
                    "MS_PQ_nodal_shakedown": (float(np.min(np.where(msk, env["mspq"], np.inf))) if not brittle else None),
-                   "vm_MPa": float(v[i]), "vm_mech_MPa": float(vmech[i]), "vm_thermal_MPa": float(vm(F["S_TH"][n].astype(float))),
+                   "vm_MPa": float(v[i]), "vm_mech_MPa": float(vmech[i]), "vm_thermal_MPa": (float(vm(F["S_TH"][n].astype(float))) if "S_TH" in F else 0.0),
                    "vm_max_set_MPa": vmax, "s1_MPa": s1n, "s3_MPa": s3n, "s3_mech_MPa": s3mn, "T_C": float(T[n] - 273.15),
                    "zone": ("char" if char[i] else ("virgin" if T_char is not None else "")),
                    "T_char_C": T_char, "T_limit_C": T_lim, "T_part_max_C": float(Tc.max()),

@@ -1,0 +1,5945 @@
+{
+ "version": "m2_eng11_fe_summary v1.0",
+ "run_version": "m2_eng11_fe v1.0",
+ "date": "2026-10-19",
+ "question": "does the design-to window 100 <= K_s <= 130 N m/rad (RV6-01 text, V5c plant, CAD v3.3) hold on the 3D FE plant of CAD v3.5.1, and what is the window for each J and structure, with the corners that set it? (REV-GNC-6 RV6-14 (a)-(e); lead CHANGELOG 227 (3))",
+ "tags": "DERIVED (linear CSI margins, m2_eng11 v1.1 model and corners) on SIM FE stiffness (FEA3D C7.1, CAD v3.5.1); K_s, J value, rocking damping, bending, the compliant-airframe spring and hot E ASSUMED; no hardware data; not physical approval; staged apart from the gnc.json v3.2 text (not folded)",
+ "grid": "K_s 90-160 N m/rad step 5; edges known to +/-5 N m/rad; '<= 90' / '>= 160' are grid limits",
+ "criterion": "ENG-07d: closed loop stable and upper GM >= 6 dB at every floor20 corner, continuous pose envelope (0.1 Hz + 0.02 Hz near the bending frequency), fixed ECU notch Q 1 / -12 dB at e 0.95 / 1 / 1.05 x the bench landing centre-pose mode, zeta 0.02 / 0.05 / 0.10",
+ "check": {
+  "path": "eng11fe_check.json",
+  "sha256_16": "59ae72e4174e2c05",
+  "passed": true,
+  "c3_reproduces_rev_gnc6_v05B": true,
+  "c4_two_mass_limits": [
+   true,
+   true
+  ],
+  "kin_vs_v5c_max_rel_diff": 0.0236,
+  "K_af_Nm_per_rad": {
+   "alpha": 39732.051017613536,
+   "beta": 42325.06536006881
+  },
+  "compliant_ratio_stop045": {
+   "alpha": 0.8588222915628392,
+   "beta": 0.8695755208529536
+  },
+  "centre_full_Hz": {
+   "alpha|Ks100": {
+    "J0": 27.311,
+    "JC": 21.457,
+    "tm_f1_JC": 23.168,
+    "tm_f2_JC": 95.69
+   },
+   "alpha|Ks130": {
+    "J0": 30.075,
+    "JC": 23.628,
+    "tm_f1_JC": 25.94,
+    "tm_f2_JC": 97.44
+   },
+   "beta|Ks100": {
+    "J0": 26.213,
+    "JC": 20.593,
+    "tm_f1_JC": 22.674,
+    "tm_f2_JC": 83.95
+   },
+   "beta|Ks130": {
+    "J0": 28.626,
+    "JC": 22.489,
+    "tm_f1_JC": 25.229,
+    "tm_f2_JC": 86.02
+   }
+  },
+  "inputs": {
+   "m2_eng11": {
+    "path": "/home/claude/work/space/gnc_dev3/scripts/m2_eng11.py",
+    "sha256_16": "aaad9a07a0551b9b"
+   },
+   "m2_eng11_fe": {
+    "path": "/home/claude/work/space/gnc_dev3/scripts/m2_eng11_fe.py",
+    "sha256_16": "fab0f05eb87d8e61"
+   },
+   "k_cone": {
+    "path": "/home/claude/work/shared-fallback/engine/04-fea/assembly3d/results/k_cone_c71.json",
+    "sha256_16": "bfb9b56ed85b6a2f"
+   },
+   "k_stop": {
+    "path": "/home/claude/work/shared-fallback/engine/04-fea/assembly3d/results/k_stop_c71.json",
+    "sha256_16": "fd9ca16b0b3d2304"
+   },
+   "k_pose_neutral": {
+    "path": "/home/claude/work/shared-fallback/engine/04-fea/assembly3d/results/k_pose_neutral_c71.json",
+    "sha256_16": "f2cb152b6a0a259c"
+   },
+   "k_stop045_compliant": {
+    "path": "/home/claude/work/shared-fallback/engine/04-fea/assembly3d/results/k_stop045_compliant_c71.json",
+    "sha256_16": "85afcccce28d194e"
+   },
+   "k_range": {
+    "path": "/home/claude/work/shared-fallback/engine/04-fea/assembly3d/results/k_range_v351.json",
+    "sha256_16": "27421efb09e7daf0"
+   },
+   "modal_summary": {
+    "path": "/home/claude/work/shared-fallback/engine/04-fea/assembly3d/results/modal_summary_v351.json",
+    "sha256_16": "242b38ffab643434"
+   },
+   "report_fea3d": {
+    "path": "/home/claude/work/shared-fallback/engine/04-fea/assembly3d/REPORT-FEA3D.md",
+    "sha256_16": "ff24718e9db201e5"
+   },
+   "tvc_kinematics": {
+    "path": "/home/claude/work/shared-fallback/engine/03-cad/src/tvc_kinematics.py",
+    "sha256_16": "ffb860e11a1ffd8d"
+   },
+   "cad_config": {
+    "path": "/home/claude/work/shared-fallback/engine/03-cad/src/config.py",
+    "sha256_16": "d1988d2913c27a5a"
+   },
+   "v5c": {
+    "path": "/home/claude/work/shared-fallback/engine/04-fea/stiffness/gimbal_k_summary_V5c_v1.json",
+    "sha256_16": "82a737caa138259a"
+   },
+   "mechanical": {
+    "path": "/home/claude/work/shared-fallback/engine/interfaces/mechanical.json",
+    "sha256_16": "e4d3e7c9df529171"
+   },
+   "rev_gnc6_v05": {
+    "path": "/home/claude/work/shared-fallback/engine/reviews/gnc/rev4/results/v05_eng11_env.json",
+    "sha256_16": "f0432df3c70dad6e"
+   },
+   "rev_gnc6_v09": {
+    "path": "/home/claude/work/shared-fallback/engine/reviews/gnc/rev4/results/v09_fe_plant.json",
+    "sha256_16": "a513b164c16d37d1"
+   }
+  }
+ },
+ "legend": {
+  "corner": "tank state (full / landing) | floor20 condition | actuator corner | aero corner | f<rocking-mode Hz at that pose and condition> | e<notch tuning factor> | z<rocking damping> [| GM<upper gain margin dB>]; two-mass rows name the pose (or 'A-B@x' on the skeleton) and f1 = the first (rocking) mode",
+  "first_fail": "the first corner below 6 dB in the evaluation order (full tank, zeta 0.02, near bending first)",
+  "fail_block_worst": "the lowest GM in that corner's (condition, e, zeta) block (lumped model only); -99.0 = closed loop UNSTABLE at that corner",
+  "window": "a contiguous run of passing grid points; '<= 90' / '>= 160' = the grid limit, not a found edge",
+  "primary_window": "the both-axes window overlapping the v3.2 design-to window 100-130 most (else the lowest)"
+ },
+ "how_to_rerun": {
+  "tree": "01-systems-gnc/staging_v3.1/rev4/sim/gnc_dev3_sim6_v2.9-dev (gncsim 16 files, scripts/m2_eng11.py aaad9a07a0551b9b, m2_csi.py 2928d4decb6eac03, m2_csi_v3.py edd32bb4c3fbff79, m2r3_env.sh 3db997bd5ba95e20, run_rev4_queue2.sh 0871253befcf0e46: byte-identical to the run tree) with eng11_fe/scripts/m2_eng11_fe.py (and m2_eng11_fe_q.py, m2_eng11_fe_summary.py) added to its scripts/",
+  "env": "source scripts/m2r3_env.sh; GNC_IFACE=<rev4/sim/iface_v351> GNC_IFACE_PIN=<rev4/pins/pins_rev4/pins_rev4_v351.sha256 (cf6d8d010833a274)> GNC_ACT_RATE=$GNC_IFACE/actuator_rate_check_v2.json GNC_E11_MASS=v351 GNC_E11FE_OUT=<dir>; GNC_E11FE_PART=check, then GNC_E11FE_PART=run GNC_E11FE_VARIANTS=<ids>; $PY scripts/m2_eng11_fe.py; then $PY scripts/m2_eng11_fe_summary.py",
+  "cost": "4.5-22 min per variant on one core (a passing row evaluates every corner)",
+  "reads": "hub 04-fea/assembly3d results (k_cone_c71, k_stop_c71, k_pose_neutral_c71, k_stop045_compliant_c71, k_range_v351, modal_summary_v351), 03-cad/src/tvc_kinematics.py and config.py (read only, no config.build()), 04-fea/stiffness/gimbal_k_summary_V5c_v1.json, interfaces/mechanical.json, reviews/gnc/rev4/results/v05_eng11_env.json and v09_fe_plant.json (sha-pinned in eng11fe_check.json)"
+ },
+ "files": {
+  "A01": {
+   "path": "eng11fe_A01.json",
+   "sha256_16": "05d69313b84259aa"
+  },
+  "A02": {
+   "path": "eng11fe_A02.json",
+   "sha256_16": "2fb470c46fca7c9e"
+  },
+  "A03": {
+   "path": "eng11fe_A03.json",
+   "sha256_16": "87e7f13b3737c999"
+  },
+  "A04": {
+   "path": "eng11fe_A04.json",
+   "sha256_16": "b7968b9cfcf0cb55"
+  },
+  "A05": {
+   "path": "eng11fe_A05.json",
+   "sha256_16": "3f89f0b81ac973b6"
+  },
+  "A06": {
+   "path": "eng11fe_A06.json",
+   "sha256_16": "0e5e27e1443efc7c"
+  },
+  "A07": {
+   "path": "eng11fe_A07.json",
+   "sha256_16": "b6d446d3f74cf9a0"
+  },
+  "A07o": {
+   "path": "eng11fe_A07o.json",
+   "sha256_16": "932373f6228ffeb3"
+  },
+  "A08": {
+   "path": "eng11fe_A08.json",
+   "sha256_16": "34f7c7ae25235a0d"
+  },
+  "A09": {
+   "path": "eng11fe_A09.json",
+   "sha256_16": "e94ac5d5e8767eef"
+  },
+  "A10": {
+   "path": "eng11fe_A10.json",
+   "sha256_16": "56306507519b5402"
+  },
+  "A11": {
+   "path": "eng11fe_A11.json",
+   "sha256_16": "0a14a275cbdf4680"
+  },
+  "A12": {
+   "path": "eng11fe_A12.json",
+   "sha256_16": "140bf932deda2d3f"
+  },
+  "B01": {
+   "path": "eng11fe_B01.json",
+   "sha256_16": "7e536a2d273880eb"
+  },
+  "B02": {
+   "path": "eng11fe_B02.json",
+   "sha256_16": "94a4ce8338f197f7"
+  },
+  "B03": {
+   "path": "eng11fe_B03.json",
+   "sha256_16": "2d86aa06d493d060"
+  },
+  "B04": {
+   "path": "eng11fe_B04.json",
+   "sha256_16": "47cc79aacc4e41d6"
+  },
+  "B05": {
+   "path": "eng11fe_B05.json",
+   "sha256_16": "cb043f3f730cc087"
+  },
+  "B06": {
+   "path": "eng11fe_B06.json",
+   "sha256_16": "c9a9a241987abd2c"
+  },
+  "B07": {
+   "path": "eng11fe_B07.json",
+   "sha256_16": "97a9c0cc940e4800"
+  },
+  "C01": {
+   "path": "eng11fe_C01.json",
+   "sha256_16": "705da74bb1806285"
+  },
+  "C02": {
+   "path": "eng11fe_C02.json",
+   "sha256_16": "e86a8075f4d8b208"
+  },
+  "C03": {
+   "path": "eng11fe_C03.json",
+   "sha256_16": "bb18c92706b897a9"
+  },
+  "C04": {
+   "path": "eng11fe_C04.json",
+   "sha256_16": "daa3eb14088a1079"
+  }
+ },
+ "variants": {
+  "A01": {
+   "label": "FE rigid airframe, cone poses, T_REF, J 1.6e-3 cons (bench notch) [FE base]",
+   "spec": {
+    "struct": "FE",
+    "poses": "cone",
+    "air": "rigid",
+    "hot": 1.0,
+    "g": "v5c",
+    "J": "J_C",
+    "kin": "cons",
+    "model": "lumped",
+    "wb": 1.0,
+    "notch": "bench"
+   },
+   "J_kgm2": 0.0016,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     150.0,
+     155.0,
+     160.0
+    ],
+    "beta": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0
+    ]
+   },
+   "windows": {
+    "alpha": [
+     "<= 90-120",
+     "150->= 160"
+    ],
+    "beta": [
+     "<= 90-125"
+    ]
+   },
+   "both_axes_pass_Ks": [
+    90.0,
+    95.0,
+    100.0,
+    105.0,
+    110.0,
+    115.0,
+    120.0
+   ],
+   "both_axes_windows": [
+    "<= 90-120"
+   ],
+   "primary_window": "<= 90-120",
+   "primary_window_Ks": [
+    90.0,
+    120.0
+   ],
+   "covers_v5c_window_100_130": false,
+   "primary_edges": {
+    "upper": {
+     "edge_Ks": 120.0,
+     "set_by_axes": [
+      "alpha"
+     ],
+     "outside_Ks": 125.0,
+     "outside_fail": {
+      "alpha": {
+       "first_fail": "full|max500N|act_fast|noaero|f24.061|e0.95|z0.02|GM5.939",
+       "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+       "fail_block_worst": {
+        "block": "full|max500N|act_fast|noaero|e0.95|z0.02",
+        "worst_gm_dB": 5.608,
+        "at_f_Hz": 24.111
+       },
+       "n_eval": 471,
+       "n_corners": 6075
+      }
+     },
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.305,
+       "worst": "full|max500N|act_worst|maxq_fins|f22.959|e0.95|z0.1",
+       "pm_abs_min_deg": 24.39,
+       "sm_min": 0.3698,
+       "n_corners": 4536
+      },
+      "beta": {
+       "gm_up_min_dB": 6.196,
+       "worst": "full|max500N|act_worst|maxq_fins|f20.084|e0.95|z0.1",
+       "pm_abs_min_deg": 24.05,
+       "sm_min": 0.3645,
+       "n_corners": 8505
+      }
+     }
+    },
+    "lower": {
+     "edge_Ks": 90.0,
+     "set_by": "grid limit (no failure found inside 90-160)",
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.136,
+       "worst": "full|max500N|act_worst|maxq_fins|f20.705|e0.95|z0.1",
+       "pm_abs_min_deg": 23.63,
+       "sm_min": 0.3587,
+       "n_corners": 2187
+      },
+      "beta": {
+       "gm_up_min_dB": 6.027,
+       "worst": "full|max500N|act_worst|maxq_fins|f18.189|e0.95|z0.1",
+       "pm_abs_min_deg": 23.32,
+       "sm_min": 0.3537,
+       "n_corners": 6885
+      }
+     }
+    }
+   },
+   "gm_min_inside_primary_dB": {
+    "alpha": 6.136,
+    "beta": 6.027
+   },
+   "failing_rows": {
+    "alpha|Ks125": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.061|e0.95|z0.02|GM5.939",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.608,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks130": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.108|e0.95|z0.02|GM5.911",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.848,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks135": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.144|e0.95|z0.02|GM5.958",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.108,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks140": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.249|e0.95|z0.02|GM5.714",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.349,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.544|e0.95|z0.02|GM5.637",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.637,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks130": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.961|e0.95|z0.02|GM5.996",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.433,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks135": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.001|e0.95|z0.02|GM5.912",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.092,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks140": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.021|e0.95|z0.02|GM5.991",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.326,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.061|e0.95|z0.02|GM5.918",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.547,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks150": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.081|e0.95|z0.02|GM5.990",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.755,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks155": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.121|e0.95|z0.02|GM5.933",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.952,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks160": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.161|e0.95|z0.02|GM5.893",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.136,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 125.4,
+    "beta": 129.0
+   },
+   "coincidence_band_Hz": [
+    24.14,
+    24.71
+   ]
+  },
+  "A02": {
+   "label": "as A01, J 0.76e-3 cons",
+   "spec": {
+    "struct": "FE",
+    "poses": "cone",
+    "air": "rigid",
+    "hot": 1.0,
+    "g": "v5c",
+    "J": "J_LO",
+    "kin": "cons",
+    "model": "lumped",
+    "wb": 1.0,
+    "notch": "bench"
+   },
+   "J_kgm2": 0.00076,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0,
+     160.0
+    ],
+    "beta": [
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0,
+     160.0
+    ]
+   },
+   "windows": {
+    "alpha": [
+     "110->= 160"
+    ],
+    "beta": [
+     "130->= 160"
+    ]
+   },
+   "both_axes_pass_Ks": [
+    130.0,
+    135.0,
+    140.0,
+    145.0,
+    150.0,
+    155.0,
+    160.0
+   ],
+   "both_axes_windows": [
+    "130->= 160"
+   ],
+   "primary_window": "130->= 160",
+   "primary_window_Ks": [
+    130.0,
+    160.0
+   ],
+   "covers_v5c_window_100_130": false,
+   "primary_edges": {
+    "upper": {
+     "edge_Ks": 160.0,
+     "set_by": "grid limit (no failure found inside 90-160)",
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.604,
+       "worst": "full|max500N|act_worst|maxq_fins|f28.385|e0.95|z0.1",
+       "pm_abs_min_deg": 25.69,
+       "sm_min": 0.3887,
+       "n_corners": 3321
+      },
+      "beta": {
+       "gm_up_min_dB": 6.496,
+       "worst": "full|max500N|act_worst|maxq_fins|f24.109|e0.95|z0.1",
+       "pm_abs_min_deg": 25.35,
+       "sm_min": 0.3835,
+       "n_corners": 22599
+      }
+     }
+    },
+    "lower": {
+     "edge_Ks": 130.0,
+     "set_by_axes": [
+      "beta"
+     ],
+     "outside_Ks": 125.0,
+     "outside_fail": {
+      "beta": {
+       "first_fail": "full|max500N|act_fast|noaero|f24.321|e0.95|z0.02|GM5.954",
+       "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+       "fail_block_worst": {
+        "block": "full|max500N|act_fast|noaero|e0.95|z0.02",
+        "worst_gm_dB": 5.799,
+        "at_f_Hz": 24.461
+       },
+       "n_eval": 1351,
+       "n_corners": 26487
+      }
+     },
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.51,
+       "worst": "full|max500N|act_worst|maxq_fins|f26.532|e0.95|z0.1",
+       "pm_abs_min_deg": 25.28,
+       "sm_min": 0.3828,
+       "n_corners": 3402
+      },
+      "beta": {
+       "gm_up_min_dB": 6.01,
+       "worst": "full|max500N|act_fast|maxq_finless|f24.461|e0.95|z0.02",
+       "pm_abs_min_deg": 24.97,
+       "sm_min": 0.3779,
+       "n_corners": 26568
+      }
+     }
+    }
+   },
+   "gm_min_inside_primary_dB": {
+    "alpha": 6.51,
+    "beta": 6.01
+   },
+   "failing_rows": {
+    "alpha|Ks90": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.039|e0.95|z0.02|GM5.897",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.897,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks95": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.098|e0.95|z0.02|GM5.913",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.789,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks100": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.164|e0.95|z0.02|GM5.915",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.172,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks105": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.470|e0.95|z0.02|GM5.519",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.519,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks90": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.941|e0.95|z0.02|GM5.911",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 3.586,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks95": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.981|e0.95|z0.02|GM5.968",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 3.985,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks100": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.041|e0.95|z0.02|GM5.869",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.356,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks105": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.071|e0.95|z0.02|GM6.000",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.698,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks110": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.121|e0.95|z0.02|GM5.995",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.014,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks115": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.181|e0.95|z0.02|GM5.958",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.301,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks120": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.238|e0.95|z0.02|GM5.970",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.563,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks125": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.321|e0.95|z0.02|GM5.954",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.799,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 91.1,
+    "beta": 79.9
+   },
+   "coincidence_band_Hz": [
+    24.14,
+    24.71
+   ]
+  },
+  "A03": {
+   "label": "as A01, J 2.7e-3 cons",
+   "spec": {
+    "struct": "FE",
+    "poses": "cone",
+    "air": "rigid",
+    "hot": 1.0,
+    "g": "v5c",
+    "J": "J_HI",
+    "kin": "cons",
+    "model": "lumped",
+    "wb": 1.0,
+    "notch": "bench"
+   },
+   "J_kgm2": 0.0027,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0,
+     160.0
+    ],
+    "beta": [
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0,
+     160.0
+    ]
+   },
+   "windows": {
+    "alpha": [
+     "100->= 160"
+    ],
+    "beta": [
+     "120->= 160"
+    ]
+   },
+   "both_axes_pass_Ks": [
+    120.0,
+    125.0,
+    130.0,
+    135.0,
+    140.0,
+    145.0,
+    150.0,
+    155.0,
+    160.0
+   ],
+   "both_axes_windows": [
+    "120->= 160"
+   ],
+   "primary_window": "120->= 160",
+   "primary_window_Ks": [
+    120.0,
+    160.0
+   ],
+   "covers_v5c_window_100_130": false,
+   "primary_edges": {
+    "upper": {
+     "edge_Ks": 160.0,
+     "set_by": "grid limit (no failure found inside 90-160)",
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.273,
+       "worst": "full|max500N|act_worst|maxq_fins|f22.256|e0.95|z0.1",
+       "pm_abs_min_deg": 24.27,
+       "sm_min": 0.368,
+       "n_corners": 2835
+      },
+      "beta": {
+       "gm_up_min_dB": 6.159,
+       "worst": "full|max500N|act_worst|maxq_fins|f19.875|e0.95|z0.1",
+       "pm_abs_min_deg": 23.86,
+       "sm_min": 0.3618,
+       "n_corners": 4941
+      }
+     }
+    },
+    "lower": {
+     "edge_Ks": 120.0,
+     "set_by_axes": [
+      "beta"
+     ],
+     "outside_Ks": 115.0,
+     "outside_fail": {
+      "beta": {
+       "first_fail": "full|max500N|act_worst|maxq_fins|f18.014|e0.95|z0.1|GM5.982",
+       "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+       "fail_block_worst": {
+        "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1",
+        "worst_gm_dB": 5.982,
+        "at_f_Hz": 18.014
+       },
+       "n_eval": 16,
+       "n_corners": 5022
+      }
+     },
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.117,
+       "worst": "full|max500N|act_worst|maxq_fins|f20.348|e0.95|z0.1",
+       "pm_abs_min_deg": 23.56,
+       "sm_min": 0.3576,
+       "n_corners": 2430
+      },
+      "beta": {
+       "gm_up_min_dB": 6.004,
+       "worst": "full|max500N|act_worst|maxq_fins|f18.168|e0.95|z0.1",
+       "pm_abs_min_deg": 23.18,
+       "sm_min": 0.3518,
+       "n_corners": 5103
+      }
+     }
+    }
+   },
+   "gm_min_inside_primary_dB": {
+    "alpha": 6.117,
+    "beta": 6.004
+   },
+   "failing_rows": {
+    "alpha|Ks90": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f18.333|e0.95|z0.1|GM5.932",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.932,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "alpha|Ks95": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f18.721|e0.95|z0.1|GM5.970",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.97,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks90": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f16.454|e0.95|z0.1|GM5.821",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.821,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks95": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f16.775|e0.95|z0.1|GM5.857",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.857,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks100": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f17.080|e0.95|z0.1|GM5.891",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.891,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks105": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f17.471|e0.95|z0.1|GM5.926",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.926,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks110": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f17.648|e0.95|z0.1|GM5.952",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.952,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks115": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f18.014|e0.95|z0.1|GM5.982",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.982,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 179.2,
+    "beta": 232.0
+   },
+   "coincidence_band_Hz": [
+    24.14,
+    24.71
+   ]
+  },
+  "A04": {
+   "label": "as A01, hot E -5 %",
+   "spec": {
+    "struct": "FE",
+    "poses": "cone",
+    "air": "rigid",
+    "hot": 0.95,
+    "g": "v5c",
+    "J": "J_C",
+    "kin": "cons",
+    "model": "lumped",
+    "wb": 1.0,
+    "notch": "bench"
+   },
+   "J_kgm2": 0.0016,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     155.0,
+     160.0
+    ],
+    "beta": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0
+    ]
+   },
+   "windows": {
+    "alpha": [
+     "<= 90-125",
+     "155->= 160"
+    ],
+    "beta": [
+     "<= 90-130"
+    ]
+   },
+   "both_axes_pass_Ks": [
+    90.0,
+    95.0,
+    100.0,
+    105.0,
+    110.0,
+    115.0,
+    120.0,
+    125.0
+   ],
+   "both_axes_windows": [
+    "<= 90-125"
+   ],
+   "primary_window": "<= 90-125",
+   "primary_window_Ks": [
+    90.0,
+    125.0
+   ],
+   "covers_v5c_window_100_130": false,
+   "primary_edges": {
+    "upper": {
+     "edge_Ks": 125.0,
+     "set_by_axes": [
+      "alpha"
+     ],
+     "outside_Ks": 130.0,
+     "outside_fail": {
+      "alpha": {
+       "first_fail": "full|max500N|act_fast|noaero|f24.108|e0.95|z0.02|GM5.905",
+       "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+       "fail_block_worst": {
+        "block": "full|max500N|act_fast|noaero|e0.95|z0.02",
+        "worst_gm_dB": 5.14,
+        "at_f_Hz": 24.268
+       },
+       "n_eval": 581,
+       "n_corners": 5184
+      }
+     },
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.325,
+       "worst": "full|max500N|act_worst|maxq_fins|f23.128|e0.95|z0.1",
+       "pm_abs_min_deg": 24.49,
+       "sm_min": 0.3712,
+       "n_corners": 5346
+      },
+      "beta": {
+       "gm_up_min_dB": 6.213,
+       "worst": "full|max500N|act_worst|maxq_fins|f20.168|e0.95|z0.1",
+       "pm_abs_min_deg": 24.14,
+       "sm_min": 0.3658,
+       "n_corners": 8343
+      }
+     }
+    },
+    "lower": {
+     "edge_Ks": 90.0,
+     "set_by": "grid limit (no failure found inside 90-160)",
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.132,
+       "worst": "full|max500N|act_worst|maxq_fins|f20.486|e0.95|z0.1",
+       "pm_abs_min_deg": 23.63,
+       "sm_min": 0.3586,
+       "n_corners": 2349
+      },
+      "beta": {
+       "gm_up_min_dB": 6.023,
+       "worst": "full|max500N|act_worst|maxq_fins|f18.056|e0.95|z0.1",
+       "pm_abs_min_deg": 23.31,
+       "sm_min": 0.3536,
+       "n_corners": 6642
+      }
+     }
+    }
+   },
+   "gm_min_inside_primary_dB": {
+    "alpha": 6.132,
+    "beta": 6.023
+   },
+   "failing_rows": {
+    "alpha|Ks130": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.108|e0.95|z0.02|GM5.905",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.14,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks135": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.137|e0.95|z0.02|GM5.994",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.108,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks140": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.196|e0.95|z0.02|GM5.936",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.349,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.344|e0.95|z0.02|GM5.676",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.572,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks150": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.597|e0.95|z0.02|GM5.931",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.931,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks135": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.001|e0.95|z0.02|GM5.912",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.837,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks140": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.021|e0.95|z0.02|GM5.991",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.333,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.061|e0.95|z0.02|GM5.918",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.547,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks150": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.081|e0.95|z0.02|GM5.990",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.756,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks155": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.121|e0.95|z0.02|GM5.933",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.952,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks160": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.161|e0.95|z0.02|GM5.893",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.136,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 128.0,
+    "beta": 134.3
+   },
+   "coincidence_band_Hz": [
+    24.14,
+    24.71
+   ]
+  },
+  "A05": {
+   "label": "as A01, hot E -10 %",
+   "spec": {
+    "struct": "FE",
+    "poses": "cone",
+    "air": "rigid",
+    "hot": 0.9,
+    "g": "v5c",
+    "J": "J_C",
+    "kin": "cons",
+    "model": "lumped",
+    "wb": 1.0,
+    "notch": "bench"
+   },
+   "J_kgm2": 0.0016,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     155.0,
+     160.0
+    ],
+    "beta": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0
+    ]
+   },
+   "windows": {
+    "alpha": [
+     "<= 90-130",
+     "155->= 160"
+    ],
+    "beta": [
+     "<= 90-135"
+    ]
+   },
+   "both_axes_pass_Ks": [
+    90.0,
+    95.0,
+    100.0,
+    105.0,
+    110.0,
+    115.0,
+    120.0,
+    125.0,
+    130.0
+   ],
+   "both_axes_windows": [
+    "<= 90-130"
+   ],
+   "primary_window": "<= 90-130",
+   "primary_window_Ks": [
+    90.0,
+    130.0
+   ],
+   "covers_v5c_window_100_130": true,
+   "primary_edges": {
+    "upper": {
+     "edge_Ks": 130.0,
+     "set_by_axes": [
+      "alpha"
+     ],
+     "outside_Ks": 135.0,
+     "outside_fail": {
+      "alpha": {
+       "first_fail": "full|max500N|act_fast|noaero|f24.155|e0.95|z0.02|GM5.894",
+       "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+       "fail_block_worst": {
+        "block": "full|max500N|act_fast|noaero|e0.95|z0.02",
+        "worst_gm_dB": 5.132,
+        "at_f_Hz": 24.397
+       },
+       "n_eval": 747,
+       "n_corners": 5427
+      }
+     },
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.082,
+       "worst": "full|max500N|act_fast|maxq_finless|f24.081|e0.95|z0.02",
+       "pm_abs_min_deg": 24.58,
+       "sm_min": 0.3725,
+       "n_corners": 5994
+      },
+      "beta": {
+       "gm_up_min_dB": 6.229,
+       "worst": "full|max500N|act_worst|maxq_fins|f20.211|e0.95|z0.1",
+       "pm_abs_min_deg": 24.23,
+       "sm_min": 0.367,
+       "n_corners": 8181
+      }
+     }
+    },
+    "lower": {
+     "edge_Ks": 90.0,
+     "set_by": "grid limit (no failure found inside 90-160)",
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.129,
+       "worst": "full|max500N|act_worst|maxq_fins|f20.356|e0.95|z0.1",
+       "pm_abs_min_deg": 23.63,
+       "sm_min": 0.3586,
+       "n_corners": 2349
+      },
+      "beta": {
+       "gm_up_min_dB": 6.018,
+       "worst": "full|max500N|act_worst|maxq_fins|f17.912|e0.95|z0.1",
+       "pm_abs_min_deg": 23.31,
+       "sm_min": 0.3536,
+       "n_corners": 6642
+      }
+     }
+    }
+   },
+   "gm_min_inside_primary_dB": {
+    "alpha": 6.082,
+    "beta": 6.018
+   },
+   "failing_rows": {
+    "alpha|Ks135": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.155|e0.95|z0.02|GM5.894",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.132,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks140": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.195|e0.95|z0.02|GM5.938",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.349,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.244|e0.95|z0.02|GM5.959",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.572,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks150": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.343|e0.95|z0.02|GM5.884",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.777,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks140": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.021|e0.95|z0.02|GM5.991",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.425,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.061|e0.95|z0.02|GM5.918",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.663,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks150": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.081|e0.95|z0.02|GM5.990",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.756,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks155": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.121|e0.95|z0.02|GM5.933",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.952,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks160": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.161|e0.95|z0.02|GM5.893",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.136,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 130.9,
+    "beta": 140.6
+   },
+   "coincidence_band_Hz": [
+    24.14,
+    24.71
+   ]
+  },
+  "A06": {
+   "label": "as A01, compliant airframe",
+   "spec": {
+    "struct": "FE",
+    "poses": "cone",
+    "air": "compliant",
+    "hot": 1.0,
+    "g": "v5c",
+    "J": "J_C",
+    "kin": "cons",
+    "model": "lumped",
+    "wb": 1.0,
+    "notch": "bench"
+   },
+   "J_kgm2": 0.0016,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     160.0
+    ],
+    "beta": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0
+    ]
+   },
+   "windows": {
+    "alpha": [
+     "<= 90-135",
+     "160"
+    ],
+    "beta": [
+     "<= 90-140"
+    ]
+   },
+   "both_axes_pass_Ks": [
+    90.0,
+    95.0,
+    100.0,
+    105.0,
+    110.0,
+    115.0,
+    120.0,
+    125.0,
+    130.0,
+    135.0
+   ],
+   "both_axes_windows": [
+    "<= 90-135"
+   ],
+   "primary_window": "<= 90-135",
+   "primary_window_Ks": [
+    90.0,
+    135.0
+   ],
+   "covers_v5c_window_100_130": true,
+   "primary_edges": {
+    "upper": {
+     "edge_Ks": 135.0,
+     "set_by_axes": [
+      "alpha"
+     ],
+     "outside_Ks": 140.0,
+     "outside_fail": {
+      "alpha": {
+       "first_fail": "full|max500N|act_fast|noaero|f24.195|e0.95|z0.02|GM5.941",
+       "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+       "fail_block_worst": {
+        "block": "full|max500N|act_fast|noaero|e0.95|z0.02",
+        "worst_gm_dB": 5.431,
+        "at_f_Hz": 24.355
+       },
+       "n_eval": 695,
+       "n_corners": 4941
+      }
+     },
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.359,
+       "worst": "full|max500N|act_worst|maxq_fins|f23.313|e0.95|z0.1",
+       "pm_abs_min_deg": 24.66,
+       "sm_min": 0.3737,
+       "n_corners": 4860
+      },
+      "beta": {
+       "gm_up_min_dB": 6.249,
+       "worst": "full|max500N|act_worst|maxq_fins|f20.498|e0.95|z0.1",
+       "pm_abs_min_deg": 24.31,
+       "sm_min": 0.3682,
+       "n_corners": 8019
+      }
+     }
+    },
+    "lower": {
+     "edge_Ks": 90.0,
+     "set_by": "grid limit (no failure found inside 90-160)",
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.125,
+       "worst": "full|max500N|act_worst|maxq_fins|f20.198|e0.95|z0.1",
+       "pm_abs_min_deg": 23.62,
+       "sm_min": 0.3585,
+       "n_corners": 2430
+      },
+      "beta": {
+       "gm_up_min_dB": 6.019,
+       "worst": "full|max500N|act_worst|maxq_fins|f17.948|e0.95|z0.1",
+       "pm_abs_min_deg": 23.31,
+       "sm_min": 0.3536,
+       "n_corners": 6318
+      }
+     }
+    }
+   },
+   "gm_min_inside_primary_dB": {
+    "alpha": 6.125,
+    "beta": 6.019
+   },
+   "failing_rows": {
+    "alpha|Ks140": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.195|e0.95|z0.02|GM5.941",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.431,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.240|e0.95|z0.02|GM5.973",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.572,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks150": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.313|e0.95|z0.02|GM5.952",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.776,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks155": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.396|e0.95|z0.02|GM5.994",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.964,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.061|e0.95|z0.02|GM5.918",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.525,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks150": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.081|e0.95|z0.02|GM5.990",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.9,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks155": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.121|e0.95|z0.02|GM5.933",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.952,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks160": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.149|e0.95|z0.02|GM5.957",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.136,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 136.3,
+    "beta": 145.3
+   },
+   "coincidence_band_Hz": [
+    24.14,
+    24.71
+   ]
+  },
+  "A07": {
+   "label": "as A01, compliant airframe + hot E -10 %",
+   "spec": {
+    "struct": "FE",
+    "poses": "cone",
+    "air": "compliant",
+    "hot": 0.9,
+    "g": "v5c",
+    "J": "J_C",
+    "kin": "cons",
+    "model": "lumped",
+    "wb": 1.0,
+    "notch": "bench"
+   },
+   "J_kgm2": 0.0016,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0,
+     160.0
+    ],
+    "beta": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0,
+     160.0
+    ]
+   },
+   "windows": {
+    "alpha": [
+     "<= 90-140",
+     "160"
+    ],
+    "beta": [
+     "<= 90->= 160"
+    ]
+   },
+   "both_axes_pass_Ks": [
+    90.0,
+    95.0,
+    100.0,
+    105.0,
+    110.0,
+    115.0,
+    120.0,
+    125.0,
+    130.0,
+    135.0,
+    140.0,
+    160.0
+   ],
+   "both_axes_windows": [
+    "<= 90-140",
+    "160"
+   ],
+   "primary_window": "<= 90-140",
+   "primary_window_Ks": [
+    90.0,
+    140.0
+   ],
+   "covers_v5c_window_100_130": true,
+   "primary_edges": {
+    "upper": {
+     "edge_Ks": 140.0,
+     "set_by_axes": [
+      "alpha"
+     ],
+     "outside_Ks": 145.0,
+     "outside_fail": {
+      "alpha": {
+       "first_fail": "full|max500N|act_fast|noaero|f24.251|e0.95|z0.02|GM5.934",
+       "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+       "fail_block_worst": {
+        "block": "full|max500N|act_fast|noaero|e0.95|z0.02",
+        "worst_gm_dB": 5.909,
+        "at_f_Hz": 24.258
+       },
+       "n_eval": 588,
+       "n_corners": 5589
+      }
+     },
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.371,
+       "worst": "full|max500N|act_worst|maxq_fins|f23.163|e0.95|z0.1",
+       "pm_abs_min_deg": 24.74,
+       "sm_min": 0.3748,
+       "n_corners": 5589
+      },
+      "beta": {
+       "gm_up_min_dB": 6.258,
+       "worst": "full|max500N|act_worst|maxq_fins|f20.317|e0.95|z0.1",
+       "pm_abs_min_deg": 24.38,
+       "sm_min": 0.3692,
+       "n_corners": 6723
+      }
+     }
+    },
+    "lower": {
+     "edge_Ks": 90.0,
+     "set_by": "grid limit (no failure found inside 90-160)",
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.12,
+       "worst": "full|max500N|act_worst|maxq_fins|f19.964|e0.95|z0.1",
+       "pm_abs_min_deg": 23.62,
+       "sm_min": 0.3584,
+       "n_corners": 2430
+      },
+      "beta": {
+       "gm_up_min_dB": 6.011,
+       "worst": "full|max500N|act_worst|maxq_fins|f17.681|e0.95|z0.1",
+       "pm_abs_min_deg": 23.31,
+       "sm_min": 0.3534,
+       "n_corners": 6237
+      }
+     }
+    }
+   },
+   "gm_min_inside_primary_dB": {
+    "alpha": 6.12,
+    "beta": 6.011
+   },
+   "failing_rows": {
+    "alpha|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.251|e0.95|z0.02|GM5.934",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.909,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks150": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.310|e0.95|z0.02|GM5.959",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.777,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks155": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.400|e0.95|z0.02|GM5.991",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.964,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 142.8,
+    "beta": 160.2
+   },
+   "coincidence_band_Hz": [
+    24.14,
+    24.71
+   ]
+  },
+  "A07o": {
+   "label": "as A07 with the notch re-referenced on its own structure ('own')",
+   "spec": {
+    "struct": "FE",
+    "poses": "cone",
+    "air": "compliant",
+    "hot": 0.9,
+    "g": "v5c",
+    "J": "J_C",
+    "kin": "cons",
+    "model": "lumped",
+    "wb": 1.0,
+    "notch": "own"
+   },
+   "J_kgm2": 0.0016,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0
+    ],
+    "beta": [
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0
+    ]
+   },
+   "windows": {
+    "alpha": [
+     "<= 90-140"
+    ],
+    "beta": [
+     "95-155"
+    ]
+   },
+   "both_axes_pass_Ks": [
+    95.0,
+    100.0,
+    105.0,
+    110.0,
+    115.0,
+    120.0,
+    125.0,
+    130.0,
+    135.0,
+    140.0
+   ],
+   "both_axes_windows": [
+    "95-140"
+   ],
+   "primary_window": "95-140",
+   "primary_window_Ks": [
+    95.0,
+    140.0
+   ],
+   "covers_v5c_window_100_130": true,
+   "primary_edges": {
+    "upper": {
+     "edge_Ks": 140.0,
+     "set_by_axes": [
+      "alpha"
+     ],
+     "outside_Ks": 145.0,
+     "outside_fail": {
+      "alpha": {
+       "first_fail": "full|max500N|act_fast|noaero|f24.091|e0.95|z0.02|GM5.894",
+       "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+       "fail_block_worst": {
+        "block": "full|max500N|act_fast|noaero|e0.95|z0.02",
+        "worst_gm_dB": 5.052,
+        "at_f_Hz": 24.258
+       },
+       "n_eval": 580,
+       "n_corners": 5589
+      }
+     },
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.322,
+       "worst": "full|max500N|act_worst|maxq_fins|f23.163|e0.95|z0.1",
+       "pm_abs_min_deg": 24.47,
+       "sm_min": 0.3709,
+       "n_corners": 5589
+      },
+      "beta": {
+       "gm_up_min_dB": 6.209,
+       "worst": "full|max500N|act_worst|maxq_fins|f20.317|e0.95|z0.1",
+       "pm_abs_min_deg": 24.1,
+       "sm_min": 0.3652,
+       "n_corners": 6723
+      }
+     }
+    },
+    "lower": {
+     "edge_Ks": 95.0,
+     "set_by_axes": [
+      "beta"
+     ],
+     "outside_Ks": 90.0,
+     "outside_fail": {
+      "beta": {
+       "first_fail": "full|max500N|act_worst|maxq_fins|f17.681|e0.95|z0.1|GM5.971",
+       "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+       "fail_block_worst": {
+        "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1",
+        "worst_gm_dB": 5.971,
+        "at_f_Hz": 17.681
+       },
+       "n_eval": 16,
+       "n_corners": 6237
+      }
+     },
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.116,
+       "worst": "full|max500N|act_worst|maxq_fins|f20.459|e0.95|z0.1",
+       "pm_abs_min_deg": 23.54,
+       "sm_min": 0.3574,
+       "n_corners": 2349
+      },
+      "beta": {
+       "gm_up_min_dB": 6.004,
+       "worst": "full|max500N|act_worst|maxq_fins|f18.006|e0.95|z0.1",
+       "pm_abs_min_deg": 23.21,
+       "sm_min": 0.3522,
+       "n_corners": 6237
+      }
+     }
+    }
+   },
+   "gm_min_inside_primary_dB": {
+    "alpha": 6.116,
+    "beta": 6.004
+   },
+   "failing_rows": {
+    "alpha|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.091|e0.95|z0.02|GM5.894",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.052,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks150": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.110|e0.95|z0.02|GM5.984",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.934,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks155": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.160|e0.95|z0.02|GM5.892",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.131,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks160": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.183|e0.95|z0.02|GM5.963",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.315,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks90": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f17.681|e0.95|z0.1|GM5.971",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.971,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks160": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.021|e0.95|z0.02|GM5.875",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.186,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 142.8,
+    "beta": 160.2
+   },
+   "coincidence_band_Hz": [
+    24.14,
+    24.71
+   ]
+  },
+  "A08": {
+   "label": "as A01, cone + 8 deg stop poses",
+   "spec": {
+    "struct": "FE",
+    "poses": "cone+stop",
+    "air": "rigid",
+    "hot": 1.0,
+    "g": "v5c",
+    "J": "J_C",
+    "kin": "cons",
+    "model": "lumped",
+    "wb": 1.0,
+    "notch": "bench"
+   },
+   "J_kgm2": 0.0016,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315",
+    "stop000",
+    "stop045",
+    "stop090",
+    "stop135",
+    "stop180",
+    "stop225",
+    "stop270",
+    "stop315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     150.0,
+     155.0,
+     160.0
+    ],
+    "beta": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0
+    ]
+   },
+   "windows": {
+    "alpha": [
+     "<= 90-120",
+     "150->= 160"
+    ],
+    "beta": [
+     "<= 90-120"
+    ]
+   },
+   "both_axes_pass_Ks": [
+    90.0,
+    95.0,
+    100.0,
+    105.0,
+    110.0,
+    115.0,
+    120.0
+   ],
+   "both_axes_windows": [
+    "<= 90-120"
+   ],
+   "primary_window": "<= 90-120",
+   "primary_window_Ks": [
+    90.0,
+    120.0
+   ],
+   "covers_v5c_window_100_130": false,
+   "primary_edges": {
+    "upper": {
+     "edge_Ks": 120.0,
+     "set_by_axes": [
+      "alpha",
+      "beta"
+     ],
+     "outside_Ks": 125.0,
+     "outside_fail": {
+      "alpha": {
+       "first_fail": "full|max500N|act_fast|noaero|f24.061|e0.95|z0.02|GM5.939",
+       "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+       "fail_block_worst": {
+        "block": "full|max500N|act_fast|noaero|e0.95|z0.02",
+        "worst_gm_dB": 4.818,
+        "at_f_Hz": 24.281
+       },
+       "n_eval": 689,
+       "n_corners": 8100
+      },
+      "beta": {
+       "first_fail": "full|max500N|act_fast|noaero|f23.941|e0.95|z0.02|GM5.908",
+       "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+       "fail_block_worst": {
+        "block": "full|max500N|act_fast|noaero|e0.95|z0.02",
+        "worst_gm_dB": 4.396,
+        "at_f_Hz": 24.147
+       },
+       "n_eval": 556,
+       "n_corners": 12636
+      }
+     },
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.305,
+       "worst": "full|max500N|act_worst|maxq_fins|f22.959|e0.95|z0.1",
+       "pm_abs_min_deg": 24.39,
+       "sm_min": 0.3698,
+       "n_corners": 6804
+      },
+      "beta": {
+       "gm_up_min_dB": 6.189,
+       "worst": "full|max500N|act_worst|maxq_fins|f19.783|e0.95|z0.1",
+       "pm_abs_min_deg": 24.05,
+       "sm_min": 0.3644,
+       "n_corners": 11583
+      }
+     }
+    },
+    "lower": {
+     "edge_Ks": 90.0,
+     "set_by": "grid limit (no failure found inside 90-160)",
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.136,
+       "worst": "full|max500N|act_worst|maxq_fins|f20.705|e0.95|z0.1",
+       "pm_abs_min_deg": 23.63,
+       "sm_min": 0.3587,
+       "n_corners": 3969
+      },
+      "beta": {
+       "gm_up_min_dB": 6.018,
+       "worst": "full|max500N|act_worst|maxq_fins|f17.921|e0.95|z0.1",
+       "pm_abs_min_deg": 23.31,
+       "sm_min": 0.3536,
+       "n_corners": 9072
+      }
+     }
+    }
+   },
+   "gm_min_inside_primary_dB": {
+    "alpha": 6.136,
+    "beta": 6.018
+   },
+   "failing_rows": {
+    "alpha|Ks125": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.061|e0.95|z0.02|GM5.939",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.818,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks130": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.108|e0.95|z0.02|GM5.911",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.848,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks135": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.144|e0.95|z0.02|GM5.958",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.108,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks140": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.249|e0.95|z0.02|GM5.714",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.349,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.544|e0.95|z0.02|GM5.637",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.637,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks125": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.941|e0.95|z0.02|GM5.908",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.396,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks130": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.961|e0.95|z0.02|GM5.996",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 3.86,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks135": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.001|e0.95|z0.02|GM5.912",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.092,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks140": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.021|e0.95|z0.02|GM5.991",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.326,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.061|e0.95|z0.02|GM5.918",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.547,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks150": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.081|e0.95|z0.02|GM5.990",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.756,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks155": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.113|e0.95|z0.02|GM5.981",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.952,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks160": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.161|e0.95|z0.02|GM5.893",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.136,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 123.0,
+    "beta": 124.7
+   },
+   "coincidence_band_Hz": [
+    24.14,
+    24.71
+   ]
+  },
+  "A09": {
+   "label": "as A07, J 0.76e-3 cons",
+   "spec": {
+    "struct": "FE",
+    "poses": "cone",
+    "air": "compliant",
+    "hot": 0.9,
+    "g": "v5c",
+    "J": "J_LO",
+    "kin": "cons",
+    "model": "lumped",
+    "wb": 1.0,
+    "notch": "bench"
+   },
+   "J_kgm2": 0.00076,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     90.0,
+     95.0,
+     100.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0,
+     160.0
+    ],
+    "beta": [
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0,
+     160.0
+    ]
+   },
+   "windows": {
+    "alpha": [
+     "<= 90-100",
+     "115->= 160"
+    ],
+    "beta": [
+     "130->= 160"
+    ]
+   },
+   "both_axes_pass_Ks": [
+    130.0,
+    135.0,
+    140.0,
+    145.0,
+    150.0,
+    155.0,
+    160.0
+   ],
+   "both_axes_windows": [
+    "130->= 160"
+   ],
+   "primary_window": "130->= 160",
+   "primary_window_Ks": [
+    130.0,
+    160.0
+   ],
+   "covers_v5c_window_100_130": false,
+   "primary_edges": {
+    "upper": {
+     "edge_Ks": 160.0,
+     "set_by": "grid limit (no failure found inside 90-160)",
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.591,
+       "worst": "full|max500N|act_worst|maxq_fins|f27.077|e0.95|z0.1",
+       "pm_abs_min_deg": 25.68,
+       "sm_min": 0.3885,
+       "n_corners": 3240
+      },
+      "beta": {
+       "gm_up_min_dB": 6.482,
+       "worst": "full|max500N|act_worst|maxq_fins|f23.145|e0.95|z0.1",
+       "pm_abs_min_deg": 25.34,
+       "sm_min": 0.3833,
+       "n_corners": 25758
+      }
+     }
+    },
+    "lower": {
+     "edge_Ks": 130.0,
+     "set_by_axes": [
+      "beta"
+     ],
+     "outside_Ks": 125.0,
+     "outside_fail": {
+      "beta": {
+       "first_fail": "full|max500N|act_fast|noaero|f24.312|e0.95|z0.02|GM5.975",
+       "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+       "fail_block_worst": {
+        "block": "full|max500N|act_fast|noaero|e0.95|z0.02",
+        "worst_gm_dB": 5.799,
+        "at_f_Hz": 24.461
+       },
+       "n_eval": 1389,
+       "n_corners": 24786
+      }
+     },
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.497,
+       "worst": "full|max500N|act_worst|maxq_fins|f25.367|e0.95|z0.1",
+       "pm_abs_min_deg": 25.28,
+       "sm_min": 0.3826,
+       "n_corners": 6399
+      },
+      "beta": {
+       "gm_up_min_dB": 6.01,
+       "worst": "full|max500N|act_fast|maxq_finless|f24.461|e0.95|z0.02",
+       "pm_abs_min_deg": 24.96,
+       "sm_min": 0.3777,
+       "n_corners": 25353
+      }
+     }
+    }
+   },
+   "gm_min_inside_primary_dB": {
+    "alpha": 6.497,
+    "beta": 6.01
+   },
+   "failing_rows": {
+    "alpha|Ks105": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.239|e0.95|z0.02|GM5.921",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.517,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks110": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.323|e0.95|z0.02|GM5.974",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.824,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks90": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.941|e0.95|z0.02|GM5.911",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.945,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks95": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.981|e0.95|z0.02|GM5.968",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 3.985,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks100": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.041|e0.95|z0.02|GM5.869",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.356,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks105": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.081|e0.95|z0.02|GM5.932",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.698,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks110": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.121|e0.95|z0.02|GM5.995",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.014,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks115": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.181|e0.95|z0.02|GM5.958",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.301,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks120": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.241|e0.95|z0.02|GM5.960",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.563,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks125": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.312|e0.95|z0.02|GM5.975",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.799,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 100.3,
+    "beta": 90.8
+   },
+   "coincidence_band_Hz": [
+    24.14,
+    24.71
+   ]
+  },
+  "A10": {
+   "label": "as A07, J 2.7e-3 cons",
+   "spec": {
+    "struct": "FE",
+    "poses": "cone",
+    "air": "compliant",
+    "hot": 0.9,
+    "g": "v5c",
+    "J": "J_HI",
+    "kin": "cons",
+    "model": "lumped",
+    "wb": 1.0,
+    "notch": "bench"
+   },
+   "J_kgm2": 0.0027,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0,
+     160.0
+    ],
+    "beta": [
+     125.0,
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0,
+     160.0
+    ]
+   },
+   "windows": {
+    "alpha": [
+     "105->= 160"
+    ],
+    "beta": [
+     "125->= 160"
+    ]
+   },
+   "both_axes_pass_Ks": [
+    125.0,
+    130.0,
+    135.0,
+    140.0,
+    145.0,
+    150.0,
+    155.0,
+    160.0
+   ],
+   "both_axes_windows": [
+    "125->= 160"
+   ],
+   "primary_window": "125->= 160",
+   "primary_window_Ks": [
+    125.0,
+    160.0
+   ],
+   "covers_v5c_window_100_130": false,
+   "primary_edges": {
+    "upper": {
+     "edge_Ks": 160.0,
+     "set_by": "grid limit (no failure found inside 90-160)",
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.252,
+       "worst": "full|max500N|act_worst|maxq_fins|f21.103|e0.95|z0.1",
+       "pm_abs_min_deg": 24.26,
+       "sm_min": 0.3676,
+       "n_corners": 3078
+      },
+      "beta": {
+       "gm_up_min_dB": 6.141,
+       "worst": "full|max500N|act_worst|maxq_fins|f19.180|e0.95|z0.1",
+       "pm_abs_min_deg": 23.85,
+       "sm_min": 0.3615,
+       "n_corners": 3888
+      }
+     }
+    },
+    "lower": {
+     "edge_Ks": 125.0,
+     "set_by_axes": [
+      "beta"
+     ],
+     "outside_Ks": 120.0,
+     "outside_fail": {
+      "beta": {
+       "first_fail": "full|max500N|act_worst|maxq_fins|f17.555|e0.95|z0.1|GM5.984",
+       "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+       "fail_block_worst": {
+        "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1",
+        "worst_gm_dB": 5.984,
+        "at_f_Hz": 17.555
+       },
+       "n_eval": 16,
+       "n_corners": 4374
+      }
+     },
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.12,
+       "worst": "full|max500N|act_worst|maxq_fins|f19.694|e0.95|z0.1",
+       "pm_abs_min_deg": 23.66,
+       "sm_min": 0.3589,
+       "n_corners": 2592
+      },
+      "beta": {
+       "gm_up_min_dB": 6.011,
+       "worst": "full|max500N|act_worst|maxq_fins|f17.875|e0.95|z0.1",
+       "pm_abs_min_deg": 23.28,
+       "sm_min": 0.3531,
+       "n_corners": 4212
+      }
+     }
+    }
+   },
+   "gm_min_inside_primary_dB": {
+    "alpha": 6.12,
+    "beta": 6.011
+   },
+   "failing_rows": {
+    "alpha|Ks90": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f17.761|e0.95|z0.1|GM5.915",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.915,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "alpha|Ks95": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f18.081|e0.95|z0.1|GM5.951",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.951,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "alpha|Ks100": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f18.384|e0.95|z0.1|GM5.985",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.985,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks90": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f15.995|e0.95|z0.1|GM5.801",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.801,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks95": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f16.289|e0.95|z0.1|GM5.838",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.838,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks100": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f16.567|e0.95|z0.1|GM5.872",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.872,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks105": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f16.833|e0.95|z0.1|GM5.903",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.903,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks110": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f17.185|e0.95|z0.1|GM5.936",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.936,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks115": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f17.325|e0.95|z0.1|GM5.959",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.959,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks120": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f17.555|e0.95|z0.1|GM5.984",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.984,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 216.9,
+    "beta": 342.3
+   },
+   "coincidence_band_Hz": [
+    24.14,
+    24.71
+   ]
+  },
+  "A11": {
+   "label": "as A01, cone + stop poses, compliant airframe, hot E -10 % [worst FE structure]",
+   "spec": {
+    "struct": "FE",
+    "poses": "cone+stop",
+    "air": "compliant",
+    "hot": 0.9,
+    "g": "v5c",
+    "J": "J_C",
+    "kin": "cons",
+    "model": "lumped",
+    "wb": 1.0,
+    "notch": "bench"
+   },
+   "J_kgm2": 0.0016,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315",
+    "stop000",
+    "stop045",
+    "stop090",
+    "stop135",
+    "stop180",
+    "stop225",
+    "stop270",
+    "stop315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0,
+     160.0
+    ],
+    "beta": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0
+    ]
+   },
+   "windows": {
+    "alpha": [
+     "<= 90-140",
+     "160"
+    ],
+    "beta": [
+     "<= 90-155"
+    ]
+   },
+   "both_axes_pass_Ks": [
+    90.0,
+    95.0,
+    100.0,
+    105.0,
+    110.0,
+    115.0,
+    120.0,
+    125.0,
+    130.0,
+    135.0,
+    140.0
+   ],
+   "both_axes_windows": [
+    "<= 90-140"
+   ],
+   "primary_window": "<= 90-140",
+   "primary_window_Ks": [
+    90.0,
+    140.0
+   ],
+   "covers_v5c_window_100_130": true,
+   "primary_edges": {
+    "upper": {
+     "edge_Ks": 140.0,
+     "set_by_axes": [
+      "alpha"
+     ],
+     "outside_Ks": 145.0,
+     "outside_fail": {
+      "alpha": {
+       "first_fail": "full|max500N|act_fast|noaero|f24.251|e0.95|z0.02|GM5.934",
+       "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+       "fail_block_worst": {
+        "block": "full|max500N|act_fast|noaero|e0.95|z0.02",
+        "worst_gm_dB": 5.584,
+        "at_f_Hz": 24.415
+       },
+       "n_eval": 788,
+       "n_corners": 7695
+      }
+     },
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.215,
+       "worst": "full|max500N|act_fast|maxq_finless|f24.141|e0.95|z0.02",
+       "pm_abs_min_deg": 24.74,
+       "sm_min": 0.3748,
+       "n_corners": 7695
+      },
+      "beta": {
+       "gm_up_min_dB": 6.251,
+       "worst": "full|max500N|act_worst|maxq_fins|f20.022|e0.95|z0.1",
+       "pm_abs_min_deg": 24.38,
+       "sm_min": 0.3691,
+       "n_corners": 8910
+      }
+     }
+    },
+    "lower": {
+     "edge_Ks": 90.0,
+     "set_by": "grid limit (no failure found inside 90-160)",
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.12,
+       "worst": "full|max500N|act_worst|maxq_fins|f19.964|e0.95|z0.1",
+       "pm_abs_min_deg": 23.62,
+       "sm_min": 0.3584,
+       "n_corners": 3807
+      },
+      "beta": {
+       "gm_up_min_dB": 6.002,
+       "worst": "full|max500N|act_worst|maxq_fins|f17.428|e0.95|z0.1",
+       "pm_abs_min_deg": 23.3,
+       "sm_min": 0.3533,
+       "n_corners": 8100
+      }
+     }
+    }
+   },
+   "gm_min_inside_primary_dB": {
+    "alpha": 6.12,
+    "beta": 6.002
+   },
+   "failing_rows": {
+    "alpha|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.251|e0.95|z0.02|GM5.934",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.584,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks150": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.310|e0.95|z0.02|GM5.959",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.777,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks155": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.400|e0.95|z0.02|GM5.991",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.964,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks160": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.161|e0.95|z0.02|GM5.893",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.63,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 139.9,
+    "beta": 157.7
+   },
+   "coincidence_band_Hz": [
+    24.14,
+    24.71
+   ]
+  },
+  "A12": {
+   "label": "V5c structure (CAD v3.3), own notch [the v3.2 basis, reproduction]",
+   "spec": {
+    "struct": "V5c",
+    "poses": "cone",
+    "air": "rigid",
+    "hot": 1.0,
+    "g": "v5c",
+    "J": "J_C",
+    "kin": "cons",
+    "model": "lumped",
+    "wb": 1.0,
+    "notch": "own"
+   },
+   "J_kgm2": 0.0016,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     160.0
+    ],
+    "beta": [
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0
+    ]
+   },
+   "windows": {
+    "alpha": [
+     "<= 90-130",
+     "160"
+    ],
+    "beta": [
+     "100-150"
+    ]
+   },
+   "both_axes_pass_Ks": [
+    100.0,
+    105.0,
+    110.0,
+    115.0,
+    120.0,
+    125.0,
+    130.0
+   ],
+   "both_axes_windows": [
+    "100-130"
+   ],
+   "primary_window": "100-130",
+   "primary_window_Ks": [
+    100.0,
+    130.0
+   ],
+   "covers_v5c_window_100_130": true,
+   "primary_edges": {
+    "upper": {
+     "edge_Ks": 130.0,
+     "set_by_axes": [
+      "alpha"
+     ],
+     "outside_Ks": 135.0,
+     "outside_fail": {
+      "alpha": {
+       "first_fail": "full|max500N|act_fast|noaero|f24.086|e0.95|z0.02|GM5.981",
+       "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+       "fail_block_worst": {
+        "block": "full|max500N|act_fast|noaero|e0.95|z0.02",
+        "worst_gm_dB": 4.913,
+        "at_f_Hz": 24.326
+       },
+       "n_eval": 672,
+       "n_corners": 4941
+      }
+     },
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.184,
+       "worst": "full|max500N|act_fast|maxq_finless|f24.021|e0.95|z0.02",
+       "pm_abs_min_deg": 24.48,
+       "sm_min": 0.371,
+       "n_corners": 5346
+      },
+      "beta": {
+       "gm_up_min_dB": 6.171,
+       "worst": "full|max500N|act_worst|maxq_fins|f19.807|e0.95|z0.1",
+       "pm_abs_min_deg": 23.94,
+       "sm_min": 0.3629,
+       "n_corners": 6642
+      }
+     }
+    },
+    "lower": {
+     "edge_Ks": 100.0,
+     "set_by_axes": [
+      "beta"
+     ],
+     "outside_Ks": 95.0,
+     "outside_fail": {
+      "beta": {
+       "first_fail": "full|max500N|act_worst|maxq_fins|f17.877|e0.95|z0.1|GM5.999",
+       "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+       "fail_block_worst": {
+        "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1",
+        "worst_gm_dB": 5.999,
+        "at_f_Hz": 17.877
+       },
+       "n_eval": 16,
+       "n_corners": 6399
+      }
+     },
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.178,
+       "worst": "full|max500N|act_worst|maxq_fins|f21.169|e0.95|z0.1",
+       "pm_abs_min_deg": 23.83,
+       "sm_min": 0.3615,
+       "n_corners": 2268
+      },
+      "beta": {
+       "gm_up_min_dB": 6.029,
+       "worst": "full|max500N|act_worst|maxq_fins|f18.178|e0.95|z0.1",
+       "pm_abs_min_deg": 23.34,
+       "sm_min": 0.354,
+       "n_corners": 6642
+      }
+     }
+    }
+   },
+   "gm_min_inside_primary_dB": {
+    "alpha": 6.178,
+    "beta": 6.029
+   },
+   "failing_rows": {
+    "alpha|Ks135": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.086|e0.95|z0.02|GM5.981",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.913,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks140": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.136|e0.95|z0.02|GM5.914",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.021,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.163|e0.95|z0.02|GM5.995",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.246,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks150": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.342|e0.95|z0.02|GM5.560",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.455,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks155": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.573|e0.95|z0.02|GM5.759",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.759,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks90": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f17.558|e0.95|z0.1|GM5.967",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.967,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks95": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f17.877|e0.95|z0.1|GM5.999",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.999,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks155": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.001|e0.95|z0.02|GM5.841",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.248,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks160": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.021|e0.95|z0.02|GM5.862",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.508,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 131.9,
+    "beta": 156.3
+   },
+   "coincidence_band_Hz": [
+    24.14,
+    24.71
+   ]
+  },
+  "B01": {
+   "label": "as A01, J 1.6e-3 n48",
+   "spec": {
+    "struct": "FE",
+    "poses": "cone",
+    "air": "rigid",
+    "hot": 1.0,
+    "g": "v5c",
+    "J": "J_C",
+    "kin": "n48",
+    "model": "lumped",
+    "wb": 1.0,
+    "notch": "bench"
+   },
+   "J_kgm2": 0.0016,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     150.0,
+     155.0,
+     160.0
+    ],
+    "beta": []
+   },
+   "windows": {
+    "alpha": [
+     "<= 90-110",
+     "150->= 160"
+    ],
+    "beta": []
+   },
+   "both_axes_pass_Ks": [],
+   "both_axes_windows": [],
+   "primary_window": "NONE (no K_s in 90-160 passes on both axes)",
+   "primary_window_Ks": null,
+   "covers_v5c_window_100_130": false,
+   "failing_rows": {
+    "alpha|Ks115": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.981|e0.95|z0.02|GM5.934",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.508,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks120": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.021|e0.95|z0.02|GM5.933",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.314,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks125": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.061|e0.95|z0.02|GM5.939",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.568,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks130": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.107|e0.95|z0.02|GM5.913",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.848,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks135": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.143|e0.95|z0.02|GM5.960",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.108,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks140": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.249|e0.95|z0.02|GM5.715",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.349,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.564|e0.95|z0.02|GM5.668",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.668,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks90": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.721|e0.95|z0.02|GM5.890",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 3.814,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks95": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.761|e0.95|z0.02|GM5.815",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 1.801,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks100": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.781|e0.95|z0.02|GM5.954",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 2.066,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks105": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.821|e0.95|z0.02|GM5.868",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 2.397,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks110": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.841|e0.95|z0.02|GM5.987",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 2.715,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks115": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.881|e0.95|z0.02|GM5.896",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 3.018,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks120": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.901|e0.95|z0.02|GM5.998",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 3.308,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks125": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.932|e0.95|z0.02|GM5.988",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 3.583,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks130": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.961|e0.95|z0.02|GM5.996",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 3.844,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks135": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.001|e0.95|z0.02|GM5.912",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.092,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks140": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.021|e0.95|z0.02|GM5.991",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.326,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.061|e0.95|z0.02|GM5.918",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.547,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks150": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.081|e0.95|z0.02|GM5.990",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.756,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks155": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.121|e0.95|z0.02|GM5.933",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.951,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks160": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.161|e0.95|z0.02|GM5.893",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.136,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 116.5,
+    "beta": 92.4
+   },
+   "coincidence_band_Hz": [
+    24.14,
+    24.71
+   ]
+  },
+  "B02": {
+   "label": "as A01, J 0.76e-3 n48",
+   "spec": {
+    "struct": "FE",
+    "poses": "cone",
+    "air": "rigid",
+    "hot": 1.0,
+    "g": "v5c",
+    "J": "J_LO",
+    "kin": "n48",
+    "model": "lumped",
+    "wb": 1.0,
+    "notch": "bench"
+   },
+   "J_kgm2": 0.00076,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0,
+     160.0
+    ],
+    "beta": [
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0,
+     160.0
+    ]
+   },
+   "windows": {
+    "alpha": [
+     "110->= 160"
+    ],
+    "beta": [
+     "130->= 160"
+    ]
+   },
+   "both_axes_pass_Ks": [
+    130.0,
+    135.0,
+    140.0,
+    145.0,
+    150.0,
+    155.0,
+    160.0
+   ],
+   "both_axes_windows": [
+    "130->= 160"
+   ],
+   "primary_window": "130->= 160",
+   "primary_window_Ks": [
+    130.0,
+    160.0
+   ],
+   "covers_v5c_window_100_130": false,
+   "primary_edges": {
+    "upper": {
+     "edge_Ks": 160.0,
+     "set_by": "grid limit (no failure found inside 90-160)",
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.604,
+       "worst": "full|max500N|act_worst|maxq_fins|f28.385|e0.95|z0.1",
+       "pm_abs_min_deg": 25.69,
+       "sm_min": 0.3887,
+       "n_corners": 3726
+      },
+      "beta": {
+       "gm_up_min_dB": 6.487,
+       "worst": "full|max500N|act_worst|maxq_fins|f23.466|e0.95|z0.1",
+       "pm_abs_min_deg": 25.35,
+       "sm_min": 0.3834,
+       "n_corners": 28836
+      }
+     }
+    },
+    "lower": {
+     "edge_Ks": 130.0,
+     "set_by_axes": [
+      "beta"
+     ],
+     "outside_Ks": 125.0,
+     "outside_fail": {
+      "beta": {
+       "first_fail": "full|max500N|act_fast|noaero|f24.321|e0.95|z0.02|GM5.954",
+       "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+       "fail_block_worst": {
+        "block": "full|max500N|act_fast|noaero|e0.95|z0.02",
+        "worst_gm_dB": 5.799,
+        "at_f_Hz": 24.461
+       },
+       "n_eval": 1351,
+       "n_corners": 30537
+      }
+     },
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.509,
+       "worst": "full|max500N|act_worst|maxq_fins|f26.432|e0.95|z0.1",
+       "pm_abs_min_deg": 25.28,
+       "sm_min": 0.3828,
+       "n_corners": 4212
+      },
+      "beta": {
+       "gm_up_min_dB": 6.01,
+       "worst": "full|max500N|act_fast|maxq_finless|f24.461|e0.95|z0.02",
+       "pm_abs_min_deg": 24.96,
+       "sm_min": 0.3777,
+       "n_corners": 30537
+      }
+     }
+    }
+   },
+   "gm_min_inside_primary_dB": {
+    "alpha": 6.509,
+    "beta": 6.01
+   },
+   "failing_rows": {
+    "alpha|Ks90": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.041|e0.95|z0.02|GM5.880",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.367,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks95": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.098|e0.95|z0.02|GM5.914",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.789,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks100": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.163|e0.95|z0.02|GM5.916",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.172,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks105": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.450|e0.95|z0.02|GM5.516",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.516,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks90": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.941|e0.95|z0.02|GM5.911",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 3.586,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks95": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.981|e0.95|z0.02|GM5.968",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 3.985,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks100": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.041|e0.95|z0.02|GM5.869",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.356,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks105": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.081|e0.95|z0.02|GM5.932",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.698,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks110": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.121|e0.95|z0.02|GM5.995",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.014,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks115": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.181|e0.95|z0.02|GM5.958",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.301,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks120": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.241|e0.95|z0.02|GM5.960",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.562,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks125": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.321|e0.95|z0.02|GM5.954",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.799,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 84.5,
+    "beta": 66.7
+   },
+   "coincidence_band_Hz": [
+    24.14,
+    24.71
+   ]
+  },
+  "B03": {
+   "label": "as A01, J 2.7e-3 n48",
+   "spec": {
+    "struct": "FE",
+    "poses": "cone",
+    "air": "rigid",
+    "hot": 1.0,
+    "g": "v5c",
+    "J": "J_HI",
+    "kin": "n48",
+    "model": "lumped",
+    "wb": 1.0,
+    "notch": "bench"
+   },
+   "J_kgm2": 0.0027,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0,
+     160.0
+    ],
+    "beta": []
+   },
+   "windows": {
+    "alpha": [
+     "100->= 160"
+    ],
+    "beta": []
+   },
+   "both_axes_pass_Ks": [],
+   "both_axes_windows": [],
+   "primary_window": "NONE (no K_s in 90-160 passes on both axes)",
+   "primary_window_Ks": null,
+   "covers_v5c_window_100_130": false,
+   "failing_rows": {
+    "alpha|Ks90": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f18.333|e0.95|z0.1|GM5.932",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.932,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "alpha|Ks95": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f18.720|e0.95|z0.1|GM5.970",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.97,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks90": {
+     "first_fail": "full|max500N|act_worst|noaero|f15.451|e0.95|z0.1|GM5.997",
+     "type": "other",
+     "block_worst_dB": 5.997,
+     "block": "full|max500N|act_worst|noaero|e0.95|z0.1"
+    },
+    "beta|Ks95": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f15.852|e0.95|z0.1|GM5.819",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.819,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks100": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f16.139|e0.95|z0.1|GM5.854",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.854,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks105": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f16.412|e0.95|z0.1|GM5.887",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.887,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks110": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f16.673|e0.95|z0.1|GM5.917",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.917,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks115": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f16.822|e0.95|z0.1|GM5.941",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.941,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks120": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f17.061|e0.95|z0.1|GM5.967",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.967,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks125": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f17.290|e0.95|z0.1|GM5.991",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.991,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks130": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.741|e0.95|z0.02|GM5.818",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.743,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks135": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.761|e0.95|z0.02|GM5.829",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 2.791,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks140": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.781|e0.95|z0.02|GM5.835",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 2.02,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.801|e0.95|z0.02|GM5.837",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 2.161,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks150": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.807|e0.95|z0.02|GM5.983",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 2.365,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks155": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.841|e0.95|z0.02|GM5.830",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 2.562,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks160": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.861|e0.95|z0.02|GM5.822",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 2.752,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 166.6,
+    "beta": 135.7
+   },
+   "coincidence_band_Hz": [
+    24.14,
+    24.71
+   ]
+  },
+  "B04": {
+   "label": "as A01, g = FEA3D post_k factor ('fea'; low by up to 1.34x on the cone)",
+   "spec": {
+    "struct": "FE",
+    "poses": "cone",
+    "air": "rigid",
+    "hot": 1.0,
+    "g": "fea",
+    "J": "J_C",
+    "kin": "cons",
+    "model": "lumped",
+    "wb": 1.0,
+    "notch": "bench"
+   },
+   "J_kgm2": 0.0016,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     160.0
+    ],
+    "beta": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0
+    ]
+   },
+   "windows": {
+    "alpha": [
+     "<= 90-130",
+     "160"
+    ],
+    "beta": [
+     "<= 90-130"
+    ]
+   },
+   "both_axes_pass_Ks": [
+    90.0,
+    95.0,
+    100.0,
+    105.0,
+    110.0,
+    115.0,
+    120.0,
+    125.0,
+    130.0
+   ],
+   "both_axes_windows": [
+    "<= 90-130"
+   ],
+   "primary_window": "<= 90-130",
+   "primary_window_Ks": [
+    90.0,
+    130.0
+   ],
+   "covers_v5c_window_100_130": true,
+   "primary_edges": {
+    "upper": {
+     "edge_Ks": 130.0,
+     "set_by_axes": [
+      "alpha",
+      "beta"
+     ],
+     "outside_Ks": 135.0,
+     "outside_fail": {
+      "alpha": {
+       "first_fail": "full|max500N|act_fast|noaero|f24.146|e0.95|z0.02|GM5.944",
+       "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+       "fail_block_worst": {
+        "block": "full|max500N|act_fast|noaero|e0.95|z0.02",
+        "worst_gm_dB": 5.559,
+        "at_f_Hz": 24.226
+       },
+       "n_eval": 566,
+       "n_corners": 5670
+      },
+      "beta": {
+       "first_fail": "full|max500N|act_fast|noaero|f23.996|e0.95|z0.02|GM5.955",
+       "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+       "fail_block_worst": {
+        "block": "full|max500N|act_fast|noaero|e0.95|z0.02",
+        "worst_gm_dB": 5.211,
+        "at_f_Hz": 24.097
+       },
+       "n_eval": 468,
+       "n_corners": 10611
+      }
+     },
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.34,
+       "worst": "full|max500N|act_worst|maxq_fins|f23.046|e0.95|z0.1",
+       "pm_abs_min_deg": 24.58,
+       "sm_min": 0.3724,
+       "n_corners": 5184
+      },
+      "beta": {
+       "gm_up_min_dB": 6.227,
+       "worst": "full|max500N|act_worst|maxq_fins|f20.141|e0.95|z0.1",
+       "pm_abs_min_deg": 24.23,
+       "sm_min": 0.367,
+       "n_corners": 9477
+      }
+     }
+    },
+    "lower": {
+     "edge_Ks": 90.0,
+     "set_by": "grid limit (no failure found inside 90-160)",
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.125,
+       "worst": "full|max500N|act_worst|maxq_fins|f20.166|e0.95|z0.1",
+       "pm_abs_min_deg": 23.62,
+       "sm_min": 0.3585,
+       "n_corners": 2106
+      },
+      "beta": {
+       "gm_up_min_dB": 6.011,
+       "worst": "full|max500N|act_worst|maxq_fins|f17.682|e0.95|z0.1",
+       "pm_abs_min_deg": 23.31,
+       "sm_min": 0.3534,
+       "n_corners": 6723
+      }
+     }
+    }
+   },
+   "gm_min_inside_primary_dB": {
+    "alpha": 6.125,
+    "beta": 6.011
+   },
+   "failing_rows": {
+    "alpha|Ks135": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.146|e0.95|z0.02|GM5.944",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.559,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks140": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.196|e0.95|z0.02|GM5.934",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.349,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.236|e0.95|z0.02|GM5.989",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.572,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks150": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.306|e0.95|z0.02|GM5.968",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.777,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks155": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.448|e0.95|z0.02|GM5.965",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.965,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks135": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.996|e0.95|z0.02|GM5.955",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.211,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks140": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.021|e0.95|z0.02|GM5.990",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.379,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.061|e0.95|z0.02|GM5.918",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.547,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks150": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.081|e0.95|z0.02|GM5.990",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.756,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks155": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.121|e0.95|z0.02|GM5.933",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.952,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks160": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.161|e0.95|z0.02|GM5.893",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.136,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 133.5,
+    "beta": 135.8
+   },
+   "coincidence_band_Hz": [
+    24.14,
+    24.71
+   ]
+  },
+  "B05": {
+   "label": "as A01, g = exact CAD kinematics ('kin')",
+   "spec": {
+    "struct": "FE",
+    "poses": "cone",
+    "air": "rigid",
+    "hot": 1.0,
+    "g": "kin",
+    "J": "J_C",
+    "kin": "cons",
+    "model": "lumped",
+    "wb": 1.0,
+    "notch": "bench"
+   },
+   "J_kgm2": 0.0016,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     150.0,
+     155.0,
+     160.0
+    ],
+    "beta": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0
+    ]
+   },
+   "windows": {
+    "alpha": [
+     "<= 90-120",
+     "150->= 160"
+    ],
+    "beta": [
+     "<= 90-125"
+    ]
+   },
+   "both_axes_pass_Ks": [
+    90.0,
+    95.0,
+    100.0,
+    105.0,
+    110.0,
+    115.0,
+    120.0
+   ],
+   "both_axes_windows": [
+    "<= 90-120"
+   ],
+   "primary_window": "<= 90-120",
+   "primary_window_Ks": [
+    90.0,
+    120.0
+   ],
+   "covers_v5c_window_100_130": false,
+   "primary_edges": {
+    "upper": {
+     "edge_Ks": 120.0,
+     "set_by_axes": [
+      "alpha"
+     ],
+     "outside_Ks": 125.0,
+     "outside_fail": {
+      "alpha": {
+       "first_fail": "full|max500N|act_fast|noaero|f24.061|e0.95|z0.02|GM5.939",
+       "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+       "fail_block_worst": {
+        "block": "full|max500N|act_fast|noaero|e0.95|z0.02",
+        "worst_gm_dB": 5.671,
+        "at_f_Hz": 24.101
+       },
+       "n_eval": 453,
+       "n_corners": 5832
+      }
+     },
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.305,
+       "worst": "full|max500N|act_worst|maxq_fins|f22.960|e0.95|z0.1",
+       "pm_abs_min_deg": 24.39,
+       "sm_min": 0.3698,
+       "n_corners": 4536
+      },
+      "beta": {
+       "gm_up_min_dB": 6.198,
+       "worst": "full|max500N|act_worst|maxq_fins|f20.183|e0.95|z0.1",
+       "pm_abs_min_deg": 24.05,
+       "sm_min": 0.3645,
+       "n_corners": 8424
+      }
+     }
+    },
+    "lower": {
+     "edge_Ks": 90.0,
+     "set_by": "grid limit (no failure found inside 90-160)",
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.134,
+       "worst": "full|max500N|act_worst|maxq_fins|f20.605|e0.95|z0.1",
+       "pm_abs_min_deg": 23.63,
+       "sm_min": 0.3587,
+       "n_corners": 2511
+      },
+      "beta": {
+       "gm_up_min_dB": 6.027,
+       "worst": "full|max500N|act_worst|maxq_fins|f18.188|e0.95|z0.1",
+       "pm_abs_min_deg": 23.32,
+       "sm_min": 0.3537,
+       "n_corners": 6804
+      }
+     }
+    }
+   },
+   "gm_min_inside_primary_dB": {
+    "alpha": 6.134,
+    "beta": 6.027
+   },
+   "failing_rows": {
+    "alpha|Ks125": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.061|e0.95|z0.02|GM5.939",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.671,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks130": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.108|e0.95|z0.02|GM5.910",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.848,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks135": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.144|e0.95|z0.02|GM5.957",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.108,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks140": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.269|e0.95|z0.02|GM5.644",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.349,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.545|e0.95|z0.02|GM5.638",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.638,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks130": {
+     "first_fail": "full|max500N|act_fast|noaero|f23.961|e0.95|z0.02|GM5.996",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.484,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks135": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.001|e0.95|z0.02|GM5.912",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.092,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks140": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.021|e0.95|z0.02|GM5.990",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.326,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.061|e0.95|z0.02|GM5.918",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.547,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks150": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.081|e0.95|z0.02|GM5.990",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.755,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks155": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.121|e0.95|z0.02|GM5.933",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.952,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks160": {
+     "first_fail": "full|max500N|act_fast|noaero|f24.161|e0.95|z0.02|GM5.893",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 5.136,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 125.4,
+    "beta": 129.0
+   },
+   "coincidence_band_Hz": [
+    24.14,
+    24.71
+   ]
+  },
+  "B06": {
+   "label": "as A01, J 0 (rotor not in the rocking mode)",
+   "spec": {
+    "struct": "FE",
+    "poses": "cone",
+    "air": "rigid",
+    "hot": 1.0,
+    "g": "v5c",
+    "J": "J0",
+    "kin": "cons",
+    "model": "lumped",
+    "wb": 1.0,
+    "notch": "bench"
+   },
+   "J_kgm2": 0.0,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0,
+     160.0
+    ],
+    "beta": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0,
+     160.0
+    ]
+   },
+   "windows": {
+    "alpha": [
+     "<= 90->= 160"
+    ],
+    "beta": [
+     "<= 90->= 160"
+    ]
+   },
+   "both_axes_pass_Ks": [
+    90.0,
+    95.0,
+    100.0,
+    105.0,
+    110.0,
+    115.0,
+    120.0,
+    125.0,
+    130.0,
+    135.0,
+    140.0,
+    145.0,
+    150.0,
+    155.0,
+    160.0
+   ],
+   "both_axes_windows": [
+    "<= 90->= 160"
+   ],
+   "primary_window": "<= 90->= 160",
+   "primary_window_Ks": [
+    90.0,
+    160.0
+   ],
+   "covers_v5c_window_100_130": true,
+   "primary_edges": {
+    "upper": {
+     "edge_Ks": 160.0,
+     "set_by": "grid limit (no failure found inside 90-160)",
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.763,
+       "worst": "full|max500N|act_worst|maxq_fins|f32.297|e0.95|z0.1",
+       "pm_abs_min_deg": 26.36,
+       "sm_min": 0.3986,
+       "n_corners": 3969
+      },
+      "beta": {
+       "gm_up_min_dB": 6.662,
+       "worst": "full|max500N|act_worst|maxq_fins|f26.700|e0.95|z0.1",
+       "pm_abs_min_deg": 26.06,
+       "sm_min": 0.3939,
+       "n_corners": 16524
+      }
+     }
+    },
+    "lower": {
+     "edge_Ks": 90.0,
+     "set_by": "grid limit (no failure found inside 90-160)",
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.5,
+       "worst": "full|max500N|act_worst|maxq_fins|f26.227|e0.95|z0.1",
+       "pm_abs_min_deg": 25.24,
+       "sm_min": 0.3822,
+       "n_corners": 5103
+      },
+      "beta": {
+       "gm_up_min_dB": 6.087,
+       "worst": "full|max500N|act_fast|maxq_finless|f24.461|e0.95|z0.02",
+       "pm_abs_min_deg": 24.99,
+       "sm_min": 0.3781,
+       "n_corners": 31104
+      }
+     }
+    }
+   },
+   "gm_min_inside_primary_dB": {
+    "alpha": 6.5,
+    "beta": 6.087
+   },
+   "failing_rows": {},
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 60.2,
+    "beta": 47.4
+   },
+   "coincidence_band_Hz": [
+    24.14,
+    24.71
+   ]
+  },
+  "B07": {
+   "label": "as A01, two-mass rotor model ('tm', J 1.6e-3)",
+   "spec": {
+    "struct": "FE",
+    "poses": "cone",
+    "air": "rigid",
+    "hot": 1.0,
+    "g": "v5c",
+    "J": "J_C",
+    "kin": "cons",
+    "model": "tm",
+    "wb": 1.0,
+    "notch": "bench"
+   },
+   "J_kgm2": 0.0016,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     90.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0,
+     160.0
+    ],
+    "beta": [
+     150.0,
+     155.0,
+     160.0
+    ]
+   },
+   "windows": {
+    "alpha": [
+     "<= 90",
+     "120->= 160"
+    ],
+    "beta": [
+     "150->= 160"
+    ]
+   },
+   "both_axes_pass_Ks": [
+    150.0,
+    155.0,
+    160.0
+   ],
+   "both_axes_windows": [
+    "150->= 160"
+   ],
+   "primary_window": "150->= 160",
+   "primary_window_Ks": [
+    150.0,
+    160.0
+   ],
+   "covers_v5c_window_100_130": false,
+   "primary_edges": {
+    "upper": {
+     "edge_Ks": 160.0,
+     "set_by": "grid limit (no failure found inside 90-160)",
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.588,
+       "worst": "full|max500N|act_worst|maxq_fins|centre|f1 28.263|e0.95|z0.1",
+       "pm_abs_min_deg": 25.66,
+       "sm_min": 0.3882,
+       "n_corners": 9234
+      },
+      "beta": {
+       "gm_up_min_dB": 6.381,
+       "worst": "full|max500N|act_fast|maxq_finless|betam7|f1 24.538|e0.95|z0.02",
+       "pm_abs_min_deg": 25.45,
+       "sm_min": 0.3849,
+       "n_corners": 9234
+      }
+     }
+    },
+    "lower": {
+     "edge_Ks": 150.0,
+     "set_by_axes": [
+      "beta"
+     ],
+     "outside_Ks": 145.0,
+     "outside_fail": {
+      "beta": {
+       "first_fail": "full|max500N|act_fast|noaero|cone7_225|f1 24.445|e0.95|z0.02|GM5.945",
+       "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+       "fail_block_worst": null,
+       "n_eval": 166,
+       "n_corners": 9234
+      }
+     },
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.553,
+       "worst": "full|max500N|act_worst|maxq_fins|centre|f1 27.530|e0.95|z0.1",
+       "pm_abs_min_deg": 25.51,
+       "sm_min": 0.3861,
+       "n_corners": 9234
+      },
+      "beta": {
+       "gm_up_min_dB": 6.116,
+       "worst": "full|max500N|act_fast|maxq_finless|cone7_135-betam7@0.50|f1 24.452|e0.95|z0.02",
+       "pm_abs_min_deg": 25.31,
+       "sm_min": 0.3828,
+       "n_corners": 9234
+      }
+     }
+    }
+   },
+   "gm_min_inside_primary_dB": {
+    "alpha": 6.553,
+    "beta": 6.116
+   },
+   "failing_rows": {
+    "alpha|Ks95": {
+     "first_fail": "full|max500N|act_fast|noaero|cone7_045|f1 23.926|e0.95|z0.02|GM5.778",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": null,
+     "block": null
+    },
+    "alpha|Ks100": {
+     "first_fail": "full|max500N|act_fast|noaero|betap7|f1 24.277|e0.95|z0.02|GM4.022",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": null,
+     "block": null
+    },
+    "alpha|Ks105": {
+     "first_fail": "full|max500N|act_fast|noaero|alphap7|f1 24.090|e0.95|z0.02|GM5.474",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": null,
+     "block": null
+    },
+    "alpha|Ks110": {
+     "first_fail": "full|max500N|act_fast|noaero|centre|f1 24.152|e0.95|z0.02|GM5.546",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": null,
+     "block": null
+    },
+    "alpha|Ks115": {
+     "first_fail": "full|max500N|act_fast|noaero|centre|f1 24.620|e0.95|z0.02|GM5.293",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": null,
+     "block": null
+    },
+    "beta|Ks90": {
+     "first_fail": "full|max500N|act_fast|noaero|betap7|f1 24.844|e0.95|z0.02|GM3.434",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": null,
+     "block": null
+    },
+    "beta|Ks95": {
+     "first_fail": "full|max500N|act_fast|noaero|centre-betap7@0.50|f1 23.987|e0.95|z0.02|GM4.726",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": null,
+     "block": null
+    },
+    "beta|Ks100": {
+     "first_fail": "full|max500N|act_fast|noaero|centre-betap7@0.50|f1 24.509|e0.95|z0.02|GM3.264",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": null,
+     "block": null
+    },
+    "beta|Ks105": {
+     "first_fail": "full|max500N|act_fast|noaero|centre-betap7@0.25|f1 24.132|e0.95|z0.02|GM4.603",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": null,
+     "block": null
+    },
+    "beta|Ks110": {
+     "first_fail": "full|max500N|act_fast|noaero|alphap7|f1 24.084|e0.95|z0.02|GM5.269",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": null,
+     "block": null
+    },
+    "beta|Ks115": {
+     "first_fail": "full|max500N|act_fast|noaero|alphap7|f1 24.518|e0.95|z0.02|GM4.439",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": null,
+     "block": null
+    },
+    "beta|Ks120": {
+     "first_fail": "full|max500N|act_fast|noaero|centre|f1 24.436|e0.95|z0.02|GM4.797",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": null,
+     "block": null
+    },
+    "beta|Ks125": {
+     "first_fail": "full|max500N|act_fast|noaero|centre-cone7_135@0.25|f1 24.462|e0.95|z0.02|GM5.087",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": null,
+     "block": null
+    },
+    "beta|Ks130": {
+     "first_fail": "full|max500N|act_fast|noaero|centre-cone7_135@0.50|f1 24.444|e0.95|z0.02|GM5.351",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": null,
+     "block": null
+    },
+    "beta|Ks135": {
+     "first_fail": "full|max500N|act_fast|noaero|centre-cone7_135@0.75|f1 24.382|e0.95|z0.02|GM5.635",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": null,
+     "block": null
+    },
+    "beta|Ks140": {
+     "first_fail": "full|max500N|act_fast|noaero|centre-cone7_225@0.75|f1 24.620|e0.95|z0.02|GM5.944",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": null,
+     "block": null
+    },
+    "beta|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|cone7_225|f1 24.445|e0.95|z0.02|GM5.945",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": null,
+     "block": null
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 97.0,
+    "beta": 84.2
+   },
+   "coincidence_band_Hz": [
+    24.14,
+    24.71
+   ],
+   "tm_f1_f2_Hz_at_100_130": {
+    "alpha|Ks100": {
+     "f1": [
+      23.168,
+      24.458
+     ],
+     "f2": [
+      85.79,
+      99.09
+     ]
+    },
+    "alpha|Ks130": {
+     "f1": [
+      25.94,
+      27.288
+     ],
+     "f2": [
+      87.7,
+      100.72
+     ]
+    },
+    "beta|Ks100": {
+     "f1": [
+      20.505,
+      25.98
+     ],
+     "f2": [
+      79.1,
+      83.95
+     ]
+    },
+    "beta|Ks130": {
+     "f1": [
+      22.731,
+      28.92
+     ],
+     "f2": [
+      81.11,
+      86.02
+     ]
+    }
+   }
+  },
+  "C01": {
+   "label": "as A01, bending x 0.9",
+   "spec": {
+    "struct": "FE",
+    "poses": "cone",
+    "air": "rigid",
+    "hot": 1.0,
+    "g": "v5c",
+    "J": "J_C",
+    "kin": "cons",
+    "model": "lumped",
+    "wb": 0.9,
+    "notch": "bench"
+   },
+   "J_kgm2": 0.0016,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0,
+     160.0
+    ],
+    "beta": []
+   },
+   "windows": {
+    "alpha": [
+     "135->= 160"
+    ],
+    "beta": []
+   },
+   "both_axes_pass_Ks": [],
+   "both_axes_windows": [],
+   "primary_window": "NONE (no K_s in 90-160 passes on both axes)",
+   "primary_window_Ks": null,
+   "covers_v5c_window_100_130": false,
+   "failing_rows": {
+    "alpha|Ks90": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.291|e0.95|z0.02|GM4.415",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.415,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks95": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.280|e0.95|z0.02|GM4.846",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 0.591,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks100": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.457|e0.95|z0.02|GM3.124",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 0.338,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks105": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.876|e0.95|z0.02|GM0.663",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 0.582,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks110": {
+     "first_fail": "full|max500N|act_fast|noaero|f22.238|e0.95|z0.02|GM1.542",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 1.542,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks115": {
+     "first_fail": "full|max500N|act_fast|noaero|f22.606|e0.95|z0.02|GM4.119",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.119,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks120": {
+     "first_fail": "landing|hover|act_fast|noaero|f23.293|e0.95|z0.02|GM5.922",
+     "type": "landing hover corner (rocking mode near the landing bending mode, zeta 0.02)",
+     "block_worst_dB": 4.86,
+     "block": "landing|hover|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks125": {
+     "first_fail": "landing|hover|act_fast|noaero|f23.394|e0.95|z0.02|GM5.901",
+     "type": "landing hover corner (rocking mode near the landing bending mode, zeta 0.02)",
+     "block_worst_dB": 5.387,
+     "block": "landing|hover|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks130": {
+     "first_fail": "landing|hover|act_fast|noaero|f23.703|e0.95|z0.02|GM5.937",
+     "type": "landing hover corner (rocking mode near the landing bending mode, zeta 0.02)",
+     "block_worst_dB": 5.937,
+     "block": "landing|hover|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks90": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.289|e0.95|z0.02|GM3.828",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 0.695,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks95": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.291|e0.95|z0.02|GM4.125",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": -99.0,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks100": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.281|e0.95|z0.02|GM4.530",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": -99.0,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks105": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.291|e0.95|z0.02|GM4.654",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": -99.0,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks110": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.281|e0.95|z0.02|GM4.984",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 0.224,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks115": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.291|e0.95|z0.02|GM5.051",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 0.431,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks120": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.284|e0.95|z0.02|GM5.287",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 0.614,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks125": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.291|e0.95|z0.02|GM5.332",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 0.773,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks130": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.291|e0.95|z0.02|GM5.436",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 0.911,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks135": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.291|e0.95|z0.02|GM5.518",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 1.029,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks140": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.279|e0.95|z0.02|GM5.715",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 1.129,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.329|e0.95|z0.02|GM5.198",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 1.214,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks150": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.551|e0.95|z0.02|GM3.064",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 1.283,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks155": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.765|e0.95|z0.02|GM1.747",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 1.339,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks160": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.971|e0.95|z0.02|GM1.384",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 1.384,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 94.8,
+    "beta": 91.6
+   },
+   "coincidence_band_Hz": [
+    21.726,
+    22.239
+   ]
+  },
+  "C02": {
+   "label": "as A01, bending x 1.1",
+   "spec": {
+    "struct": "FE",
+    "poses": "cone",
+    "air": "rigid",
+    "hot": 1.0,
+    "g": "v5c",
+    "J": "J_C",
+    "kin": "cons",
+    "model": "lumped",
+    "wb": 1.1,
+    "notch": "bench"
+   },
+   "J_kgm2": 0.0016,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0,
+     160.0
+    ],
+    "beta": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0,
+     160.0
+    ]
+   },
+   "windows": {
+    "alpha": [
+     "<= 90->= 160"
+    ],
+    "beta": [
+     "<= 90->= 160"
+    ]
+   },
+   "both_axes_pass_Ks": [
+    90.0,
+    95.0,
+    100.0,
+    105.0,
+    110.0,
+    115.0,
+    120.0,
+    125.0,
+    130.0,
+    135.0,
+    140.0,
+    145.0,
+    150.0,
+    155.0,
+    160.0
+   ],
+   "both_axes_windows": [
+    "<= 90->= 160"
+   ],
+   "primary_window": "<= 90->= 160",
+   "primary_window_Ks": [
+    90.0,
+    160.0
+   ],
+   "covers_v5c_window_100_130": true,
+   "primary_edges": {
+    "upper": {
+     "edge_Ks": 160.0,
+     "set_by": "grid limit (no failure found inside 90-160)",
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.468,
+       "worst": "full|max500N|act_worst|maxq_fins|f25.373|e0.95|z0.1",
+       "pm_abs_min_deg": 25.03,
+       "sm_min": 0.3792,
+       "n_corners": 5022
+      },
+      "beta": {
+       "gm_up_min_dB": 6.354,
+       "worst": "full|max500N|act_worst|maxq_fins|f21.971|e0.95|z0.1",
+       "pm_abs_min_deg": 24.65,
+       "sm_min": 0.3735,
+       "n_corners": 7209
+      }
+     }
+    },
+    "lower": {
+     "edge_Ks": 90.0,
+     "set_by": "grid limit (no failure found inside 90-160)",
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.151,
+       "worst": "full|max500N|act_worst|maxq_fins|f20.705|e0.95|z0.1",
+       "pm_abs_min_deg": 23.62,
+       "sm_min": 0.3587,
+       "n_corners": 2187
+      },
+      "beta": {
+       "gm_up_min_dB": 6.041,
+       "worst": "full|max500N|act_worst|maxq_fins|f18.189|e0.95|z0.1",
+       "pm_abs_min_deg": 23.31,
+       "sm_min": 0.3538,
+       "n_corners": 6885
+      }
+     }
+    }
+   },
+   "gm_min_inside_primary_dB": {
+    "alpha": 6.151,
+    "beta": 6.041
+   },
+   "failing_rows": {},
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 164.9,
+    "beta": 185.0
+   },
+   "coincidence_band_Hz": [
+    26.554,
+    27.181
+   ]
+  },
+  "C03": {
+   "label": "as A12, bending x 0.9",
+   "spec": {
+    "struct": "V5c",
+    "poses": "cone",
+    "air": "rigid",
+    "hot": 1.0,
+    "g": "v5c",
+    "J": "J_C",
+    "kin": "cons",
+    "model": "lumped",
+    "wb": 0.9,
+    "notch": "own"
+   },
+   "J_kgm2": 0.0016,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     90.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0,
+     160.0
+    ],
+    "beta": []
+   },
+   "windows": {
+    "alpha": [
+     "<= 90",
+     "140->= 160"
+    ],
+    "beta": []
+   },
+   "both_axes_pass_Ks": [],
+   "both_axes_windows": [],
+   "primary_window": "NONE (no K_s in 90-160 passes on both axes)",
+   "primary_window_Ks": null,
+   "covers_v5c_window_100_130": false,
+   "failing_rows": {
+    "alpha|Ks95": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.291|e0.95|z0.02|GM4.532",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 2.941,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks100": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.286|e0.95|z0.02|GM4.860",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 0.291,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks105": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.572|e0.95|z0.02|GM2.104",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 0.4,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks110": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.939|e0.95|z0.02|GM0.623",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 0.618,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks115": {
+     "first_fail": "full|max500N|act_fast|noaero|f22.270|e0.95|z0.02|GM1.723",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 1.723,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks120": {
+     "first_fail": "full|max500N|act_fast|noaero|f22.628|e0.95|z0.02|GM4.284",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 4.284,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks125": {
+     "first_fail": "landing|hover|act_fast|noaero|f23.286|e0.95|z0.02|GM5.926",
+     "type": "landing hover corner (rocking mode near the landing bending mode, zeta 0.02)",
+     "block_worst_dB": 4.82,
+     "block": "landing|hover|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks130": {
+     "first_fail": "landing|hover|act_fast|noaero|f23.369|e0.95|z0.02|GM5.942",
+     "type": "landing hover corner (rocking mode near the landing bending mode, zeta 0.02)",
+     "block_worst_dB": 5.301,
+     "block": "landing|hover|act_fast|noaero|e0.95|z0.02"
+    },
+    "alpha|Ks135": {
+     "first_fail": "landing|hover|act_fast|noaero|f23.621|e0.95|z0.02|GM5.770",
+     "type": "landing hover corner (rocking mode near the landing bending mode, zeta 0.02)",
+     "block_worst_dB": 5.77,
+     "block": "landing|hover|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks90": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f17.558|e0.95|z0.1|GM5.947",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.947,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks95": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f17.877|e0.95|z0.1|GM5.980",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.98,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    },
+    "beta|Ks100": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.278|e0.95|z0.02|GM4.003",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 2.253,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks105": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.291|e0.95|z0.02|GM4.107",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": -99.0,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks110": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.291|e0.95|z0.02|GM4.339",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": -99.0,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks115": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.291|e0.95|z0.02|GM4.547",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": -99.0,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks120": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.275|e0.95|z0.02|GM4.917",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 0.074,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks125": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.281|e0.95|z0.02|GM5.012",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 0.253,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks130": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.291|e0.95|z0.02|GM5.036",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 0.414,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks135": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.291|e0.95|z0.02|GM5.159",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 0.559,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks140": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.291|e0.95|z0.02|GM5.265",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 0.689,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks145": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.291|e0.95|z0.02|GM5.356",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 0.804,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks150": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.291|e0.95|z0.02|GM5.432",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 0.907,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks155": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.291|e0.95|z0.02|GM5.496",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 0.997,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    },
+    "beta|Ks160": {
+     "first_fail": "full|max500N|act_fast|noaero|f21.285|e0.95|z0.02|GM5.619",
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "block_worst_dB": 1.076,
+     "block": "full|max500N|act_fast|noaero|e0.95|z0.02"
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 98.4,
+    "beta": 104.5
+   },
+   "coincidence_band_Hz": [
+    21.726,
+    22.239
+   ]
+  },
+  "C04": {
+   "label": "as A12, bending x 1.1",
+   "spec": {
+    "struct": "V5c",
+    "poses": "cone",
+    "air": "rigid",
+    "hot": 1.0,
+    "g": "v5c",
+    "J": "J_C",
+    "kin": "cons",
+    "model": "lumped",
+    "wb": 1.1,
+    "notch": "own"
+   },
+   "J_kgm2": 0.0016,
+   "poses": [
+    "centre",
+    "alphap7",
+    "alpham7",
+    "betap7",
+    "betam7",
+    "cone7_045",
+    "cone7_135",
+    "cone7_225",
+    "cone7_315"
+   ],
+   "done": true,
+   "version": "m2_eng11_fe v1.0",
+   "complete": true,
+   "pass_Ks": {
+    "alpha": [
+     90.0,
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0,
+     160.0
+    ],
+    "beta": [
+     95.0,
+     100.0,
+     105.0,
+     110.0,
+     115.0,
+     120.0,
+     125.0,
+     130.0,
+     135.0,
+     140.0,
+     145.0,
+     150.0,
+     155.0,
+     160.0
+    ]
+   },
+   "windows": {
+    "alpha": [
+     "<= 90->= 160"
+    ],
+    "beta": [
+     "95->= 160"
+    ]
+   },
+   "both_axes_pass_Ks": [
+    95.0,
+    100.0,
+    105.0,
+    110.0,
+    115.0,
+    120.0,
+    125.0,
+    130.0,
+    135.0,
+    140.0,
+    145.0,
+    150.0,
+    155.0,
+    160.0
+   ],
+   "both_axes_windows": [
+    "95->= 160"
+   ],
+   "primary_window": "95->= 160",
+   "primary_window_Ks": [
+    95.0,
+    160.0
+   ],
+   "covers_v5c_window_100_130": true,
+   "primary_edges": {
+    "upper": {
+     "edge_Ks": 160.0,
+     "set_by": "grid limit (no failure found inside 90-160)",
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.441,
+       "worst": "full|max500N|act_worst|maxq_fins|f24.886|e0.95|z0.1",
+       "pm_abs_min_deg": 24.91,
+       "sm_min": 0.3775,
+       "n_corners": 2916
+      },
+      "beta": {
+       "gm_up_min_dB": 6.28,
+       "worst": "full|max500N|act_worst|maxq_fins|f20.885|e0.95|z0.1",
+       "pm_abs_min_deg": 24.34,
+       "sm_min": 0.3689,
+       "n_corners": 6723
+      }
+     }
+    },
+    "lower": {
+     "edge_Ks": 95.0,
+     "set_by_axes": [
+      "beta"
+     ],
+     "outside_Ks": 90.0,
+     "outside_fail": {
+      "beta": {
+       "first_fail": "full|max500N|act_worst|maxq_fins|f17.558|e0.95|z0.1|GM5.981",
+       "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+       "fail_block_worst": {
+        "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1",
+        "worst_gm_dB": 5.981,
+        "at_f_Hz": 17.558
+       },
+       "n_eval": 16,
+       "n_corners": 6480
+      }
+     },
+     "inside_worst": {
+      "alpha": {
+       "gm_up_min_dB": 6.162,
+       "worst": "full|max500N|act_worst|maxq_fins|f20.769|e0.95|z0.1",
+       "pm_abs_min_deg": 23.68,
+       "sm_min": 0.3596,
+       "n_corners": 2268
+      },
+      "beta": {
+       "gm_up_min_dB": 6.014,
+       "worst": "full|max500N|act_worst|maxq_fins|f17.877|e0.95|z0.1",
+       "pm_abs_min_deg": 23.2,
+       "sm_min": 0.3521,
+       "n_corners": 6399
+      }
+     }
+    }
+   },
+   "gm_min_inside_primary_dB": {
+    "alpha": 6.162,
+    "beta": 6.014
+   },
+   "failing_rows": {
+    "beta|Ks90": {
+     "first_fail": "full|max500N|act_worst|maxq_fins|f17.558|e0.95|z0.1|GM5.981",
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "block_worst_dB": 5.981,
+     "block": "full|max500N|act_worst|maxq_fins|e0.95|z0.1"
+    }
+   },
+   "fmap_Ks_pose_max_reaches_band": {
+    "alpha": 176.2,
+    "beta": 246.7
+   },
+   "coincidence_band_Hz": [
+    26.554,
+    27.181
+   ]
+  }
+ },
+ "groups": {
+  "J_1.6_cons_FE_structure": {
+   "what": "J 1.6e-3 cons on the FE structure: rigid / compliant airframe, T_REF / hot E -5 / -10 %, cone / cone + stop poses (RV6-14 (a), (b))",
+   "variants": [
+    "A01",
+    "A04",
+    "A05",
+    "A06",
+    "A07",
+    "A08",
+    "A11"
+   ],
+   "pass_Ks": [
+    90.0,
+    95.0,
+    100.0,
+    105.0,
+    110.0,
+    115.0,
+    120.0
+   ],
+   "windows": [
+    "<= 90-120"
+   ],
+   "primary_window": "<= 90-120",
+   "primary_edges_set_by": {
+    "upper": [
+     {
+      "variant": "A01",
+      "axis": "alpha",
+      "Ks": 125.0,
+      "first_fail": "full|max500N|act_fast|noaero|f24.061|e0.95|z0.02|GM5.939",
+      "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+      "block_worst_dB": 5.608
+     },
+     {
+      "variant": "A08",
+      "axis": "alpha",
+      "Ks": 125.0,
+      "first_fail": "full|max500N|act_fast|noaero|f24.061|e0.95|z0.02|GM5.939",
+      "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+      "block_worst_dB": 4.818
+     },
+     {
+      "variant": "A08",
+      "axis": "beta",
+      "Ks": 125.0,
+      "first_fail": "full|max500N|act_fast|noaero|f23.941|e0.95|z0.02|GM5.908",
+      "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+      "block_worst_dB": 4.396
+     }
+    ],
+    "lower": "grid limit"
+   }
+  },
+  "J_1.6_cons_FE_structure_and_bending": {
+   "what": "as above plus bending x 0.9 / 1.1 (RV6-14 (d))",
+   "variants": [
+    "A01",
+    "A04",
+    "A05",
+    "A06",
+    "A07",
+    "A08",
+    "A11",
+    "C01",
+    "C02"
+   ],
+   "pass_Ks": [],
+   "windows": [],
+   "primary_window": "NONE"
+  },
+  "J_0.76_cons_FE": {
+   "what": "J 0.76e-3 cons: FE rigid T_REF and compliant + hot E -10 %",
+   "variants": [
+    "A02",
+    "A09"
+   ],
+   "pass_Ks": [
+    130.0,
+    135.0,
+    140.0,
+    145.0,
+    150.0,
+    155.0,
+    160.0
+   ],
+   "windows": [
+    "130->= 160"
+   ],
+   "primary_window": "130->= 160",
+   "primary_edges_set_by": {
+    "upper": "grid limit",
+    "lower": [
+     {
+      "variant": "A02",
+      "axis": "beta",
+      "Ks": 125.0,
+      "first_fail": "full|max500N|act_fast|noaero|f24.321|e0.95|z0.02|GM5.954",
+      "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+      "block_worst_dB": 5.799
+     },
+     {
+      "variant": "A09",
+      "axis": "beta",
+      "Ks": 125.0,
+      "first_fail": "full|max500N|act_fast|noaero|f24.312|e0.95|z0.02|GM5.975",
+      "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+      "block_worst_dB": 5.799
+     }
+    ]
+   }
+  },
+  "J_2.7_cons_FE": {
+   "what": "J 2.7e-3 cons: FE rigid T_REF and compliant + hot E -10 %",
+   "variants": [
+    "A03",
+    "A10"
+   ],
+   "pass_Ks": [
+    125.0,
+    130.0,
+    135.0,
+    140.0,
+    145.0,
+    150.0,
+    155.0,
+    160.0
+   ],
+   "windows": [
+    "125->= 160"
+   ],
+   "primary_window": "125->= 160",
+   "primary_edges_set_by": {
+    "upper": "grid limit",
+    "lower": [
+     {
+      "variant": "A10",
+      "axis": "beta",
+      "Ks": 120.0,
+      "first_fail": "full|max500N|act_worst|maxq_fins|f17.555|e0.95|z0.1|GM5.984",
+      "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+      "block_worst_dB": 5.984
+     }
+    ]
+   }
+  },
+  "J_all_cons_FE_rigid_TREF": {
+   "what": "J 0.76 / 1.6 / 2.7e-3 cons, FE rigid T_REF",
+   "variants": [
+    "A01",
+    "A02",
+    "A03"
+   ],
+   "pass_Ks": [],
+   "windows": [],
+   "primary_window": "NONE"
+  },
+  "J_all_cons_FE_worst_structure": {
+   "what": "J 0.76 / 1.6 / 2.7e-3 cons, compliant + hot E -10 %",
+   "variants": [
+    "A07",
+    "A09",
+    "A10"
+   ],
+   "pass_Ks": [
+    130.0,
+    135.0,
+    140.0,
+    160.0
+   ],
+   "windows": [
+    "130-140",
+    "160"
+   ],
+   "primary_window": "130-140",
+   "primary_edges_set_by": {
+    "upper": [
+     {
+      "variant": "A07",
+      "axis": "alpha",
+      "Ks": 145.0,
+      "first_fail": "full|max500N|act_fast|noaero|f24.251|e0.95|z0.02|GM5.934",
+      "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+      "block_worst_dB": 5.909
+     }
+    ],
+    "lower": [
+     {
+      "variant": "A09",
+      "axis": "beta",
+      "Ks": 125.0,
+      "first_fail": "full|max500N|act_fast|noaero|f24.312|e0.95|z0.02|GM5.975",
+      "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+      "block_worst_dB": 5.799
+     }
+    ]
+   }
+  },
+  "J_all_n48_FE_rigid_TREF": {
+   "what": "J 0.76 / 1.6 / 2.7e-3 n48, FE rigid T_REF",
+   "variants": [
+    "B01",
+    "B02",
+    "B03"
+   ],
+   "pass_Ks": [],
+   "windows": [],
+   "primary_window": "NONE"
+  },
+  "V5c_reference_and_bending": {
+   "what": "V5c plant (v3.2 basis), bending x 0.9 / 1.0 / 1.1",
+   "variants": [
+    "A12",
+    "C03",
+    "C04"
+   ],
+   "pass_Ks": [],
+   "windows": [],
+   "primary_window": "NONE"
+  }
+ },
+ "matrix": {
+  "FE rigid T_REF cone": {
+   "J0.76 cons": "130->= 160 [A02]",
+   "J1.6 cons": "<= 90-120 [A01]",
+   "J2.7 cons": "120->= 160 [A03]",
+   "J0.76 n48": "130->= 160 [B02]",
+   "J1.6 n48": "NONE (no K_s in 90-160 passes on both axes) [B01]",
+   "J2.7 n48": "NONE (no K_s in 90-160 passes on both axes) [B03]",
+   "J0 (rotor out)": "<= 90->= 160 [B06]",
+   "J1.6 two-mass": "150->= 160 [B07]"
+  },
+  "FE hot E -5 %": {
+   "J1.6 cons": "<= 90-125 [A04]"
+  },
+  "FE hot E -10 %": {
+   "J1.6 cons": "<= 90-130 [A05]"
+  },
+  "FE compliant airframe": {
+   "J1.6 cons": "<= 90-135 [A06]"
+  },
+  "FE compliant + hot E -10 %": {
+   "J0.76 cons": "130->= 160 [A09]",
+   "J1.6 cons": "<= 90-140 [A07]",
+   "J2.7 cons": "125->= 160 [A10]"
+  },
+  "FE compliant + hot E -10 %, own notch": {
+   "J1.6 cons": "95-140 [A07o]"
+  },
+  "FE cone + stop poses": {
+   "J1.6 cons": "<= 90-120 [A08]"
+  },
+  "FE cone + stop, compliant, hot E -10 %": {
+   "J1.6 cons": "<= 90-140 [A11]"
+  },
+  "FE bending x 0.9": {
+   "J1.6 cons": "NONE (no K_s in 90-160 passes on both axes) [C01]"
+  },
+  "FE bending x 1.1": {
+   "J1.6 cons": "<= 90->= 160 [C02]"
+  },
+  "FE g = exact CAD kinematics": {
+   "J1.6 cons": "<= 90-120 [B05]"
+  },
+  "FE g = FEA3D post_k": {
+   "J1.6 cons": "<= 90-130 [B04]"
+  },
+  "V5c (v3.2 basis), own notch": {
+   "J1.6 cons": "100-130 [A12]"
+  },
+  "V5c bending x 0.9": {
+   "J1.6 cons": "NONE (no K_s in 90-160 passes on both axes) [C03]"
+  },
+  "V5c bending x 1.1": {
+   "J1.6 cons": "95->= 160 [C04]"
+  }
+ },
+ "matrix_detail": {
+  "FE rigid T_REF cone / J0.76 cons": {
+   "variant": "A02",
+   "window": "130->= 160",
+   "both_axes_windows": [
+    "130->= 160"
+   ],
+   "lower": [
+    {
+     "axis": "beta",
+     "Ks": 125.0,
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "first_fail": "full|max500N|act_fast|noaero|f24.321|e0.95|z0.02|GM5.954",
+     "block_worst_dB": 5.799
+    }
+   ],
+   "upper": "grid limit (no failure found inside 90-160)"
+  },
+  "FE rigid T_REF cone / J1.6 cons": {
+   "variant": "A01",
+   "window": "<= 90-120",
+   "both_axes_windows": [
+    "<= 90-120"
+   ],
+   "lower": "grid limit (no failure found inside 90-160)",
+   "upper": [
+    {
+     "axis": "alpha",
+     "Ks": 125.0,
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "first_fail": "full|max500N|act_fast|noaero|f24.061|e0.95|z0.02|GM5.939",
+     "block_worst_dB": 5.608
+    }
+   ]
+  },
+  "FE rigid T_REF cone / J2.7 cons": {
+   "variant": "A03",
+   "window": "120->= 160",
+   "both_axes_windows": [
+    "120->= 160"
+   ],
+   "lower": [
+    {
+     "axis": "beta",
+     "Ks": 115.0,
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "first_fail": "full|max500N|act_worst|maxq_fins|f18.014|e0.95|z0.1|GM5.982",
+     "block_worst_dB": 5.982
+    }
+   ],
+   "upper": "grid limit (no failure found inside 90-160)"
+  },
+  "FE rigid T_REF cone / J0.76 n48": {
+   "variant": "B02",
+   "window": "130->= 160",
+   "both_axes_windows": [
+    "130->= 160"
+   ],
+   "lower": [
+    {
+     "axis": "beta",
+     "Ks": 125.0,
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "first_fail": "full|max500N|act_fast|noaero|f24.321|e0.95|z0.02|GM5.954",
+     "block_worst_dB": 5.799
+    }
+   ],
+   "upper": "grid limit (no failure found inside 90-160)"
+  },
+  "FE rigid T_REF cone / J1.6 n48": {
+   "variant": "B01",
+   "window": "NONE (no K_s in 90-160 passes on both axes)",
+   "both_axes_windows": []
+  },
+  "FE rigid T_REF cone / J2.7 n48": {
+   "variant": "B03",
+   "window": "NONE (no K_s in 90-160 passes on both axes)",
+   "both_axes_windows": []
+  },
+  "FE rigid T_REF cone / J0 (rotor out)": {
+   "variant": "B06",
+   "window": "<= 90->= 160",
+   "both_axes_windows": [
+    "<= 90->= 160"
+   ],
+   "lower": "grid limit (no failure found inside 90-160)",
+   "upper": "grid limit (no failure found inside 90-160)"
+  },
+  "FE rigid T_REF cone / J1.6 two-mass": {
+   "variant": "B07",
+   "window": "150->= 160",
+   "both_axes_windows": [
+    "150->= 160"
+   ],
+   "lower": [
+    {
+     "axis": "beta",
+     "Ks": 145.0,
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "first_fail": "full|max500N|act_fast|noaero|cone7_225|f1 24.445|e0.95|z0.02|GM5.945",
+     "block_worst_dB": null
+    }
+   ],
+   "upper": "grid limit (no failure found inside 90-160)"
+  },
+  "FE hot E -5 % / J1.6 cons": {
+   "variant": "A04",
+   "window": "<= 90-125",
+   "both_axes_windows": [
+    "<= 90-125"
+   ],
+   "lower": "grid limit (no failure found inside 90-160)",
+   "upper": [
+    {
+     "axis": "alpha",
+     "Ks": 130.0,
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "first_fail": "full|max500N|act_fast|noaero|f24.108|e0.95|z0.02|GM5.905",
+     "block_worst_dB": 5.14
+    }
+   ]
+  },
+  "FE hot E -10 % / J1.6 cons": {
+   "variant": "A05",
+   "window": "<= 90-130",
+   "both_axes_windows": [
+    "<= 90-130"
+   ],
+   "lower": "grid limit (no failure found inside 90-160)",
+   "upper": [
+    {
+     "axis": "alpha",
+     "Ks": 135.0,
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "first_fail": "full|max500N|act_fast|noaero|f24.155|e0.95|z0.02|GM5.894",
+     "block_worst_dB": 5.132
+    }
+   ]
+  },
+  "FE compliant airframe / J1.6 cons": {
+   "variant": "A06",
+   "window": "<= 90-135",
+   "both_axes_windows": [
+    "<= 90-135"
+   ],
+   "lower": "grid limit (no failure found inside 90-160)",
+   "upper": [
+    {
+     "axis": "alpha",
+     "Ks": 140.0,
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "first_fail": "full|max500N|act_fast|noaero|f24.195|e0.95|z0.02|GM5.941",
+     "block_worst_dB": 5.431
+    }
+   ]
+  },
+  "FE compliant + hot E -10 % / J0.76 cons": {
+   "variant": "A09",
+   "window": "130->= 160",
+   "both_axes_windows": [
+    "130->= 160"
+   ],
+   "lower": [
+    {
+     "axis": "beta",
+     "Ks": 125.0,
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "first_fail": "full|max500N|act_fast|noaero|f24.312|e0.95|z0.02|GM5.975",
+     "block_worst_dB": 5.799
+    }
+   ],
+   "upper": "grid limit (no failure found inside 90-160)"
+  },
+  "FE compliant + hot E -10 % / J1.6 cons": {
+   "variant": "A07",
+   "window": "<= 90-140",
+   "both_axes_windows": [
+    "<= 90-140",
+    "160"
+   ],
+   "lower": "grid limit (no failure found inside 90-160)",
+   "upper": [
+    {
+     "axis": "alpha",
+     "Ks": 145.0,
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "first_fail": "full|max500N|act_fast|noaero|f24.251|e0.95|z0.02|GM5.934",
+     "block_worst_dB": 5.909
+    }
+   ]
+  },
+  "FE compliant + hot E -10 % / J2.7 cons": {
+   "variant": "A10",
+   "window": "125->= 160",
+   "both_axes_windows": [
+    "125->= 160"
+   ],
+   "lower": [
+    {
+     "axis": "beta",
+     "Ks": 120.0,
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "first_fail": "full|max500N|act_worst|maxq_fins|f17.555|e0.95|z0.1|GM5.984",
+     "block_worst_dB": 5.984
+    }
+   ],
+   "upper": "grid limit (no failure found inside 90-160)"
+  },
+  "FE compliant + hot E -10 %, own notch / J1.6 cons": {
+   "variant": "A07o",
+   "window": "95-140",
+   "both_axes_windows": [
+    "95-140"
+   ],
+   "lower": [
+    {
+     "axis": "beta",
+     "Ks": 90.0,
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "first_fail": "full|max500N|act_worst|maxq_fins|f17.681|e0.95|z0.1|GM5.971",
+     "block_worst_dB": 5.971
+    }
+   ],
+   "upper": [
+    {
+     "axis": "alpha",
+     "Ks": 145.0,
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "first_fail": "full|max500N|act_fast|noaero|f24.091|e0.95|z0.02|GM5.894",
+     "block_worst_dB": 5.052
+    }
+   ]
+  },
+  "FE cone + stop poses / J1.6 cons": {
+   "variant": "A08",
+   "window": "<= 90-120",
+   "both_axes_windows": [
+    "<= 90-120"
+   ],
+   "lower": "grid limit (no failure found inside 90-160)",
+   "upper": [
+    {
+     "axis": "alpha",
+     "Ks": 125.0,
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "first_fail": "full|max500N|act_fast|noaero|f24.061|e0.95|z0.02|GM5.939",
+     "block_worst_dB": 4.818
+    },
+    {
+     "axis": "beta",
+     "Ks": 125.0,
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "first_fail": "full|max500N|act_fast|noaero|f23.941|e0.95|z0.02|GM5.908",
+     "block_worst_dB": 4.396
+    }
+   ]
+  },
+  "FE cone + stop, compliant, hot E -10 % / J1.6 cons": {
+   "variant": "A11",
+   "window": "<= 90-140",
+   "both_axes_windows": [
+    "<= 90-140"
+   ],
+   "lower": "grid limit (no failure found inside 90-160)",
+   "upper": [
+    {
+     "axis": "alpha",
+     "Ks": 145.0,
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "first_fail": "full|max500N|act_fast|noaero|f24.251|e0.95|z0.02|GM5.934",
+     "block_worst_dB": 5.584
+    }
+   ]
+  },
+  "FE bending x 0.9 / J1.6 cons": {
+   "variant": "C01",
+   "window": "NONE (no K_s in 90-160 passes on both axes)",
+   "both_axes_windows": []
+  },
+  "FE bending x 1.1 / J1.6 cons": {
+   "variant": "C02",
+   "window": "<= 90->= 160",
+   "both_axes_windows": [
+    "<= 90->= 160"
+   ],
+   "lower": "grid limit (no failure found inside 90-160)",
+   "upper": "grid limit (no failure found inside 90-160)"
+  },
+  "FE g = exact CAD kinematics / J1.6 cons": {
+   "variant": "B05",
+   "window": "<= 90-120",
+   "both_axes_windows": [
+    "<= 90-120"
+   ],
+   "lower": "grid limit (no failure found inside 90-160)",
+   "upper": [
+    {
+     "axis": "alpha",
+     "Ks": 125.0,
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "first_fail": "full|max500N|act_fast|noaero|f24.061|e0.95|z0.02|GM5.939",
+     "block_worst_dB": 5.671
+    }
+   ]
+  },
+  "FE g = FEA3D post_k / J1.6 cons": {
+   "variant": "B04",
+   "window": "<= 90-130",
+   "both_axes_windows": [
+    "<= 90-130"
+   ],
+   "lower": "grid limit (no failure found inside 90-160)",
+   "upper": [
+    {
+     "axis": "alpha",
+     "Ks": 135.0,
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "first_fail": "full|max500N|act_fast|noaero|f24.146|e0.95|z0.02|GM5.944",
+     "block_worst_dB": 5.559
+    },
+    {
+     "axis": "beta",
+     "Ks": 135.0,
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "first_fail": "full|max500N|act_fast|noaero|f23.996|e0.95|z0.02|GM5.955",
+     "block_worst_dB": 5.211
+    }
+   ]
+  },
+  "V5c (v3.2 basis), own notch / J1.6 cons": {
+   "variant": "A12",
+   "window": "100-130",
+   "both_axes_windows": [
+    "100-130"
+   ],
+   "lower": [
+    {
+     "axis": "beta",
+     "Ks": 95.0,
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "first_fail": "full|max500N|act_worst|maxq_fins|f17.877|e0.95|z0.1|GM5.999",
+     "block_worst_dB": 5.999
+    }
+   ],
+   "upper": [
+    {
+     "axis": "alpha",
+     "Ks": 135.0,
+     "type": "bending coincidence (full-tank rocking mode at the first bending mode, zeta 0.02)",
+     "first_fail": "full|max500N|act_fast|noaero|f24.086|e0.95|z0.02|GM5.981",
+     "block_worst_dB": 4.913
+    }
+   ]
+  },
+  "V5c bending x 0.9 / J1.6 cons": {
+   "variant": "C03",
+   "window": "NONE (no K_s in 90-160 passes on both axes)",
+   "both_axes_windows": []
+  },
+  "V5c bending x 1.1 / J1.6 cons": {
+   "variant": "C04",
+   "window": "95->= 160",
+   "both_axes_windows": [
+    "95->= 160"
+   ],
+   "lower": [
+    {
+     "axis": "beta",
+     "Ks": 90.0,
+     "type": "low-frequency max-q corner (fins, worst actuator, zeta 0.10; rocking mode low against the control loop)",
+     "first_fail": "full|max500N|act_worst|maxq_fins|f17.558|e0.95|z0.1|GM5.981",
+     "block_worst_dB": 5.981
+    }
+   ],
+   "upper": "grid limit (no failure found inside 90-160)"
+  }
+ },
+ "proposal": {
+  "status": "PROPOSAL for the lead (227 (3) keeps the decision); DERIVED basis; not physical approval",
+  "findings": [
+   "V5c plant (v3.2 basis, CAD v3.3), J 1.6e-3 cons: both axes pass 100-130 N m/rad (reproduces the v3.2 window).",
+   "FE plant (CAD v3.5.1), rigid airframe, T_REF, J 1.6e-3 cons: <= 90-120 N m/rad; over the FE structure set (rigid / compliant airframe, T_REF / hot E -5 / -10 %, cone / stop poses): <= 90-120.",
+   "J on the FE plant (cons): 0.76e-3 130->= 160; 1.6e-3 <= 90-120; 2.7e-3 120->= 160 N m/rad; all three J together: NONE.",
+   "n48 convention (J 0.76 / 1.6 / 2.7e-3): 130->= 160 / NONE (no K_s in 90-160 passes on both axes) / NONE (no K_s in 90-160 passes on both axes) N m/rad.",
+   "Rotor model: two-mass (J 1.6e-3) 150->= 160; J 0 (rotor out of the mode) <= 90->= 160 N m/rad.",
+   "First bending x 0.9 / x 1.1: FE NONE (no K_s in 90-160 passes on both axes) / <= 90->= 160; V5c NONE (no K_s in 90-160 passes on both axes) / 95->= 160 N m/rad."
+  ],
+  "design_to_both_plants_nominal_J": "100-120",
+  "design_to_rule": "intersection of the V5c window (A12) and the FE structure-set window at the nominal J (group J_1.6_cons_FE_structure, else A01)"
+ },
+ "finding_fea3d_g_factor": {
+  "what": "FEA3D post_k servo factor g_fea (rod arm over the full horn radius, horn normal to the rod) against the exact CAD linkage kinematics g_kin (03-cad tvc_kinematics solve_psi, horn crank included): g_kin / g_fea",
+  "cone_7deg_range": [
+   1.0853,
+   1.3391
+  ],
+  "stop_8deg_range": [
+   1.1026,
+   1.5865
+  ],
+  "centre": 1.0,
+  "consequence": "FEA3D's 'with servo' engine stiffness (REPORT-FEA3D 9) under-counts the servo spring off-centre; GNC's primary plant uses the V5c g, which equals g_kin within 2.36 % on the cone; variant B04 flies g_fea for comparison",
+  "tag": "DERIVED (kinematics); for FEA3D / Mechanical, not a GNC requirement"
+ },
+ "n_variants_complete": 24,
+ "n_variants": 24
+}

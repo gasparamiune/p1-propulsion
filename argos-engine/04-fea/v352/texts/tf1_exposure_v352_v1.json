@@ -1,0 +1,681 @@
+{
+ "id": "tf1_exposure_v352",
+ "version": "v1",
+ "date": "2026-10-20",
+ "owner": "mechanical",
+ "basis": "T-F1 exposure basis for the founder action text (lead 09:59Z; CHANGELOG 239 (12)): per-firing temperatures and times above the 150 C\nusable limit of 6061-T6 for TC-01 and TC-02 (and TC-03 for the (b) package), from the v3.5.2 rev-4 thermal runs on both gap-conductance bounds,\nplus the TB surrogate per trial abort value.  Mechanical, 2026-10-20, v1.  Reads only; SIM (CalculiX thermal) + ASSUMED surrogate as tagged.\n\nSources: v352/tb70/hist/<label>_hist.npz (case_tc_hist_v352.py: every output frame of the run, all TC-01 / TC-02 / TC-03 nodes), and the\nS-AX v352r4 run.json of each TB state (the uniform shift applied by sax.py state_temperature 'case_to_abort').\nDefinitions:\n  part maximum   = max over the part's thermal nodes at each frame; 'time above X' integrates the frames with linear crossing interpolation;\n  J-FWD row      = TC-01 nodes within +/- 2.75 mm (hole radius) of the screw axis, 12 mm from the TC-01 forward end (axisymmetric model:\n                   no holes; the row value is the band maximum over r);\n  case TC station= TC-01 OD nodes 12.6-17.6 mm aft of the injector face (Electronics case over-temperature abort TCs, CHANGELOG 86 / 90);\n  TB state       = ASSUMED surrogate (sax.py): the B1 end-of-burn field (t 21.651 s) shifted uniformly so that the TC-01 maximum equals the\n                   abort value A (shift_K read from the S-AX run.json); 'TB shifted history' = the whole B1 history (burn + soak) with that\n                   shift: an ASSUMED bound for sizing only, not a modelled stand history;\n  design life    = 50 hot cycles (CHANGELOG 183 (1)(c)).\nUsage: tf1_exposure_v352.py -> v352/texts/tf1_exposure_v352_v1.json",
+ "bounds": {
+  "GVLO": {
+   "thermal_run": "DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_R4_GVLO",
+   "hist": {
+    "path": "/home/claude/work/mechanical/v352/tb70/hist/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_R4_GVLO_hist.npz",
+    "sha256_16": "b51e5672fb41058e"
+   },
+   "frd_sha256_16": "51de9afbcf4ca100",
+   "steps": [
+    [
+     "COAST",
+     0.0,
+     0.001
+    ],
+    [
+     "BURN",
+     0.001,
+     21.651
+    ],
+    [
+     "SOAK0.5",
+     21.651,
+     81.651
+    ],
+    [
+     "SOAK5",
+     81.651,
+     621.651
+    ],
+    [
+     "SOAK20",
+     621.651,
+     3621.651
+    ]
+   ],
+   "parts": {
+    "ENG-TC-01": {
+     "part_max": {
+      "max_C": 191.7,
+      "t_of_max_s": 51.65,
+      "t_above_150C_s": 488.8,
+      "t_above_175C_s": 50.7,
+      "t_above_200C_s": 0.0
+     },
+     "max_node_r_z_thermal_mm": [
+      28.575,
+      96.302
+     ],
+     "burn_max_C": 109.6,
+     "end_of_burn_max_C": 109.61,
+     "life_hours_above_150C_at_part_max": 6.79,
+     "jfwd_row": {
+      "max_C": 159.3,
+      "t_of_max_s": 64.65,
+      "t_above_150C_s": 48.5,
+      "t_above_175C_s": 0.0,
+      "t_above_200C_s": 0.0,
+      "z_thermal_mm": 134.091
+     },
+     "case_TC_station": {
+      "burn_max_C": 108.2,
+      "t_of_burn_max_s": 21.65,
+      "soak_max_C": 190.9,
+      "n_od_nodes": 4,
+      "note": "the abort is armed while the MV is open (burn only); the soak value is not an abort input"
+     }
+    },
+    "ENG-TC-02": {
+     "part_max": {
+      "max_C": 188.4,
+      "t_of_max_s": 21.5,
+      "t_above_150C_s": 12.3,
+      "t_above_175C_s": 3.9,
+      "t_above_200C_s": 0.0
+     },
+     "max_node_r_z_thermal_mm": [
+      24.85,
+      110.091
+     ],
+     "burn_max_C": 188.4,
+     "end_of_burn_max_C": 183.06,
+     "life_hours_above_150C_at_part_max": 0.17
+    },
+    "ENG-TC-03": {
+     "part_max": {
+      "max_C": 221.7,
+      "t_of_max_s": 19.0,
+      "t_above_150C_s": 14.3,
+      "t_above_175C_s": 7.5,
+      "t_above_200C_s": 3.3
+     },
+     "max_node_r_z_thermal_mm": [
+      6.579,
+      110.091
+     ],
+     "burn_max_C": 221.7,
+     "end_of_burn_max_C": 192.14,
+     "life_hours_above_150C_at_part_max": 0.2
+    }
+   },
+   "TB_surrogate_per_abort": {
+    "TB": {
+     "abort_C": 175.0,
+     "shift_K": 65.386,
+     "run_json": {
+      "path": "/home/claude/work/mechanical/runs/structural/L1_thv352_NF2b_R4_GVLO_r10free_cad352r4_eh0p1/TB/run.json",
+      "sha256_16": "f9d8a45adf52fd8c"
+     },
+     "nominal_false_abort_check": "abort above the nominal end-of-burn case maximum",
+     "ENG-TC-01": {
+      "TB_state_field_max_C": 175.0,
+      "shifted_history_ASSUMED": {
+       "max_C": 257.1,
+       "t_of_max_s": 51.65,
+       "t_above_150C_s": 1435.8,
+       "t_above_175C_s": 999.2,
+       "t_above_200C_s": 665.1
+      }
+     },
+     "ENG-TC-02": {
+      "TB_state_field_max_C": 248.4,
+      "shifted_history_ASSUMED": {
+       "max_C": 253.8,
+       "t_of_max_s": 21.5,
+       "t_above_150C_s": 1192.0,
+       "t_above_175C_s": 35.6,
+       "t_above_200C_s": 19.1
+      }
+     },
+     "ENG-TC-03": {
+      "TB_state_field_max_C": 257.5,
+      "shifted_history_ASSUMED": {
+       "max_C": 287.1,
+       "t_of_max_s": 19.0,
+       "t_above_150C_s": 1194.2,
+       "t_above_175C_s": 35.4,
+       "t_above_200C_s": 18.7
+      }
+     }
+    },
+    "TB_a165": {
+     "abort_C": 165.0,
+     "shift_K": 55.386,
+     "run_json": {
+      "path": "/home/claude/work/mechanical/runs/structural/L1_thv352_NF2b_R4_GVLO_r10free_cad352r4_eh0p1/TB_a165/run.json",
+      "sha256_16": "54169c58d760acde"
+     },
+     "nominal_false_abort_check": "abort above the nominal end-of-burn case maximum",
+     "ENG-TC-01": {
+      "TB_state_field_max_C": 165.0,
+      "shifted_history_ASSUMED": {
+       "max_C": 247.1,
+       "t_of_max_s": 51.65,
+       "t_above_150C_s": 1244.4,
+       "t_above_175C_s": 856.4,
+       "t_above_200C_s": 549.0
+      }
+     },
+     "ENG-TC-02": {
+      "TB_state_field_max_C": 238.4,
+      "shifted_history_ASSUMED": {
+       "max_C": 243.8,
+       "t_of_max_s": 21.5,
+       "t_above_150C_s": 861.7,
+       "t_above_175C_s": 27.2,
+       "t_above_200C_s": 14.6
+      }
+     },
+     "ENG-TC-03": {
+      "TB_state_field_max_C": 247.5,
+      "shifted_history_ASSUMED": {
+       "max_C": 277.1,
+       "t_of_max_s": 19.0,
+       "t_above_150C_s": 865.5,
+       "t_above_175C_s": 27.2,
+       "t_above_200C_s": 15.5
+      }
+     }
+    },
+    "TB_a150": {
+     "abort_C": 150.0,
+     "shift_K": 40.386,
+     "run_json": {
+      "path": "/home/claude/work/mechanical/runs/structural/L1_thv352_NF2b_R4_GVLO_r10free_cad352r4_eh0p1/TB_a150/run.json",
+      "sha256_16": "8511f3049b5dc1b0"
+     },
+     "nominal_false_abort_check": "abort above the nominal end-of-burn case maximum",
+     "ENG-TC-01": {
+      "TB_state_field_max_C": 150.0,
+      "shifted_history_ASSUMED": {
+       "max_C": 232.1,
+       "t_of_max_s": 51.65,
+       "t_above_150C_s": 999.2,
+       "t_above_175C_s": 665.1,
+       "t_above_200C_s": 375.6
+      }
+     },
+     "ENG-TC-02": {
+      "TB_state_field_max_C": 223.4,
+      "shifted_history_ASSUMED": {
+       "max_C": 228.8,
+       "t_of_max_s": 21.5,
+       "t_above_150C_s": 35.6,
+       "t_above_175C_s": 19.1,
+       "t_above_200C_s": 8.6
+      }
+     },
+     "ENG-TC-03": {
+      "TB_state_field_max_C": 232.5,
+      "shifted_history_ASSUMED": {
+       "max_C": 262.1,
+       "t_of_max_s": 19.0,
+       "t_above_150C_s": 35.4,
+       "t_above_175C_s": 18.7,
+       "t_above_200C_s": 11.7
+      }
+     }
+    },
+    "TB_a135": {
+     "abort_C": 135.0,
+     "shift_K": 25.386,
+     "run_json": {
+      "path": "/home/claude/work/mechanical/runs/structural/L1_thv352_NF2b_R4_GVLO_r10free_cad352r4_eh0p1/TB_a135/run.json",
+      "sha256_16": "ad4342e00a7b2ecb"
+     },
+     "nominal_false_abort_check": "abort above the nominal end-of-burn case maximum",
+     "ENG-TC-01": {
+      "TB_state_field_max_C": 135.0,
+      "shifted_history_ASSUMED": {
+       "max_C": 217.1,
+       "t_of_max_s": 51.65,
+       "t_above_150C_s": 790.0,
+       "t_above_175C_s": 493.1,
+       "t_above_200C_s": 51.4
+      }
+     },
+     "ENG-TC-02": {
+      "TB_state_field_max_C": 208.4,
+      "shifted_history_ASSUMED": {
+       "max_C": 213.8,
+       "t_of_max_s": 21.5,
+       "t_above_150C_s": 24.3,
+       "t_above_175C_s": 12.5,
+       "t_above_200C_s": 3.9
+      }
+     },
+     "ENG-TC-03": {
+      "TB_state_field_max_C": 217.5,
+      "shifted_history_ASSUMED": {
+       "max_C": 247.1,
+       "t_of_max_s": 19.0,
+       "t_above_150C_s": 24.1,
+       "t_above_175C_s": 14.4,
+       "t_above_200C_s": 7.6
+      }
+     }
+    },
+    "TB_a120": {
+     "abort_C": 120.0,
+     "shift_K": 10.386,
+     "run_json": {
+      "path": "/home/claude/work/mechanical/runs/structural/L1_thv352_NF2b_R4_GVLO_r10free_cad352r4_eh0p1/TB_a120/run.json",
+      "sha256_16": "e424341d1f88aeb3"
+     },
+     "nominal_false_abort_check": "abort above the nominal end-of-burn case maximum",
+     "ENG-TC-01": {
+      "TB_state_field_max_C": 120.0,
+      "shifted_history_ASSUMED": {
+       "max_C": 202.1,
+       "t_of_max_s": 51.65,
+       "t_above_150C_s": 606.1,
+       "t_above_175C_s": 288.2,
+       "t_above_200C_s": 15.8
+      }
+     },
+     "ENG-TC-02": {
+      "TB_state_field_max_C": 193.4,
+      "shifted_history_ASSUMED": {
+       "max_C": 198.8,
+       "t_of_max_s": 21.5,
+       "t_above_150C_s": 16.8,
+       "t_above_175C_s": 6.8,
+       "t_above_200C_s": 0.0
+      }
+     },
+     "ENG-TC-03": {
+      "TB_state_field_max_C": 202.5,
+      "shifted_history_ASSUMED": {
+       "max_C": 232.1,
+       "t_of_max_s": 19.0,
+       "t_above_150C_s": 17.0,
+       "t_above_175C_s": 10.4,
+       "t_above_200C_s": 3.6
+      }
+     }
+    },
+    "TB_a105": {
+     "abort_C": 105.0,
+     "shift_K": -4.614,
+     "run_json": {
+      "path": "/home/claude/work/mechanical/runs/structural/L1_thv352_NF2b_R4_GVLO_r10free_cad352r4_eh0p1/TB_a105/run.json",
+      "sha256_16": "52c7008d0605004b"
+     },
+     "nominal_false_abort_check": "abort below the nominal end-of-burn case maximum: a nominal B1 burn would trip it",
+     "ENG-TC-01": {
+      "TB_state_field_max_C": 105.0,
+      "shifted_history_ASSUMED": {
+       "max_C": 187.1,
+       "t_of_max_s": 51.65,
+       "t_above_150C_s": 437.8,
+       "t_above_175C_s": 41.3,
+       "t_above_200C_s": 0.0
+      }
+     },
+     "ENG-TC-02": {
+      "TB_state_field_max_C": 178.4,
+      "shifted_history_ASSUMED": {
+       "max_C": 183.8,
+       "t_of_max_s": 21.5,
+       "t_above_150C_s": 10.5,
+       "t_above_175C_s": 3.4,
+       "t_above_200C_s": 0.0
+      }
+     },
+     "ENG-TC-03": {
+      "TB_state_field_max_C": 187.5,
+      "shifted_history_ASSUMED": {
+       "max_C": 217.1,
+       "t_of_max_s": 19.0,
+       "t_above_150C_s": 13.0,
+       "t_above_175C_s": 6.0,
+       "t_above_200C_s": 2.1
+      }
+     }
+    }
+   }
+  },
+  "GVHI": {
+   "thermal_run": "DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_R4_GVHI",
+   "hist": {
+    "path": "/home/claude/work/mechanical/v352/tb70/hist/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_R4_GVHI_hist.npz",
+    "sha256_16": "e525fa1ad783b7de"
+   },
+   "frd_sha256_16": "81aaeaa3317be5c7",
+   "steps": [
+    [
+     "COAST",
+     0.0,
+     0.001
+    ],
+    [
+     "BURN",
+     0.001,
+     21.651
+    ],
+    [
+     "SOAK0.5",
+     21.651,
+     81.651
+    ],
+    [
+     "SOAK5",
+     81.651,
+     621.651
+    ],
+    [
+     "SOAK20",
+     621.651,
+     3621.651
+    ]
+   ],
+   "parts": {
+    "ENG-TC-01": {
+     "part_max": {
+      "max_C": 187.0,
+      "t_of_max_s": 43.65,
+      "t_above_150C_s": 479.5,
+      "t_above_175C_s": 30.7,
+      "t_above_200C_s": 0.0
+     },
+     "max_node_r_z_thermal_mm": [
+      28.575,
+      94.46
+     ],
+     "burn_max_C": 118.6,
+     "end_of_burn_max_C": 118.62,
+     "life_hours_above_150C_at_part_max": 6.66,
+     "jfwd_row": {
+      "max_C": 129.6,
+      "t_of_max_s": 54.65,
+      "t_above_150C_s": 0.0,
+      "t_above_175C_s": 0.0,
+      "t_above_200C_s": 0.0,
+      "z_thermal_mm": 134.091
+     },
+     "case_TC_station": {
+      "burn_max_C": 117.1,
+      "t_of_burn_max_s": 21.65,
+      "soak_max_C": 186.0,
+      "n_od_nodes": 4,
+      "note": "the abort is armed while the MV is open (burn only); the soak value is not an abort input"
+     }
+    },
+    "ENG-TC-02": {
+     "part_max": {
+      "max_C": 181.9,
+      "t_of_max_s": 21.5,
+      "t_above_150C_s": 9.9,
+      "t_above_175C_s": 3.1,
+      "t_above_200C_s": 0.0
+     },
+     "max_node_r_z_thermal_mm": [
+      24.85,
+      110.091
+     ],
+     "burn_max_C": 181.9,
+     "end_of_burn_max_C": 176.58,
+     "life_hours_above_150C_at_part_max": 0.14
+    },
+    "ENG-TC-03": {
+     "part_max": {
+      "max_C": 222.2,
+      "t_of_max_s": 19.0,
+      "t_above_150C_s": 14.8,
+      "t_above_175C_s": 7.7,
+      "t_above_200C_s": 3.3
+     },
+     "max_node_r_z_thermal_mm": [
+      7.6,
+      110.091
+     ],
+     "burn_max_C": 222.2,
+     "end_of_burn_max_C": 192.52,
+     "life_hours_above_150C_at_part_max": 0.21
+    }
+   },
+   "TB_surrogate_per_abort": {
+    "TB": {
+     "abort_C": 175.0,
+     "shift_K": 56.376,
+     "run_json": {
+      "path": "/home/claude/work/mechanical/runs/structural/L1_thv352_NF2b_R4_GVHI_r10free_cad352r4_eh0p1/TB/run.json",
+      "sha256_16": "8aae11da773d8b61"
+     },
+     "nominal_false_abort_check": "abort above the nominal end-of-burn case maximum",
+     "ENG-TC-01": {
+      "TB_state_field_max_C": 175.0,
+      "shifted_history_ASSUMED": {
+       "max_C": 243.4,
+       "t_of_max_s": 43.65,
+       "t_above_150C_s": 1266.0,
+       "t_above_175C_s": 866.4,
+       "t_above_200C_s": 551.6
+      }
+     },
+     "ENG-TC-02": {
+      "TB_state_field_max_C": 233.0,
+      "shifted_history_ASSUMED": {
+       "max_C": 238.3,
+       "t_of_max_s": 21.5,
+       "t_above_150C_s": 929.7,
+       "t_above_175C_s": 29.7,
+       "t_above_200C_s": 12.8
+      }
+     },
+     "ENG-TC-03": {
+      "TB_state_field_max_C": 248.9,
+      "shifted_history_ASSUMED": {
+       "max_C": 278.6,
+       "t_of_max_s": 19.0,
+       "t_above_150C_s": 933.5,
+       "t_above_175C_s": 27.1,
+       "t_above_200C_s": 16.2
+      }
+     }
+    },
+    "TB_a165": {
+     "abort_C": 165.0,
+     "shift_K": 46.376,
+     "run_json": {
+      "path": "/home/claude/work/mechanical/runs/structural/L1_thv352_NF2b_R4_GVHI_r10free_cad352r4_eh0p1/TB_a165/run.json",
+      "sha256_16": "f10d7d44bf1ee304"
+     },
+     "nominal_false_abort_check": "abort above the nominal end-of-burn case maximum",
+     "ENG-TC-01": {
+      "TB_state_field_max_C": 165.0,
+      "shifted_history_ASSUMED": {
+       "max_C": 233.4,
+       "t_of_max_s": 43.65,
+       "t_above_150C_s": 1092.6,
+       "t_above_175C_s": 732.8,
+       "t_above_200C_s": 427.8
+      }
+     },
+     "ENG-TC-02": {
+      "TB_state_field_max_C": 223.0,
+      "shifted_history_ASSUMED": {
+       "max_C": 228.3,
+       "t_of_max_s": 21.5,
+       "t_above_150C_s": 639.9,
+       "t_above_175C_s": 20.9,
+       "t_above_200C_s": 8.5
+      }
+     },
+     "ENG-TC-03": {
+      "TB_state_field_max_C": 238.9,
+      "shifted_history_ASSUMED": {
+       "max_C": 268.6,
+       "t_of_max_s": 19.0,
+       "t_above_150C_s": 645.1,
+       "t_above_175C_s": 20.9,
+       "t_above_200C_s": 13.9
+      }
+     }
+    },
+    "TB_a150": {
+     "abort_C": 150.0,
+     "shift_K": 31.376,
+     "run_json": {
+      "path": "/home/claude/work/mechanical/runs/structural/L1_thv352_NF2b_R4_GVHI_r10free_cad352r4_eh0p1/TB_a150/run.json",
+      "sha256_16": "7aa967e846fd2ab0"
+     },
+     "nominal_false_abort_check": "abort above the nominal end-of-burn case maximum",
+     "ENG-TC-01": {
+      "TB_state_field_max_C": 150.0,
+      "shifted_history_ASSUMED": {
+       "max_C": 218.4,
+       "t_of_max_s": 43.65,
+       "t_above_150C_s": 866.4,
+       "t_above_175C_s": 551.6,
+       "t_above_200C_s": 164.9
+      }
+     },
+     "ENG-TC-02": {
+      "TB_state_field_max_C": 208.0,
+      "shifted_history_ASSUMED": {
+       "max_C": 213.3,
+       "t_of_max_s": 21.5,
+       "t_above_150C_s": 29.7,
+       "t_above_175C_s": 12.8,
+       "t_above_200C_s": 3.9
+      }
+     },
+     "ENG-TC-03": {
+      "TB_state_field_max_C": 223.9,
+      "shifted_history_ASSUMED": {
+       "max_C": 253.6,
+       "t_of_max_s": 19.0,
+       "t_above_150C_s": 27.1,
+       "t_above_175C_s": 16.2,
+       "t_above_200C_s": 9.6
+      }
+     }
+    },
+    "TB_a135": {
+     "abort_C": 135.0,
+     "shift_K": 16.376,
+     "run_json": {
+      "path": "/home/claude/work/mechanical/runs/structural/L1_thv352_NF2b_R4_GVHI_r10free_cad352r4_eh0p1/TB_a135/run.json",
+      "sha256_16": "1d5c7a2f9a86c2d2"
+     },
+     "nominal_false_abort_check": "abort above the nominal end-of-burn case maximum",
+     "ENG-TC-01": {
+      "TB_state_field_max_C": 135.0,
+      "shifted_history_ASSUMED": {
+       "max_C": 203.4,
+       "t_of_max_s": 43.65,
+       "t_above_150C_s": 670.2,
+       "t_above_175C_s": 350.5,
+       "t_above_200C_s": 15.1
+      }
+     },
+     "ENG-TC-02": {
+      "TB_state_field_max_C": 193.0,
+      "shifted_history_ASSUMED": {
+       "max_C": 198.3,
+       "t_of_max_s": 21.5,
+       "t_above_150C_s": 17.9,
+       "t_above_175C_s": 6.6,
+       "t_above_200C_s": 0.0
+      }
+     },
+     "ENG-TC-03": {
+      "TB_state_field_max_C": 208.9,
+      "shifted_history_ASSUMED": {
+       "max_C": 238.6,
+       "t_of_max_s": 19.0,
+       "t_above_150C_s": 18.9,
+       "t_above_175C_s": 12.4,
+       "t_above_200C_s": 4.6
+      }
+     }
+    },
+    "TB_a120": {
+     "abort_C": 120.0,
+     "shift_K": 1.376,
+     "run_json": {
+      "path": "/home/claude/work/mechanical/runs/structural/L1_thv352_NF2b_R4_GVHI_r10free_cad352r4_eh0p1/TB_a120/run.json",
+      "sha256_16": "808145e7dad3a675"
+     },
+     "nominal_false_abort_check": "abort above the nominal end-of-burn case maximum",
+     "ENG-TC-01": {
+      "TB_state_field_max_C": 120.0,
+      "shifted_history_ASSUMED": {
+       "max_C": 188.4,
+       "t_of_max_s": 43.65,
+       "t_above_150C_s": 494.9,
+       "t_above_175C_s": 32.9,
+       "t_above_200C_s": 0.0
+      }
+     },
+     "ENG-TC-02": {
+      "TB_state_field_max_C": 178.0,
+      "shifted_history_ASSUMED": {
+       "max_C": 183.3,
+       "t_of_max_s": 21.5,
+       "t_above_150C_s": 10.6,
+       "t_above_175C_s": 3.3,
+       "t_above_200C_s": 0.0
+      }
+     },
+     "ENG-TC-03": {
+      "TB_state_field_max_C": 193.9,
+      "shifted_history_ASSUMED": {
+       "max_C": 223.6,
+       "t_of_max_s": 19.0,
+       "t_above_150C_s": 15.1,
+       "t_above_175C_s": 8.1,
+       "t_above_200C_s": 3.3
+      }
+     }
+    },
+    "TB_a105": {
+     "abort_C": 105.0,
+     "shift_K": -13.624,
+     "run_json": {
+      "path": "/home/claude/work/mechanical/runs/structural/L1_thv352_NF2b_R4_GVHI_r10free_cad352r4_eh0p1/TB_a105/run.json",
+      "sha256_16": "005ba37730557ebb"
+     },
+     "nominal_false_abort_check": "abort below the nominal end-of-burn case maximum: a nominal B1 burn would trip it",
+     "ENG-TC-01": {
+      "TB_state_field_max_C": 105.0,
+      "shifted_history_ASSUMED": {
+       "max_C": 173.4,
+       "t_of_max_s": 43.65,
+       "t_above_150C_s": 267.6,
+       "t_above_175C_s": 0.0,
+       "t_above_200C_s": 0.0
+      }
+     },
+     "ENG-TC-02": {
+      "TB_state_field_max_C": 163.0,
+      "shifted_history_ASSUMED": {
+       "max_C": 168.3,
+       "t_of_max_s": 21.5,
+       "t_above_150C_s": 4.8,
+       "t_above_175C_s": 0.0,
+       "t_above_200C_s": 0.0
+      }
+     },
+     "ENG-TC-03": {
+      "TB_state_field_max_C": 178.9,
+      "shifted_history_ASSUMED": {
+       "max_C": 208.6,
+       "t_of_max_s": 19.0,
+       "t_above_150C_s": 11.0,
+       "t_above_175C_s": 3.7,
+       "t_above_200C_s": 0.6
+      }
+     }
+    }
+   }
+  }
+ }
+}

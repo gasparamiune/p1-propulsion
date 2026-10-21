@@ -1,0 +1,420 @@
+{
+ "id": "gm01_rodpath_bound_v352",
+ "doc": "GM-01 FA-1 cells: DERIVED rod-path bound for the OP-moment residue (lead 22:54:03Z (2), refined 23:12:52Z (2)).\n\nThe v3.5.2 L1 OP unit step carries a non-physical moment about the pivot; the rods are the only moment path, so it shows as a\nrod-force pair (statics of the deck load: ROD_1 +13.531, ROD_2 -0.724 N/MPa; icd_momentfree_v352.json global_L1).  The physical OP\nmoment is zero.  For each FA-1 case (OP coefficient = bar abs / 10, as post_f1) this script states the rod forces with and without\nthe residue, and applies the residue rod force through GM-01's stress per unit rod force from the EA unit steps:\n  * the v3.5.2 L1 model (fa1v352n) has no EA step; the v3.5.1 L1 neutral run pose_neutral_c71 has S_EAX / S_EAY and its own EA unit\n    rods (rodstep_cones_v352.json, v351_c71).  b solves [s_EAX s_EAY] b = t_residue; the residue field in GM-01 is\n    c_OP (b_X S_EAX + b_Y S_EAY), transferred to each v3.5.2 GM-01 node from the nearest c71 GM-01 node [ASSUMED: same rev-1 lever,\n    Saint-Venant at GM-01 between a pressure-borne and an inertia-borne pivot moment; the governing node n88188 coincides with\n    c71 n55792 at 0.0 mm].\n  * moment-free field = as found - residue field (tensor); also the triangle bound vM + vM(residue field) (any sign).\nReads only; writes results/v352/gm01_rodpath_bound_v352.json and results/v352/tables/gm01_rodpath_bound_v352.md.\n",
+ "evidence": "DERIVED (superposition on SIM unit steps; transfer ASSUMED)",
+ "t_residue_N_per_MPa": [
+  13.531,
+  -0.724
+ ],
+ "c71_EA_unit_rods_N": [
+  [
+   -0.7512,
+   -0.7428
+  ],
+  [
+   0.7509,
+   -0.7424
+  ]
+ ],
+ "b_EA_rad_s2_per_MPa": [
+  -9.487751503999158,
+  -8.62116460715648
+ ],
+ "node_label_convention": "nNNNN = post label = 0-based field index (post_f1); deck node id = label + 1",
+ "node": 88188,
+ "deck_node": 88189,
+ "c71_node": 55792,
+ "c71_node_distance_mm": 0.0,
+ "transfer_distance_mm": {
+  "median": 0.24291091935612777,
+  "p95": 1.703837351376415,
+  "max": 4.05022945195084
+ },
+ "material": "AL7075-T6",
+ "cases": {
+  "FA1Q": {
+   "coefs": {
+    "OP": 9.4,
+    "PM": 7.0
+   },
+   "rods_as_found_N": {
+    "ROD_1": 130.0949878140754,
+    "ROD_2": -10.028190464556133
+   },
+   "rods_residue_N": {
+    "ROD_1": 127.19,
+    "ROD_2": -6.81
+   },
+   "rods_moment_free_N": {
+    "ROD_1": 2.9,
+    "ROD_2": -3.22
+   },
+   "ROD_1_residue_sign": "+ (tension)",
+   "at_node": {
+    "T_C": 21.161016304977124,
+    "vm_as_found_MPa": 266.04258285746045,
+    "vm_moment_free_MPa": 261.7481148689192,
+    "vm_residue_field_MPa": 5.708869620557168,
+    "MS_as_found": [
+     0.7666,
+     1.0298
+    ],
+    "MS_posted": [
+     0.767,
+     1.03
+    ],
+    "MS_moment_free": [
+     0.7956,
+     1.0631
+    ],
+    "MS_triangle_bound": [
+     0.7295,
+     0.9871
+    ]
+   },
+   "part_all_node_min": {
+    "as_found": {
+     "node": 88188,
+     "MS": [
+      0.7666,
+      1.0298
+     ]
+    },
+    "moment_free": {
+     "node": 88188,
+     "MS": [
+      0.7956,
+      1.0631
+     ],
+     "transfer_distance_mm": 0.0
+    },
+    "triangle_bound": {
+     "node": 88188,
+     "MS": [
+      0.7295,
+      0.9871
+     ],
+     "transfer_distance_mm": 0.0
+    }
+   },
+   "max_vm_residue_field_MPa": {
+    "value": 66.64243190666757,
+    "node": 92054,
+    "xyz_mm": [
+     -19.394,
+     26.989,
+     -30.737
+    ]
+   }
+  },
+  "FA1D": {
+   "coefs": {
+    "OP": 12.1,
+    "PM": 7.0
+   },
+   "rods_as_found_N": {
+    "ROD_1": 166.62846581977183,
+    "ROD_2": -11.983736773145944
+   },
+   "rods_residue_N": {
+    "ROD_1": 163.73,
+    "ROD_2": -8.76
+   },
+   "rods_moment_free_N": {
+    "ROD_1": 2.9,
+    "ROD_2": -3.22
+   },
+   "ROD_1_residue_sign": "+ (tension)",
+   "at_node": {
+    "T_C": 21.161016304977124,
+    "vm_as_found_MPa": 342.31208327983956,
+    "vm_moment_free_MPa": 336.7832789811308,
+    "vm_residue_field_MPa": 7.348651320078908,
+    "MS_as_found": [
+     0.373,
+     0.5775
+    ],
+    "MS_posted": [
+     0.373,
+     0.578
+    ],
+    "MS_moment_free": [
+     0.3956,
+     0.6034
+    ],
+    "MS_triangle_bound": [
+     0.3442,
+     0.5444
+    ]
+   },
+   "part_all_node_min": {
+    "as_found": {
+     "node": 88188,
+     "MS": [
+      0.373,
+      0.5775
+     ]
+    },
+    "moment_free": {
+     "node": 88188,
+     "MS": [
+      0.3956,
+      0.6034
+     ],
+     "transfer_distance_mm": 0.0
+    },
+    "triangle_bound": {
+     "node": 88188,
+     "MS": [
+      0.3442,
+      0.5444
+     ],
+     "transfer_distance_mm": 0.0
+    }
+   },
+   "max_vm_residue_field_MPa": {
+    "value": 85.78440702879548,
+    "node": 92054,
+    "xyz_mm": [
+     -19.394,
+     26.989,
+     -30.737
+    ]
+   }
+  },
+  "FA1U": {
+   "coefs": {
+    "OP": 14.7,
+    "PM": 7.0
+   },
+   "rods_as_found_N": {
+    "ROD_1": 201.8088520474795,
+    "ROD_2": -13.866855440676874
+   },
+   "rods_residue_N": {
+    "ROD_1": 198.91,
+    "ROD_2": -10.64
+   },
+   "rods_moment_free_N": {
+    "ROD_1": 2.9,
+    "ROD_2": -3.22
+   },
+   "ROD_1_residue_sign": "+ (tension)",
+   "at_node": {
+    "T_C": 21.161016304977124,
+    "vm_as_found_MPa": 415.7568017675748,
+    "vm_moment_free_MPa": 409.03937712111417,
+    "vm_residue_field_MPa": 8.927700364062805,
+    "MS_as_found": [
+     0.1305,
+     0.2988
+    ],
+    "MS_posted": [
+     0.13,
+     0.299
+    ],
+    "MS_moment_free": [
+     0.149,
+     0.3202
+    ],
+    "MS_triangle_bound": [
+     0.1067,
+     0.2715
+    ]
+   },
+   "part_all_node_min": {
+    "as_found": {
+     "node": 88188,
+     "MS": [
+      0.1305,
+      0.2988
+     ]
+    },
+    "moment_free": {
+     "node": 88188,
+     "MS": [
+      0.149,
+      0.3202
+     ],
+     "transfer_distance_mm": 0.0
+    },
+    "triangle_bound": {
+     "node": 88188,
+     "MS": [
+      0.1067,
+      0.2715
+     ],
+     "transfer_distance_mm": 0.0
+    }
+   },
+   "max_vm_residue_field_MPa": {
+    "value": 104.21742010936309,
+    "node": 92054,
+    "xyz_mm": [
+     -19.394,
+     26.989,
+     -30.737
+    ]
+   }
+  },
+  "FA1S": {
+   "coefs": {
+    "OP": 15.103800000000001,
+    "PM": 7.0
+   },
+   "rods_as_found_N": {
+    "ROD_1": 207.2726366469981,
+    "ROD_2": -14.15931825527264
+   },
+   "rods_residue_N": {
+    "ROD_1": 204.37,
+    "ROD_2": -10.94
+   },
+   "rods_moment_free_N": {
+    "ROD_1": 2.9,
+    "ROD_2": -3.22
+   },
+   "ROD_1_residue_sign": "+ (tension)",
+   "at_node": {
+    "T_C": 21.161016304977124,
+    "vm_as_found_MPa": 427.1633322962678,
+    "vm_moment_free_MPa": 420.2613057557686,
+    "vm_residue_field_MPa": 9.172938827124614,
+    "MS_as_found": [
+     0.1003,
+     0.2642
+    ],
+    "MS_posted": [
+     0.1,
+     0.264
+    ],
+    "MS_moment_free": [
+     0.1184,
+     0.2849
+    ],
+    "MS_triangle_bound": [
+     0.0772,
+     0.2376
+    ]
+   },
+   "part_all_node_min": {
+    "as_found": {
+     "node": 88188,
+     "MS": [
+      0.1003,
+      0.2642
+     ]
+    },
+    "moment_free": {
+     "node": 88188,
+     "MS": [
+      0.1184,
+      0.2849
+     ],
+     "transfer_distance_mm": 0.0
+    },
+    "triangle_bound": {
+     "node": 88188,
+     "MS": [
+      0.0772,
+      0.2376
+     ],
+     "transfer_distance_mm": 0.0
+    }
+   },
+   "max_vm_residue_field_MPa": {
+    "value": 107.08020883318359,
+    "node": 92054,
+    "xyz_mm": [
+     -19.394,
+     26.989,
+     -30.737
+    ]
+   }
+  },
+  "FA1T": {
+   "coefs": {
+    "OP": 9.4,
+    "PM": 7.0,
+    "TZ": 1696.4813880000002
+   },
+   "rods_as_found_N": {
+    "ROD_1": 130.0948942919674,
+    "ROD_2": -10.028236450779094
+   },
+   "rods_residue_N": {
+    "ROD_1": 127.19,
+    "ROD_2": -6.81
+   },
+   "rods_moment_free_N": {
+    "ROD_1": 2.9,
+    "ROD_2": -3.22
+   },
+   "ROD_1_residue_sign": "+ (tension)",
+   "at_node": {
+    "T_C": 21.161016304977124,
+    "vm_as_found_MPa": 264.50100804870135,
+    "vm_moment_free_MPa": 260.199699895769,
+    "vm_residue_field_MPa": 5.708869620557168,
+    "MS_as_found": [
+     0.7769,
+     1.0416
+    ],
+    "MS_posted": [
+     0.777,
+     1.042
+    ],
+    "MS_moment_free": [
+     0.8063,
+     1.0753
+    ],
+    "MS_triangle_bound": [
+     0.7394,
+     0.9984
+    ]
+   },
+   "part_all_node_min": {
+    "as_found": {
+     "node": 88188,
+     "MS": [
+      0.7769,
+      1.0416
+     ]
+    },
+    "moment_free": {
+     "node": 88188,
+     "MS": [
+      0.8063,
+      1.0753
+     ],
+     "transfer_distance_mm": 0.0
+    },
+    "triangle_bound": {
+     "node": 88188,
+     "MS": [
+      0.7394,
+      0.9984
+     ],
+     "transfer_distance_mm": 0.0
+    }
+   },
+   "max_vm_residue_field_MPa": {
+    "value": 66.64243190666757,
+    "node": 92054,
+    "xyz_mm": [
+     -19.394,
+     26.989,
+     -30.737
+    ]
+   }
+  }
+ },
+ "files_sha16": {
+  "results/v352/icd_momentfree_v352.json": "785b4e48f407ddfb",
+  "results/v352/rodstep_cones_v352.json": "6767d5b837f0189b",
+  "runs/fa1v352n/A1_22.2/fields.npz": "6ed9ef366e151551",
+  "runs/pose_neutral_c71/B1_21.65/fields.npz": "de0a32d6fa3db7ae",
+  "runs/pose_neutral_c71/B1_21.65/f1.inp.gz": "52b77cacfae7b1c4",
+  "scripts/gm01_rodpath_bound_v352.py": "84dc0ed81b350e6f"
+ }
+}

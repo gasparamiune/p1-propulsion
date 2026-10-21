@@ -1,0 +1,24 @@
+--- /dev/shm/rev_elec3/fw210/src/core/control.cpp	2026-10-13 14:02:58.000000000 +0000
++++ /dev/shm/rev_elec3/fw/src/core/control.cpp	2026-10-20 22:02:27.184470331 +0000
+@@ -168,6 +168,21 @@
+   return u;
+ }
+ 
++float PcController::holdLift(float x_hold, float sp_park, float ptank, float dt) {   // v2.11 (control.h)
++  using namespace cfg;
++  const float sp = sp_rl_.step(clampf(sp_park, kPcSpMinAbs_Pa, kPcSpMaxAbs_Pa), kPcSpRateLimit_Paps, dt);
++  int nd = static_cast<int>(kRefModelDelay_s / dt + 0.5f);
++  if (nd > kRefN - 1) nd = kRefN - 1;
++  if (nd < 0) nd = 0;
++  ref_buf_[ref_idx_] = sp;
++  const float delayed = ref_buf_[(ref_idx_ - nd + kRefN) % kRefN];
++  ref_idx_ = (ref_idx_ + 1) % kRefN;
++  ref_ = ref_lpf_.step(delayed);
++  x_ff_ = ValveMap::lift(sp, ptank, nullptr);
++  clamped_ = false;
++  return x_rl_.step(clampf(x_hold, 0.0f, kPintleLiftMaxCmd_m), kPintleRateCmd_mps, dt);
++}
++
+ // ------------------------------------------------------------------------------------ TvcShaper
+ float TvcShaper::leverDz(float alpha, float beta, int i) {
+   // ball at (r cos az, r sin az, z_b) in the engine frame; R = Rx(alpha) Ry(beta); return z' - z_b

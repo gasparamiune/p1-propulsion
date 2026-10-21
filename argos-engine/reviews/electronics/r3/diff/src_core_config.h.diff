@@ -1,0 +1,329 @@
+--- /dev/shm/rev_elec3/fw210/src/core/config.h	2026-10-13 15:43:45.000000000 +0000
++++ /dev/shm/rev_elec3/fw/src/core/config.h	2026-10-21 02:14:12.612996121 +0000
+@@ -1,3 +1,11 @@
++// [v2.11 2026-10-20 / 21, LEAD CHANGELOG 216 / 227 / 230 / 243 and the Part A rulings: case-TC abort 423.15 K, start / ARM limit 403.15 K, stand
++// T0 rule kCaseStandArmMax_K; R2 hold LIFT-COMMANDED at kR2HoldLift_m 0.21776 mm with the backstop E2 + kR2HoldBackstop_s 0.85 s; FA-1 ride-through
++// re-sized (15 ms / E2 + 15 ms / N 2) with the comparator RC FIXED (C330 540 nF); cold-rule ARM margin 0.42 K (re-derived PREPRESS drop 0.23 K) +
++// PREPRESS safe exit; pad / stand BASE_AMB lift refusal; purge cap 2.55 s KEPT (230 (3): the scheduled span does not fit 2.39 s) + hardware
++// both-commanded-open timer constants; A7 high-side blind window stated; full list in the ELEC-V211 handback]
++// [v2.11 2026-10-13, LEAD CHANGELOG 203/205/206: flight Pc transducer reselected (C1 Kulite XTL-190SM-2000A absolute via INA333, kPcXdcrSel;
++// 070BG = alternate / B-PC-1 static reference), non-sticky flight HIGH over-range + above-full-scale flag (203 (1)(a)), FA-1 ride-through
++// CANDIDATE build option default OFF (203 (1)(b), kRide*), both-open purge cap 2.55 s (203 (3)), unpurged flight RELIGHT guard (203 (7))]
+ // [v2.10 2026-10-13, REV-ELEC-1 + LEAD CHANGELOG 164/166/168/172/175/181/186: A5 deleted (LIGHT_SPIKE log), R2 command hold kR2HoldThrust_N (186 (2)), 30 bar abort filtered 5 ms, one-sided light-rule fallback, lift clamp, bleed schedule on flow time + closure step + cap + hardware-window constants, FA-1 photodiode, second re-zero, case-TC policy, tank 15 C, interlock guard band, safing hold, A7 high-side blank; full list in 06-electronics/REPORT-v2.10-HANDBACK.md] ARGOS engine ECU firmware - tunable configuration (v2.9, 2026-10-13: LEAD decisions of 2026-10-13 - (B) RELATIVE light detection is
+ // the baseline (pre-lift reference + post-lift baseline window + low absolute floor, build constants, DESIGN placeholders until Combustion
+ // publishes the earliest-light bound and the lit-minus-unlit rise); head-end bleed PROVISION for A1 (two NC valves in series, P_mid
+@@ -222,7 +230,7 @@
+ constexpr float kFreezeBandFrac = 0.6f;             // [DESIGN] band = max(min, frac * one-deadband Pc step)
+ constexpr float kPcFilterFc_Hz = 50.0f;             // [COMB v2 via lead 2026-10-12] ~50 Hz low-pass against the 144-188 Hz, zeta < 0.03
+                                                     // sense-line resonance; [DESIGN] 2nd-order Butterworth on the 1 kHz decimated Pc
+-                                                    // (v2.1: 1st-order 120 Hz). Lag at 20 Hz is 34 deg, not < 1 deg (see REPORT)
++                                                    // (v2.1: 1st-order 120 Hz). Lag at 20 Hz is 34 deg, not < 1 deg (see REPORT). v2.11: kept on C1 (no sense line)
+ constexpr float kTrimLimit = 0.40f;                 // [DESIGN] multiplicative map trim authority +/-40 % (Cd 0.6-0.8, regression x0.6-1.5, eta_c* band)
+ constexpr float kRunIntegHold_s = 0.15f;            // [DESIGN, SIL-tuned] no integration right after ignition (fuel thermal lag)
+ constexpr float kIntegRefTolFrac = 0.05f;            // [DESIGN, SIL-tuned] integrate only while |sp - ref| < frac*sp (reference model settled); 1 = always
+@@ -307,6 +315,37 @@
+ constexpr float kPcOverPressureTime_s = 0.005f;     // [LEAD REV-ELEC-1 RE-20, 2026-10-13: FILTERED channel, 5 ms] persistence on the 2nd-order
+                                                     //   50 Hz low-pass of the 1 kHz Pc (pc_abs = pc_f_ + ambient; v2.2-v2.9: 3 ms). HARD_START
+                                                     //   if during ignition. S6 trip order recorded (hardware comparator first, v2.10 S6)
++// v2.11 FA-1 RIDE-THROUGH (LEAD CHANGELOG 203 (1)(b) CANDIDATE, RESTATED by 216 (3): stand keeps the abort). Sized from detector-side
++// durations re-derived for the line-205 transducer chain (C1 XTL-190SM-2000A on the seat passage; calc/v2p11/fa1_chain_v2p11.cpp ->
++// results/fa1_chain_v2p11.json eea3b964e41f0afe, Combustion's 896-case FA-1 grid, SIM on an ASSUMED construct). Build option, DEFAULT
++// OFF (-DECU_RIDE_THROUGH=1, or EngineEcu::ride_through for SIL/tests). FLIGHT RELIGHTS ONLY (rule FLIGHT_RELIGHT; never the stand,
++// never the pad first start). Firmware window from the ignition-lift command E1 of the start to E2 + kRideWinPostE2_s. Inside it:
++//   (1) the filtered 30 bar persistence is kRideOvpTime_s (>= 13 ms + margin; LEAD 216 (3)) instead of kPcOverPressureTime_s;
++//   (2) a raw reading above the 45 bar MEOP continuously for kRideT45_s aborts HARD_START (bounds a genuine event inside the window);
++//   (3) the IGNITION HIGH over-range rule needs kRideOverrangeN consecutive over-range ticks (LEAD 216 (3): N >= 2; C1 4.75 V = 146.5 bar
++//       abs, 0 of 896 FA-1 cases reach it; as built N = 1).
++// HARDWARE (LEAD 216 (3), reviewer recommendation ADOPTED): the comparator RC is FIXED, never switched by firmware (the v2.11 draft's
++// R334 / TMUX1102 / U335 D-FF / U336 one-shot switching is DELETED): the ride-through BOM variant fits C330 = 2 x 270 nF C0G 5 % in
++// parallel (540 nF) on the unchanged 47.5k / 47.5k tap: tau = 23.75k x 540 nF = 12.83 ms nominal, 12.10 ms minimum (>= 10 ms at the low
++// band edge with the tolerances; FA-1 grid: 0 trips at 10 ms, 165 as built), over the WHOLE burn; its cost on genuine over-pressure is
++// SIL S6 / S6R (electronics_v4.json). Without the ride-through (default build) C330 stays 220 nF (5.225 ms).
++#ifndef ECU_RIDE_THROUGH
++#define ECU_RIDE_THROUGH 0
++#endif
++constexpr bool kRideThroughBuild = ECU_RIDE_THROUGH != 0;   // [LEAD 203 (1)(b) / 216 (3) CANDIDATE] adopted only on the S6R evidence
++constexpr float kRideOvpTime_s = 0.015f;            // [DERIVED fa1_chain_v2p11: longest continuous filtered > 30 bar abs 12.0 ms; LEAD 216 (3)
++                                                    //   >= 13 ms + margin: 13 + 2 ms; grid: first zero-trip persistence 15 ms on every C1 chain]
++constexpr float kRideWinPostE2_s = 0.015f;          // [DERIVED: latest end of a filtered > 30 bar episode E2 + 7.3 ms (C1 chains; reviewer
++                                                    //   070BG 8.0 ms); LEAD 216 (3) >= E2 + 8 ms + margin: 8 + 7 ms]
++constexpr float kRideT45_s = 0.007f;                // [DERIVED: longest continuous raw > 45 bar abs 5.0 ms + 2 ms (head history 4.40 ms)]
++constexpr int kRideOverrangeN = 2;                  // [LEAD 216 (3)] consecutive HIGH over-range ticks for the IGNITION rule in the window
++constexpr float kRideCmpTauNom_s = 0.012825f;       // [DESIGN ride-through BOM variant] 23.75k x 540 nF (C330 2 x 270 nF C0G 5 %)
++constexpr float kRideCmpTauMin_s = 0.012100f;       // [DERIVED] 12.825 ms x (1 - 0.0035) x (1 - 0.053): R 0.1 % + TCR 25 ppm/K x 100 K;
++                                                    //   C 5 % + C0G 30 ppm/K x 100 K (25 -> 125 C; DATASHEET-class values, part TO-SELECT)
++constexpr float kRideCmpTauMax_s = 0.013552f;       // [DERIVED] 12.825 ms x 1.0035 x 1.053 (same terms): bounds the genuine over-pressure cost
++static_assert(kRideOvpTime_s >= 0.013f + 0.002f - 1e-6f && kRideWinPostE2_s >= 0.008f + 0.005f && kRideOverrangeN >= 2 && kRideT45_s > 0.0f,
++              "ride-through sizing per LEAD 216 (3): persistence >= 13 ms + margin, window >= E2 + 8 ms + margin, over-range N >= 2");
++static_assert(kRideCmpTauMin_s >= 0.010f, "fixed comparator RC >= 10 ms at the low band edge with the tolerances (LEAD 216 (3))");
+ constexpr float kHwOvpTime_s = 0.002f;              // [DESIGN] OVP_OK low this long -> HW_OVERPRESSURE abort
+ constexpr float kHwOvpArmSettle_s = 0.005f;         // [DESIGN] OVP_OK ignored for 5 ms after ARM_REQ rises (latch set on the edge)
+ // v2.6: the v2.2-v2.5 ABORT check 'pintle still open (> 0.5 mm) 40 ms after the abort -> drop the ARM bus' is RETIRED. It was
+@@ -344,7 +383,8 @@
+ // level (the excess not explained by the lift: after E2 the start ramp raises the expected Pc above 8 bar); above kLightSpikeHiAbs_Pa always.
+ // Note (LEAD): the lit-start band at the ignition lift is 2.4-4.9 bar abs (SIL 2.39 at the A1 state, COMB 4.89 max at the 0.2039 mm lift).
+ // v2.10 (LEAD CHANGELOG 172 (5), REV-COMB-2 R2-10): the flight LIGHT_SPIKE values are LOWER BOUNDS. Chain: 1/8 in sense line with its
+-// 144-188 Hz resonance, zeta < 0.03 [COMB v2] -> TE M3234 070BG (response < 2 ms, DATASHEET M3200 06/2026) -> RC anti-alias 2.4 kHz
++// 144-188 Hz resonance, zeta < 0.03 [COMB v2] -> TE M3234 070BG (response < 2 ms, DATASHEET M3200 08/2018) -> RC anti-alias 2.4 kHz
++// (v2.11 note, REV-ELEC-2 R2-17 / R2-21: this is the v2.10 chain; LEAD 205 replaced it for flight with C1 at the seat, no sense line)
+ // [DERIVED R610/C610] -> ADS131M04 sinc3 at 4 kSPS (OSR 1024) [DESIGN] -> 4:1 average to 1 kHz [DESIGN]. The modelled spikes last 1-3 ms
+ // and the 1L/Helmholtz modes sit at 1.1-1.8 kHz [COMB v2.4]: above the 500 Hz Nyquist of the record, so they alias or are smeared and
+ // the logged peak and times above 8/30 bar under-read the chamber by an unquantified amount (TO-VERIFY on IGN-1 against the stand
+@@ -368,8 +408,13 @@
+ // implemented - it cannot separate a hard-start spike from a glitch (v2.6 OI-6 treats a high over-range as real pressure).
+ // v2.10 (LEAD CHANGELOG 160 (3)): the flight flag (START high side included, e.g. the late-light pool burn holding Pc > 6.9 bar abs for
+ // up to 0.30 s at A1) neither switches the Pc loop to open loop nor invalidates the telemetered Pc: the open loop (fault OPEN_LOOP) and the
+-// 0xFFFF markers follow pc_sensor_ok_ only, which is the transducer voltage window alone (engine_ecu.cpp step(); the A7 flag sets the
+-// latched fault BIT PC_SENSOR, never pc_sensor_ok_). No E2 .. E2 + 0.45 s blanking is therefore needed (test_v210 (5), SIL S14).
++// 0xFFFF markers follow pc_sensor_ok_ only, which is the transducer voltage window alone (engine_ecu.cpp step()). The A7 flag DOES latch:
++// it sets fault::PC_SENSOR, which latches TLM_RELIGHT d6 b7 (pad launch-commit bit, pc_commit_valid) until DISARM in SAFE. v2.11
++// CORRECTION (LEAD 216 (8), REV-ELEC-2 R2-12; v2.10 said 'no E2 .. E2 + 0.45 s blanking is needed'): the A7 HIGH side IS blanked from
++// E2 to E2 + kA7StartHiBlank_s on the stand AND in flight (v2.10 RE-12 below, flight extension ACCEPTED as DESIGN by LEAD 216 (8)).
++// BLIND WINDOW: E2 .. E2 + 0.45 s, A7 high side only. Still ARMED in it: the filtered 30 bar abort (5 ms; ride-through build 15 ms
++// to E2 + 15 ms), the hardware comparator (U330), A3 (flameout, low side) and the A7 LOW side. FC condition (LEAD 216 (8)): no FC
++// decision uses the A7 high flag (d6 b7 via PC_SENSOR) before E2 + 0.45 s (FC owner to confirm; electronics_v4.json).
+ constexpr float kA7Frac = 0.30f;                    // [COMB A7 ASSUMED, Electronics sets]
+ constexpr float kA7Time_s = 0.050f;                 // [COMB A7 ASSUMED, Electronics sets]
+ constexpr float kA7HoldLow_Pa = 0.30e5f;            // [DESIGN] E1 -> E2 low edge below P0 (B-PC-1 residual target)
+@@ -388,16 +433,36 @@
+ constexpr float kPcBandFrac = 0.30f;                // [DESIGN] |Pc - Pc_ref| > 30 % of ref ...
+ constexpr float kPcBandMin_Pa = 2.0e5f;             // [DESIGN] ... and > 2 bar
+ constexpr float kPcBandTime_s = 0.150f;             // [DESIGN]
+-constexpr float kCaseOverTemp_K = 448.15f;          // [LEAD 2026-10-13 correction, MECH pre36 final] 175 C on the case TCs (az 90 / az 270,
+-                                                    //   OD 12.6-17.6 mm below the injector face), hold kOverTempTime_s; ARMED ONLY while the
+-                                                    //   MV is latched or OPEN (post-burn soak 165.9 C unpressurised exceeds the in-burn
+-                                                    //   peak). Basis: B1 max in-burn peak 151.8 C (MECH pre36) -> 23.2 K margin; the
+-                                                    //   provisional 160 C risked nuisance aborts. History: v2.7 423.15 K ASSUMED; v2.8 draft
+-                                                    //   433.15 K MECH provisional
+-constexpr float kCaseRelightMax_K = 433.15f;        // [LEAD 2026-10-13] a start command with a case TC above 160 C is refused (no valve
+-                                                    //   cycle, refuse::CASE_HOT); MECH: A1 case at relight 77.1 C
+-static_assert(kCaseRelightMax_K <= kCaseOverTemp_K, "relight refusal must not be above the case abort threshold");
+-constexpr float kNozzleHolderOverTemp_K = 523.15f;  // [ASSUMED] 250 C
++// v2.11 CASE-TC LIMITS (LEAD CHANGELOG 243 (3) A = 150 C; lead rulings 2026-10-20T21:46:49Z / 21:51:07Z on the Electronics Part A
++// channel analysis calc/v2p11/case_tc_channel_v1.py -> results/case_tc_channel_v1.json; T-F1 basis rate calc/v2p11/tf1_rate_v1.py).
++// Channel: TC1 / TC2 type K Class 1 weld pads on a 0.05 mm SS shim (ungrounded junction, DESIGN install), MAX31856 U604 / U605.
++//   False-trip side [CALC, ACCEPTED]: high-reading stack 7.78 K worst case / 3.55 K RSS (9.08 K with the board at -40..105 C) inside the
++//     +12.26 K margin from the B1 rev-3 merged perfect-contact armed maximum 137.74 C [MECH SIM, 20 C start] to 150 C.
++//   Low-reading side [CALC, ACCEPTED as a formula]: the true station can be 9.05 + 0.630 r K above 150 C at the trip (r = station heating
++//     rate [K/s]; tau <= 0.25 s and the static terms to be verified by B-TC-1). T-F1 exposure basis = the Mechanical A 175 TB rows
++//     (r_GVHI 7.03 K/s > the 7.00 K/s A 165 limit; LEAD 21:51:07Z).
++//   Persistence kOverTempTime_s 0.20 s kept (2-3 MAX31856 conversions; total trip delay 0.38 s worst case).
++//   FOUNDER RULE (LEAD CHANGELOG 248): after any case-TC (OVER_TEMP) abort the J-FWD joint counts as used (HW-101 / HW-170 replaced,
++//     TC-01 holes and TC-02 taps gauged before the next run).
++constexpr float kCaseOverTemp_K = 423.15f;          // [LEAD CHANGELOG 243 (3)] 150 C on the case TCs (az 90 / az 270, OD 12.6-17.6 mm aft
++                                                    //   of the injector face), hold kOverTempTime_s; ARMED ONLY while the MV is latched or
++                                                    //   OPEN (the post-burn soak exceeds the in-burn peak and must not trip). History: v2.7
++                                                    //   423.15 K ASSUMED; v2.8 draft 433.15 K; v2.8-v2.10 448.15 K (175 C, MECH pre36)
++constexpr float kCaseRelightMax_K = 403.15f;        // [LEAD 2026-10-20T21:46:49Z item 5, Electronics basis] 130 C: a start command (IGNITE /
++                                                    //   RELIGHT / PREPRESS) or an ARM with TC1 or TC2 above it is refused (refuse::CASE_HOT /
++                                                    //   Abort::OVER_TEMP at ARM). Basis: 150 C less 15.9 K (purge rise + relight-burn rise of
++                                                    //   the A1 rev-3 merged p99 history + 1.0 s at its end rate + 1.0 K relative channel error),
++                                                    //   rounded down to 5 C; a nominal A1 start reads <= 99.5 C, so a nominal relight is never
++                                                    //   refused [DERIVED SIM]. v2.8-v2.10: 433.15 K
++static_assert(kCaseRelightMax_K + 15.0f <= kCaseOverTemp_K, "the start limit sits >= 15 K below the case abort (relight allowance 15.9 K)");
++// v2.11 STAND T0 RULE (LEAD 2026-10-20T21:46:49Z item 3 / 21:51:07Z, ADOPTED): B1-length stand burns only with the engine soaked at a stand
++// ambient <= 24 C (facility thermometer; founder pre-fire checklist row = the control). In stand mode the ARM is refused
++// (Abort::CASE_WARM_STAND) if TC1 or TC2 reads above 24 C: a backstop for gross cases (sun, hot storage), not the control (the channel's
++// static error at ambient is several K). Basis: spare 4.48 K / dT_station/dT0 0.96 -> T0 <= 24.67 C, less 0.5 K thermometer, rounded down.
++// Re-derive after the B-TC-1 calibration: T0_max = 20 + (12.26 - e_hi,cal) / 0.96. A1 flight: no T0 rule (> 45 K margin).
++constexpr float kCaseStandArmMax_K = 297.15f;       // [LEAD ADOPTED] 24 C, stand mode only, TC1 / TC2
++static_assert(kCaseStandArmMax_K < kCaseRelightMax_K, "stand T0 backstop below the start limit");
++constexpr float kNozzleHolderOverTemp_K = 523.15f;  // [ASSUMED] 250 C (TC3: in-burn abort and, v2.11, the ARM refusal limit)
+ constexpr float kServoBracketOverTemp_K = 333.15f;  // [DS-derived] pintle servo MKS HV69 rated -10..60 C (retailer copies of
+                                                     //   MKS data, TO-CONFIRM): flag at 60 C on the bracket NTC; MECH mount limit
+                                                     //   50 C in flight incl. relight (thermal FEA open, B-PNT-1 case temperature)
+@@ -424,7 +489,7 @@
+ //   T_tank wall (DS18B20 #1/#2): sensor +/-0.5 K (DATASHEET -10..85 C) + 12-bit step 0.0625 K = 0.5625 K. NOT INCLUDED, MISSING: wall vs
+ //     bulk-liquid offset / stratification (tank conditioning test) and long-term drift (no datasheet figure): subtract when measured.
+ //   P_tank (TE M3200 170BG -> 12.7k/4.02k 0.1 % -> ADS131M04), at 55 bar abs, UNCALIBRATED channel: TEB +/-1.5 % FS = 2.550 bar
+-//     (DATASHEET M3200 06/2026, -20..85 C, incl. zero +/-0.5 % FS) + stability 0.25 % span/yr = 0.425 bar (DATASHEET, 1 year) + excitation
++//     (DATASHEET M3200 08/2018, -20..85 C, incl. zero +/-0.5 % FS) + stability 0.25 % span/yr = 0.425 bar (DATASHEET, 1 year) + excitation
+ //     LT1761-5 +/-2 % full range (DATASHEET Rev F) on a ratiometric output read against the ADC's own reference = 2 % x (0.1 FS/0.8 + p)
+ //     = 1.511 bar (the HAL scales on the nominal 5.0 V; V5SNS_SENSE on Teensy A5 is a window check only) + divider 0.1 % pair 0.113 bar +
+ //     ADC input-impedance conflict 330/300 kOhm 0.068 bar + ADS131M04 gain 0.1 % + VREF 0.1 % + VREF drift 20 ppm/K x 30 K + offset 175 uV
+@@ -444,6 +509,22 @@
+ constexpr float kTankIgnMaxP_Pa = kTankPsat24_Pa - kTankPUncUncal_Pa;      // abs 50.34 bar: uncalibrated channel (Tsat 19.8 C)
+ constexpr float kTankIgnMaxPCal_Pa = kTankPsat24_Pa - kTankPUncCal_Pa;     // abs 54.30 bar: after B-PT-1 (Tsat 23.2 C)
+ constexpr float kTankIgnMin_K = 288.15f;            // [REQ ENG-12 l.106, REV-ELEC-1 RE-17] 15 C lower bound, same validity logic
++// v2.11 (LEAD 216 (7)) COLD-RULE ARM MARGIN: ARM needs the coldest valid tank estimate (min of the wall DS18B20 and Tsat(P_tank)) at or
++// above kTankIgnMin_K + kTankColdArmMargin_K, so the PREPRESS Tsat drop (tank mass into the feed line; re-derived in SIL S10v211
++// cold_rule, results/sil_v2p11) plus the reading repeatability between the ARM and the IGNITE checks cannot turn a start accepted at
++// ARM into an IGNITE refusal in PREPRESS. Margin = 1.5 x drop + repeatability (DS18B20 12-bit step 0.0625 K; Tsat via the 170BG
++// noise and ADC step < 0.01 K). The absolute channel uncertainty is common to both checks and NOT in the margin (option B, LEAD to
++// rule: + absolute Tsat uncertainty, 4.9 K uncalibrated / 0.97 K after B-PT-1 at 15 C, Electronics v2.11 report; uncalibrated it leaves
++// NO ARM window: Tsat(P_tank) >= 15 + 0.42 + 4.9 = 20.3 C against the hot-side P_tank threshold Tsat 19.8 C). Why the absolute error is
++// not in the margin: min(wall, Tsat) at IGNITE >= min at ARM - drop - repeatability whichever channel gives the minimum. Cooling of the
++// tank between ARM and IGNITE with the heater permit off (SAFE only) is NOT covered: founder checklist row (IGNITE within the
++// stated ARM dwell). Any IGNITE refusal in PREPRESS now ends PREPRESS at once (safe exit, engine_ecu.cpp: back to ARMED, MV unlatched)
++constexpr float kTankColdPrepressDrop_K = 0.23f;    // [SIL S10v211 cold_rule, v2.11 pre-record 2026-10-21: drop 0.143-0.168 K at the nominal fill
++                                                    //   (REV-ELEC-2 0.154-0.156 K), 0.204-0.222 K at 60 % fill; max 0.2219 K rounded up. Fills
++                                                    //   below 60 % not run (TO-VERIFY); v2.11 draft 0.16 K]
++constexpr float kTankColdRepeat_K = 0.07f;          // [DATASHEET DS18B20 12-bit 0.0625 K + DERIVED Tsat noise < 0.01 K]
++constexpr float kTankColdArmMargin_K = 0.42f;       // [DERIVED] 1.5 x 0.23 + 0.07 = 0.415, rounded up (v2.11 draft 0.31 K)
++static_assert(kTankColdArmMargin_K >= 1.5f * kTankColdPrepressDrop_K + kTankColdRepeat_K - 1e-5f, "cold-rule ARM margin (LEAD 216 (7))");
+ constexpr float kTankXcheckMax_K = 3.0f;            // [ASSUMED] |mean wall - Tsat(P_tank)| above this = flag (TANK cross-check): DS18B20
+                                                     //   +/-0.5 K (DATASHEET -10..85 C) + 170BG via Tsat (~0.4 K at 55 bar) + wall vs bulk
+                                                     //   stratification (unknown); TO-VERIFY in the tank conditioning tests. The interlock
+@@ -642,8 +723,10 @@
+ //     before E1 (no main N2O; an OFFSET needs no N2O: EMI, ground shift, drift, sensor fault - REV-ELEC-1 RE-02); filtered and raw (1 kHz
+ //     decimated, zeroed) gauge Pc. Checked against the auto-zero ambient (v2.10, LEAD RE-02, one-sided): P0 > +kIgnBaseCheck_Pa -> the
+ //     MEASURED P0 is kept and BASE_HIGH flagged to the FC (f2::BASE_HIGH, EVENT FLAGS2); on the pad (no light yet this power cycle) and
+-//     the stand the lift is REFUSED with PC_SENSOR; the A1 relight proceeds on the measured P0. P0 < -kIgnBaseCheck_Pa -> P0 := 0
+-//     (ambient), det::BASE_AMB. v2.9 replaced P0 by ambient on BOTH sides (a positive offset then lowered the bar: false E2, probes B/C).
++//     the stand the lift is REFUSED with PC_SENSOR; the A1 relight proceeds on the measured P0. P0 < -kIgnBaseCheck_Pa (or no / no finite
++//     P0) -> det::BASE_AMB: v2.11 (LEAD CHANGELOG 216 (4)) on the pad / stand the lift is REFUSED with PC_SENSOR as well (refusal before
++//     the lift, MV closed by the abort); at the A1 relight P0 := 0 (ambient) and the start proceeds (v2.10; the bar is raised by the offset,
++//     no false E2). v2.9 replaced P0 by ambient on BOTH sides (a positive offset then lowered the bar: false E2, probes B/C).
+ //   Light (E2) = filtered AND raw rise over P0 >= kIgnRise_Pa, with filtered AND raw Pc >= kIgnFloorAbs_Pa (absolute), for kIgnConfirmRelN
+ //     consecutive ticks after E1 (never before the lift).
+ // COMB: earliest light E1 + 0.079 s (liquid start; vapour-slug and post-purge starts later); unlit rise <= 0.44-0.51 bar (SIL cold-model
+@@ -683,8 +766,30 @@
+ // 62.5 N through the thrust table). FLAMEOUT_OPT (FA-1 block above) covers a flame-out only after the main-chamber view is proven; at E2
+ // it is not armed yet, which is the case this hold addresses. Tests: test_core (v210-17); SIL S17 (sil r2hold: in-loop FC stand-in with
+ // R2 and the cold-flow bound; open-loop hold lift 0.215 mm and plant thrust ~51 N at the A1 state [SIM]).
+-constexpr float kR2HoldThrust_N = 62.5f;           // [LEAD CHANGELOG 186 (2)] start level (12.5 % of 500 N)
++constexpr float kR2HoldThrust_N = 62.5f;           // [LEAD CHANGELOG 186 (2)] start level (12.5 % of 500 N); v2.11: kept only as the
++                                                    //   ceiling of the FC command while the hold is on (the hold itself commands a LIFT)
+ static_assert(kR2HoldThrust_N > 0.0f && kR2HoldThrust_N <= 0.13f * 500.0f, "R2 hold at the start level (12.5 % of 500 N)");
++// v2.11 (LEAD CHANGELOG 216 (9) R2-22, 230 (4), OI-43): the R2 hold is a LIFT-COMMANDED hold at Combustion v2.4b's start-level lift at the
++// A1 relight state (Pc is invalid during the hold, so the thrust map adds nothing): the pintle command is kR2HoldLift_m exactly (servo rate
++// limit only; no learned trim, no map), the setpoint and the start-ramp limiter are parked at the map equivalent so the return after the
++// hold is bumpless at <= kStartRamp_Nps. CF-3 measures the cold flow at this lift with the encoder recorded (DESIGN, TO-VERIFY at CF-3).
++constexpr float kR2HoldLift_m = 0.21776e-3f;        // [COMB v2.4b start-level lift at the A1 relight state, ECU hold-lift row, LEAD 230 (4)]
++// v2.11 (LEAD CHANGELOG 216 (2)(b) R2-02 ADOPTED): ECU BACKSTOP - the hold ends no later than E2 + kR2HoldBackstop_s whatever the drogue
++// report (a lost DROGUE 0 frame no longer holds a released, lit vehicle at the start level for the rest of the burn). Latched for the
++// start; logged (LogRecord tlm_flags b2 R2_BACKSTOP, EVENT R2_BACKSTOP 0x24). Margin over the longer R2 v2 window (0.8 s, LEAD 227 (5)):
++// 2 FC frames at the slowest FC-side period that carries the decision path (TLM_RELIGHT 50 Hz echo, 20 ms) + link latency 10 ms
++// [ASSUMED: CAN frame + FC scheduling] = 50 ms. The FC's own ABORT at E2 + 0.8 s (dead engine) arrives before the backstop.
++constexpr float kR2WindowMax_s = 0.80f;             // [LEAD CHANGELOG 227 (5)] longer R2 v2 confirmation window (W10 < 6 m/s)
++constexpr float kFcFramePeriod_s = 0.020f;          // [DESIGN] TLM_RELIGHT period (d6 b6 echo the FC checks)
++constexpr float kFcLinkLatency_s = 0.010f;          // [ASSUMED] CAN frame + FC scheduling bound
++constexpr float kR2HoldBackstop_s = 0.85f;          // [DESIGN, LEAD 216 (2)(b)] E2 + 0.8 s + 50 ms
++static_assert(kR2HoldBackstop_s >= kR2WindowMax_s + 2.0f * kFcFramePeriod_s + kFcLinkLatency_s - 1e-6f,
++              "R2 backstop >= the 0.8 s window + 2 FC frames + link latency (LEAD 216 (2)(b))");
++// FC rule (LEAD 216 (2)(a), FC owner: GNC; stated here for the interface): after DROGUE 0 the FC re-sends DROGUE 0 with a NEW sequence
++// number (protocol.cpp seqOk rejects a pure retransmission) on every TLM_RELIGHT frame (50 Hz) that still shows d6 b6 = 1, starting with
++// the second such frame after the first send, at most kFcDrogueResendMax times (bound 0.2 s); with b6 still 1 after that the FC logs a
++// DROGUE_ECHO fault. The ECU backstop bounds the hold independently.
++constexpr int kFcDrogueResendMax = 10;              // [DESIGN, FC side] 10 re-sends x 20 ms = 0.2 s
+ 
+ // ---------------------------------------------------------------- v2.9 coast re-zero of Pc and P_torch (Electronics DESIGN, LEAD to confirm)
+ // The OI-12 vented check (|Pc gauge| < kPcVentedMax_Pa = 0.1 bar) and the torch gate run on the ARM auto-zero. A zero drift after ARM
+@@ -747,13 +852,13 @@
+ //   close command is issued kPurgeFlow_s - kHbleedCloseTime_s after the flow start, so the flow ends kPurgeFlowEndLead_s before the
+ //   scheduled E0. The ECU never truncates the flow for T_fire: a RELIGHT before the purge is complete waits (purge_ign_); IGNITION
+ //   needs flow end + kPurgeFlowEndLead_s, V2 commanded closed, feed primed, chamber vented. The achieved flow time goes to the FC
+-//   (EVENT PURGE_FLOW, arg ms; log v11); the FC owns the T_fire decision (flow < kPurgeFlowMin_s -> FC delays T_fire, LEAD).
+-//   Firmware hard cap: both valves commanded open together for more than kHbleedCap_s (2.5 s + open + close time, LEAD) -> both close
++//   (EVENT PURGE_FLOW, arg ms; log purge_flow_ms); the FC owns the T_fire decision (flow < kPurgeFlowMin_s -> FC delays T_fire, LEAD).
++//   Firmware hard cap: both valves commanded open together for more than kHbleedCap_s (v2.11: 2.55 s, LEAD 203 (3); v2.10 2.61 s) -> both close
+ //   at once (EV_CAP, fault MV). Hardware (schematic v2.5, LEAD CHANGELOG 166 (3)): each bleed gate drive is ANDed (U574 V1, U575 V2,
+ //   separate ICs) with PURGE_WIN = FC discrete PURGE_EN (J512) AND a non-retriggerable one-shot (LTC6993-1, rising edge of PURGE_EN,
+ //   kHbleedHwWindowNom_s), so neither valve can be powered outside an FC-opened, time-limited window, whatever pin 15 (shared with the
+ //   heater permit) or pin 24 do. The window bounds the POWERED span from PURGE_EN (fill step + flow + vent), not the both-open overlap:
+-//   the 2.61 s both-open cap stays a firmware function (a one-shot equal to the cap would cut the scheduled flow; Electronics report).
++//   the both-open cap (v2.11 2.55 s) is the firmware function; v2.11 adds the hardware both-commanded-open timer (kHbleedHwBoth*, below).
+ //   The ECU cannot read PURGE_WIN (no free pin): the FC raises PURGE_EN for the pad BIT too, and a missing window fails BIT S2 (V1 not
+ //   opening) -> BLEED_FAULT abort on the pad. B1 build: J512 not fitted (bleed not fitted).
+ //   Post-flow hold (v2.10): bleed CLOSED, NC valve latched; no RELIGHT by the scheduled E0 + kPurgeHoldMax_s -> purge expired, COAST.
+@@ -783,7 +888,31 @@
+ constexpr float kHbleedCloseTime_s = 0.080f;       // [ASSUMED datasheet-class 80 ms; LEAD CHANGELOG 164: S12 E0 -> flow stopped 77 ms
+                                                    //   SIL on that valve model; B-BLEED-1 measures] command -> closed (flow stopped)
+ constexpr float kPurgeFlowStart_s = kPurgeRelight_s - kPurgeFlowEndLead_s - kPurgeFlow_s;   // [DERIVED] 0.35 s after PURGE
+-constexpr float kHbleedCap_s = kPurgeFlow_s + kHbleedOpenTime_s + kHbleedCloseTime_s;     // [LEAD CHANGELOG 164 (2)] 2.61 s
++// v2.11 (LEAD CHANGELOG 203 (3) OI-PURGE-CAP; RESTATED 216 (5), 230 (3)): both-open COMMAND cap 2.55 s, PROVISIONAL software limit
++// (v2.10: F + t_o + t_c = 2.61 s). The cap compares command times: with the configured constants the scheduled both-open command span
++// F + t_o - t_c = 2.45 s (+ <= 1 tick) ends before it (static_assert below). LEAD 216 (5): the 'not truncated under valve tolerances'
++// statement is WITHDRAWN; the limit is the VENTED MASS, and after CF-4 / B-BLEED-1 the cap takes the measured-time form
++// overlap <= 76 g / mdot_meas - (t_close - t_open)_meas. Flow basis (LEAD 230 (3), ONE basis): 29.25 g/s at 289.5 K -> physical flow at
++// the cap cap + t_c - t_o = 2.60 s = 76.05 g. 230 (3) asks for 2.39 s if the scheduled purge flow fits inside it: it does NOT (the
++// scheduled command span 2.45 s > 2.39 s; a 2.39 s cap cuts the 2.50 s scheduled flow to 2.44 s), so 2.55 s is KEPT and the warm-end
++// vented mass is stated [DERIVED, Combustion band 31.06 g/s at 297.15 K]: 80.76 g at the cap (2.60 s), 77.65 g for the scheduled
++// 2.50 s flow; Cd 0.80 (33.13 g/s, ASSUMED): 86.1 g / 82.8 g. LEAD decides (option: kPurgeFlow_s 2.43 s fits a 2.39 s cap).
++// HARDWARE both-commanded-open timer (LEAD 166 (3) / 216 (5), DESIGN, schematic v2.6 U576-U578, kHbleedHwBoth* below): drops V1
++// at >= cap + 1 tick + tolerance, independent of firmware.
++constexpr float kHbleedCap_s = 2.55f;              // [LEAD CHANGELOG 203 (3), PROVISIONAL 216 (5) / 230 (3)] (v2.10: F + t_o + t_c)
++static_assert(kPurgeFlow_s + kHbleedOpenTime_s - kHbleedCloseTime_s + 2.0f * kDt_s < kHbleedCap_s && kHbleedCap_s <= 2.55f,
++              "the scheduled both-open command span (F + t_o - t_c + 2 ticks) must end before the cap, cap <= 2.55 s (LEAD 203 (3))");
++constexpr float kPurgeMdotBasis_kgps = 29.25e-3f;  // [LEAD 230 (3)] the ONE flow basis, 289.5 K (Combustion v2.4b)
++constexpr float kPurgeMdotWarm_kgps = 31.06e-3f;   // [COMB v2.4b band warm end, 297.15 K; Cd ASSUMED]
++constexpr float kPurgeVentLimit_kg = 0.076f;       // [LEAD 216 (5)] vented-mass limit
++static_assert(kPurgeMdotBasis_kgps * (kHbleedCap_s + kHbleedCloseTime_s - kHbleedOpenTime_s) <= kPurgeVentLimit_kg + 0.0001f,
++              "230 (3) basis: physical flow at the cap within 76 g (76.05 g, 0.05 g rounding of the 2.548 s statement)");
++static_assert(kPurgeFlow_s + kHbleedOpenTime_s - kHbleedCloseTime_s > 2.39f,
++              "230 (3): the scheduled command span does not fit a 2.39 s cap -> 2.55 s kept (if this fails, set the cap to 2.39 s)");
++// v2.11 (LEAD CHANGELOG 203 (7) ADOPTED; 186 (1), 204 (2)): FLIGHT with the head-end bleed fitted, a RELIGHT/IGNITE received in COAST (no
++// purge running) is REFUSED (refuse::UNPURGED): the only accepted flight relight is the RELIGHT received during PURGE. The stand keeps
++// the unpurged start (CF-4/T4 measure it); a build without the bleed fitted has no purge and keeps the v2.10 relight paths (LEAD to rule).
++constexpr bool kUnpurgedRelightGuard = true;       // [LEAD 203 (7)]
+ constexpr float kHbleedVentMax_s = 0.030f;         // [DESIGN] extra vent allowance after V1's closing time (decided path: no restriction
+                                                    //   downstream of V2, V2 >= 4x the restriction capacity: <= 0.5 cm3 mid vents in ms,
+                                                    //   order-of-magnitude DERIVED; B-BLEED-1 measures)
+@@ -813,6 +942,22 @@
+ constexpr float kHbleedHwWindowErr = 0.031f;        // [DATASHEET LTC6993 Rev F: NDIV >= 512 max 2.3 % (25 C) / 3.0 % (grade range); + 0.1 % RSET]
+ constexpr float kHbleedHwPoweredMax_s = kPurgeFlowStart_s + kHbleedPathBy_s + kPurgeFlow_s + kHbleedVentMax_s + kFcPurgeEnLead_s;   // [DERIVED] 3.00 s
+ static_assert(kHbleedHwWindowNom_s * (1.0f - kHbleedHwWindowErr) >= kHbleedHwPoweredMax_s, "hardware window shorter than the scheduled powered span");
++// v2.11 HARDWARE BOTH-COMMANDED-OPEN TIMER (LEAD 166 (3), 216 (5); DESIGN, schematic v2.6 U576-U579; documentation of
++// the hardware, not used by the code; SIL sim.cpp hb_both_timer). BOTH = V1 drive AND V2 drive (U576 74LVC1G08 on the outputs of U574 / U575,
++// i.e. after the PURGE_WIN gating). U577 LTC6993-2 (rising-edge, RETRIGGERABLE: each both-open episode is timed from its own start), POL 1,
++// RSET 63.4 kOhm 0.1 %, DIVCODE 8 (POL 1 + NDIV 2^21 = R1 887k / R2 1.00M, VDIV/V+ 0.53125; DIVCODE 7 is POL 0; LTC6993 Rev F Table 1
++// AS-RECALLED, TO-VERIFY before layout): T = 2.097152 s x 63.4 / 50 = 2.659 s. U578 74LVC1G74: CLK = U577 OUT (rises at the end of the pulse),
++// D = BOTH, CLR_N = BOTH. U579 74LVC1G08 = U574 output AND /Q drives V1's gate: V1 drops when BOTH has been high for T_hw and stays off
++// until a command drops (BOTH low clears U578). BOTH is taken BEFORE U579 (no self-clearing loop). V2 is untouched (the mid still
++// vents). No MCU pin, no firmware path. The firmware
++// cap acts first in every schedule (T_hw,min 2.577 s > cap + 1 tick 2.551 s); the scheduled command span 2.45 s is never cut (T_hw,min).
++// Hardware residual (firmware cap failed): physical flow <= T_hw,max + t_c - t_o = 2.79 s -> 81.7 g at 29.25 g/s, 86.7 g at 31.06 g/s,
++// 92.5 g at 33.13 g/s (Cd 0.80 ASSUMED) [DERIVED] instead of the PURGE_WIN bound 96-104 g. Not bounded: a command chattering faster than
++// T_hw (the firmware cap has the same limit; PURGE_WIN still bounds it). The BIT sequence must not hold both open > 2.5 s.
++constexpr float kHbleedHwBothNom_s = 2.659f;        // [DESIGN] RSET 63.4 kOhm E96 0.1 %, DIVCODE 8 (POL 1, NDIV 2^21)
++constexpr float kHbleedHwBothErr = 0.031f;          // [DATASHEET LTC6993 Rev F, as kHbleedHwWindowErr: 3.0 % grade range + 0.1 % RSET]
++static_assert(kHbleedHwBothNom_s * (1.0f - kHbleedHwBothErr) >= kHbleedCap_s + kDt_s,
++              "hardware both-open timer (minimum) after the firmware cap + 1 tick: the firmware acts first, the schedule is never cut");
+ 
+ // ---------------------------------------------------------------- TVC supply fault mode FM-PWR-01 (v2.3, LEAD 2026-10-12)
+ // Predicted servo plug voltage with both TVC servos at stall (supply.h, calc/tvc_supply_budget_v1.py). ARM rule (LEAD):
+@@ -848,11 +993,22 @@
+ constexpr bool kTankOverPAbortPadOnly = false;      // [LEAD conditional] true once Mechanical confirms a passive tank relief
+                                                     //   sized for heater runaway and fire (condition (a)); (b) = this permit
+ constexpr float kPcSensorMin_V = 0.25f;            // [DESIGN] ratiometric 0.5-4.5 V: outside 0.25..4.75 = fault
+-constexpr float kPcSensorMax_V = 4.75f;             //          4.75 V = 74.4 bar g with the 0-70 bar g (070BG) transducer
++constexpr float kPcSensorMax_V = 4.75f;             // [DESIGN] 4.75 V = 146.5 bar abs on the v2.11 flight C1 chain (74.4 bar g on the 070BG); C1
++                                                    //          (XTL-190SM-2000A via INA333): 146.5 bar abs (FS 137.9, proof 206.8 DS)
++// v2.11 (LEAD CHANGELOG 203 (1)(a) ADOPTED): FLIGHT - a HIGH over-range reading (>= kPcSensorMax_V) makes the channel invalid only
++// while it lasts (Outputs::pc_valid / TLM PC_VALID marker, as before) and is reported as its own non-sticky bit (Outputs::pc_overrange,
++// log v12 ovr_flags b0); it no longer latches fault::PC_SENSOR (a reading above the range is pressure, not a sensor fault). LOW
++// (< kPcSensorMin_V: open / short) still latches. STAND: as built (latched). The IGNITION rule (HIGH over-range -> HARD_START) is kept.
++constexpr bool kPcOverrangeNonSticky = true;        // [LEAD 203 (1)(a)]
++constexpr float kPcAboveFs_V = 4.56f;               // [DESIGN v2.11, LEAD 203 (1)(a)] reading above the transducer full scale (4.50 V +
++                                                    //   1.5 % of span): FLAG only (LIGHT_SPIKE abovefs / ls_flags b7, log ovr_flags b1).
++                                                    //   C1: 139.96 bar abs; 070BG: 71.05 bar g. Above FS the datasheet gives no
++                                                    //   accuracy (linearity / recovery MISSING): the value is a lower-quality reading
++static_assert(kPcAboveFs_V > 4.5f && kPcAboveFs_V < kPcSensorMax_V, "above-FS flag between FS and the over-range limit");
+                                                     // v2.6 OI-6: a HIGH over-range during IGNITION aborts as HARD_START (PC_OVERP +
+                                                     //   PC_SENSOR bits): the ~0.3 m sense line (zeta < 0.03) rings a fast chamber
+                                                     //   rise above the range (SIL: 39 bar in the chamber -> > 73 bar g at the
+-                                                    //   transducer), so a high reading is treated as real pressure
++                                                    //   transducer), so a high reading is treated as real pressure (v2.11: kept with C1 at the seat, LEAD 203 (1))
+ 
+ // ---------------------------------------------------------------- Pc transducer scaling (HAL; v2.6 xdcr:: in sensor_scale.h)
+ constexpr float kPcXdcrFs_Pa = 70.0e5f;             // [DS TE M3200 08/2018 range code 070B + G] M3234-000005-070BG, 0-70 bar g.
+@@ -863,6 +1019,19 @@
+                                                     //  Reads MEOP 45 bar, the 67.5 bar proof and the 63.1 bar blocked-nozzle bound
+ constexpr float kPcXdcrZeroFrac = 0.10f;            // [DS] output = Vexc x (0.10 + 0.80 p/FS), ratiometric to +5V_SNS
+ constexpr float kPcXdcrSpanFrac = 0.80f;
++// v2.11 (LEAD CHANGELOG 205): the flight Pc transducer is RESELECTED as a miniature seat-mounted unit (the 070BG body does not fit the
++// dia 12 x 30 mm envelope of the v3.5.1 head and its path period breaks the <= 1 ms domain). Proposal C1 (calc/v2p11/pc_transducer_v3.py,
++// results/pc_transducer_v3.json): Kulite XTL-190SM-2000A, 0-137.9 bar ABSOLUTE passive bridge, M5x0.8 seat, excited from +5V_SNS ->
++// INA333 (G 79.7, RG 1.27k E96 select-on-test) with REF from a buffered trim divider of +5V_SNS (OPA2333) -> PC_SIG = Vexc x (0.10 +
++// 0.80 p_abs / FS) into the unchanged divider, anti-alias and ADS131M04 (same transfer-function form as the 070BG, ratiometric). The
++// HAL builds xdcr::pcFlightCal() (sensor_scale.h) from kPcXdcrSel; XdcrCal::abs_ref_Pa turns the absolute reading into the gauge-
++// equivalent the core works in (the HAL sets it to EngineEcu::pamb_Pa). The 070BG stays the alternate (0) and the B-PC-1 static-level
++// reference (calibration manifold); the stand runs the flight transducer (the same head).
++constexpr int kPcXdcrSel = 1;                       // [DESIGN v2.11] 1 = C1 XTL-190SM-2000A (stand and flight), 0 = 070BG (v2.10)
++constexpr float kPcXdcrC1Fs_Pa = 137.895e5f;        // [DS Kulite XTL-190 (M), 2000 psi A range] 0-2000 psia = 137.895 bar abs
++constexpr float kPcXdcrC1ZeroFrac = 0.10f;          // [DESIGN] INA333 REF trim: 0 bar abs -> 0.10 Vexc (select-on-test in B-PC-1)
++constexpr float kPcXdcrC1SpanFrac = 0.80f;          // [DESIGN] INA333 gain trim: 0 -> FS spans 0.80 Vexc (100 mV FSO at 10 V, 50 mV at 5 V)
++static_assert(kPcXdcrSel == 0 || kPcXdcrSel == 1, "Pc transducer selection");
+ // v2.6 OI-6: ADC chain constants for xdcr:: (sensor_scale.h). The HAL averages 4 ADS131M04 frames (4 kSPS) per 1 ms tick.
+ constexpr float kAdcVref_V = 1.2f;                  // [DS TI SBAS890D] ADS131M04 internal reference; gain 1 -> FS +/-1.2 V
+ constexpr float kAdcCodeFs = 8388608.0f;            // [DS] 24-bit two's complement: +FS = 2^23 counts

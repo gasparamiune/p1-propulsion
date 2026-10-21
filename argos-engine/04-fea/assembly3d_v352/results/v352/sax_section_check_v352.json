@@ -1,0 +1,41 @@
+{
+ "doc": "S-AX section check for the thermal mapping (fea3d 2026-10-20 14:3xZ; brief item: \"S-AX now cuts TC-02 at az 78 deg (az 90 hits a tap\nwith the 10x M5 pattern at 18 + 36k): check that your thermal mapping from S-AX uses the 78 deg section\").\n\nMy 3-D thermal map takes T(r, z) from Mechanical's v3.5.2 S-AX runs (the mesh.npz of each run).  An S-AX section through a J-FWD tap\n(az 90 = 18 + 2 x 36) would show the tap as a void in TC-02 over r 21.3-28.6 mm, |z - 127.513| < 2.5 mm (tap D 5, axis z 127.513, tip\nx' 21.313); a section between taps (az 78: 12 deg from the az 90 tap, whose half-width at r 28 is 5.1 deg) shows full material there.\nTest: count TC-02 elements of the S-AX mesh with their centroid inside that envelope, and the largest radial gap between TC-02 element\ncentroids along z 127.513 +- 0.3 mm.  Read-only on Mechanical's run tree.",
+ "runs": {
+  "GVLO": {
+   "run": "L1_thv352_NF2b_GVLO_r10free_cad352",
+   "mesh_sha16": "c1b81a9aea53d395",
+   "TC02_elements_in_tap_envelope": 126,
+   "TC02_r_range_at_z127.5": [
+    5.211,
+    28.416
+   ],
+   "largest_radial_gap_mm": 1.044,
+   "at_r_mm": 10.2,
+   "verdict": "full material over the tap envelope: the section misses the J-FWD taps (consistent with the az 78 cut)"
+  },
+  "GVHI": {
+   "run": "L1_thv352_NF2b_GVHI_r10free_cad352",
+   "mesh_sha16": "0fb90c125e228f23",
+   "TC02_elements_in_tap_envelope": 126,
+   "TC02_r_range_at_z127.5": [
+    5.211,
+    28.416
+   ],
+   "largest_radial_gap_mm": 1.044,
+   "at_r_mm": 10.2,
+   "verdict": "full material over the tap envelope: the section misses the J-FWD taps (consistent with the az 78 cut)"
+  },
+  "NF2b": {
+   "run": "L1_thv352_NF2b_cad352",
+   "mesh_sha16": "03a948f75116d2d9",
+   "TC02_elements_in_tap_envelope": 126,
+   "TC02_r_range_at_z127.5": [
+    5.211,
+    28.416
+   ],
+   "largest_radial_gap_mm": 1.044,
+   "at_r_mm": 10.2,
+   "verdict": "full material over the tap envelope: the section misses the J-FWD taps (consistent with the az 78 cut)"
+  }
+ }
+}

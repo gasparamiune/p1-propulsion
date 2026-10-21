@@ -1,0 +1,871 @@
+"""Assemble interfaces/gnc.json v2 (M2) from the 6-DOF results.
+
+Reads (GNC_OUT, GNC_RES, GNC_DC_OUT, GNC_VEH_OUT; see README): mc6_summary_v2.json, results_v2/*.json|csv,
+verify6_v2.json, csi_v2.json, csi_timedomain_v2.json, duty_cycles_index_v2.json, vehicle_v3c.json, twd_table_v2.csv,
+trade_descent_v2.json, imu_sweep_v2.json, mc6_failure_forensics_v2.json, the interface files (versions + sha256)
+and gnc.json v1 (kept items: 1-D throttle/ignition sweeps, lift capability).
+Writes GNC_OUT/../gnc_json/gnc_v2.json. Every number carries a tag and a rationale.
+"""
+import csv
+import hashlib
+import json
+import os
+import sys
+import numpy as np
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from gncsim import run6 as R, sim6 as s6, vehicle as veh  # noqa: E402
+
+OUT = os.environ.get("GNC_OUT", "/home/claude/work/space/out/m2")
+RES = os.environ.get("GNC_RES", "/home/claude/work/space/out/results_v2")
+DCO = os.environ.get("GNC_DC_OUT", "/home/claude/work/space/out/duty_cycles_v2")
+VEH = os.environ.get("GNC_VEH_OUT", "/home/claude/work/space/out/vehicle")
+IFACE = os.environ.get("GNC_IFACE", "/home/claude/work/shared-fallback/engine/interfaces")
+V1 = os.environ.get("GNC_V1", "/home/claude/work/space/out/gnc_json/gnc_v1.json")
+DEST = os.path.join(os.path.dirname(OUT), "gnc_json", "gnc_v2.json")
+DATE = "2026-10-12"
+BASE = "AD_fins_f20"
+LEAD = "AD_prov_2kg"       # lead decisions 2026-10-12: roll RCS provision only (not fitted), N2O load fixed at 2.00 kg
+LEAD_DECISIONS = {
+    "n2o_load_kg": 2.00, "tank_volume_L": 3.17, "fill": 0.85,
+    "roll_rcs": "provision only: bosses, an ullage port and reserved ECU channels; deleted if T1 measures a roll torque "
+                "<= 0.02 N m",
+    "roll_delete_threshold_Nm": 0.02,
+    "gimbal_slew_min_dps": 100.0,
+    "gimbal_parts_design_load_Nm": 26.5,
+    "source": "lead message 2026-10-12 (approved and logged in interfaces/CHANGELOG.md)"}
+SV = s6.SIM6_VERSION.split(" (")[0]
+MC = f"SIM m2_mc6 v2 ({s6.SIM6_VERSION.split(' (')[0]}, 500 dispersed runs, brief C.7 dispersions, relay engine model)"
+
+
+def P(v, tag, note=None, **kw):
+    d = {"v": v, "tag": tag}
+    if note:
+        d["note"] = note
+    d.update(kw)
+    return d
+
+
+def rnd(x, n=3):
+    if isinstance(x, dict):
+        return {k: rnd(v, n) for k, v in x.items()}
+    if isinstance(x, (list, tuple)):
+        return [rnd(y, n) for y in x]
+    if isinstance(x, (float, np.floating)):
+        if not np.isfinite(x):
+            return None
+        return float(round(float(x), n))
+    return x
+
+
+def jload(path):
+    try:
+        return json.load(open(path))
+    except (OSError, ValueError):
+        return None
+
+
+def rcsv(path):
+    try:
+        with open(path) as f:
+            return list(csv.DictReader(f))
+    except OSError:
+        return []
+
+
+def sha(path):
+    try:
+        return hashlib.sha256(open(path, "rb").read()).hexdigest()
+    except OSError:
+        return None
+
+
+def clean(x):
+    """Recursively replace NaN/inf floats by None (strict JSON)."""
+    if isinstance(x, dict):
+        return {k: clean(v) for k, v in x.items()}
+    if isinstance(x, (list, tuple)):
+        return [clean(v) for v in x]
+    if isinstance(x, (float, np.floating)):
+        return float(x) if np.isfinite(x) else None
+    if isinstance(x, np.integer):
+        return int(x)
+    if isinstance(x, np.bool_):
+        return bool(x)
+    return x
+
+
+def main():
+    S = jload(os.path.join(OUT, "mc6_summary_v2.json"))
+    T = {r["case"]: r for r in jload(os.path.join(RES, "mc6_cases_summary_v2.json"))["cases"]}
+    PR = {r["case"]: r for r in rcsv(os.path.join(RES, "mc6_paired_v2.csv"))}
+    VF = jload(os.path.join(OUT, "verify6_v2.json"))
+    CSI = jload(os.path.join(OUT, "csi_v2.json"))
+    CTD = jload(os.path.join(OUT, "csi_timedomain_v2.json"))
+    DCI = jload(os.path.join(DCO, "duty_cycles_index_v2.json"))
+    VH = jload(os.path.join(VEH, "vehicle_v3c.json"))
+    TWD = rcsv(os.path.join(VEH, "twd_table_v2.csv"))
+    TR = jload(os.path.join(RES, "trade_descent_v2.json"))
+    IMU = jload(os.path.join(RES, "imu_sweep_v2.json"))
+    FX = jload(os.path.join(RES, "mc6_failure_forensics_v2.json"))
+    FR = jload(os.path.join(RES, "fin_roll_v2.json"))
+    DRV = rcsv(os.path.join(RES, "mc6_failure_drivers_v2.csv"))
+    g1 = jload(V1)
+    src = R.sources()
+    el, mech = src["el"], src["mech"]
+    comb, _tab, relay = R.engine_sources(R.cfg_of())     # baseline engine model (relay-corrected while it applies)
+    comb_pub = src["comb"]
+    ER = jload(os.path.join(RES, "engine_relay_v2.json")) or relay or {}
+    RS = rcsv(os.path.join(RES, "mc6_roll_sweep_v2.csv"))
+    cs = S["cases"]
+    b = cs[BASE]
+    bs = b["summary"]
+    bt = T[BASE]
+
+    def Pc(c):
+        t = T[c]
+        return f"P {t['success']:.3f} [{t['ci95_lo']:.3f}, {t['ci95_hi']:.3f}]"
+
+    def mcn(c):
+        p = PR.get(c)
+        if not p:
+            return ""
+        return (f"; paired vs baseline: {int(p['base_ok_case_fail'])} runs lost / {int(p['base_fail_case_ok'])} gained, "
+                f"McNemar p = {float(p['mcnemar_exact_p']):.2g}")
+
+    def worse(c):
+        """True when case c loses landings against the baseline with McNemar p < 0.05 (same draws)."""
+        p = PR.get(c)
+        if c not in T or not p:
+            return None
+        return (T[c]["success"] < bt["success"]) and float(p["mcnemar_exact_p"]) < 0.05
+
+    def Pm(c):
+        return (Pc(c) + mcn(c)) if c in T else f"{c}: not run"
+    g = {}
+    g["id"] = "gnc"
+    g["version"] = "v2"
+    g["date"] = DATE
+    g["owner"] = "Space/GNC (01-systems-gnc)"
+    g["supersedes"] = "gnc.json v1 (2026-10-11; 1-D + analytic first pass)"
+    g["status"] = (f"M2. 6-DOF Monte Carlo ({SV}, 500 runs per case, {len(cs)} cases) on reference vehicle RV-1c "
+                   "(ledger v3c): mechanical.json v1 engine module (CG pivot, 146 mm body for the 140 mm engine-bay ID of the "
+                   "founder decision 2026-10-12, final) + the combustion v2 engine growth relayed by the lead; engine = combustion.json v1 "
+                   "throttle map x combustion v2 relay factors (S230 straight-port grain, pre-publication: see engine_model); "
+                   "electronics.json v1 servo/latency data. Requirements below supersede v1 where restated; the 1-D v1 sweeps "
+                   "are kept where the 6-DOF does not replace them. Lead decisions 2026-10-12 (N2O 2.00 kg / 3.17 L; roll RCS "
+                   "provision only; ENG-07 slew >= 100 deg/s; gimbal parts designed to the 26.5 N m actuator stall load) are "
+                   "the baseline: see lead_decisions_2026-10-12. Everything here is a prediction: no hardware has been "
+                   "tested. Written to the lead's fallback hub during the /mnt outage.")
+    g["units"] = "SI (m, kg, s, N, Pa, K, rad) unless the key names another unit (_deg, _dps, _Hz, _g, _L, _cal)"
+    g["conventions"] = {
+        "body_frame": "z_b along the vehicle axis toward the nose; x_b, y_b = gimbal axes (pitch/yaw)",
+        "stations": "z [m] from the airframe aft datum (base plane), +z toward the nose (RV-1c: pivot at 0.2223 m = "
+                    "mechanical.json frames.rv1_station_of_pivot_m)",
+        "world_frame_6dof": "ENU, flat Earth, ISA density (site density dispersed 1.10-1.25 kg/m3)",
+        "throttle_frac": "F / 500 N (F_max)",
+        "gimbal_angle": "engine axis relative to the body axis; the LIMIT applies to the vector norm sqrt(dx^2+dy^2)",
+        "success_criteria": f"touchdown |vz| <= {R.CRIT['vz']} m/s, v_h <= {R.CRIT['vh']} m/s, tilt <= {R.CRIT['tilt']} deg, "
+                            f"tilt rate <= {R.CRIT['rate']} deg/s, no propellant exhaustion, no tip-over (REQ brief)",
+        "statistics": "success P with Wilson 95 % interval; p99 = 99th percentile over landed runs; paired McNemar exact "
+                      "test against the baseline where the dispersion draws are identical (same seed and sequence)",
+    }
+    files = {}
+    for fn in ("combustion.json", "electronics.json", "mechanical.json", "ENGINE-BASELINE-v0.json"):
+        p = os.path.join(IFACE, fn)
+        j = jload(p)
+        files[fn] = dict(version=(j or {}).get("version"), sha256=sha(p))
+    snap = jload(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "iface_snapshot",
+                              "manifest.json")) or {}
+    files["throttle_map_initial_port_v1.csv"] = dict(sha256=(snap.get("throttle_map_initial_port_v1.csv") or {}).get("sha256"),
+                                                     source="02-combustion/data (via the Mechanical mirror during the outage)")
+    files["REQUIREMENTS.md"] = "rev 1 (ENG-01..16)"
+    files["founder_decision_2026-10-12"] = "gimbal pivot at the engine CG and engine-bay ID >= 140 mm APPROVED (final; relayed by the lead)"
+    files["lead_decision_2026-10-12_MEOP_grain"] = "chamber MEOP 45 bar; grain v2 = centred straight port (CHANGELOG)"
+    files["lead_decisions_2026-10-12_gnc"] = ("N2O 2.00 kg / 3.17 L baseline; roll RCS provision only (delete if T1 roll torque "
+                                              "<= 0.02 N m); ENG-07 slew >= 100 deg/s; gimbal parts to the 26.5 N m stall load")
+    rp = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "relay")
+    files["lead_relay_combustion_v2_20261012.json"] = dict(
+        sha256=sha(os.path.join(rp, "lead_relay_combustion_v2_20261012.json")),
+        note="GNC record of the lead's relay of combustion v2 numbers (pre-publication)")
+    files["engine_correction_v2.json"] = dict(sha256=sha(os.path.join(rp, "engine_correction_v2.json")),
+                                              combustion_work_files_sha256=(relay or {}).get("combustion_files_sha256"),
+                                              note="GNC-derived thrust-binned mass-flow factors (m2_engine_relay.py)")
+    g["inputs_read"] = files
+    g["scripts"] = ["01-systems-gnc/sim/gncsim/*.py", "01-systems-gnc/sim/scripts/m2_mc6.py", "01-systems-gnc/sim/scripts/m2_verify6.py",
+                    "01-systems-gnc/sim/scripts/m2_csi.py", "01-systems-gnc/sim/scripts/m2_csi_timedomain.py",
+                    "01-systems-gnc/sim/scripts/m2_duty_cycles.py", "01-systems-gnc/sim/scripts/m2_vehicle.py",
+                    "01-systems-gnc/sim/scripts/m2_trade.py", "01-systems-gnc/sim/scripts/m2_imu_sweep.py",
+                    "01-systems-gnc/sim/scripts/m2_failure_forensics.py", "01-systems-gnc/sim/scripts/m2_analysis.py",
+                    "01-systems-gnc/sim/scripts/m2_gnc_json.py", "01-systems-gnc/sim/scripts/m2_engine_relay.py"]
+    # engine model actually flown (relay)
+    em = {}
+    if relay:
+        val = ER.get("validation", [])
+        em = {"model": P("combustion.json v1 throttle map x thrust-binned factors k_ox(F), k_f(F) from combustion's S230 "
+                         "duty-cycle runs (nominal regression, non-equilibrium tank); S230 grain 0.230 m / "
+                         f"{relay['grain']['mass_kg']:.3f} kg; v1 thrust ceiling kept",
+                         "RELAY (lead 2026-10-12) + DERIVED m2_engine_relay.py c1",
+                         "replaced by the combustion.json v2 map when it is published (scripts switch automatically)"),
+              "anchors": P(rnd(relay["anchors"], 4), "DERIVED (bins with >= 0.75 s of combustion run time)"),
+              "at_500N": P(rnd(relay["at_500N"], 4), "DERIVED", "relay O/F 10.4 at 500 N"),
+              "validation_ox_per_impulse_error": P({v["profile"][:5]: rnd(100 * v["ox_per_impulse_err_corrected"], 2) for v in val},
+                                                    "DERIVED: corrected map flown on combustion's thrust profiles vs combustion "
+                                                    "N2O per impulse [%]",
+                                                    "v1 map error before correction: " + ", ".join(
+                                                        f"{v['profile'][:5]} {100 * v['ox_per_impulse_err_v1']:+.1f} %" for v in val)),
+              "delivered_Isp_DC_A1_s": P({"combustion_v2": (ER.get("relay_values") or {}).get("DC_A1_delivered_Isp_s", {}).get("v"),
+                                          "corrected_map": rnd(val[0]["map_corrected"]["Isp_s"], 1) if val else None,
+                                          "v1_map": rnd(val[0]["map_v1"]["Isp_s"], 1) if val else None},
+                                         "RELAY / DERIVED (gnc.json v1 DC-A1 profile)"),
+              "regression_band_DC_A1": P(rnd(ER.get("regression_band_DC_A1"), 4), "combustion work files (x0.6 / x1 / x1.5 regression)",
+                                         "MC Isp dispersion N(1, 0.05) covers the band (181-193 s)"),
+              "propellant_effect": P({"sized_N2O_v1_map_kg": rnd(cs["AD_fins_f20_v1engine"]["m_n2o_sized_kg"]) if "AD_fins_f20_v1engine" in cs else None,
+                                      "sized_N2O_relay_kg": rnd(b["m_n2o_sized_kg"]),
+                                      "MC_P_v1_map": Pc("AD_fins_f20_v1engine") if "AD_fins_f20_v1engine" in T else None,
+                                      "MC_P_relay": Pc(BASE)}, MC)}
+    g["engine_model"] = em
+
+    # ------------------------------------------------------------------ reference vehicle
+    ev = {e["event"]: e for e in VH["events"]}
+    a = VH["aero"]
+    twd_rows = [r for r in TWD if r["state"] == "touchdown"]
+
+    def twd(state, label):
+        for r in TWD:
+            if r["state"] == state and r["F_label"] == label:
+                return r
+        return None
+    tw125, tw20, twh = twd("touchdown", "12.5 %"), twd("touchdown", "20.0 %"), twd("touchdown", "hover (T=W)")
+    twl = twd("liftoff", "100.0 %")
+    rv = {}
+    rv["name"] = ("RV-1c (GNC reference vehicle v3c, parametric; real airframe owner: Lauty). RV-1b + mechanical.json v1 "
+                  "engine module + uniform 146 mm body")
+    rv["length_overall_m"] = P(2.03, "ASSUMED REQUIREMENTS ref. vehicle ~2.0 m + 0.03 m nozzle protrusion")
+    rv["body_diameter_m"] = P(rnd(VH["d_body_m"]), "DERIVED engine-bay ID 0.140 m (mechanical.json v1 required_engine_bay_ID_m, "
+                              "founder decision 2026-10-12, final) + 2 x 3 mm PETG wall ASSUMED",
+                              "uniform body assumed; a stepped 146/126 mm airframe is Lauty's option (mass and aero change)")
+    rv["nose"] = P("tangent ogive, L 0.30 m", "ASSUMED")
+    rv["fins"] = P("4 aft fins, span 0.12 m, root/tip chord 0.20/0.10 m, 3 mm GF/PETG, 0.30 kg", "DERIVED descent/coast trade (REPORT B)",
+                   "fins stabilise the nose-first coast and are DE-stabilising tail-first (they lead in the engine-first "
+                   "descent): the drogue sets the descent attitude; finless flight closes too (see landing_closure)")
+    rv["landing_legs"] = P({"n": 4, "foot_radius_m": 0.40, "stroke_m": 0.10, "k_per_leg_N_m": 2500.0, "c_per_leg_N_s_m": 120.0,
+                            "deploy": "at relight command (A) / fixed (B)"}, "ASSUMED (Lauty to design; MC disperses k, c x U(0.8, 1.2), mu U(0.3, 0.7))")
+    rv["mass_ledger_csv"] = "01-systems-gnc/vehicle/mass_ledger_v3c.csv"
+    sm = VH["sums"]
+    rv["dry_mass_kg"] = P(rnd(sm["dry_kg"]), "DERIVED mass ledger v3c (mechanical.json v1 gimballed engine + ring; ASSUMED fixed "
+                          "propulsion items, airframe, legs, avionics, recovery)",
+                          f"range {sm['dry_min_kg']:.2f}-{sm['dry_max_kg']:.2f} kg (item min/max); propulsion {sm['propulsion_kg']:.2f} kg, "
+                          f"airframe {sm['airframe_kg']:.2f} kg; MC disperses dry mass N(1, 0.05)")
+    rv["fuel_grain_mass_kg"] = P(rnd(comb["gas_path"]["grain"]["mass_kg"]["v"], 4), comb["gas_path"]["grain"]["mass_kg"]["tag"],
+                                 f"combustion.json {comb_pub.get('version')} grain {comb_pub['gas_path']['grain']['mass_kg']['v']} kg (L 0.200 m)")
+    rv["n2o_load_kg"] = P(LEAD_DECISIONS["n2o_load_kg"], "REQ lead decision 2026-10-12, from the GNC sizing",
+                          f"SIM 6-DOF sizing of the nominal A-D flight ({b['m_n2o_sized_kg']:.3f} kg with 20 % usable-liquid reserve, "
+                          f"RCS fitted) x 1.15 MC load margin = {b['m_n2o_mc_kg']:.3f} kg; was 1.30 kg in v1 (RV-1, placeholder map)")
+    rv["tank_volume_L"] = P(LEAD_DECISIONS["tank_volume_L"], "REQ lead decision 2026-10-12; DERIVED load / (0.85 rho_l(25 C)): "
+                            f"{b['tank_V_L']:.3f} L (15 % ullage at 25 C, ASSUMED fill rule)",
+                            f"internal length {VH['tank_internal_length_m']:.3f} m in the 101.6 x 3.175 mm tube "
+                            "(mechanical.json v1 sized 289 mm for 2.06 L)")
+    rv["liftoff_mass_kg"] = P(rnd(VH["m_liftoff_kg"]), "SIM nominal A-D flight (ledger v3c + load, roll RCS fitted)",
+                              (f"lead baseline (RCS provision only, 2.00 kg): {cs[LEAD]['m_liftoff_kg']:.3f} kg" if LEAD in cs else
+                               "lead baseline case not run"))
+    rv["landing_mass_kg"] = P(rnd(VH["m_land_nominal_kg"]), "SIM nominal A-D flight",
+                              f"MC: dry +/-5 % 1 sigma; landing-mass window in icd_inputs_for_airframe")
+    rv["mass_properties_vs_time"] = {
+        "events": [{k: rnd(v, 4) for k, v in e.items()} for e in VH["events"]],
+        "vs_propellant_state_csv": "01-systems-gnc/vehicle/massprops_vs_propellant_v3c.csv",
+        "full_histories": "every duty-cycle CSV v2 carries m_kg, z_cg_m, I_transverse_kgm2, I_roll_kgm2",
+        "tag": f"SIM {SV} nominal A-D flight (no wind) + DERIVED vehicle.massprops (liquid settled aft, rigid in pitch, "
+               "excluded from roll; grain from combustion.json)"}
+    cg = VH["cg"]
+    rv["liquid_level_cg_shift"] = P({"full_load_forward_minus_aft_m": cg["liquid_forward_excursion_full_m"],
+                                     "at_MECO_m": cg["liquid_forward_excursion_meco_m"], "liquid_at_MECO_kg": cg["meco_liquid_kg"]},
+                                    "DERIVED vehicle.massprops: liquid column at the forward end (drag deceleration in the "
+                                    "nose-first coast) vs settled aft")
+    rv["gimballed_subassembly"] = P({
+        "pivot": "at the engine CG (mechanical.json v1 gimbal.pivot_location)", "z_pivot_m": VH["z_pivot_m"],
+        "touchdown_state": {k: rnd(float(tw20[k]), 5) for k in ("m_e_kg", "z_e_m", "l_e_m", "I_e_own_kgm2", "J_twd_kgm2",
+                                                                "l_p_m", "I_transverse_kgm2")} if tw20 else None,
+        "tail_wags_dog_zero_rad_s": {f"{r['state']}|{r['F_label']}": rnd(float(r["w_twd_rad_s"]), 2) for r in TWD
+                                     if r["F_label"] in ("12.5 %", "20.0 %", "hover (T=W)", "100.0 %")},
+        "control_moment_per_deg_Nm": {f"{r['state']}|{r['F_label']}": rnd(float(r["Mc_per_deg_Nm"]), 3) for r in TWD
+                                      if r["F_label"] in ("12.5 %", "20.0 %", "hover (T=W)", "100.0 %")},
+        "table_csv": "01-systems-gnc/vehicle/twd_table_v2.csv"},
+        "DERIVED vehicle.massprops + mechanical.json v1 (gimballed dry mass/inertia, grain from combustion.json)",
+        "l_p = z_cg - z_pivot; l_e = z_pivot - z_e; J_twd = I_e + m_e l_e (l_e + l_p); w_twd = sqrt(F l_p / J_twd)")
+    rv["aero"] = {
+        "method": "component build-up (Barrowman nose, blunt-base leading term, Allen-Perkins/Jorgensen crossflow, legs, "
+                  "Barrowman fins with interference); evaluated at the local velocity incl. omega x r",
+        "static_table_csv": "01-systems-gnc/vehicle/aero_static_v2.csv",
+        "uncertainty_sets": {"nominal": "k_base_lead 0.75, k_nose_trail 0.25, crossflow x1.0, CA x1.0",
+                             "benign_tail_first": "k_base_lead 0.5, k_nose_trail 0.0, crossflow x1.25, CA x0.7",
+                             "adverse_tail_first": "k_base_lead 1.0, k_nose_trail 0.5, crossflow x0.75, CA x1.3",
+                             "MC": "each run draws k_base_lead U(0.5,1), k_nose_trail U(0,0.5), crossflow U(0.75,1.25), "
+                                   "CA_tf U(0.7,1.3), retro factor U(0.25,0.75)"},
+        "nose_first_fins": P({k: a["fins1_nominal_legs0"][k] for k in ("CNa_nose_first_per_rad", "z_cp_nose_first_2deg_m",
+                                                                        "static_margin_nose_first_cal")},
+                             "DERIVED aero.py (2 deg, liftoff CG)"),
+        "nose_first_finless": P({k: a["fins0_nominal_legs0"][k] for k in ("CNa_nose_first_per_rad", "z_cp_nose_first_2deg_m",
+                                                                           "static_margin_nose_first_cal")},
+                                "DERIVED aero.py", "finless body is statically UNSTABLE nose-first"),
+        "tail_first_by_set": P({k: {kk: v[kk] for kk in ("CNa_tail_first_per_rad", "z_cp_tail_first_2deg_m",
+                                                         "static_margin_tail_first_cal", "static_margin_tail_first_10deg_cal")}
+                                for k, v in a.items()}, "ASSUMED sets (unvalidated tail-first terms) evaluated with aero.py",
+                               "negative margin = unstable engine-first; the drogue (A-D) or the TVC in the burn provides the attitude"),
+        "CA": P({"nose_first": a["fins1_nominal_legs0"]["CA_nose_first"], "tail_first": a["fins1_nominal_legs0"]["CA_tail_first"],
+                 "legs_deployed_increment": a["fins1_nominal_legs1"]["CA_legs_increment"]},
+                "ASSUMED (+/-30 %); tail-first retropropulsion factor 0.5-1.0 with the engine on (ASSUMED)"),
+        "unknowns": "Tail-first aero (CNa, CP, base/plume interaction) is UNKNOWN to better than ~x2: only CFD (05-plume-cfd), "
+                    "a wind tunnel or flight data close it. The MC draws the whole band."}
+    g["reference_vehicle"] = rv
+
+    # ------------------------------------------------------------------ flight profile and descent trade
+    nom = b["nominal"]
+    af, bf = T.get("AF_nofins_f20"), T.get("B_f20")
+    fp = {}
+    fp["recommended_baseline"] = P("A-D", "DERIVED descent-attitude trade + 6-DOF MC (REPORT B, landing_closure)",
+                                   "Full-thrust ascent under TVC (aft fins) -> MECO on predicted apogee (300 m) -> nose-first coast "
+                                   "-> nose drogue at apogee (engine-down, liquid settled aft) -> relight planned on the latest "
+                                   "ignition (0.6 s) at ~35-45 m and ~22 m/s -> drogue released on Pc-confirmed ignition -> "
+                                   "throttled TVC landing burn (velocity-tracking reference + PI, PD lateral to the reachable pad "
+                                   "target, disturbance feed-forward) -> 8 m terminal gate -> touchdown ~1.1 m/s -> engine cut on "
+                                   "contact. Roll: no active control in the lead baseline (RCS provision only; the N2O-vapour couple is fitted if T1 "
+                                   "measures an engine roll torque above 0.02 N m).")
+    fp["why"] = [f"best landing closure of the full-profile options: {Pc(BASE)} vs A-F free fall {Pc('AF_nofins_f20')}",
+                 f"lowest N2O load of the full profiles: {b['m_n2o_sized_kg']:.2f} kg sized vs A-F {cs['AF_nofins_f20']['m_n2o_sized_kg']:.2f} kg",
+                 "drogue gives a passive engine-down attitude and settles the liquid for the relight; relight at ~22 m/s instead of ~50 m/s",
+                 "drogue is also a degraded recovery path if the relight fails (vehicle loss, low-energy impact)",
+                 "2 starts per flight; ENG-04 >= 3 keeps one spare"]
+    fp["costs_and_risks"] = [
+        f"drift under the drogue: median miss {bt['td_miss_p50']:.0f} m, p95 {bt['td_miss_p95']:.0f} m (wind U(0,8) m/s); "
+        f"an upwind ascent bias from the pad wind measurement cuts the median to {T['AD_fins_f20_upwind']['td_miss_p50']:.0f} m",
+        "relight at ~35-45 m leaves no time for a backup main parachute: ignition reliability is mission-critical",
+        "drogue release and line/plume clearance at relight (Lauty: release + swivel at the nose)",
+        "the passive drogue phase is the least modelled part (quasi-steady tension, no inflation transient)"]
+    fp["baseline_numbers"] = P({"apogee_m": rnd(nom["h_max"], 1), "t_meco_s": rnd(nom["t_meco"], 2), "v_meco_mps": rnd(nom["v_meco"], 1),
+                                "relight_height_m": rnd(nom["h_ign"], 1), "relight_speed_mps": rnd(nom["v_ign"], 2),
+                                "total_burn_s": rnd(nom["burn_time"], 2), "propellant_used_kg": rnd(nom["prop_used"], 3),
+                                "touchdown_vz_mps": rnd(nom["td_vz"], 2), "starts": int(nom["starts"]), "landing_mass_kg": rnd(nom["m_land"], 2),
+                                "MC_apogee_p01_p50_p99_m": rnd([bt["h_max_p01"], bt["h_max_p50"], bt["h_max_p99"]], 1)},
+                               f"SIM {SV} nominal A-D (no wind, no noise) at the MC load; MC percentiles from the baseline case")
+    if LEAD in cs:
+        nl = cs[LEAD]["nominal"]
+        tl = T.get(LEAD, {})
+        fp["lead_baseline_numbers"] = P({"apogee_m": rnd(nl["h_max"], 1), "relight_height_m": rnd(nl["h_ign"], 1),
+                                         "relight_speed_mps": rnd(nl["v_ign"], 2), "total_burn_s": rnd(nl["burn_time"], 2),
+                                         "propellant_used_kg": rnd(nl["prop_used"], 3), "landing_mass_kg": rnd(nl["m_land"], 2),
+                                         "MC_P": Pc(LEAD) if LEAD in T else None,
+                                         "MC_apogee_p01_p50_p99_m": rnd([tl.get("h_max_p01"), tl.get("h_max_p50"), tl.get("h_max_p99")], 1)},
+                                        f"SIM {SV} {LEAD}: roll RCS not fitted, N2O fixed 2.00 kg (lead decisions 2026-10-12)")
+    tr = TR or {}
+    hop300 = {f"{r['floor']:.3f}": (rnd(r["m_n2o_sized_kg"]) if r["closes"] else "no closure <= 6 kg") for r in tr.get("option1_hop_300m", [])}
+    o2 = tr.get("option2_flaps", {})
+    o3 = tr.get("option3_rcs", {}).get("cases", {})
+    fp["descent_attitude_trade"] = {
+        "1_continuous_burn_hop": {
+            "propellant": f"100 m hop N2O sized: 12.5 % {cs['B_f125']['m_n2o_sized_kg']:.2f} kg, 20 % {cs['B_f20']['m_n2o_sized_kg']:.2f} kg, "
+                          f"25 % {cs['B_f25']['m_n2o_sized_kg']:.2f} kg; 300 m apex: {hop300}",
+            "landing_P": f"B 100 m: 20 % {Pc('B_f20')}, 25 % {Pc('B_f25')}, 12.5 % {Pc('B_f125')}",
+            "added_mass": "none (no drogue); larger tank", "authority": "TVC always available (>= floor thrust)",
+            "failure_modes": "long burn (grain/thermal, ENG-06 15 s exceeded), propellant-limited apex, floor-coast "
+                              "controllability at low floor thrust",
+            "airframe_needs": "legs fixed from liftoff; none else", "verdict": "test-campaign profile (tethered/low hops) and fallback; not for 300 m"},
+        "2_tvc_flip_tail_first_aero": {
+            "propellant": f"A-F free fall relight at ~{abs(af['v_ign_p50']):.0f} m/s: N2O sized {cs['AF_nofins_f20']['m_n2o_sized_kg']:.2f} kg "
+                          f"(+{cs['AF_nofins_f20']['m_n2o_sized_kg'] - b['m_n2o_sized_kg']:.2f} kg vs A-D)",
+            "flap_area_for_tail_first_stability_m2": o2.get("min_area_restoring_2_5_10deg_m2"),
+            "added_mass": "flaps/grid fins + deployment ~0.4-0.8 kg ASSUMED",
+            "authority": "aero restoring moment only with sufficient flap area (sweep in trade_flaps_v2.csv); none at low speed",
+            "failure_modes": "flap deployment failure, tail-first aero unknown to ~x2, high-speed relight (TVC flip at ignition)",
+            "airframe_needs": "hinged flaps/grid fins and actuators at the nose; flap loads", "landing_P_finless_free_fall": Pc("AF_nofins_f20")},
+        "3_n2o_cold_gas_attitude_rcs": {
+            "control_moment_and_impulse": {k: rnd({kk: v[kk] for kk in ("M_aero_max_Nm", "thruster_force_with_margin_2_N",
+                                                                        "thruster_impulse_Ns", "vapour_kg_isp50", "tank_dT_K")}, 3)
+                                           for k, v in o3.items()},
+            "added_mass": "6 valves + nozzles + lines ~0.6 kg ASSUMED (P13)", "valve_count": "4 pitch/yaw + 2 roll (6 NC solenoids)",
+            "failure_modes": "valve stuck open, icing/two-phase flow in the lines, tank cooling (lower thrust ceiling), "
+                              "insufficient thrust at high descent speed",
+            "airframe_needs": "nozzle ports at the nose, lines along the body, valve bay",
+            "verdict": "not baseline for pitch/yaw; a roll-only couple is kept as a PROVISION (lead decision 2026-10-12)"},
+        "4_nose_drogue": {
+            "propellant": f"N2O sized {b['m_n2o_sized_kg']:.2f} kg (lowest of the full profiles)", "added_mass": "0.35 kg (drogue, ejection, release, swivel)",
+            "authority": "passive engine-down attitude; liquid settled", "landing_P": Pc(BASE),
+            "failure_modes": "deployment/tangling, release failure, plume-line interaction at relight, drift with wind, "
+                              "failed relight -> impact at ~22 m/s",
+            "airframe_needs": "nose drogue bay + ejection + release + swivel, line clearance from the plume", "verdict": "BASELINE"},
+        "5_research_proposals": "REPORT section B.5 (hypothesis, comparator, evidence, refutation criterion for each)",
+        "tag": f"SIM m2_mc6 v2 / m2_trade v2 ({SV}, aero.py) + DERIVED"}
+    fp["test_campaign"] = [
+        "T0 bench: gimbal + servos (stiffness, rocking mode and damping, backlash, hinge torque, slew vs angle), IMU bias/temperature, "
+        "LiDAR/GNSS, structural command filter in the ECU, drogue-release actuator",
+        "T1 static fires (DC-D): ignition latency distribution (>= 30 starts), throttle map and Pc loop (t10-90, slew, resolution, "
+        "floor stability), 3 starts per run, gimbal sweeps under thrust, thrust-vector alignment, ENGINE ROLL TORQUE, rocking mode under thrust",
+        "T2 tethered hover (DC-C): 0.5-2 m; hover, doublets, TVC attitude hold, estimator and thrust-effectiveness estimator, roll RCS",
+        "T3 low hops (B, 5-50 m then 100 m) with the hover-capable floor; legs fixed; landing guidance and lateral divert",
+        "T4 drogue drop tests (no engine, dummy mass): deployment, swing, drift, release",
+        "T5 relight hop (A-D mini: MECO ~60-100 m, drogue, relight ~30-40 m)",
+        "T6 full profile A-D 300 m (ACEMA 2027-09-01)"]
+    g["flight_profile"] = fp
+
+    # ------------------------------------------------------------------ requirements
+    rq = {}
+    bs_sens = b.get("sensitivity", {})
+    m_land = VH["m_land_nominal_kg"]
+    win = {f"{fl*100:.1f}%": rnd(fl * 500.0 / (0.9 * R.G0), 2) for fl in (0.125, 0.20, 0.25, 0.40)}
+    floorP = {f: Pc(c) for f, c in (("12.5%", "AD_fins_f125"), ("20%", BASE), ("25%", "AD_fins_f25"), ("40%", "AD_fins_f40"))}
+    rq["throttle"] = {
+        "floor_frac_required_max": P(0.20, "DERIVED 6-DOF MC (landing closure by floor) + hover rule",
+                                     f"RV-1c landing mass {m_land:.2f} kg nominal: hover rule T_floor <= 0.9 W gives floor <= "
+                                     f"{0.9 * m_land * R.G0 / 500:.3f}; MC A-D: {floorP}{mcn('AD_fins_f25')} (25 % vs 20 %). "
+                                     "20 % keeps the hover window over the dry-mass dispersion; 25 % sits on the boundary "
+                                     "(about half the runs switch to hoverslam)."),
+        "floor_frac_acceptable_flight": P(0.25, "SIM m2_mc6 v2 AD_fins_f25 / AD_fins_f25_ballast",
+                                          f"25 % flies at {Pc('AD_fins_f25')}; with {T['AD_fins_f25_ballast']['ballast_kg']:.1f} kg ballast "
+                                          f"{Pc('AD_fins_f25_ballast')}. 40 % FAILS without ballast ({Pc('AD_fins_f40')}: hoverslam "
+                                          f"lateral/rate failures) and needs {T['AD_fins_f40_ballast']['ballast_kg']:.1f} kg ballast and "
+                                          f"{T['AD_fins_f40_ballast']['m_n2o_mc_kg']:.2f} kg N2O ({Pc('AD_fins_f40_ballast')})"),
+        "floor_frac_goal": P(0.125, "REQ ENG-02 rev1 stretch (8:1)", f"A-D at 12.5 %: {Pc('AD_fins_f125')}; hop B at 12.5 %: {Pc('B_f125')}"),
+        "hover_rule": P("hover-capable if T_floor <= 0.9 W_land(estimated); otherwise the flight software selects the hoverslam",
+                        "DERIVED (lead update 2026-10-11)", f"forced hoverslam at 20 %: {Pc('AD_fins_f20_hslam')}"),
+        "landing_mass_window_min_kg_by_floor": P(win, "DERIVED m_land >= F_floor / (0.9 g0)",
+                                                 f"RV-1c nominal landing mass {m_land:.2f} kg"),
+        "t10_90_s": P(0.15, "REQ ENG-03 (target 0.10 s); SIM 6-DOF MC disperses the thrust lag x U(0.7, 1.5) around 0.10 s -> "
+                      "0.07-0.15 s, closure above",
+                      f"slower engine, t10-90 0.20 s nominal (0.14-0.30 s): {Pm('AD_fins_f20_slowPc')}; 1-D v1 sweep: P >= 0.99 up to 0.30 s"),
+        "pc_loop_bandwidth_Hz": P(2.3, "DERIVED first-order equivalent of t10-90 0.15 s"),
+        "slew_min_Fmax_per_s": P(2.0, "SIM mc1d v1p2 slew sweep (6-DOF runs at 5 F_max/s)", "target 5 F_max/s"),
+        "resolution_frac": P(0.02, "REQ ENG-03", ("baseline 6-DOF runs with 1 % quantisation; 2 % quantisation (AD_fins_f20_q2): "
+                                                  + Pm("AD_fins_f20_q2"))),
+        "overshoot_max_frac": P(0.10, "ASSUMED (not exercised by the first-order plant; combustion.json plant phi 0.1 open-loop "
+                                "case flies at " + Pc("AD_fins_f20_openloop") + ")"),
+        "pc_closed_loop_required": P(True, "SIM AD_fins_f20_openloop", f"open-loop pintle with the fuel lag: {Pc('AD_fins_f20_openloop')} "
+                                     f"vs {Pc(BASE)}{mcn('AD_fins_f20_openloop')}; Pc closed loop kept (ENG-03)"),
+        "deadband_max_frac": P(0.005, "ASSUMED (as simulated)"),
+        "ceiling_at_landing_min_N": P(rnd(1.5 * m_land * R.G0, 1), "DERIVED 1.5 x landing weight (RV-1c)"),
+        "thrust_effectiveness_estimation": P("FC estimates delivered/commanded thrust from the accelerometer (tau 0.1 s) in the landing burn, "
+                                             "nominal drag model", "SIM (all 6-DOF cases)", "needs Pc and accelerometer >= 100 Hz in the FC"),
+    }
+    rq["ignition"] = {
+        "latency_cmd_to_90pct_max_s": P(0.5, "REQ ENG-04 (target 0.3 s)",
+                                        f"6-DOF MC draws U(0.2, 0.6) s with the relight planned on 0.6 s: {Pc(BASE)}; Spearman rank of "
+                                        f"t_ign with |vz| at touchdown: {dict(bs_sens.get('td_vz', [])).get('t_ign', float('nan')):+.2f}, "
+                                        f"with failure: {dict(bs_sens.get('failure', [])).get('t_ign', float('nan')):+.2f} "
+                                        "(blank/NaN = not in the top 8)"),
+        "relight_planning_value_s": P(0.6, "DESIGN flight software plans the relight on the latest ignition"),
+        "repeatability_s": P(0.05, "REQ ENG-04 (+/-50 ms)", "6-DOF closes with a 0.4 s spread when planning on the latest; tighter "
+                             "spread lowers the relight height and propellant"),
+        "latency_sweep_1d": P((g1 or {}).get("requirements", {}).get("ignition", {}).get("latency_sweep", {}).get("v"),
+                              "SIM mc1d v1p2 (gnc.json v1, RV-1) kept"),
+        "starts_per_flight_used": P({"A-D": 2, "A-F": 2, "B": 1, "tethered_hover": 1}, "SIM profiles"),
+        "starts_per_flight_required": P(3, "REQ ENG-04", "one spare relight"),
+        "relight_conditions": P("liquid settled aft by the drogue (~1 g); tank P >= 3.5 MPa; chamber purged; ignition at the floor; "
+                                "drogue release only on Pc >= 50 % of floor Pc", "DERIVED CONOPS"),
+        "shutdown_tail_off": P("< 10 % thrust within 0.10 s", "REQ ENG-05", "simulated tau_off 35 ms"),
+    }
+    gm = {}
+    gm["range_deg"] = P(7.0, "SIM m2_mc6 v2 gimbal-limit cases + DERIVED", (
+        f"commanded limit on the VECTOR norm (mechanical.json v1 REQUEST): CONFIRMED. 7 deg: {Pc(BASE)}; 6 deg: {Pc('AD_fins_f20_gim6')}"
+        f"{mcn('AD_fins_f20_gim6')}; 5 deg: {Pc('AD_fins_f20_gim5')}{mcn('AD_fins_f20_gim5')}. Engine angle p99 {bt['max_gim_p99']:.2f} deg, "
+        f"max {bs['max_gim_max']:.2f} deg (flexible-mount overshoot beyond the 7 deg command, inside the "
+        f"{mech['gimbal']['mechanical_stop_deg']['v']} deg conical stop); saturated fraction of burn p99 {bt['gim_sat_frac_p99']:.3f}"))
+    gm["mechanical_stop_deg"] = P(mech["gimbal"]["mechanical_stop_deg"]["v"], f"mechanical.json {mech.get('version')} (accepted)")
+    gm["rate_min_dps"] = P(LEAD_DECISIONS["gimbal_slew_min_dps"], "REQ lead decision 2026-10-12 (ENG-07 raised from 60 deg/s), from "
+                           "SIM m2_mc6 v2 (command slew limit 100 deg/s in every baseline run) + rate comparators",
+                           f"engine-side slew under load across the full +/-7 deg range (lead note 2026-10-12). 80 deg/s command "
+                           f"limit: {Pm('AD_fins_f20_rate80')}; 60 deg/s: {Pm('AD_fins_f20_rate60')}. With mechanical.json v1 (n 6.0) "
+                           f"the crank (psi ~47 deg at 7 deg) cuts the no-load engine rate to ~{857 / 6 * np.cos(np.radians(47)):.0f} "
+                           "deg/s at the extreme: Mechanical/Electronics size the lever ratio or servo for margin at full deflection.")
+    gm["angular_accel_min_rad_s2"] = P(rnd(np.radians(100.0) / 0.02, 1), "DERIVED reach 100 deg/s within 20 ms",
+                                       f"MC engine angular acceleration p99 {bt['max_gim_acc_p99']:.0f} rad/s2 (includes rocking-mode ringing)")
+    w8, w6 = worse("AD_fins_f20_bw8"), worse("AD_fins_f20_bw6")
+    bw_val = 8.0 if w8 is False else 10.0
+    gm["bandwidth_min_Hz"] = P(bw_val, ("REQ ENG-07 8 Hz, demonstrated by the fixed-8 Hz 6-DOF case" if bw_val == 8.0 else
+                                        "SIM: lowest value flown without loss (baseline MC disperses U(10, 25) Hz)"),
+                               f"baseline MC disperses the actuator natural frequency U(62.8, 157.1) rad/s (10-25 Hz, zeta 0.7, "
+                               f"electronics.json v1 range) + up to 3.2 ms extra delay; fixed 8 Hz: {Pm('AD_fins_f20_bw8')}; "
+                               f"fixed 6 Hz: {Pm('AD_fins_f20_bw6')}")
+    gm["resolution_max_deg"] = P(0.1, "REQ ENG-07", f"mechanical.json v1: {mech['tvc_actuation']['resolution_deg_engine']['v']} deg (as simulated)")
+    gm["backlash_max_deg"] = P(0.1, "DERIVED limit-cycle allowance", f"mechanical.json v1: {mech['tvc_actuation']['backlash_deg_engine']['v']} deg (as simulated)")
+    gm["latency_cmd_to_motion_max_s"] = P(0.010, "SIM MC up to 7.7 ms + 3.2 ms", "electronics.json v1: 7.7 ms max")
+    gm["hinge_moment"] = P({"flight_p99_Nm": rnd(bt["max_hinge_p99"], 2), "flight_max_Nm": rnd(bt["max_hinge_max"], 2),
+                            "after_touchdown_p99_Nm": rnd(bt["max_hinge_td_p99"], 2), "after_touchdown_max_Nm": rnd(bt["max_hinge_td_max"], 2),
+                            "mechanical_linear_sum_Nm": mech["tvc_actuation"]["hinge_moment_design_Nm"]["v"],
+                            "servo_stall_at_engine_neutral_7V4_Nm": rnd(0.9 * 6.0 * el["actuators"]["tvc_A"]["stall_torque_Nm"]["v"]["7.4V"], 2)},
+                           f"SIM {SV} mount torque K(d_link - d_engine) + c(..) with base excitation (baseline MC)",
+                           "transient peaks (relight and attitude manoeuvres with the rocking mode ringing) exceed the 5.6 N m "
+                           "linear-sum design value and approach the servo stall; the actuator saturates in torque at times "
+                           "(closure above includes this). Gimbal parts are designed to the actuator stall load "
+                           f"{LEAD_DECISIONS['gimbal_parts_design_load_Nm']} N m (lead decision 2026-10-12; mechanical.json "
+                           f"{mech['tvc_actuation']['stall_load_on_structure']['engine_moment_Nm_8V4']['v']} N m at 8.4 V).")
+    gm["command_shaping_in_ecu"] = P({"slew_limit_dps": R.DEF["gim_cmd_rate"], "lowpass_2nd_order_w_rad_s": R.DEF["gim_lpf_w"],
+                                      "lowpass_zeta": R.DEF["gim_lpf_z"], "rate_Hz": ">= 500 (ECU tvc_shaping task 1000 Hz)"},
+                                     "DERIVED CSI (m2_csi v2) + SIM", "MANDATORY: without it the rocking mode destabilises the loop in the "
+                                     "linear model and the 6-DOF linkage torque reaches " +
+                                     (f"{T['AD_fins_f20_nolpf']['max_hinge_p99']:.0f} N m p99" if 'AD_fins_f20_nolpf' in T else "far above stall"))
+    rq["gimbal"] = gm
+    # structure
+    csum = (CSI or {}).get("summary", {})
+    rock = (CSI or {}).get("rocking_landing", {})
+    bend = (CSI or {}).get("bending_landing", {})
+    rq["structure"] = {
+        "gimballed_engine_first_mode_min_Hz": P(25.0, "DERIVED ENG-11 (>= 3 x actuator 8 Hz) + CSI m2_csi v2",
+                                                f"mechanical.json v1 rocking mode {rock.get('f_rock_Hz')} Hz (rigid structure) PASSES with "
+                                                "the structural command filter; FEA with pushrod/lever/frame compliance must stay >= 25 Hz"),
+        "rocking_mode_damping_min": P(0.02, "SIM range flown U(0.02, 0.10) (ASSUMED, unpublished)", "bench-measure"),
+        "csi_margins_with_filter": P({k: csum.get("lpf", {}).get(k) for k in ("n_cases", "n_unstable", "rigid_pm_min_deg",
+                                                                              "rigid_gm_up_min_dB", "flex_gm_up_min_dB")},
+                                     "SIM m2_csi v2 (python-control, Pade-3 delay)",
+                                     f"without filter: {csum.get('nofilt', {}).get('n_unstable')} of {csum.get('nofilt', {}).get('n_cases')} "
+                                     "linear cases unstable (rocking mode in the loop)"),
+        "airframe_first_bending_min_Hz": P(10.0, "DERIVED >= 5 x attitude crossover; goal 15 Hz",
+                                           f"uniform PETG tube estimate {bend.get('f_b_Hz')} Hz (ASSUMED E 2 GPa); Lauty's FE model replaces it"),
+        "tail_wags_dog_zero_min_rad_s": P(20.0, "DERIVED >= ~3 x attitude bandwidth (6 rad/s) at the floor thrust; SIM evidence",
+                                          (f"RV-1c CG pivot at touchdown: 12.5 % {tw125['w_twd_rad_s'] if tw125 else '?'} rad/s, 20 % "
+                                           f"{tw20['w_twd_rad_s'] if tw20 else '?'} rad/s, hover {twh['w_twd_rad_s'] if twh else '?'} rad/s. "
+                                           "v1 asked >= 25 rad/s: 12.5 % FAILS that number, yet the MC closes at 12.5 % "
+                                           f"({Pc('AD_fins_f125')}) and the CSI floor62N cases are stable with the filter -> requirement "
+                                           "restated as >= 20 rad/s at the lowest flown thrust")),
+    }
+    # roll
+    sweep_off = sorted([r for r in RS if r["rcs"] == "False"], key=lambda r: float(r["roll_amp_Nm"]))
+    ok_amps = []
+    for r in sweep_off:
+        p_ = PR.get(r["case"])
+        lost = int(p_["base_ok_case_fail"]) if p_ else 0
+        pv = float(p_["mcnemar_exact_p"]) if p_ else 1.0
+        lost_sig = (float(r["success"]) < bt["success"]) and pv < 0.05
+        if not lost_sig:
+            ok_amps.append(float(r["roll_amp_Nm"]))
+        else:
+            break
+    thr = max(ok_amps) if ok_amps else None
+    sweep_txt = "; ".join(f"{float(r['roll_amp_Nm']):.3f} N m: P {float(r['success']):.3f}" + mcn(r["case"]) for r in sweep_off)
+    ldthr = LEAD_DECISIONS["roll_delete_threshold_Nm"]
+    if thr is None or thr <= 0:
+        thr_txt = "no non-zero amplitude flown without RCS matches the baseline"
+    elif thr >= ldthr:
+        thr_txt = (f"GNC threshold {thr} N m (largest amplitude flown without RCS with no significant loss); the lead's "
+                   f"{ldthr} N m criterion is at or inside it")
+    else:
+        thr_txt = (f"CONFLICT: GNC threshold {thr} N m is BELOW the lead's {ldthr} N m deletion criterion")
+    rq["roll"] = {
+        "decision": P(f"roll RCS PROVISION ONLY (lead decision 2026-10-12): mounting bosses, a tank ullage port and 2 reserved ECU "
+                      f"solenoid channels; the RCS hardware is not fitted. The provision is deleted if T1 measures |roll torque| <= "
+                      f"{ldthr} N m at every throttle setting; above that the couple is fitted (RCS-fitted vehicle = {BASE}).",
+                      "REQ lead decision 2026-10-12 + " + MC,
+                      f"{thr_txt}. RCS off, roll-torque sweep (same 500 draws, torque scaled): {sweep_txt}; RCS not fitted at the "
+                      f"2.00 kg lead load: {Pm(LEAD)}; RCS on: {Pc(BASE)} (U(+/-0.02) N m), "
+                      f"{Pc('AD_fins_f20_r10') if 'AD_fins_f20_r10' in T else '?'} (U(+/-0.1) N m). Threshold rule: largest "
+                      "amplitude without a significant loss vs the baseline (McNemar p < 0.05 and lower P). Straight port (lead "
+                      "decision 2026-10-12): no designed torque; residual U(-0.02, 0.02) N m ASSUMED. Unmodelled roll sources: "
+                      "fin misalignment in the ascent (fin_roll_v2.json hand estimate), aero asymmetry."),
+        "gnc_threshold_Nm": P(thr, MC, "largest RCS-off roll-torque amplitude with no significant landing loss"),
+        "roll_sweep_csv": "01-systems-gnc/results/mc6_roll_sweep_v2.csv",
+        "provider": P("propulsion: N2O-vapour cold-gas couple from the tank ullage, 2 NC solenoids, 4 nozzles (2 couples), "
+                      "0.5 N per nozzle (ASSUMED), on the body wall", "DERIVED (REPORT option 3, roll only)"),
+        "torque_Nm": P(rnd(2 * 0.5 * VH["d_body_m"] / 2, 4), "DERIVED 2 x 0.5 N x body radius", "simulated, bang-bang, deadband 5 deg/s"),
+        "firing_time_p99_s": P(rnd(bt["rcs_time_p99_s"], 2), MC + " (RCS fitted)"),
+        "n2o_vapour_p99_kg": P(rnd(bt["rcs_n2o_p99_kg"], 4), "DERIVED firing time x 1 N / (Isp 50 s ASSUMED x g0)",
+                               f"Isp 40 s: {bt['rcs_n2o_p99_kg_isp_low']:.4f} kg; not removed from the tank in the sim (< 1 % of the load)"),
+        "added_mass_kg": P({"fitted": 0.25, "provision_only": None}, "ASSUMED ledger P14 (0.15-0.40) when fitted",
+                           "provision masses (bosses, ullage port) UNKNOWN: Mechanical to supply; not in ledger v3c"),
+        "touchdown_roll_rate_p99_dps": P({"rcs_fitted": rnd(bt["td_roll_rate_p99"], 2),
+                                          "provision_only": rnd(T[LEAD]["td_roll_rate_p99"], 2) if LEAD in T else None}, MC),
+        "roll_rate_max_p99_dps": P({"rcs_fitted": rnd(bt["max_roll_rate_p99"], 1),
+                                    "provision_only": rnd(T[LEAD]["max_roll_rate_p99"], 1) if LEAD in T else None}, MC),
+    }
+    # tank
+    rq["tank"] = {
+        "temperature_at_liftoff_C": P([17.0, 23.0], "REQ ENG-12 (20 +/- 3 C)", "6-DOF MC spans 15-25 C"),
+        "n2o_load_A_D_kg": P(LEAD_DECISIONS["n2o_load_kg"], "REQ lead decision 2026-10-12",
+                             f"from SIM sizing x 1.15 = {b['m_n2o_mc_kg']:.3f} kg (RCS fitted)"
+                             + (f"; RCS not fitted: sized {cs[LEAD]['m_n2o_sized_kg']:.3f} kg, 2.00 kg flown at {Pc(LEAD)}"
+                                if LEAD in cs and LEAD in T else "")),
+        "tank_volume_L": P(LEAD_DECISIONS["tank_volume_L"], "REQ lead decision 2026-10-12",
+                           f"DERIVED 85 % liquid fill at 25 C: {b['tank_V_L']:.3f} L"),
+        "usable_liquid_left_p01_kg": P({"rcs_fitted": rnd(bt["liq_left_p01"]),
+                                        "provision_only_2kg": rnd(T[LEAD]["liq_left_p01"]) if LEAD in T else None}, MC,
+                                       "1st percentile of liquid left at touchdown (incl. 3 % residual)"),
+        "n2o_load_B_hop100_floor20_kg": P(rnd(cs["B_f20"]["m_n2o_mc_kg"]), "SIM sizing x 1.15"),
+        "n2o_load_with_v1_map_kg": P(rnd(cs["AD_fins_f20_v1engine"]["m_n2o_mc_kg"]) if "AD_fins_f20_v1engine" in cs else None,
+                                     "SIM sizing x 1.15 with the uncorrected combustion.json v1 map (comparator)",
+                                     "the combustion v2 relay (Isp 188 s on DC-A1, O/F 10.4 at 500 N) raises the load"),
+        "fill_rule": P("liquid fraction <= 0.85 at 25 C", "ASSUMED"),
+        "usable_liquid_reserve": P(0.20, "DERIVED sizing rule"),
+        "residual_liquid_frac": P(0.03, "ASSUMED"),
+    }
+    # navigation
+    imu_rows = (IMU or {}).get("rows", [])
+    rq["navigation_and_loop_rates"] = {
+        "imu_class": P("ADIS16470 class (gyro residual bias <= 0.03 deg/s after pad calibration) with the baseline gyro-propagated attitude",
+                       MC, f"ADIS16470 {Pc(BASE)}; BMI088 class {Pc('AD_fins_f20_BMI088')}; ICM-42688 class {Pc('AD_fins_f20_ICM42688')} "
+                       "(gyro-bias attitude drift over the ~30 s flight -> lateral-speed and crash failures). Cheaper MEMS need an "
+                       "aided attitude estimator (GNSS/INS EKF), not modelled -> research item."),
+        "gyro_residual_bias_sweep": P([{k: rnd(r[k], 3) for k in ("gyro_residual_bias_dps", "success", "ci95_lo", "ci95_hi", "crashes")}
+                                       for r in imu_rows], "SIM m2_imu_sweep v2 (300 runs per point, ADIS16470 class otherwise)"),
+        "gnss": P("standalone (u-blox M9/M10 class) sufficient", MC, f"RTK {Pc('AD_fins_f20_rtk')} vs standalone {Pc(BASE)}{mcn('AD_fins_f20_rtk')}"),
+        "lidar_range_min_m": P(40.0, MC, f"12 m LiDAR {Pc('AD_fins_f20_lidar12')}{mcn('AD_fins_f20_lidar12')}"),
+        "fc_to_ecu_command_rate_Hz": P(500, "DERIVED/accepted electronics.json v1"),
+        "attitude_loop_rate_Hz": P(1000, "SIM (sim6 integrates the control law every 1 ms step)", "250 Hz ASSUMED in v1; 6-DOF flown at 1 kHz"),
+        "nav_filter_rate_Hz": P(100, "SIM sim6 estimator"),
+        "link_loss_policy_in_RUN": P("ascent: SHUTDOWN after 0.1 s (backup chute); landing burn: HOLD last Pc setpoint and gimbal 0.3 s, then SHUTDOWN",
+                                     "DERIVED (unchanged from v1)"),
+    }
+    # guidance comparison
+    rq["guidance"] = {
+        "baseline": P("vertical: velocity-tracking reference + PI with thrust-effectiveness estimator; lateral: PD to the reachable target "
+                      "+ disturbance feed-forward; 8 m terminal gate", MC, Pc(BASE)),
+        "convex_lite_lateral": P(Pc("AD_fins_f20_cvx"), MC, mcn("AD_fins_f20_cvx").lstrip("; ")),
+        "zem_zev_vertical_and_lateral": P(Pc("AD_fins_f20_zemzev"), MC,
+                                          f"sim6 v2.3 law (tgo re-estimated from the planned deceleration, hand-over to the terminal law "
+                                          f"at tgo < 0.5 s): sized N2O {cs['AD_fins_f20_zemzev']['m_n2o_sized_kg']:.2f} kg vs baseline "
+                                          f"{b['m_n2o_sized_kg']:.2f} kg{mcn('AD_fins_f20_zemzev')}. The v2.2 fixed-final-time law (0.3 s "
+                                          "floor) failed (P 0.836, sized 4.81 kg): equilibrium hover ~0.5 m above the gate until "
+                                          "the load was exhausted (kept as evidence)."),
+        "zem_zev_lateral_only": P(Pc("AD_fins_f20_zemzev_lat") if "AD_fins_f20_zemzev_lat" in T else None, MC,
+                                  mcn("AD_fins_f20_zemzev_lat").lstrip("; ")),
+        "hoverslam_forced_20pct": P(Pc("AD_fins_f20_hslam"), MC),
+        "upwind_ascent_bias": P(f"k = {1.5} m/s per m/s of measured pad wind", MC,
+                                f"{Pc('AD_fins_f20_upwind')}, median miss {T['AD_fins_f20_upwind']['td_miss_p50']:.0f} m vs {bt['td_miss_p50']:.0f} m"),
+    }
+    g["requirements"] = rq
+
+    # ------------------------------------------------------------------ limit loads (engine mount)
+    def mxv(key):
+        vals = [T[c].get(key) for c in (BASE, LEAD) if c in T and T[c].get(key) is not None]
+        return max(vals) if vals else None
+
+    def mx(key):
+        return rnd(mxv(key), 2)
+    g["design_limit_loads"] = {
+        "note": "LIMIT loads = maxima over the 500 dispersed runs of the RCS-fitted case (AD_fins_f20) and the lead baseline "
+                "(AD_prov_2kg), whichever is larger (p99 given for reference), engine-mount station unless "
+                "stated. Mechanical applies ENG-10 factors (1.5 yield, 2.0 ultimate). Touchdown values depend on the ASSUMED legs "
+                "(k 2500 N/m per leg, c 120 N s/m, stroke 0.10 m, mu 0.3-0.7) and are only as good as that assumption.",
+        "axial_accel_flight_g": P(mx("max_axial_g_flt_max"), MC + " max (flight, before touchdown)", f"p99 {mx('max_axial_g_flt_p99')} g; MECO at full thrust"),
+        "axial_accel_touchdown_g": P(mx("max_axial_g_td_max"), MC + " max (after first contact, rigid body at the CG)",
+                                     f"p99 {mx('max_axial_g_td_p99')} g; v1 design value 10 g (3 m/s off-nominal, 0.1 m stroke) is kept as the "
+                                     "envelope for a hard landing"),
+        "axial_accel_landing_shock_envelope_g": P(10.0, "DERIVED v1: 3 m/s touchdown, 0.10 m stroke, 50 % efficiency"),
+        "lateral_accel_at_pivot_flight_g": P(mx("max_lat_g_eng_flt_max"), MC + " max", f"p99 {mx('max_lat_g_eng_flt_p99')} g"),
+        "lateral_accel_at_pivot_touchdown_g": P(mx("max_lat_g_eng_td_max"), MC + " max", f"p99 {mx('max_lat_g_eng_td_p99')} g"),
+        "body_angular_rate_max_rad_s": P(rnd(np.radians(max(bt["max_rate_coast_p99"], 1e-9)), 3), MC + " p99 coast rate (fins)",
+                                         "finless coast tumbles (see landing_closure AD_nofins_f20)"),
+        "body_angular_accel_flight_rad_s2": P(mx("max_alpha_flt_max"), MC + " max", f"p99 {mx('max_alpha_flt_p99')}"),
+        "body_angular_accel_touchdown_rad_s2": P(mx("max_alpha_td_max"), MC + " max", f"p99 {mx('max_alpha_td_p99')}"),
+        "hinge_moment_design_Nm": P(LEAD_DECISIONS["gimbal_parts_design_load_Nm"], "REQ lead decision 2026-10-12 (actuator stall "
+                                    "load, mechanical.json v1 8.4 V)", "gimbal parts, linkage, bearings and mount; covers the SIM "
+                                    "peaks below"),
+        "hinge_moment_flight_Nm": P(mx("max_hinge_max"), MC + " max", f"p99 {mx('max_hinge_p99')}"),
+        "hinge_moment_touchdown_gimbal_unlocked_Nm": P(mx("max_hinge_td_max"), MC + " max (actuator holds/returns the engine after "
+                                                       "touchdown; base excitation incl.)", f"p99 {mx('max_hinge_td_p99')}"),
+        "peak_total_leg_force_N": P(mx("peak_leg_force_max"), MC + " max", f"p99 {mx('peak_leg_force_p99')}; Lauty's legs"),
+        "gimbal_angular_accel_actuator_max_rad_s2": P(rnd(bt["max_gim_acc_p99"], 0), MC + " p99"),
+        "mount_force_estimates_N": P({
+            "axial_thrust_max_N": rnd(500.0 * (1.0 + 3 * 0.05), 1),
+            "axial_inertial_touchdown_N": rnd(float(tw20["m_e_kg"]) * mxv("max_axial_g_td_max") * R.G0, 1) if tw20 else None,
+            "lateral_inertial_touchdown_N": rnd(float(tw20["m_e_kg"]) * mxv("max_lat_g_eng_td_max") * R.G0, 1) if tw20 else None,
+            "lateral_inertial_flight_N": rnd(float(tw20["m_e_kg"]) * mxv("max_lat_g_eng_flt_max") * R.G0, 1) if tw20 else None,
+            "gimballed_mass_used_kg": rnd(float(tw20["m_e_kg"]), 3) if tw20 else None},
+            "DERIVED m_e (gimballed engine at touchdown, burnt grain) x the MC maxima; thrust 500 N x (1 + 3 sigma 5 %)",
+            "the mount also carries the hinge moments above; Mechanical adds its own factors (ENG-10)"),
+        "transport_handling_g": P(3.0, "ASSUMED any axis, gimbal locked (mechanical.json transport lock)"),
+        "duty_cycle_loads": "time histories of F, a_axial, m, CG, inertia, gimbal angles and hinge estimate in every duty-cycle CSV v2"}
+
+    # ------------------------------------------------------------------ duty cycles
+    dc = {}
+    for c in (DCI or {}).get("cycles", []):
+        dc[c["name"]] = {"file": f"01-systems-gnc/duty_cycles/{c['file']}", "burn_s": rnd(c["burn_time_s"], 2),
+                         "impulse_Ns": rnd(c["total_impulse_Ns"], 0), "starts": c.get("starts"),
+                         "max_axial_specific_mps2": rnd(c.get("max_axial_specific_mps2"), 2),
+                         "max_gimbal_deg": rnd(c.get("max_gimbal_deg"), 2), "success": c.get("success")}
+    g["duty_cycles"] = {"index": "01-systems-gnc/duty_cycles/duty_cycles_index_v2.json", "files": dc,
+                        "columns": (DCI or {}).get("cycles", [{}])[0].get("columns"),
+                        "tag": f"SIM {SV} (flights, relay engine model, RCS-fitted baseline load) / DERIVED commanded test sequences",
+                        "note": f"longest flight burn {(DCI or {}).get('longest_flight_burn_s', float('nan')):.1f} s; DC-D qualification "
+                                f"ratio to it {((DCI or {}).get('qualification_check') or {}).get('ratio_to_longest_flight', float('nan')):.2f}"}
+    # ------------------------------------------------------------------ landing closure table
+    keep = ["case", "note", "vehicle", "success", "ci95_lo", "ci95_hi", "fail_modes", "m_n2o_sized_kg", "m_n2o_mc_kg", "tank_V_L",
+            "m_liftoff_kg", "ballast_kg", "td_vz_p99", "td_vh_p99", "td_tilt_p99", "td_rate_p99", "td_miss_p50", "td_miss_p95",
+            "prop_used_p50", "liq_left_p01", "max_gim_p99", "gim_sat_frac_p99", "max_hinge_p99", "max_rate_coast_p99",
+            "hslam_frac", "paired_delta_vs_base", "mcnemar_p_vs_base"]
+    g["landing_closure"] = {"cases": [{k: rnd(T[c].get(k), 4) for k in keep if k in T[c]} for c in T],
+                            "table_csv": "01-systems-gnc/results/mc6_cases_summary_v2.csv",
+                            "tag": MC, "criteria": S["criteria"], "load_margin": S["load_margin"],
+                            "failure_drivers_csv": "01-systems-gnc/results/mc6_failure_drivers_v2.csv",
+                            "failure_forensics": "01-systems-gnc/results/mc6_failure_forensics_v2.csv",
+                            "sensitivity_baseline": b["sensitivity"],
+                            "v1_1d_reference": "gnc.json v1 landing_closure (1-D, RV-1) superseded"}
+    # ------------------------------------------------------------------ verification summary
+    if VF:
+        g["verification_6dof"] = {
+            "torque_free": [rnd({k: r.get(k) for k in ("dt", "H_rel_drift_max", "Ek_rel_drift_max", "qnorm_err_max", "pass")}, 16)
+                            for r in VF["torque_free"]],
+            "torque_free_note": (f"rigid-body kernel (roll RCS, slosh and flexible mount off), pass if the relative drift of |H| and T "
+                                 f"< {VF.get('torque_free_pass_limit')}. sim6 v2.3 FAILED this test (explicit-Euler body rates: "
+                                 "transverse amplitude grows as exp(T b^2 dt / 2)); v2.4 integrates the free motion exactly. "
+                                 "The v2.3 runs also left the roll RCS on, which despun the body (a control torque, not a defect)."),
+            "torque_free_v2_3_integrator": [rnd({k: r.get(k) for k in ("dt", "H_rel_drift_max", "Ek_rel_drift_max")}, 6)
+                                            for r in VF.get("torque_free_v2_3_integrator", [])],
+            "torque_free_internal_dofs": [rnd({k: r.get(k) for k in ("dt", "H_rel_drift_max", "Ek_rel_drift_max")}, 8)
+                                          for r in VF.get("torque_free_internal_dofs", [])],
+            "vacuum_ballistic": [rnd({k: r[k] for k in ("dt", "E_rel_drift_max", "z_err_max_m")}, 8) for r in VF["vacuum_ballistic"]],
+            "dt_convergence": [rnd({k: r[k] for k in ("profile", "dt", "wind", "td_vz", "td_vh", "h_max", "prop_used", "td_t")}, 4)
+                               for r in VF["dt_convergence"]],
+            "zero_dispersion": [rnd({k: r[k] for k in ("profile", "fins", "success", "td_vz", "prop_used", "h_max")}, 4) for r in VF["zero_dispersion"]],
+            "vs_sim1d": [{"profile": c["profile"], "sim6": rnd({k: c["sim6"][k] for k in ("h_max", "prop_used", "h_ign", "v_ign", "td_vz")}, 3),
+                          "sim1d": rnd({k: c["sim1d"][k] for k in ("h_max", "prop_used", "h_ign", "v_ign", "td_v")}, 3)} for c in VF["compare_sim1d"]],
+            "vs_lead_seed": rnd({"seed": {k: v for k, v in VF["compare_lead_seed"]["seed"].items() if k != "seed_file"},
+                                 "sim6_AF": {k: VF["compare_lead_seed"]["sim6_AF"][k] for k in ("prop_used", "h_ign", "v_ign", "h_max", "m_land")}}, 4),
+            "file": "01-systems-gnc/results/verify6_v2.json", "tag": "SIM m2_verify6 v2"}
+    if CTD:
+        rows = CTD["rows"]
+        g["csi_time_domain"] = {"rows": [rnd(r, 3) for r in rows], "tag": "SIM m2_csi_timedomain v2",
+                                "summary": {"lpf_on_max_hinge_Nm": rnd(max(r["max_hinge_Nm"] for r in rows if r["lpf_rad_s"] > 0), 2),
+                                            "lpf_off_max_hinge_Nm": rnd(max(r["max_hinge_Nm"] for r in rows if r["lpf_rad_s"] == 0), 2),
+                                            "lpf_on_max_hf_rms_deg": rnd(max(r["hf_rms_deg"] for r in rows if r["lpf_rad_s"] > 0), 3),
+                                            "lpf_off_max_hf_rms_deg": rnd(max(r["hf_rms_deg"] for r in rows if r["lpf_rad_s"] == 0), 3)}}
+
+    # ------------------------------------------------------------------ answers, requests, open interface issues
+    g["answers_to_requests"] = {
+        "mechanical_7deg_vector_norm": f"CONFIRMED (7 deg {Pc(BASE)}; 6 deg {Pc('AD_fins_f20_gim6')}; 5 deg {Pc('AD_fins_f20_gim5')}); "
+                                       "sim6 applies the limit to the vector norm with the 8 deg conical stop behind it",
+        "mechanical_cg_pivot": (f"Founder APPROVED the CG pivot and the >= 140 mm engine-bay ID (final, 2026-10-12); this is the "
+                                f"gnc.json v2 baseline. GNC evidence agrees with a caveat: TWD zero at touchdown 20 % "
+                                f"{tw20['w_twd_rad_s'] if tw20 else '?'} rad/s, 12.5 % "
+                                f"{tw125['w_twd_rad_s'] if tw125 else '?'} rad/s (below the v1 25 rad/s number; requirement restated to >= 20 rad/s "
+                                "with MC/CSI evidence). Keep the pivot at or slightly aft of the wet engine CG: J_twd grows with l_e; "
+                                "each mm of l_e changes J_twd by ~2 %."),
+        "mechanical_limit_loads_engine_mount_landing_gimbal_unlocked": "design_limit_loads *_touchdown_* and hinge_moment_touchdown_gimbal_unlocked_Nm",
+        "mechanical_hinge_design_value": (f"superseded by the lead decision 2026-10-12: gimbal parts to the "
+                                          f"{LEAD_DECISIONS['gimbal_parts_design_load_Nm']} N m actuator stall load "
+                                          f"(SIM flight max {mx('max_hinge_max')} N m, touchdown max {mx('max_hinge_td_max')} N m)"),
+        "electronics_v1_requests": "gimbal range/rate/bandwidth/resolution, throttle response/resolution, link-loss policy, GNC loop rate: requirements above",
+    }
+    g["requests"] = [
+        "REQUEST mechanical: (1) gimbal parts, linkage and mount to the 26.5 N m actuator stall load (lead decision 2026-10-12) "
+        "with the SIM limit loads (design_limit_loads); (2) bench-measure the rocking mode and its damping (flown 0.02-0.10) and the "
+        "servo stiffness; (3) list masses of the fixed module (thrust frame, servos, valve, feed) - GNC ledger ASSUMES 1.37 kg; "
+        f"(4) tank for 3.17 L / 2.00 kg N2O (lead decision; GNC estimate {VH['tank_internal_length_m']:.3f} m internal in the "
+        "101.6 x 3.175 mm tube); (5) grain mass basis (mechanical 0.369 kg vs combustion 0.351 kg; relay S230 0.404 kg DERIVED); "
+        "(6) roll-RCS provision: boss and ullage-port masses and positions; (7) mass properties for the combustion v2 engine (+0.11 kg)",
+        "REQUEST electronics: (1) structural command filter + 100 deg/s slew limit in the ECU TVC shaping task; (2) IMU ADIS16470 "
+        "class (residual gyro bias <= 0.03 deg/s) or an aided estimator for cheaper MEMS; (3) gimbal engine-side slew >= 100 deg/s "
+        "under load across the full +/-7 deg range (ENG-07 as raised by the lead; lever ratio/servo with Mechanical); (4) reserve 2 NC solenoid driver channels for the roll-RCS provision "
+        "(lead decision); (5) Pc and accelerometer >= 100 Hz to the FC",
+        "REQUEST combustion: (1) publish combustion.json v2 with the S230 throttle map (F, mdot_ox, mdot_f, Pc vs port diameter "
+        "and tank T) - GNC flies a relay correction of the v1 map until then; (2) measure the residual engine roll torque vs "
+        f"throttle in the static fires to +/-0.005 N m: the roll-RCS provision is deleted at <= {LEAD_DECISIONS['roll_delete_threshold_Nm']} "
+        "N m (lead decision); (3) ignition-latency distribution of the torch (MC U(0.2, 0.6) s); (4) re-run the grain/thermal duty "
+        "cycles on the 6-DOF duty cycles v2 and the 2.00 kg / 3.17 L tank (heavier RV-1c: impulse above the v1 cycles)",
+        "REQUEST lead/airframe (Lauty): fins (span 0.12 m, 0.3 kg) with the alignment tolerance in icd_inputs_for_airframe, or a "
+        "finless coast with tumbling; drogue CdA 0.5 m2 + release + swivel; legs (stroke >= 0.10 m, k/c as simulated); CG range and "
+        "landing-mass window below; body 146 mm; first bending >= 10 Hz; roll-RCS provision (4 nozzle bosses on the body wall)",
+        "REQUEST lead: confirm A-D baseline, launch-commit wind (MC success drops above ~7 m/s), landing-zone radius (median miss "
+        f"{bt['td_miss_p50']:.0f} m, p95 {bt['td_miss_p95']:.0f} m without upwind bias)"]
+    g["open_interface_issues"] = [
+        "tank: the lead fixed 2.00 kg / 3.17 L (2026-10-12, from this sizing); mechanical.json v1 tank 2.06 L (289 mm), "
+        "combustion.json v1 placeholder 2.5 L / 1.6 kg and combustion's v2 duty-cycle runs on 2.06 L / 1.30 kg (DC-A1) predate it",
+        "combustion.json v2 not yet published: the 6-DOF flies the v1 map x relay factors (validation within 0.5 % N2O per "
+        "impulse on combustion's four S230 runs); S230 grain mass DERIVED from the v1 geometry",
+        "engine v2 growth (+0.11 kg, gas path +30 mm) placed at the engine CG; mechanical.json v2 mass properties pending",
+        "grain mass: mechanical.json v1 gimballed wet-dry difference 0.369 kg vs combustion.json v1 grain 0.351 kg (GNC uses combustion)",
+        "mechanical.json v1 fixed module (thrust frame, servos, NC valve, feed) has no masses: GNC ledger ASSUMES them",
+        f"hinge moment: mechanical.json v1 design 5.63 N m (linear sum) vs SIM peaks {bt['max_hinge_p99']:.1f} N m p99 / "
+        f"{mx('max_hinge_max')} N m max: closed by the lead decision (parts to the 26.5 N m stall load); mechanical.json to restate it",
+        "gimbal rate: ENG-07 raised to >= 100 deg/s by the lead (80 deg/s loses landings: " + Pm("AD_fins_f20_rate80") + "); at the "
+        "7 deg extreme the mechanical.json v1 crank allows ~97 deg/s no-load; the lead requires >= 100 deg/s across the full "
+        "+/-7 deg range (lever ratio or servo to change); REQUIREMENTS.md, mechanical.json and electronics.json to restate it",
+        "rocking-mode damping and servo stiffness are unpublished (electronics.json ASSUMED); CSI depends on them",
+        "engine-bay ID >= 140 mm approved (founder, final): the 146 mm body is GNC's uniform-diameter assumption; Lauty's airframe "
+        "(stepped or uniform) sets the real aero and mass; RV-1b (126 mm) comparator: " + Pc("AD_fins_f20_RV1b"),
+        "IMU: electronics.json v1 has no FC IMU selection yet; ADIS16470 class required by this analysis",
+        "engine roll torque: straight port has no designed torque but the residual is unmeasured (baseline U(-0.02, 0.02) N m "
+        "ASSUMED); roll RCS is a provision (lead decision) and appears in no propulsion interface file yet",
+        "duty cycles: combustion.json v1 says 'duty cycles from gnc.json not yet available' - v2 CSVs published here"]
+    g["icd_inputs_for_airframe"] = {
+        "body_diameter_m": P(rnd(VH["d_body_m"]), "DERIVED (see reference_vehicle)"),
+        "landing_mass_window_kg": P({"floor_12.5%": [win["12.5%"], 16.0], "floor_20%": [win["20.0%"], 16.0],
+                                     "floor_25%": [win["25.0%"], 16.0], "floor_40%": "none below 22.7 kg (ballast)"},
+                                    "DERIVED hover rule; upper bound REQ ref. vehicle 16 kg", f"RV-1c nominal {m_land:.2f} kg"),
+        "cg_range_z_m": P({"flight_history": cg["flight_history_m"], "ledger_extremes_dry": cg["ledger_extremes_dry_m"],
+                           "liquid_forward_excursion_m": cg["liquid_forward_excursion_full_m"]}, "SIM nominal flight + DERIVED ledger extremes"),
+        "touchdown_vertical_speed_max_mps": P(2.0, "REQ", f"MC p99 {bt['td_vz_p99']:.2f} m/s"),
+        "touchdown_lateral_speed_max_mps": P(0.5, "REQ", f"MC p99 {bt['td_vh_p99']:.2f} m/s"),
+        "touchdown_tilt_max_deg": P(5.0, "REQ brief", f"MC p99 {bt['td_tilt_p99']:.2f} deg"),
+        "touchdown_tilt_rate_max_dps": P(10.0, "REQ brief", f"MC p99 {bt['td_rate_p99']:.2f} deg/s"),
+        "leg_stroke_min_m": P(0.10, "ASSUMED (as simulated)"),
+        "leg_design_values": P({"k_per_leg_N_m": 2500.0, "c_per_leg_N_s_m": 120.0, "foot_radius_m": 0.40, "mu": [0.3, 0.7]},
+                               "ASSUMED (as simulated)", f"peak total leg force p99 {bt['peak_leg_force_p99']:.0f} N"),
+        "drogue_CdA_m2": P(0.5, "DERIVED descent ~22 m/s at ~14.4 kg", "MC x U(0.85, 1.15)"),
+        "fins": P("4 x span 0.12 m, chords 0.20/0.10 m at the aft end", "DERIVED trade", f"coast rate p99 {bt['max_rate_coast_p99']:.0f} deg/s"),
+        "fin_alignment_cant_max_deg": (P(rnd(FR["tolerance"]["cant_max_same_sense_deg"], 3),
+                                         "DERIVED fin_roll_v2.json (hand calculation, not in the 6-DOF)",
+                                         f"same-sense cant on all fins; rule: fin-induced steady roll rate at MECO "
+                                         f"({FR['V_at_MECO_mps']:.0f} m/s) <= the {FR['tolerance']['roll_rate_flown_p99_dps']:.0f} deg/s "
+                                         f"p99 roll rate flown by the lead-baseline MC; 0.1 deg gives "
+                                         f"{[c for c in FR['cases'] if abs(c['cant_deg'] - 0.1) < 1e-9][0]['torque_all_fins_same_sense_Nm']:.3f} N m "
+                                         f"at max q and {[c for c in FR['cases'] if abs(c['cant_deg'] - 0.1) < 1e-9][0]['steady_roll_rate_all_fins_dps']:.0f} deg/s steady")
+                                       if FR and FR.get("tolerance") else P(None, "not computed")),
+        "roll_rcs_mounting": P("PROVISION (lead decision 2026-10-12): 4 nozzle bosses on the body wall (2 tangential couples) and a "
+                               "tank ullage port; valves, lines and nozzles fitted only if T1 measures a roll torque above 0.02 N m",
+                               "DERIVED + REQ lead decision"),
+    }
+    g["open_items"] = [
+        "Tail-first aero unknown to ~x2 (CFD/tunnel/drop test); drogue inflation and swing dynamics not modelled",
+        "Ignition reliability at relight is mission-critical (no backup chute window below ~40 m)",
+        "Aided attitude estimator (GNSS/INS) would relax the IMU requirement - research item",
+        "Rocking-mode damping, servo stiffness, hose stiffness, legs: bench data replace the ASSUMED ranges",
+        "ZEM/ZEV vertical (v2.3 law) is a comparator only; the baseline keeps the reference + PI law",
+        ("Throttle resolution 2 % not yet flown in the 6-DOF (1 % flown)" if "AD_fins_f20_q2" not in T else
+         ("Throttle resolution 2 % LOSES landings in the 6-DOF: " + Pm("AD_fins_f20_q2")) if worse("AD_fins_f20_q2") else None),
+        "Fin misalignment roll torque is a hand estimate (fin_roll_v2.json), not in the 6-DOF"]
+    g["open_items"] = [x for x in g["open_items"] if x]
+    lc = (g1 or {}).get("lift_capability")
+    g["lift_capability"] = {"v1_table_kept": lc,
+                            "rv1c_liftoff_T_W": P(rnd(500.0 / (b["m_liftoff_kg"] * R.G0), 3), "DERIVED 500 N / (m_liftoff g0) at the MC load"),
+                            "rv1c_liftoff_mass_kg": P(rnd(b["m_liftoff_kg"], 3), "SIM build at the MC load (ledger v3c)"),
+                            "tag": "v1 table: 1-D, RV-1, placeholder map (kept for reference)"}
+    g["answers_to_lead_relay_combustion_v2"] = {
+        "applied": "engine map factors (Isp/O/F), S230 grain length and mass, +0.11 kg engine growth at the engine CG, straight-port "
+                   "roll-torque assumption; thrust ceiling unchanged (never binds; relay 548 N > 500 N)",
+        "effect_on_load": (f"sized N2O {b['m_n2o_sized_kg']:.3f} kg (MC load {b['m_n2o_mc_kg']:.3f} kg, tank {b['tank_V_L']:.2f} L) vs "
+                           + (f"{cs['AD_fins_f20_v1engine']['m_n2o_sized_kg']:.3f} kg with the v1 map" if "AD_fins_f20_v1engine" in cs else "?")),
+        "effect_on_landing": f"baseline {Pc(BASE)}; v1-map comparator {Pc('AD_fins_f20_v1engine') if 'AD_fins_f20_v1engine' in T else '?'}"
+                             f"{mcn('AD_fins_f20_v1engine')}",
+        "roll": g["requirements"]["roll"]["decision"]["v"]}
+    # ------------------------------------------------------------------ lead decisions 2026-10-12 with the GNC evidence
+    ld = {"source": LEAD_DECISIONS["source"]}
+    ld["n2o_load_and_tank"] = P({"n2o_load_kg": LEAD_DECISIONS["n2o_load_kg"], "tank_volume_L": LEAD_DECISIONS["tank_volume_L"],
+                                 "liquid_fill_at_25C": LEAD_DECISIONS["fill"]}, "REQ lead decision 2026-10-12",
+                                f"GNC basis: RCS-fitted vehicle sized {b['m_n2o_sized_kg']:.3f} kg x 1.15 = {b['m_n2o_mc_kg']:.3f} kg "
+                                f"({b['tank_V_L']:.2f} L), {Pc(BASE)}"
+                                + (f"; RCS not fitted, sized {cs[LEAD]['m_n2o_sized_kg']:.3f} kg, flown at the fixed 2.00 kg "
+                                   f"({cs[LEAD]['tank_V_L']:.2f} L): {Pm(LEAD)}" if LEAD in cs and LEAD in T else ""))
+    ld["roll_rcs_provision"] = P(LEAD_DECISIONS["roll_rcs"], "REQ lead decision 2026-10-12",
+                                 g["requirements"]["roll"]["decision"]["note"])
+    ld["gimbal_slew"] = P(f">= {LEAD_DECISIONS['gimbal_slew_min_dps']:.0f} deg/s (ENG-07, was 60 deg/s)", "REQ lead decision 2026-10-12",
+                          f"100 deg/s baseline {Pc(BASE)}; 80 deg/s {Pm('AD_fins_f20_rate80')}; 60 deg/s {Pm('AD_fins_f20_rate60')}")
+    ld["gimbal_parts_design_load"] = P(LEAD_DECISIONS["gimbal_parts_design_load_Nm"], "REQ lead decision 2026-10-12",
+                                       f"actuator stall at 8.4 V (mechanical.json v1); SIM hinge flight max {mx('max_hinge_max')} N m "
+                                       f"(p99 {mx('max_hinge_p99')}), after touchdown max {mx('max_hinge_td_max')} N m; without the ECU "
+                                       "structural filter the 6-DOF exceeds it (filter mandatory)")
+    if LEAD in T:
+        tl = T[LEAD]
+        ld["lead_baseline_monte_carlo"] = P({k: rnd(tl.get(k), 4) for k in (
+            "success", "ci95_lo", "ci95_hi", "fail_modes", "m_n2o_sized_kg", "m_n2o_mc_kg", "tank_V_L", "m_liftoff_kg",
+            "td_vz_p99", "td_vh_p99", "td_tilt_p99", "td_rate_p99", "td_miss_p50", "td_miss_p95", "liq_left_p01",
+            "max_gim_p99", "max_hinge_p99", "td_roll_rate_p99", "max_roll_rate_p99", "paired_delta_vs_base", "mcnemar_p_vs_base")
+            if k in tl}, MC, f"{LEAD}: roll RCS not fitted, N2O fixed 2.00 kg, residual roll torque U(+/-0.02) N m ASSUMED; "
+                             "paired against the RCS-fitted baseline on the same 500 draws")
+    g["lead_decisions_2026-10-12"] = ld
+    order = ["id", "version", "date", "owner", "supersedes", "status", "lead_decisions_2026-10-12"]
+    g = {**{k: g[k] for k in order if k in g}, **{k: v for k, v in g.items() if k not in order}}
+    os.makedirs(os.path.dirname(DEST), exist_ok=True)
+    g = clean(g)
+    json.dump(g, open(DEST, "w"), indent=1, allow_nan=False)
+    print("written", DEST, os.path.getsize(DEST))
+
+
+if __name__ == "__main__":
+    main()

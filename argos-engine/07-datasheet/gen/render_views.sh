@@ -1,7 +1,7 @@
 #!/bin/bash
-# ARGOS H1 engine datasheet: produce every CAD render the datasheet uses, from the real assembly
+# ARGOS H1 engine datasheet (gen v0.3.0): produce every CAD render the datasheet uses, from the real assembly
 # GLB and the BOM of one CAD version. One Blender process at a time, 2 threads, nice 10 (other
-# solvers share the 4 CPUs). Renders are visualisation only (tessellated display geometry).
+# solvers share the 4 CPUs; v0.3.0: nice 15 by default, 1 thread while any ccx runs). Renders are visualisation only (tessellated display geometry).
 #
 # Usage:
 #   render_views.sh CAD_VERSION [CAD_DIR] [OUT_ROOT]
@@ -22,6 +22,7 @@ GLB="${GLB:-$CAD_DIR/assembly/ENGINE_${V}_neutral.glb}"
 BOM="${BOM:-$CAD_DIR/BOM_${V}.json}"
 PX="${PX:-1600}"; SPP="${SPP:-64}"; FAMILY_PX="${FAMILY_PX:-900}"; FAMILY_SPP="${FAMILY_SPP:-48}"
 THREADS="${THREADS:-2}"
+NICE="${NICE:-15}"; export NICE
 DEFAULT_PYLIB=/tmp/claude-0/-home-claude-ARGOS-H1/05bcfa66-42da-580c-a72f-ba0b32235147/scratchpad/pylib312
 PYLIB="${PYLIB:-$DEFAULT_PYLIB}"
 for f in "$GLB" "$BOM"; do [ -f "$f" ] || { echo "missing input: $f" >&2; exit 2; }; done
@@ -46,7 +47,10 @@ START=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 IFS=',' read -ra VV <<< "$VIEWS"
 for v in "${VV[@]}"; do
   SECONDS=0
-  nice -n 10 blender -b -t "$THREADS" -P "$HERE/render_views_blender.py" -- \
+  # one Blender thread whenever a CalculiX solver of any agent is running (lead brief rule)
+  T="$THREADS"; if pgrep ccx >/dev/null 2>&1; then T=1; fi
+  echo "view $v threads $T nice $NICE $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$OUT/render_times.txt"
+  nice -n "$NICE" blender -b -t "$T" -P "$HERE/render_views_blender.py" -- \
       --glb "$GLB" --bom "$BOM" --out-dir "$OUT" --views "$v" \
       --px "$PX" --spp "$SPP" --family-px "$FAMILY_PX" --family-spp "$FAMILY_SPP" >> "$LOG" 2>&1 \
     || { echo "blender failed on view $v (see $LOG)" >&2; exit 3; }
@@ -71,7 +75,7 @@ for m in sorted(glob.glob(os.path.join(out, '*_meta.json'))):
 man = {'cad_version': v, 'glb': glb, 'glb_sha256_16': h16(glb), 'bom': bom, 'bom_sha256_16': h16(bom),
        'started_utc': start, 'finished_utc': end,
        'settings': {'px': int(px), 'spp': int(spp), 'family_px': int(fpx), 'family_spp': int(fspp),
-                    'threads': int(thr), 'nice': 10, 'engine': 'Blender Cycles CPU, no denoiser'},
+                    'threads': int(thr), 'nice': int(os.environ.get('NICE', '15')), 'engine': 'Blender Cycles CPU, no denoiser'},
        'script': 'gen/render_views_blender.py', 'script_sha256_16': h16(script),
        'note': 'Visualisation only: tessellated display geometry from the GLB; not a drawing, tolerance or fabrication source.',
        'views': views}

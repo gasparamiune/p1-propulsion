@@ -1,0 +1,4399 @@
+{
+ "doc": "Hot-bound all-node rows on lc3_bound's part-max branch: the rigorous PART-WIDE bound, unrounded (fea3d 2026-10-20, written after the\n21:50:58Z date -u reading; lead 21:47:29Z: \"Wherever the rigorous part-wide bound is lower than the stored all-node value at 3 decimals,\nit replaces that value in the cell, with the stored value beside it and the method named per cell\").  Python only, no solve.\n\nSame inputs and the same formula as hb_singular_check_v352.py (its JSON 7d4ab97c0d7d3e75 stays as written; it rounds the part-wide value\nto 4 decimals, which can flip a 3-decimal comparison, e.g. a 0 MPa delta read 0.7385 against a stored 0.73846).  Per hot-bound file\n(LC3 / F2 x GVLO / GVHI), state and part on the part-max branch (engine parts outside lc3_bound's SAME_MESH_ENGINE list: lc3_bound adds\nthe part's REGULAR-node maximum of the increment envelope to every node, which does not bound a singular node's own increment):\n  delta      max over ALL the part's nodes of the increment envelope - the regular maximum (vM; brittle: max(s1 excess, -s3 excess) beyond\n             the regular extremes),\n  a_min      the lowest allowable over the part's nodes at that state (base T.npz; brittle: the lower of the two brittle allowables),\n  pw_MS      1 / (1 / (1 + MS_min) + SF delta / a_min) - 1 with MS_min = the stored all-node minimum of that state (SF 1.5 / 2.0; brittle\n             2.0): every node m of the part has MS(m) >= pw_MS (MS_stored(m) >= MS_min, stress(m) <= stored bound(m) + delta).\nPer case and part: the minimum over bases and states, unrounded, with its row, and the stored minimum beside it.  The check column\nreproduces hb_singular_check_v352's 4-decimal corrected_all_node_MS row by row.  Tags: DERIVED on SIM inputs.  Not physical approval.",
+ "files_sha16": {
+  "v352/hb_singular_check_v352.json": "7d4ab97c0d7d3e75",
+  "f1_lc3_hot_bound_v352g3.json": "486f7618f9579500",
+  "f1_lc3_hot_bound_v352h3.json": "4ea22ef168f7dd10",
+  "f1_lc3_hot_bound_s3d_v352g3.json": "ba7cf78f9cc8a88f",
+  "f1_lc3_hot_bound_s3d_v352h3.json": "f65f15226f0a7d09"
+ },
+ "rows": [
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "TC-02",
+   "stored_node": 26731,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.35806070118754163,
+    0.10312581149819011
+   ],
+   "brittle": false,
+   "delta_MPa": 0.7658634185791016,
+   "a_min_MPa": [
+    127.42279841897233,
+    143.753557771261
+   ],
+   "pw_MS": [
+    0.3416340625147125,
+    0.09031024351999783
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "TC-03",
+   "stored_node": 38421,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    -0.13031276176124684,
+    -0.20918463371434148
+   ],
+   "brittle": false,
+   "delta_MPa": 0.07664874196052551,
+   "a_min_MPa": [
+    227.92498571428573,
+    276.351425
+   ],
+   "pw_MS": [
+    -0.1306941260873049,
+    -0.20953139694673684
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "TC-04",
+   "stored_node": 42993,
+   "stored_class": "BT bad_tets",
+   "stored_MS": [
+    0.2477097535558217,
+    0.011519724310232515
+   ],
+   "brittle": false,
+   "delta_MPa": 0.18669533729553223,
+   "a_min_MPa": [
+    237.56141304347824,
+    256.6399193548387
+   ],
+   "pw_MS": [
+    0.24587728020730815,
+    0.010033277765787885
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "TC-09",
+   "stored_node": 45080,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.0483171722900368,
+    0.7791085645841729
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    925.0345124683694,
+    1066.1484037283135
+   ],
+   "pw_MS": [
+    1.0483171722900368,
+    0.7791085645841729
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "NZ-01",
+   "stored_node": 52809,
+   "stored_class": "RE reentrant_edges",
+   "stored_MS": [
+    -0.2899287304558543,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.03175031393766403,
+   "a_min_MPa": 25.0,
+   "pw_MS": [
+    -0.29120710850557696,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "NZ-02",
+   "stored_node": 54334,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.2825162746158134,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.0,
+   "a_min_MPa": 20.0,
+   "pw_MS": [
+    1.2825162746158134,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "NZ-03",
+   "stored_node": 55225,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.17864112717990488,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.027247056365013123,
+   "a_min_MPa": 20.0,
+   "pw_MS": [
+    0.17486809688607496,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "NZ-04",
+   "stored_node": 56424,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    3.0041501755989968,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.002916790544986725,
+   "a_min_MPa": 150.0,
+   "pw_MS": [
+    3.003526732143807,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "PD-01R",
+   "stored_node": 203406,
+   "stored_class": "ID rigid_connectors",
+   "stored_MS": [
+    0.3136057009571509,
+    0.06381755054124127
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    237.1502613559662,
+    256.0734015918612
+   ],
+   "pw_MS": [
+    0.3136057009571509,
+    0.06381755054124127
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "PD-01S",
+   "stored_node": 206164,
+   "stored_class": "ID rigid_connectors",
+   "stored_MS": [
+    0.738457963911088,
+    0.4078822066159209
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    237.1502613559662,
+    256.0734015918612
+   ],
+   "pw_MS": [
+    0.738457963911088,
+    0.4078822066159209
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "FD-01",
+   "stored_node": 209549,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.8479828308454966,
+    2.640090132425475
+   ],
+   "brittle": false,
+   "delta_MPa": 0.383841872215271,
+   "a_min_MPa": [
+    186.4798614783028,
+    494.1398780401313
+   ],
+   "pw_MS": [
+    0.8374985989415944,
+    2.6196206137303046
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "TC-02",
+   "stored_node": 26731,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    -0.1067270716538341,
+    -0.2620756718619295
+   ],
+   "brittle": false,
+   "delta_MPa": 0.7658634185791016,
+   "a_min_MPa": [
+    125.28879051383397,
+    141.8436175953079
+   ],
+   "pw_MS": [
+    -0.11398405420244384,
+    -0.2679094265910289
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "TC-03",
+   "stored_node": 38421,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    -0.1659695776315111,
+    -0.24161269889277248
+   ],
+   "brittle": false,
+   "delta_MPa": 0.07664874196052551,
+   "a_min_MPa": [
+    222.57381428571426,
+    269.868275
+   ],
+   "pw_MS": [
+    -0.16632874671010778,
+    -0.24193927036584462
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "TC-04",
+   "stored_node": 42993,
+   "stored_class": "BT bad_tets",
+   "stored_MS": [
+    0.22949625425305942,
+    -0.002763748618345274
+   ],
+   "brittle": false,
+   "delta_MPa": 0.18669533729553223,
+   "a_min_MPa": [
+    238.03467391304346,
+    257.2920161290323
+   ],
+   "pw_MS": [
+    0.22772038420278107,
+    -0.004204885410980519
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "TC-09",
+   "stored_node": 45080,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.03139875297803,
+    0.773568501443973
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    942.2820693719873,
+    1093.824715969003
+   ],
+   "pw_MS": [
+    1.03139875297803,
+    0.773568501443973
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "NZ-01",
+   "stored_node": 51720,
+   "stored_class": "RE reentrant_edges",
+   "stored_MS": [
+    -0.3734886742257426,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.03175031393766403,
+   "a_min_MPa": 25.0,
+   "pw_MS": [
+    -0.37448409178254904,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "NZ-02",
+   "stored_node": 54334,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.2839169450822228,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.0,
+   "a_min_MPa": 20.0,
+   "pw_MS": [
+    1.2839169450822228,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "NZ-03",
+   "stored_node": 55225,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.1767752458930183,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.027247056365013123,
+   "a_min_MPa": 20.0,
+   "pw_MS": [
+    0.17301413308863078,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "NZ-04",
+   "stored_node": 56424,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    3.329981606886668,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.002916790544986725,
+   "a_min_MPa": 150.0,
+   "pw_MS": [
+    3.329252580989211,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "PD-01R",
+   "stored_node": 203406,
+   "stored_class": "ID rigid_connectors",
+   "stored_MS": [
+    0.5605353030913764,
+    0.2645788782303147
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    237.6861047931826,
+    256.811729645906
+   ],
+   "pw_MS": [
+    0.5605353030913764,
+    0.2645788782303147
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "PD-01S",
+   "stored_node": 206164,
+   "stored_class": "ID rigid_connectors",
+   "stored_MS": [
+    1.0791749638226888,
+    0.6848582266526877
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    237.6861047931826,
+    256.811729645906
+   ],
+   "pw_MS": [
+    1.0791749638226888,
+    0.6848582266526877
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "FD-01",
+   "stored_node": 209549,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.1733075963064699,
+    3.2478096391459825
+   ],
+   "brittle": false,
+   "delta_MPa": 0.383841872215271,
+   "a_min_MPa": [
+    188.3568937844813,
+    494.95345241432625
+   ],
+   "pw_MS": [
+    1.1589649634774122,
+    3.220006352481642
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "TC-02",
+   "stored_node": 26731,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.1834590247055092,
+    0.7556858806545717
+   ],
+   "brittle": false,
+   "delta_MPa": 0.7658634185791016,
+   "a_min_MPa": [
+    231.1929347826087,
+    247.8649193548387
+   ],
+   "pw_MS": [
+    1.160023667202327,
+    0.7368418694728283
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "TC-03",
+   "stored_node": 38065,
+   "stored_class": "regular None",
+   "stored_MS": [
+    0.9052005887750443,
+    0.7323814727645186
+   ],
+   "brittle": false,
+   "delta_MPa": 0.07664874196052551,
+   "a_min_MPa": [
+    242.81927142857143,
+    294.396425
+   ],
+   "pw_MS": [
+    0.9034834596564412,
+    0.7308201310490228
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "TC-04",
+   "stored_node": 42993,
+   "stored_class": "BT bad_tets",
+   "stored_MS": [
+    1.2575977858489007,
+    0.8342982010022317
+   ],
+   "brittle": false,
+   "delta_MPa": 0.18669533729553223,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    1.2516662919804649,
+    0.8294788622341274
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "TC-09",
+   "stored_node": 44943,
+   "stored_class": "regular None",
+   "stored_MS": [
+    7.980245513912747,
+    7.083454974651131
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    1030.9737297297297,
+    1236.1438918918918
+   ],
+   "pw_MS": [
+    7.980245513912747,
+    7.083454974651131
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "NZ-01",
+   "stored_node": 52195,
+   "stored_class": "BT bad_tets",
+   "stored_MS": [
+    -0.027990304323335602,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.03175031393766403,
+   "a_min_MPa": 25.0,
+   "pw_MS": [
+    -0.030384216886989335,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "NZ-02",
+   "stored_node": 54332,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.7809684562681836,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.0,
+   "a_min_MPa": 87.38340571428556,
+   "pw_MS": [
+    0.7809684562681836,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "NZ-03",
+   "stored_node": 55340,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.43589629856588186,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.027247056365013123,
+   "a_min_MPa": 76.44731428571428,
+   "pw_MS": [
+    0.4344280850793174,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "NZ-04",
+   "stored_node": 56424,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    7.845170878541468,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.002916790544986725,
+   "a_min_MPa": 150.0,
+   "pw_MS": [
+    7.8421292437573715,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "PD-01R",
+   "stored_node": 203514,
+   "stored_class": "regular None",
+   "stored_MS": [
+    4.402327461356981,
+    3.389391062352547
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    4.402327461356981,
+    3.389391062352547
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "PD-01S",
+   "stored_node": 207131,
+   "stored_class": "regular None",
+   "stored_MS": [
+    5.3166415312488295,
+    4.132271244139674
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    5.3166415312488295,
+    4.132271244139674
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "FD-01",
+   "stored_node": 208807,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    2.7954659910722692,
+    6.116498733260505
+   ],
+   "brittle": false,
+   "delta_MPa": 0.383841872215271,
+   "a_min_MPa": [
+    199.9884703966769,
+    499.99500264871443
+   ],
+   "pw_MS": [
+    2.7544409493292017,
+    6.039580405995183
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "TC-02",
+   "stored_node": 26731,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.28287451787122553,
+    0.027654146486896902
+   ],
+   "brittle": false,
+   "delta_MPa": 0.7658634185791016,
+   "a_min_MPa": [
+    228.17928260869564,
+    243.71246774193546
+   ],
+   "pw_MS": [
+    0.27464188518922583,
+    0.02105934785748831
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "TC-03",
+   "stored_node": 38065,
+   "stored_class": "regular None",
+   "stored_MS": [
+    -0.09527548126235952,
+    -0.1773355904937748
+   ],
+   "brittle": false,
+   "delta_MPa": 0.07664874196052551,
+   "a_min_MPa": [
+    233.7437857142857,
+    283.401125
+   ],
+   "pw_MS": [
+    -0.0956779162334751,
+    -0.17770151008211843
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "TC-04",
+   "stored_node": 42993,
+   "stored_class": "BT bad_tets",
+   "stored_MS": [
+    1.2451282660159801,
+    0.824166716137984
+   ],
+   "brittle": false,
+   "delta_MPa": 0.18669533729553223,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    1.2392620295862744,
+    0.8194003990388481
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "TC-09",
+   "stored_node": 45384,
+   "stored_class": "RE reentrant_edges",
+   "stored_MS": [
+    8.943933949751598,
+    7.950983098386169
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    1033.6302957074722,
+    1240.4067535771064
+   ],
+   "pw_MS": [
+    8.943933949751598,
+    7.950983098386169
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "NZ-01",
+   "stored_node": 51953,
+   "stored_class": "regular None",
+   "stored_MS": [
+    -0.40245234768316696,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.03175031393766403,
+   "a_min_MPa": 25.0,
+   "pw_MS": [
+    -0.4033579227015338,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "NZ-02",
+   "stored_node": 54754,
+   "stored_class": "regular None",
+   "stored_MS": [
+    2.3623066284977763,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.0,
+   "a_min_MPa": 113.05021428571418,
+   "pw_MS": [
+    2.3623066284977763,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "NZ-03",
+   "stored_node": 55225,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.6543108949194123,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.027247056365013123,
+   "a_min_MPa": 97.06011428571428,
+   "pw_MS": [
+    0.6527757836554546,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "NZ-04",
+   "stored_node": 56424,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    9.000623650864346,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.002916790544986725,
+   "a_min_MPa": 150.0,
+   "pw_MS": [
+    8.996735623875868,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "PD-01R",
+   "stored_node": 203514,
+   "stored_class": "regular None",
+   "stored_MS": [
+    4.394951149956524,
+    3.3833978093396766
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    4.394951149956524,
+    3.3833978093396766
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "PD-01S",
+   "stored_node": 207131,
+   "stored_class": "regular None",
+   "stored_MS": [
+    5.318623062343876,
+    4.1338812381544
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    5.318623062343876,
+    4.1338812381544
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "FD-01",
+   "stored_node": 208807,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    2.785430895226219,
+    6.097682928549161
+   ],
+   "brittle": false,
+   "delta_MPa": 0.383841872215271,
+   "a_min_MPa": [
+    200.0,
+    500.0
+   ],
+   "pw_MS": [
+    2.7446236655530813,
+    6.021169372912031
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "TC-02",
+   "stored_node": 26731,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.35258208348302134,
+    0.09433577043522723
+   ],
+   "brittle": false,
+   "delta_MPa": 0.7658634185791016,
+   "a_min_MPa": [
+    138.69302766798413,
+    153.84042932551318
+   ],
+   "pw_MS": [
+    0.3375963958283663,
+    0.08254056221926254
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "TC-03",
+   "stored_node": 38421,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    -0.10494283606083721,
+    -0.18611671898898619
+   ],
+   "brittle": false,
+   "delta_MPa": 0.07664874196052551,
+   "a_min_MPa": [
+    227.85924285714287,
+    276.271775
+   ],
+   "pw_MS": [
+    -0.10534688604223585,
+    -0.1864841084357639
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "TC-04",
+   "stored_node": 42993,
+   "stored_class": "BT bad_tets",
+   "stored_MS": [
+    0.26760377377241285,
+    0.027817523930139698
+   ],
+   "brittle": false,
+   "delta_MPa": 0.18669533729553223,
+   "a_min_MPa": [
+    237.72317391304347,
+    256.86280645161287
+   ],
+   "pw_MS": [
+    0.2657137284227056,
+    0.026284157726454538
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "TC-09",
+   "stored_node": 45080,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.0483171770037525,
+    0.7791085686783685
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    925.0345124683694,
+    1066.1484037283135
+   ],
+   "pw_MS": [
+    1.0483171770037525,
+    0.7791085686783683
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "NZ-01",
+   "stored_node": 52809,
+   "stored_class": "RE reentrant_edges",
+   "stored_MS": [
+    -0.2899287304558543,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.03175031393766403,
+   "a_min_MPa": 25.0,
+   "pw_MS": [
+    -0.29120710850557696,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "NZ-02",
+   "stored_node": 54334,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.2825162746158134,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.0,
+   "a_min_MPa": 20.0,
+   "pw_MS": [
+    1.2825162746158134,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "NZ-03",
+   "stored_node": 55225,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.17864112717990488,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.027247056365013123,
+   "a_min_MPa": 20.0,
+   "pw_MS": [
+    0.17486809688607496,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "NZ-04",
+   "stored_node": 56424,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    3.0041501757163402,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.002916790544986725,
+   "a_min_MPa": 150.0,
+   "pw_MS": [
+    3.003526732261114,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "PD-01R",
+   "stored_node": 203406,
+   "stored_class": "ID rigid_connectors",
+   "stored_MS": [
+    0.3861137151262586,
+    0.12276887543282755
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    237.3272057491881,
+    256.3172097650103
+   ],
+   "pw_MS": [
+    0.3861137151262586,
+    0.12276887543282755
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "PD-01S",
+   "stored_node": 206164,
+   "stored_class": "ID rigid_connectors",
+   "stored_MS": [
+    0.8380245179391177,
+    0.48882209194250126
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    237.3272057491881,
+    256.3172097650103
+   ],
+   "pw_MS": [
+    0.8380245179391175,
+    0.48882209194250126
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "FD-01",
+   "stored_node": 209549,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.9178635231845338,
+    2.7671855435560406
+   ],
+   "brittle": false,
+   "delta_MPa": 0.383841872215271,
+   "a_min_MPa": [
+    187.18240510182275,
+    494.4443861122451
+   ],
+   "pw_MS": [
+    0.9066159325410323,
+    2.7452793900896704
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "TC-02",
+   "stored_node": 26731,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    -0.10466790798444348,
+    -0.26368018810349525
+   ],
+   "brittle": false,
+   "delta_MPa": 0.7658634185791016,
+   "a_min_MPa": [
+    137.10480632411065,
+    152.41896891495603
+   ],
+   "pw_MS": [
+    -0.11133462949703521,
+    -0.2690886465363965
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "TC-03",
+   "stored_node": 38421,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    -0.14140537828902355,
+    -0.21927744642880276
+   ],
+   "brittle": false,
+   "delta_MPa": 0.07664874196052551,
+   "a_min_MPa": [
+    222.48652857142858,
+    269.762525
+   ],
+   "pw_MS": [
+    -0.14178616014638057,
+    -0.2196236680801581
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "TC-04",
+   "stored_node": 42993,
+   "stored_class": "BT bad_tets",
+   "stored_MS": [
+    0.2509920402720136,
+    0.014805604242398074
+   ],
+   "brittle": false,
+   "delta_MPa": 0.18669533729553223,
+   "a_min_MPa": [
+    238.1673695652174,
+    257.4748548387097
+   ],
+   "pw_MS": [
+    0.2491546000939886,
+    0.01331433627490175
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "TC-09",
+   "stored_node": 45080,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.0313972197283903,
+    0.7735671627982437
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    942.2820693719873,
+    1093.824715969003
+   ],
+   "pw_MS": [
+    1.0313972197283903,
+    0.7735671627982437
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "NZ-01",
+   "stored_node": 51720,
+   "stored_class": "RE reentrant_edges",
+   "stored_MS": [
+    -0.37348867407392394,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.03175031393766403,
+   "a_min_MPa": 25.0,
+   "pw_MS": [
+    -0.3744840916312123,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "NZ-02",
+   "stored_node": 54334,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.2839169450822228,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.0,
+   "a_min_MPa": 20.0,
+   "pw_MS": [
+    1.2839169450822228,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "NZ-03",
+   "stored_node": 55225,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.1767752458930183,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.027247056365013123,
+   "a_min_MPa": 20.0,
+   "pw_MS": [
+    0.17301413308863078,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "NZ-04",
+   "stored_node": 56424,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    3.329981606886668,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.002916790544986725,
+   "a_min_MPa": 150.0,
+   "pw_MS": [
+    3.329252580989211,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "PD-01R",
+   "stored_node": 203406,
+   "stored_class": "ID rigid_connectors",
+   "stored_MS": [
+    0.6449994237303966,
+    0.33325057050257056
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    237.83274540372844,
+    257.01378283739535
+   ],
+   "pw_MS": [
+    0.6449994237303966,
+    0.33325057050257056
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "PD-01S",
+   "stored_node": 206164,
+   "stored_class": "ID rigid_connectors",
+   "stored_MS": [
+    1.1968456073672251,
+    0.7805147023616534
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    237.83274540372844,
+    257.01378283739535
+   ],
+   "pw_MS": [
+    1.1968456073672251,
+    0.7805147023616534
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "FD-01",
+   "stored_node": 209549,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.2547754295104938,
+    3.396055431735805
+   ],
+   "brittle": false,
+   "delta_MPa": 0.383841872215271,
+   "a_min_MPa": [
+    189.01754011085643,
+    495.2398006672443
+   ],
+   "pw_MS": [
+    1.23939475254604,
+    3.3663015460467935
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "TC-02",
+   "stored_node": 26731,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.1176514056861522,
+    0.7023682134683182
+   ],
+   "brittle": false,
+   "delta_MPa": 0.7658634185791016,
+   "a_min_MPa": [
+    231.00134782608697,
+    247.60093548387096
+   ],
+   "pw_MS": [
+    1.0955821728183914,
+    0.6846268796355515
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "TC-03",
+   "stored_node": 38065,
+   "stored_class": "regular None",
+   "stored_MS": [
+    0.8461055320403195,
+    0.6786478882471823
+   ],
+   "brittle": false,
+   "delta_MPa": 0.07664874196052551,
+   "a_min_MPa": [
+    242.2665857142857,
+    293.726825
+   ],
+   "pw_MS": [
+    0.8444895538501305,
+    0.6771785211307795
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "TC-04",
+   "stored_node": 42993,
+   "stored_class": "BT bad_tets",
+   "stored_MS": [
+    1.2578461391149238,
+    0.8344999880308759
+   ],
+   "brittle": false,
+   "delta_MPa": 0.18669533729553223,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    1.2519133418687964,
+    0.8296795902683971
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "TC-09",
+   "stored_node": 44943,
+   "stored_class": "regular None",
+   "stored_MS": [
+    7.980245513912747,
+    7.083454974651131
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    1030.9737297297297,
+    1236.1438918918918
+   ],
+   "pw_MS": [
+    7.980245513912747,
+    7.083454974651131
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "NZ-01",
+   "stored_node": 52195,
+   "stored_class": "BT bad_tets",
+   "stored_MS": [
+    -0.02799030447230877,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.03175031393766403,
+   "a_min_MPa": 25.0,
+   "pw_MS": [
+    -0.030384217035229755,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "NZ-02",
+   "stored_node": 54332,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.7809684562681836,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.0,
+   "a_min_MPa": 87.38340571428556,
+   "pw_MS": [
+    0.7809684562681836,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "NZ-03",
+   "stored_node": 55340,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.43589629856588186,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.027247056365013123,
+   "a_min_MPa": 76.44731428571428,
+   "pw_MS": [
+    0.4344280850793174,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "NZ-04",
+   "stored_node": 56424,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    7.845170878541468,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.002916790544986725,
+   "a_min_MPa": 150.0,
+   "pw_MS": [
+    7.8421292437573715,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "PD-01R",
+   "stored_node": 203514,
+   "stored_class": "regular None",
+   "stored_MS": [
+    4.402333541783508,
+    3.389396002699101
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    4.402333541783508,
+    3.389396002699101
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "PD-01S",
+   "stored_node": 207131,
+   "stored_class": "regular None",
+   "stored_MS": [
+    5.3166409115948685,
+    4.1322707406708306
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    5.3166409115948685,
+    4.1322707406708306
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "FD-01",
+   "stored_node": 208807,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    2.7957022874469835,
+    6.116941788963094
+   ],
+   "brittle": false,
+   "delta_MPa": 0.383841872215271,
+   "a_min_MPa": [
+    199.98958631734146,
+    499.99548632949785
+   ],
+   "pw_MS": [
+    2.754672391388298,
+    6.040014009286672
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "TC-02",
+   "stored_node": 26731,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.26735321433965753,
+    0.015061359479103809
+   ],
+   "brittle": false,
+   "delta_MPa": 0.7658634185791016,
+   "a_min_MPa": [
+    228.0558695652174,
+    243.5424193548387
+   ],
+   "pw_MS": [
+    0.259313642697671,
+    0.008622224415405944
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "TC-03",
+   "stored_node": 38065,
+   "stored_class": "regular None",
+   "stored_MS": [
+    -0.1073806871805506,
+    -0.18834252163617693
+   ],
+   "brittle": false,
+   "delta_MPa": 0.07664874196052551,
+   "a_min_MPa": [
+    233.3575,
+    282.933125
+   ],
+   "pw_MS": [
+    -0.10777307555382387,
+    -0.1886993060487211
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "TC-04",
+   "stored_node": 42993,
+   "stored_class": "BT bad_tets",
+   "stored_MS": [
+    1.245008837265258,
+    0.8240696802780221
+   ],
+   "brittle": false,
+   "delta_MPa": 0.18669533729553223,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    1.239143224108152,
+    0.8193038695878732
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "TC-09",
+   "stored_node": 45384,
+   "stored_class": "RE reentrant_edges",
+   "stored_MS": [
+    8.94393455347819,
+    7.950983641827683
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    1033.6302957074722,
+    1240.4067535771064
+   ],
+   "pw_MS": [
+    8.94393455347819,
+    7.950983641827683
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "NZ-01",
+   "stored_node": 51953,
+   "stored_class": "regular None",
+   "stored_MS": [
+    -0.40245234768316696,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.03175031393766403,
+   "a_min_MPa": 25.0,
+   "pw_MS": [
+    -0.4033579227015338,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "NZ-02",
+   "stored_node": 54754,
+   "stored_class": "regular None",
+   "stored_MS": [
+    2.3623066284977763,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.0,
+   "a_min_MPa": 113.05021428571418,
+   "pw_MS": [
+    2.3623066284977763,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "NZ-03",
+   "stored_node": 55225,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.6543108949194123,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.027247056365013123,
+   "a_min_MPa": 97.06011428571428,
+   "pw_MS": [
+    0.6527757836554546,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "NZ-04",
+   "stored_node": 56424,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    9.000623650864346,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.002916790544986725,
+   "a_min_MPa": 150.0,
+   "pw_MS": [
+    8.996735623875868,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "PD-01R",
+   "stored_node": 203514,
+   "stored_class": "regular None",
+   "stored_MS": [
+    4.394948632845246,
+    3.383395764186761
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    4.394948632845246,
+    3.383395764186761
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "PD-01S",
+   "stored_node": 207131,
+   "stored_class": "regular None",
+   "stored_MS": [
+    5.31862162009484,
+    4.133880066327056
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    5.31862162009484,
+    4.133880066327056
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "LC3",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "FD-01",
+   "stored_node": 208807,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    2.7852661877448313,
+    6.097374102021558
+   ],
+   "brittle": false,
+   "delta_MPa": 0.383841872215271,
+   "a_min_MPa": [
+    200.0,
+    500.0
+   ],
+   "pw_MS": [
+    2.7444624899735017,
+    6.020867168700316
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "TC-02",
+   "stored_node": 26731,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.3474134239669495,
+    0.09447723907875294
+   ],
+   "brittle": false,
+   "delta_MPa": 1.3715136051177979,
+   "a_min_MPa": [
+    127.42279841897233,
+    143.753557771261
+   ],
+   "pw_MS": [
+    0.3187254745783028,
+    0.07208752787284745
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "TC-03",
+   "stored_node": 38421,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    -0.13034123911997342,
+    -0.20921052846349042
+   ],
+   "brittle": false,
+   "delta_MPa": 0.028680622577667236,
+   "a_min_MPa": [
+    227.92498571428573,
+    276.351425
+   ],
+   "pw_MS": [
+    -0.13048396882460933,
+    -0.20934030833476158
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "TC-04",
+   "stored_node": 42993,
+   "stored_class": "BT bad_tets",
+   "stored_MS": [
+    0.24504432539509868,
+    0.009358858651677071
+   ],
+   "brittle": false,
+   "delta_MPa": 0.39199334383010864,
+   "a_min_MPa": [
+    237.56141304347824,
+    256.6399193548387
+   ],
+   "pw_MS": [
+    0.24121936091696528,
+    0.006256166893149562
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "TC-09",
+   "stored_node": 45080,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.1110905515006113,
+    0.8336316912230823
+   ],
+   "brittle": false,
+   "delta_MPa": 0.1432037353515625,
+   "a_min_MPa": [
+    925.0345124683694,
+    1066.1484037283135
+   ],
+   "pw_MS": [
+    1.1100561514248035,
+    0.8327289214265727
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "NZ-01",
+   "stored_node": 52809,
+   "stored_class": "RE reentrant_edges",
+   "stored_MS": [
+    -0.28741873923280037,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.011741142719984055,
+   "a_min_MPa": 25.0,
+   "pw_MS": [
+    -0.2878953661478405,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "NZ-02",
+   "stored_node": 54334,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.304998850755465,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.002339482307434082,
+   "a_min_MPa": 20.0,
+   "pw_MS": [
+    1.3037565491079453,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "NZ-03",
+   "stored_node": 55225,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.1869901656417321,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.011610016226768494,
+   "a_min_MPa": 20.0,
+   "pw_MS": [
+    0.1853566286252446,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "NZ-04",
+   "stored_node": 56424,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    3.008579768950785,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.00969599187374115,
+   "a_min_MPa": 150.0,
+   "pw_MS": [
+    3.0065034836257425,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "PD-01R",
+   "stored_node": 203406,
+   "stored_class": "ID rigid_connectors",
+   "stored_MS": [
+    0.15956165852610926,
+    -0.0609343105195439
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    237.1502613559662,
+    256.0734015918612
+   ],
+   "pw_MS": [
+    0.15956165852610926,
+    -0.06093431051954379
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "PD-01S",
+   "stored_node": 206164,
+   "stored_class": "ID rigid_connectors",
+   "stored_MS": [
+    0.5333840921393529,
+    0.2418040723711823
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    237.1502613559662,
+    256.0734015918612
+   ],
+   "pw_MS": [
+    0.5333840921393529,
+    0.2418040723711823
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_21.65",
+   "part": "FD-01",
+   "stored_node": 209549,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.8404904971992209,
+    2.6253320030102953
+   ],
+   "brittle": false,
+   "delta_MPa": 0.37227630615234375,
+   "a_min_MPa": [
+    186.4798614783028,
+    494.1398780401313
+   ],
+   "pw_MS": [
+    0.8304025012952205,
+    2.6056361329648277
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "TC-02",
+   "stored_node": 26731,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    -0.1117956769540237,
+    -0.26626279882173154
+   ],
+   "brittle": false,
+   "delta_MPa": 1.3715136051177979,
+   "a_min_MPa": [
+    125.28879051383397,
+    141.8436175953079
+   ],
+   "pw_MS": [
+    -0.12456349536097511,
+    -0.27652835234230966
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "TC-03",
+   "stored_node": 38421,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    -0.1659955302763273,
+    -0.2416362977396861
+   ],
+   "brittle": false,
+   "delta_MPa": 0.028680622577667236,
+   "a_min_MPa": [
+    222.57381428571426,
+    269.868275
+   ],
+   "pw_MS": [
+    -0.16612995294629584,
+    -0.24175852042295232
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "TC-04",
+   "stored_node": 42993,
+   "stored_class": "BT bad_tets",
+   "stored_MS": [
+    0.22691254350003875,
+    -0.004859379261451191
+   ],
+   "brittle": false,
+   "delta_MPa": 0.39199334383010864,
+   "a_min_MPa": [
+    238.03467391304346,
+    257.2920161290323
+   ],
+   "pw_MS": [
+    0.22320537169358645,
+    -0.007867784830719593
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "TC-09",
+   "stored_node": 45080,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.0922683578010646,
+    0.8267123825511227
+   ],
+   "brittle": false,
+   "delta_MPa": 0.1432037353515625,
+   "a_min_MPa": [
+    942.2820693719873,
+    1093.824715969003
+   ],
+   "pw_MS": [
+    1.0912709049850164,
+    0.8258390708512413
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "NZ-01",
+   "stored_node": 51720,
+   "stored_class": "RE reentrant_edges",
+   "stored_MS": [
+    -0.37153547944049303,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.011741142719984055,
+   "a_min_MPa": 25.0,
+   "pw_MS": [
+    -0.3719062502975127,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "NZ-02",
+   "stored_node": 54334,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.3064272587012655,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.002339482307434082,
+   "a_min_MPa": 20.0,
+   "pw_MS": [
+    1.3051834172832693,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "NZ-03",
+   "stored_node": 55225,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.18509777758593704,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.011610016226768494,
+   "a_min_MPa": 20.0,
+   "pw_MS": [
+    0.18346944145738608,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "NZ-04",
+   "stored_node": 56424,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    3.335161900118747,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.00969599187374115,
+   "a_min_MPa": 150.0,
+   "pw_MS": [
+    3.3327336227629205,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "PD-01R",
+   "stored_node": 203406,
+   "stored_class": "ID rigid_connectors",
+   "stored_MS": [
+    0.34823735216564145,
+    0.09254335676506265
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    237.6861047931826,
+    256.811729645906
+   ],
+   "pw_MS": [
+    0.34823735216564145,
+    0.09254335676506265
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "PD-01S",
+   "stored_node": 206164,
+   "stored_class": "ID rigid_connectors",
+   "stored_MS": [
+    0.7930257475338465,
+    0.452977375111427
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    237.6861047931826,
+    256.811729645906
+   ],
+   "pw_MS": [
+    0.7930257475338462,
+    0.452977375111427
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_19",
+   "part": "FD-01",
+   "stored_node": 209549,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.163047928190792,
+    3.2277567404259484
+   ],
+   "brittle": false,
+   "delta_MPa": 0.37227630615234375,
+   "a_min_MPa": [
+    188.3568937844813,
+    494.95345241432625
+   ],
+   "pw_MS": [
+    1.149265323198053,
+    3.201039121556324
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "TC-02",
+   "stored_node": 26731,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.1646643737514997,
+    0.7405733903635137
+   ],
+   "brittle": false,
+   "delta_MPa": 1.3715136051177979,
+   "a_min_MPa": [
+    231.1929347826087,
+    247.8649193548387
+   ],
+   "pw_MS": [
+    1.1237560190020686,
+    0.707679610346702
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "TC-03",
+   "stored_node": 38065,
+   "stored_class": "regular None",
+   "stored_MS": [
+    0.9050679317087966,
+    0.732260848907297
+   ],
+   "brittle": false,
+   "delta_MPa": 0.028680622577667236,
+   "a_min_MPa": [
+    242.81927142857143,
+    294.396425
+   ],
+   "pw_MS": [
+    0.9044251388341442,
+    0.7316763737454961
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "TC-04",
+   "stored_node": 42993,
+   "stored_class": "BT bad_tets",
+   "stored_MS": [
+    1.2489565843775599,
+    0.8272772248067672
+   ],
+   "brittle": false,
+   "delta_MPa": 0.39199334383010864,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    1.2366330714859335,
+    0.8172643705823206
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "TC-09",
+   "stored_node": 44943,
+   "stored_class": "regular None",
+   "stored_MS": [
+    9.182578945863822,
+    8.165720280943368
+   ],
+   "brittle": false,
+   "delta_MPa": 0.1432037353515625,
+   "a_min_MPa": [
+    1030.9737297297297,
+    1236.1438918918918
+   ],
+   "pw_MS": [
+    9.1610217051511,
+    8.146296793729018
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "NZ-01",
+   "stored_node": 52195,
+   "stored_class": "BT bad_tets",
+   "stored_MS": [
+    -0.026589326588769224,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.011741142719984055,
+   "a_min_MPa": 25.0,
+   "pw_MS": [
+    -0.027478518822682152,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "NZ-02",
+   "stored_node": 54332,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.7839113581386454,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.002339482307434082,
+   "a_min_MPa": 87.38340571428556,
+   "pw_MS": [
+    0.783740975298524,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "NZ-03",
+   "stored_node": 55340,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.4385898575505982,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.011610016226768494,
+   "a_min_MPa": 76.44731428571428,
+   "pw_MS": [
+    0.437961531809848,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "NZ-04",
+   "stored_node": 56424,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    7.8668148442981085,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.00969599187374115,
+   "a_min_MPa": 150.0,
+   "pw_MS": [
+    7.856662444500431,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "PD-01R",
+   "stored_node": 203514,
+   "stored_class": "regular None",
+   "stored_MS": [
+    2.5083290048433136,
+    1.8505173164351922
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    2.5083290048433136,
+    1.8505173164351922
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "PD-01S",
+   "stored_node": 207131,
+   "stored_class": "regular None",
+   "stored_MS": [
+    3.2675148060290846,
+    2.4673557798986314
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    3.2675148060290846,
+    2.467355779898632
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_2",
+   "part": "FD-01",
+   "stored_node": 208807,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    2.7657948529722725,
+    6.060865349323011
+   ],
+   "brittle": false,
+   "delta_MPa": 0.37227630615234375,
+   "a_min_MPa": [
+    199.9884703966769,
+    499.99500264871443
+   ],
+   "pw_MS": [
+    2.7266096359417604,
+    5.987396532192937
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "TC-02",
+   "stored_node": 26731,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.2762778229756495,
+    0.022369825403181665
+   ],
+   "brittle": false,
+   "delta_MPa": 1.3715136051177979,
+   "a_min_MPa": [
+    228.17928260869564,
+    243.71246774193546
+   ],
+   "pw_MS": [
+    0.26175882176539744,
+    0.010739294444220393
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "TC-03",
+   "stored_node": 38065,
+   "stored_class": "regular None",
+   "stored_MS": [
+    -0.09530574348927123,
+    -0.17736310788334142
+   ],
+   "brittle": false,
+   "delta_MPa": 0.028680622577667236,
+   "a_min_MPa": [
+    233.7437857142857,
+    283.401125
+   ],
+   "pw_MS": [
+    -0.09545635949208575,
+    -0.1775000575749036
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "TC-04",
+   "stored_node": 42993,
+   "stored_class": "BT bad_tets",
+   "stored_MS": [
+    1.2365820771374443,
+    0.8172229376741735
+   ],
+   "brittle": false,
+   "delta_MPa": 0.39199334383010864,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    1.2243934397795413,
+    0.8073196698208776
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "TC-09",
+   "stored_node": 45384,
+   "stored_class": "RE reentrant_edges",
+   "stored_MS": [
+    10.439609523984236,
+    9.29730808940844
+   ],
+   "brittle": false,
+   "delta_MPa": 0.1432037353515625,
+   "a_min_MPa": [
+    1033.6302957074722,
+    1240.4067535771064
+   ],
+   "pw_MS": [
+    10.412478165751844,
+    9.272882994032749
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "NZ-01",
+   "stored_node": 51953,
+   "stored_class": "regular None",
+   "stored_MS": [
+    -0.40067582726315765,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.011741142719984055,
+   "a_min_MPa": 25.0,
+   "pw_MS": [
+    -0.4010130210241365,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "NZ-02",
+   "stored_node": 54754,
+   "stored_class": "regular None",
+   "stored_MS": [
+    2.370358140892017,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.002339482307434082,
+   "a_min_MPa": 113.05021428571418,
+   "pw_MS": [
+    2.3698880629222248,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "NZ-03",
+   "stored_node": 55225,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.6576831125153646,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.011610016226768494,
+   "a_min_MPa": 97.06011428571428,
+   "pw_MS": [
+    0.6570259801543632,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "NZ-04",
+   "stored_node": 56424,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    9.028300547788172,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.00969599187374115,
+   "a_min_MPa": 150.0,
+   "pw_MS": [
+    9.01531611501183,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "PD-01R",
+   "stored_node": 203514,
+   "stored_class": "regular None",
+   "stored_MS": [
+    2.5052166722311613,
+    1.8479885461878185
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    2.5052166722311617,
+    1.8479885461878185
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "PD-01S",
+   "stored_node": 207131,
+   "stored_class": "regular None",
+   "stored_MS": [
+    3.2684191513763166,
+    2.4680905604932577
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    3.2684191513763166,
+    2.4680905604932577
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVLO",
+   "state": "B1_1",
+   "part": "FD-01",
+   "stored_node": 208807,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    2.75591583881367,
+    6.042342197775631
+   ],
+   "brittle": false,
+   "delta_MPa": 0.37227630615234375,
+   "a_min_MPa": [
+    200.0,
+    500.0
+   ],
+   "pw_MS": [
+    2.716937105298858,
+    5.969257072435359
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "TC-02",
+   "stored_node": 26731,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.34225866564494245,
+    0.08598338609470169
+   ],
+   "brittle": false,
+   "delta_MPa": 1.3715136051177979,
+   "a_min_MPa": [
+    138.69302766798413,
+    153.84042932551318
+   ],
+   "pw_MS": [
+    0.3160558899080259,
+    0.06535444498871645
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "TC-03",
+   "stored_node": 38421,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    -0.10497293671344532,
+    -0.1861440897747777
+   ],
+   "brittle": false,
+   "delta_MPa": 0.028680622577667236,
+   "a_min_MPa": [
+    227.85924285714287,
+    276.271775
+   ],
+   "pw_MS": [
+    -0.10512415772372885,
+    -0.18628159009689693
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "TC-04",
+   "stored_node": 42993,
+   "stored_class": "BT bad_tets",
+   "stored_MS": [
+    0.26485441428001666,
+    0.02558824698703077
+   ],
+   "brittle": false,
+   "delta_MPa": 0.39199334383010864,
+   "a_min_MPa": [
+    237.72317391304347,
+    256.86280645161287
+   ],
+   "pw_MS": [
+    0.260909632941446,
+    0.022387906365943566
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "TC-09",
+   "stored_node": 45080,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.1110905565076696,
+    0.8336316955720673
+   ],
+   "brittle": false,
+   "delta_MPa": 0.1432037353515625,
+   "a_min_MPa": [
+    925.0345124683694,
+    1066.1484037283135
+   ],
+   "pw_MS": [
+    1.1100561564269564,
+    0.832728925771276
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "NZ-01",
+   "stored_node": 52809,
+   "stored_class": "RE reentrant_edges",
+   "stored_MS": [
+    -0.28741873923280037,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.011741142719984055,
+   "a_min_MPa": 25.0,
+   "pw_MS": [
+    -0.2878953661478405,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "NZ-02",
+   "stored_node": 54334,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.304998850755465,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.002339482307434082,
+   "a_min_MPa": 20.0,
+   "pw_MS": [
+    1.3037565491079453,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "NZ-03",
+   "stored_node": 55225,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.1869901656417321,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.011610016226768494,
+   "a_min_MPa": 20.0,
+   "pw_MS": [
+    0.1853566286252446,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "NZ-04",
+   "stored_node": 56424,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    3.0085797690683886,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.00969599187374115,
+   "a_min_MPa": 150.0,
+   "pw_MS": [
+    3.0065034837432245,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "PD-01R",
+   "stored_node": 203406,
+   "stored_class": "ID rigid_connectors",
+   "stored_MS": [
+    0.21580911706342643,
+    -0.015179908971652889
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    237.3272057491881,
+    256.3172097650103
+   ],
+   "pw_MS": [
+    0.21580911706342643,
+    -0.015179908971652889
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "PD-01S",
+   "stored_node": 206164,
+   "stored_class": "ID rigid_connectors",
+   "stored_MS": [
+    0.6104747092745608,
+    0.30450399452291976
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    237.3272057491881,
+    256.3172097650103
+   ],
+   "pw_MS": [
+    0.6104747092745608,
+    0.30450399452291976
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_21.65",
+   "part": "FD-01",
+   "stored_node": 209549,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.909821954894986,
+    2.751389800302318
+   ],
+   "brittle": false,
+   "delta_MPa": 0.37227630615234375,
+   "a_min_MPa": [
+    187.18240510182275,
+    494.4443861122451
+   ],
+   "pw_MS": [
+    0.899002384335212,
+    2.730317307704589
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "TC-02",
+   "stored_node": 26731,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    -0.10963910339435279,
+    -0.26776849198734787
+   ],
+   "brittle": false,
+   "delta_MPa": 1.3715136051177979,
+   "a_min_MPa": [
+    137.10480632411065,
+    152.41896891495603
+   ],
+   "pw_MS": [
+    -0.12137745517210563,
+    -0.27729211730135805
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "TC-03",
+   "stored_node": 38421,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    -0.14143282918945854,
+    -0.21930240761134856
+   ],
+   "brittle": false,
+   "delta_MPa": 0.028680622577667236,
+   "a_min_MPa": [
+    222.48652857142858,
+    269.762525
+   ],
+   "pw_MS": [
+    -0.14157534156396923,
+    -0.21943198539380782
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "TC-04",
+   "stored_node": 42993,
+   "stored_class": "BT bad_tets",
+   "stored_MS": [
+    0.24831858238462456,
+    0.012636893363759283
+   ],
+   "brittle": false,
+   "delta_MPa": 0.39199334383010864,
+   "a_min_MPa": [
+    238.1673695652174,
+    257.4748548387097
+   ],
+   "pw_MS": [
+    0.24448325726258768,
+    0.009524142789877121
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "TC-09",
+   "stored_node": 45080,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.0922667312890617,
+    0.8267109624801239
+   ],
+   "brittle": false,
+   "delta_MPa": 0.1432037353515625,
+   "a_min_MPa": [
+    942.2820693719873,
+    1093.824715969003
+   ],
+   "pw_MS": [
+    1.0912692800234667,
+    0.8258376521377282
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "NZ-01",
+   "stored_node": 51720,
+   "stored_class": "RE reentrant_edges",
+   "stored_MS": [
+    -0.37153547928772623,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.011741142719984055,
+   "a_min_MPa": 25.0,
+   "pw_MS": [
+    -0.37190625014492606,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "NZ-02",
+   "stored_node": 54334,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.3064272587012655,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.002339482307434082,
+   "a_min_MPa": 20.0,
+   "pw_MS": [
+    1.3051834172832693,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "NZ-03",
+   "stored_node": 55225,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.18509777758593704,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.011610016226768494,
+   "a_min_MPa": 20.0,
+   "pw_MS": [
+    0.18346944145738608,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "NZ-04",
+   "stored_node": 56424,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    3.335161900118747,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.00969599187374115,
+   "a_min_MPa": 150.0,
+   "pw_MS": [
+    3.3327336227629205,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "PD-01R",
+   "stored_node": 203406,
+   "stored_class": "ID rigid_connectors",
+   "stored_MS": [
+    0.4109463982510986,
+    0.14355364705898532
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    237.83274540372844,
+    257.01378283739535
+   ],
+   "pw_MS": [
+    0.4109463982510986,
+    0.14355364705898532
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "PD-01S",
+   "stored_node": 206164,
+   "stored_class": "ID rigid_connectors",
+   "stored_MS": [
+    0.880026947541019,
+    0.5237373121293409
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    237.83274540372844,
+    257.01378283739535
+   ],
+   "pw_MS": [
+    0.880026947541019,
+    0.5237373121293409
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_19",
+   "part": "FD-01",
+   "stored_node": 209549,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.2437669723664113,
+    3.3745926345144515
+   ],
+   "brittle": false,
+   "delta_MPa": 0.37227630615234375,
+   "a_min_MPa": [
+    189.01754011085643,
+    495.2398006672443
+   ],
+   "pw_MS": [
+    1.2289915223889274,
+    3.346009611993221
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "TC-02",
+   "stored_node": 26731,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    1.0999534609844983,
+    0.6881409339345304
+   ],
+   "brittle": false,
+   "delta_MPa": 1.3715136051177979,
+   "a_min_MPa": [
+    231.00134782608697,
+    247.60093548387096
+   ],
+   "pw_MS": [
+    1.061401269146534,
+    0.6571490408551224
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "TC-03",
+   "stored_node": 38065,
+   "stored_class": "regular None",
+   "stored_MS": [
+    0.845980869541058,
+    0.6785345337083997
+   ],
+   "brittle": false,
+   "delta_MPa": 0.028680622577667236,
+   "a_min_MPa": [
+    242.2665857142857,
+    293.726825
+   ],
+   "pw_MS": [
+    0.8453759489514663,
+    0.677984495088753
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "TC-04",
+   "stored_node": 42993,
+   "stored_class": "BT bad_tets",
+   "stored_MS": [
+    1.2492030399799674,
+    0.8274774699837237
+   ],
+   "brittle": false,
+   "delta_MPa": 0.39199334383010864,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    1.2368768333573827,
+    0.8174624271028736
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "TC-09",
+   "stored_node": 44943,
+   "stored_class": "regular None",
+   "stored_MS": [
+    9.182578945863822,
+    8.165720280943368
+   ],
+   "brittle": false,
+   "delta_MPa": 0.1432037353515625,
+   "a_min_MPa": [
+    1030.9737297297297,
+    1236.1438918918918
+   ],
+   "pw_MS": [
+    9.1610217051511,
+    8.146296793729018
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "NZ-01",
+   "stored_node": 52195,
+   "stored_class": "BT bad_tets",
+   "stored_MS": [
+    -0.02658932673817227,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.011741142719984055,
+   "a_min_MPa": 25.0,
+   "pw_MS": [
+    -0.027478518971812305,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "NZ-02",
+   "stored_node": 54332,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.7839113581386454,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.002339482307434082,
+   "a_min_MPa": 87.38340571428556,
+   "pw_MS": [
+    0.783740975298524,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "NZ-03",
+   "stored_node": 55340,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.4385898575505982,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.011610016226768494,
+   "a_min_MPa": 76.44731428571428,
+   "pw_MS": [
+    0.437961531809848,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "NZ-04",
+   "stored_node": 56424,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    7.8668148442981085,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.00969599187374115,
+   "a_min_MPa": 150.0,
+   "pw_MS": [
+    7.856662444500431,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "PD-01R",
+   "stored_node": 203514,
+   "stored_class": "regular None",
+   "stored_MS": [
+    2.508331569166097,
+    1.8505193999474536
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    2.508331569166097,
+    1.8505193999474536
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "PD-01S",
+   "stored_node": 207131,
+   "stored_class": "regular None",
+   "stored_MS": [
+    3.2675145231981864,
+    2.4673555500985263
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    3.2675145231981864,
+    2.467355550098526
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_2",
+   "part": "FD-01",
+   "stored_node": 208807,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    2.7660274691705875,
+    6.0613015046948515
+   ],
+   "brittle": false,
+   "delta_MPa": 0.37227630615234375,
+   "a_min_MPa": [
+    199.98958631734146,
+    499.99548632949785
+   ],
+   "pw_MS": [
+    2.7268376525758056,
+    5.987823728394809
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "TC-02",
+   "stored_node": 26731,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.2609113115946833,
+    0.009901845553577537
+   ],
+   "brittle": false,
+   "delta_MPa": 1.3715136051177979,
+   "a_min_MPa": [
+    228.0558695652174,
+    243.5424193548387
+   ],
+   "pw_MS": [
+    0.24673030103379734,
+    -0.0014561529079804014
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "TC-03",
+   "stored_node": 38065,
+   "stored_class": "regular None",
+   "stored_MS": [
+    -0.10741016096152767,
+    -0.18836932210352297
+   ],
+   "brittle": false,
+   "delta_MPa": 0.028680622577667236,
+   "a_min_MPa": [
+    233.3575,
+    282.933125
+   ],
+   "pw_MS": [
+    -0.10755701655344141,
+    -0.18850285252669985
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "TC-04",
+   "stored_node": 42993,
+   "stored_class": "BT bad_tets",
+   "stored_MS": [
+    1.2364635558548067,
+    0.8171266391320304
+   ],
+   "brittle": false,
+   "delta_MPa": 0.39199334383010864,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    1.2242762067471809,
+    0.807224417982084
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "TC-09",
+   "stored_node": 45384,
+   "stored_class": "RE reentrant_edges",
+   "stored_MS": [
+    10.439610322983258,
+    9.29730880862347
+   ],
+   "brittle": false,
+   "delta_MPa": 0.1432037353515625,
+   "a_min_MPa": [
+    1033.6302957074722,
+    1240.4067535771064
+   ],
+   "pw_MS": [
+    10.412478960965382,
+    9.272883709839883
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "NZ-01",
+   "stored_node": 51953,
+   "stored_class": "regular None",
+   "stored_MS": [
+    -0.40067582726315765,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.011741142719984055,
+   "a_min_MPa": 25.0,
+   "pw_MS": [
+    -0.4010130210241365,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "NZ-02",
+   "stored_node": 54754,
+   "stored_class": "regular None",
+   "stored_MS": [
+    2.370358140892017,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.002339482307434082,
+   "a_min_MPa": 113.05021428571418,
+   "pw_MS": [
+    2.3698880629222248,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "NZ-03",
+   "stored_node": 55225,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    0.6576831125153646,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.011610016226768494,
+   "a_min_MPa": 97.06011428571428,
+   "pw_MS": [
+    0.6570259801543632,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "NZ-04",
+   "stored_node": 56424,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    9.028300547788172,
+    null
+   ],
+   "brittle": true,
+   "delta_MPa": 0.00969599187374115,
+   "a_min_MPa": 150.0,
+   "pw_MS": [
+    9.01531611501183,
+    null
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "PD-01R",
+   "stored_node": 203514,
+   "stored_class": "regular None",
+   "stored_MS": [
+    2.50521560966204,
+    1.8479876828504076
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    2.5052156096620406,
+    1.8479876828504076
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "PD-01S",
+   "stored_node": 207131,
+   "stored_class": "regular None",
+   "stored_MS": [
+    3.268418493219305,
+    2.4680900257406853
+   ],
+   "brittle": false,
+   "delta_MPa": 0.0,
+   "a_min_MPa": [
+    240.0,
+    260.0
+   ],
+   "pw_MS": [
+    3.268418493219305,
+    2.4680900257406853
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  },
+  {
+   "case": "F2",
+   "base": "GVHI",
+   "state": "B1_1",
+   "part": "FD-01",
+   "stored_node": 208807,
+   "stored_class": "ID tie_patch_edges",
+   "stored_MS": [
+    2.7557536897171064,
+    6.042038168219574
+   ],
+   "brittle": false,
+   "delta_MPa": 0.37227630615234375,
+   "a_min_MPa": [
+    200.0,
+    500.0
+   ],
+   "pw_MS": [
+    2.7167783042201075,
+    5.968959320412702
+   ],
+   "reproduces_hb_singular_check_4dp": true
+  }
+ ],
+ "per_part_case": {
+  "LC3|TC-02": {
+   "stored_min": [
+    -0.1067270716538341,
+    -0.26368018810349525
+   ],
+   "stored_at": [
+    "GVLO B1_19 n26731 ID tie_patch_edges",
+    "GVHI B1_19 n26731 ID tie_patch_edges"
+   ],
+   "pw_min": [
+    -0.11398405420244384,
+    -0.2690886465363965
+   ],
+   "pw_at": [
+    "GVLO B1_19 (stored minimum n26731 ID tie_patch_edges; delta 0.7659 MPa)",
+    "GVHI B1_19 (stored minimum n26731 ID tie_patch_edges; delta 0.7659 MPa)"
+   ],
+   "delta_max_MPa": 0.7658634185791016,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    true,
+    true
+   ]
+  },
+  "LC3|TC-03": {
+   "stored_min": [
+    -0.1659695776315111,
+    -0.24161269889277248
+   ],
+   "stored_at": [
+    "GVLO B1_19 n38421 ID tie_patch_edges",
+    "GVLO B1_19 n38421 ID tie_patch_edges"
+   ],
+   "pw_min": [
+    -0.16632874671010778,
+    -0.24193927036584462
+   ],
+   "pw_at": [
+    "GVLO B1_19 (stored minimum n38421 ID tie_patch_edges; delta 0.0766 MPa)",
+    "GVLO B1_19 (stored minimum n38421 ID tie_patch_edges; delta 0.0766 MPa)"
+   ],
+   "delta_max_MPa": 0.07664874196052551,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    false,
+    false
+   ]
+  },
+  "LC3|TC-04": {
+   "stored_min": [
+    0.22949625425305942,
+    -0.002763748618345274
+   ],
+   "stored_at": [
+    "GVLO B1_19 n42993 BT bad_tets",
+    "GVLO B1_19 n42993 BT bad_tets"
+   ],
+   "pw_min": [
+    0.22772038420278107,
+    -0.004204885410980519
+   ],
+   "pw_at": [
+    "GVLO B1_19 (stored minimum n42993 BT bad_tets; delta 0.1867 MPa)",
+    "GVLO B1_19 (stored minimum n42993 BT bad_tets; delta 0.1867 MPa)"
+   ],
+   "delta_max_MPa": 0.18669533729553223,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    true,
+    true
+   ]
+  },
+  "LC3|TC-09": {
+   "stored_min": [
+    1.0313972197283903,
+    0.7735671627982437
+   ],
+   "stored_at": [
+    "GVHI B1_19 n45080 ID tie_patch_edges",
+    "GVHI B1_19 n45080 ID tie_patch_edges"
+   ],
+   "pw_min": [
+    1.0313972197283903,
+    0.7735671627982437
+   ],
+   "pw_at": [
+    "GVHI B1_19 (stored minimum n45080 ID tie_patch_edges; delta 0.0000 MPa)",
+    "GVHI B1_19 (stored minimum n45080 ID tie_patch_edges; delta 0.0000 MPa)"
+   ],
+   "delta_max_MPa": 0.0,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    false,
+    false
+   ]
+  },
+  "LC3|NZ-01": {
+   "stored_min": [
+    -0.40245234768316696,
+    null
+   ],
+   "stored_at": [
+    "GVLO B1_1 n51953 regular None",
+    null
+   ],
+   "pw_min": [
+    -0.4033579227015338,
+    null
+   ],
+   "pw_at": [
+    "GVLO B1_1 (stored minimum n51953 regular None; delta 0.0318 MPa)",
+    null
+   ],
+   "delta_max_MPa": 0.03175031393766403,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    true,
+    false
+   ]
+  },
+  "LC3|NZ-02": {
+   "stored_min": [
+    0.7809684562681836,
+    null
+   ],
+   "stored_at": [
+    "GVLO B1_2 n54332 ID tie_patch_edges",
+    null
+   ],
+   "pw_min": [
+    0.7809684562681836,
+    null
+   ],
+   "pw_at": [
+    "GVLO B1_2 (stored minimum n54332 ID tie_patch_edges; delta 0.0000 MPa)",
+    null
+   ],
+   "delta_max_MPa": 0.0,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    false,
+    false
+   ]
+  },
+  "LC3|NZ-03": {
+   "stored_min": [
+    0.1767752458930183,
+    null
+   ],
+   "stored_at": [
+    "GVLO B1_19 n55225 ID tie_patch_edges",
+    null
+   ],
+   "pw_min": [
+    0.17301413308863078,
+    null
+   ],
+   "pw_at": [
+    "GVLO B1_19 (stored minimum n55225 ID tie_patch_edges; delta 0.0272 MPa)",
+    null
+   ],
+   "delta_max_MPa": 0.027247056365013123,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    true,
+    false
+   ]
+  },
+  "LC3|NZ-04": {
+   "stored_min": [
+    3.0041501755989968,
+    null
+   ],
+   "stored_at": [
+    "GVLO B1_21.65 n56424 ID tie_patch_edges",
+    null
+   ],
+   "pw_min": [
+    3.003526732143807,
+    null
+   ],
+   "pw_at": [
+    "GVLO B1_21.65 (stored minimum n56424 ID tie_patch_edges; delta 0.0029 MPa)",
+    null
+   ],
+   "delta_max_MPa": 0.002916790544986725,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    false,
+    false
+   ]
+  },
+  "LC3|PD-01R": {
+   "stored_min": [
+    0.3136057009571509,
+    0.06381755054124127
+   ],
+   "stored_at": [
+    "GVLO B1_21.65 n203406 ID rigid_connectors",
+    "GVLO B1_21.65 n203406 ID rigid_connectors"
+   ],
+   "pw_min": [
+    0.3136057009571509,
+    0.06381755054124127
+   ],
+   "pw_at": [
+    "GVLO B1_21.65 (stored minimum n203406 ID rigid_connectors; delta 0.0000 MPa)",
+    "GVLO B1_21.65 (stored minimum n203406 ID rigid_connectors; delta 0.0000 MPa)"
+   ],
+   "delta_max_MPa": 0.0,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    false,
+    false
+   ]
+  },
+  "LC3|PD-01S": {
+   "stored_min": [
+    0.738457963911088,
+    0.4078822066159209
+   ],
+   "stored_at": [
+    "GVLO B1_21.65 n206164 ID rigid_connectors",
+    "GVLO B1_21.65 n206164 ID rigid_connectors"
+   ],
+   "pw_min": [
+    0.738457963911088,
+    0.4078822066159209
+   ],
+   "pw_at": [
+    "GVLO B1_21.65 (stored minimum n206164 ID rigid_connectors; delta 0.0000 MPa)",
+    "GVLO B1_21.65 (stored minimum n206164 ID rigid_connectors; delta 0.0000 MPa)"
+   ],
+   "delta_max_MPa": 0.0,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    false,
+    false
+   ]
+  },
+  "LC3|FD-01": {
+   "stored_min": [
+    0.8479828308454966,
+    2.640090132425475
+   ],
+   "stored_at": [
+    "GVLO B1_21.65 n209549 ID tie_patch_edges",
+    "GVLO B1_21.65 n209549 ID tie_patch_edges"
+   ],
+   "pw_min": [
+    0.8374985989415944,
+    2.6196206137303046
+   ],
+   "pw_at": [
+    "GVLO B1_21.65 (stored minimum n209549 ID tie_patch_edges; delta 0.3838 MPa)",
+    "GVLO B1_21.65 (stored minimum n209549 ID tie_patch_edges; delta 0.3838 MPa)"
+   ],
+   "delta_max_MPa": 0.383841872215271,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    true,
+    true
+   ]
+  },
+  "F2|TC-02": {
+   "stored_min": [
+    -0.1117956769540237,
+    -0.26776849198734787
+   ],
+   "stored_at": [
+    "GVLO B1_19 n26731 ID tie_patch_edges",
+    "GVHI B1_19 n26731 ID tie_patch_edges"
+   ],
+   "pw_min": [
+    -0.12456349536097511,
+    -0.27729211730135805
+   ],
+   "pw_at": [
+    "GVLO B1_19 (stored minimum n26731 ID tie_patch_edges; delta 1.3715 MPa)",
+    "GVHI B1_19 (stored minimum n26731 ID tie_patch_edges; delta 1.3715 MPa)"
+   ],
+   "delta_max_MPa": 1.3715136051177979,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    true,
+    true
+   ]
+  },
+  "F2|TC-03": {
+   "stored_min": [
+    -0.1659955302763273,
+    -0.2416362977396861
+   ],
+   "stored_at": [
+    "GVLO B1_19 n38421 ID tie_patch_edges",
+    "GVLO B1_19 n38421 ID tie_patch_edges"
+   ],
+   "pw_min": [
+    -0.16612995294629584,
+    -0.24175852042295232
+   ],
+   "pw_at": [
+    "GVLO B1_19 (stored minimum n38421 ID tie_patch_edges; delta 0.0287 MPa)",
+    "GVLO B1_19 (stored minimum n38421 ID tie_patch_edges; delta 0.0287 MPa)"
+   ],
+   "delta_max_MPa": 0.028680622577667236,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    false,
+    false
+   ]
+  },
+  "F2|TC-04": {
+   "stored_min": [
+    0.22691254350003875,
+    -0.004859379261451191
+   ],
+   "stored_at": [
+    "GVLO B1_19 n42993 BT bad_tets",
+    "GVLO B1_19 n42993 BT bad_tets"
+   ],
+   "pw_min": [
+    0.22320537169358645,
+    -0.007867784830719593
+   ],
+   "pw_at": [
+    "GVLO B1_19 (stored minimum n42993 BT bad_tets; delta 0.3920 MPa)",
+    "GVLO B1_19 (stored minimum n42993 BT bad_tets; delta 0.3920 MPa)"
+   ],
+   "delta_max_MPa": 0.39199334383010864,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    true,
+    true
+   ]
+  },
+  "F2|TC-09": {
+   "stored_min": [
+    1.0922667312890617,
+    0.8267109624801239
+   ],
+   "stored_at": [
+    "GVHI B1_19 n45080 ID tie_patch_edges",
+    "GVHI B1_19 n45080 ID tie_patch_edges"
+   ],
+   "pw_min": [
+    1.0912692800234667,
+    0.8258376521377282
+   ],
+   "pw_at": [
+    "GVHI B1_19 (stored minimum n45080 ID tie_patch_edges; delta 0.1432 MPa)",
+    "GVHI B1_19 (stored minimum n45080 ID tie_patch_edges; delta 0.1432 MPa)"
+   ],
+   "delta_max_MPa": 0.1432037353515625,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    true,
+    true
+   ]
+  },
+  "F2|NZ-01": {
+   "stored_min": [
+    -0.40067582726315765,
+    null
+   ],
+   "stored_at": [
+    "GVLO B1_1 n51953 regular None",
+    null
+   ],
+   "pw_min": [
+    -0.4010130210241365,
+    null
+   ],
+   "pw_at": [
+    "GVLO B1_1 (stored minimum n51953 regular None; delta 0.0117 MPa)",
+    null
+   ],
+   "delta_max_MPa": 0.011741142719984055,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    false,
+    false
+   ]
+  },
+  "F2|NZ-02": {
+   "stored_min": [
+    0.7839113581386454,
+    null
+   ],
+   "stored_at": [
+    "GVLO B1_2 n54332 ID tie_patch_edges",
+    null
+   ],
+   "pw_min": [
+    0.783740975298524,
+    null
+   ],
+   "pw_at": [
+    "GVLO B1_2 (stored minimum n54332 ID tie_patch_edges; delta 0.0023 MPa)",
+    null
+   ],
+   "delta_max_MPa": 0.002339482307434082,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    false,
+    false
+   ]
+  },
+  "F2|NZ-03": {
+   "stored_min": [
+    0.18509777758593704,
+    null
+   ],
+   "stored_at": [
+    "GVLO B1_19 n55225 ID tie_patch_edges",
+    null
+   ],
+   "pw_min": [
+    0.18346944145738608,
+    null
+   ],
+   "pw_at": [
+    "GVLO B1_19 (stored minimum n55225 ID tie_patch_edges; delta 0.0116 MPa)",
+    null
+   ],
+   "delta_max_MPa": 0.011610016226768494,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    true,
+    false
+   ]
+  },
+  "F2|NZ-04": {
+   "stored_min": [
+    3.008579768950785,
+    null
+   ],
+   "stored_at": [
+    "GVLO B1_21.65 n56424 ID tie_patch_edges",
+    null
+   ],
+   "pw_min": [
+    3.0065034836257425,
+    null
+   ],
+   "pw_at": [
+    "GVLO B1_21.65 (stored minimum n56424 ID tie_patch_edges; delta 0.0097 MPa)",
+    null
+   ],
+   "delta_max_MPa": 0.00969599187374115,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    true,
+    false
+   ]
+  },
+  "F2|PD-01R": {
+   "stored_min": [
+    0.15956165852610926,
+    -0.0609343105195439
+   ],
+   "stored_at": [
+    "GVLO B1_21.65 n203406 ID rigid_connectors",
+    "GVLO B1_21.65 n203406 ID rigid_connectors"
+   ],
+   "pw_min": [
+    0.15956165852610926,
+    -0.06093431051954379
+   ],
+   "pw_at": [
+    "GVLO B1_21.65 (stored minimum n203406 ID rigid_connectors; delta 0.0000 MPa)",
+    "GVLO B1_21.65 (stored minimum n203406 ID rigid_connectors; delta 0.0000 MPa)"
+   ],
+   "delta_max_MPa": 0.0,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    false,
+    false
+   ]
+  },
+  "F2|PD-01S": {
+   "stored_min": [
+    0.5333840921393529,
+    0.2418040723711823
+   ],
+   "stored_at": [
+    "GVLO B1_21.65 n206164 ID rigid_connectors",
+    "GVLO B1_21.65 n206164 ID rigid_connectors"
+   ],
+   "pw_min": [
+    0.5333840921393529,
+    0.2418040723711823
+   ],
+   "pw_at": [
+    "GVLO B1_21.65 (stored minimum n206164 ID rigid_connectors; delta 0.0000 MPa)",
+    "GVLO B1_21.65 (stored minimum n206164 ID rigid_connectors; delta 0.0000 MPa)"
+   ],
+   "delta_max_MPa": 0.0,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    false,
+    false
+   ]
+  },
+  "F2|FD-01": {
+   "stored_min": [
+    0.8404904971992209,
+    2.6253320030102953
+   ],
+   "stored_at": [
+    "GVLO B1_21.65 n209549 ID tie_patch_edges",
+    "GVLO B1_21.65 n209549 ID tie_patch_edges"
+   ],
+   "pw_min": [
+    0.8304025012952205,
+    2.6056361329648277
+   ],
+   "pw_at": [
+    "GVLO B1_21.65 (stored minimum n209549 ID tie_patch_edges; delta 0.3723 MPa)",
+    "GVLO B1_21.65 (stored minimum n209549 ID tie_patch_edges; delta 0.3723 MPa)"
+   ],
+   "delta_max_MPa": 0.37227630615234375,
+   "rows": 8,
+   "pw_lower_at_3dp": [
+    true,
+    true
+   ]
+  }
+ },
+ "all_rows_reproduce_hb_singular_check_4dp": true
+}

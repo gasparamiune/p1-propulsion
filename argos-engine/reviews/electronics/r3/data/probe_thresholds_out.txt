@@ -1,0 +1,7 @@
+REV-ELEC-3 probe_thresholds: kCaseStandArmMax_K 297.15, kCaseRelightMax_K 403.15, kCaseOverTemp_K 423.15, kOverTempTime_s 0.200
+PASS P1 stand T0 ARM rule discriminates +/-0.05 K at 297.15 K on TC1 and TC2 (strict >), flight not affected  [TC1 -0.05 ARMED / at ARMED / +0.05 CASE_WARM_STAND / flight +0.05 ARMED; TC2 -0.05 ARMED / at ARMED / +0.05 CASE_WARM_STAND / flight +0.05 ARMED; ]
+PASS P2 ARM start limit discriminates +/-0.05 K at 403.15 K (TC1, TC2; stand gets OVER_TEMP before CASE_WARM_STAND)  [TC1 flight -0.05 ARMED / +0.05 OVER_TEMP / stand +0.05 OVER_TEMP; TC2 flight -0.05 ARMED / +0.05 OVER_TEMP / stand +0.05 OVER_TEMP; ]
+PASS P3 COAST RELIGHT refused CASE_HOT at 403.15 K + 0.05 K (TC1 and TC2), accepted at - 0.05 K  [-0.05 K: state IGNITION, refuse 0; +0.05 K: state COAST, refuse 2 (TC2 2)]
+PASS P4 in-burn case-TC abort: 423.15 K - 0.05 K never aborts (1.5 s), + 0.05 K aborts OVER_TEMP after 0.200 s; 190 ms hot -> no abort, 210 ms hot -> abort; stand the same  [-0.05 K NONE (-1 ms); +0.05 K OVER_TEMP at 200 ms; 190 ms NONE (-1); 210 ms TC2 OVER_TEMP at 200 ms; stand +0.05 OVER_TEMP at 200 ms, stand -0.05 NONE]
+PASS P5 post-burn soak: 430 K on TC1 for 1 s in COAST does not abort (MV closed: case monitor not armed)  [state COAST, abort NONE]
+SUMMARY probe_thresholds: 5 passed, 0 failed

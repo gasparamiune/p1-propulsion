@@ -1,0 +1,2036 @@
+{
+ "doc": "F2 rod forces with the OP-moment artefact removed: the statics estimate beside each affected row (fea3d 2026-10-20, report 9B.2 /\n9B.3; lead 22:24:34Z: \"Put the moment-free statics estimate beside each affected row\").  Python only, no solve; the decks are streamed\nread-only through op_moment_check_v352.deck() and nothing is written to the run tree.\n\nPer R3 cone pose (pose_<cone>_v352r3R3):\n  * OP step from the deck: applied moment Q about the two gimbal axes, the statics rod tensions t = A^-1 (-Q) (A = the rod moment matrix\n    of the pose) and the same with the two TC-09 aft-boundary faces at p/Pc 1.0 ('TC-09 boundary removed'; the uniform residual correction\n    re-balanced at the wetted-area centroid; op_moment_check_v352 method);\n  * check: the statics OP rods against the OP unit rods recovered from the post (rodstep_cones_v352.json);\n  * the posted sub-cases of GS / TD0 / TDP / LC6 / LC2F (s3d_pose_<cone>_v352r3R3.json: stored coefficients) recombined with the unit rods\n    of rodstep_cones_v352.json, three ways:\n      as_found     the posted OP unit rods (reproduces the post),\n      tc09_removed the OP unit rods of the 'TC-09 boundary removed' statics (the moment-free statics estimate of the lead's note; the\n                   remaining Q of about [294, 755] N mm/MPa is the residue of the other faces, the same kind as v3.5.1's),\n      op_zero      OP unit rods 0 (the physical statics: the pressure resultant of a closed cavity with an axisymmetric exit has no moment\n                   about the pivot);\n    TD0 / TDP / LC6 / LC2F: rods by statics (max |rod| per case); GS: the rods are prescribed at +/-F_d, so EAX / EAY are re-solved for\n    each corner exactly as post_s3d does and the engine angular-acceleration range is given.\nOnly the rod forces and the GS angular acceleration are estimated here; part stresses, connector and hole loads are not (they would\nneed a re-solve).  Tags: DERIVED on SIM.  Not physical approval.",
+ "files_sha16": {
+  "v352/rodstep_cones_v352.json": "6767d5b837f0189b",
+  "s3d_pose_neutral_v352r3R3.json": "3010d5acf0a47fba",
+  "runs/pose_neutral_v352r3R3/B1_21.65/f1.inp.xz": "7edd1b1fd5bf6a9b",
+  "s3d_pose_alpha+_v352r3R3.json": "bac427b45093bd4a",
+  "runs/pose_alpha+_v352r3R3/B1_21.65/f1.inp.xz": "de0848593174cc78",
+  "s3d_pose_alpha-_v352r3R3.json": "37d1866ecca0c9b8",
+  "runs/pose_alpha-_v352r3R3/B1_21.65/f1.inp.xz": "dd4af993fc7089aa",
+  "s3d_pose_beta+_v352r3R3.json": "fbbee02d5075aa29",
+  "runs/pose_beta+_v352r3R3/B1_21.65/f1.inp.xz": "7d927589d9f0dde8",
+  "s3d_pose_beta-_v352r3R3.json": "54e10ee226014a2b",
+  "runs/pose_beta-_v352r3R3/B1_21.65/f1.inp.xz": "a8fa3a4e69f50f35",
+  "s3d_pose_combined045_v352r3R3.json": "176b853abab390a7",
+  "runs/pose_combined045_v352r3R3/B1_21.65/f1.inp.xz": "245b2642ee608a83",
+  "s3d_pose_combined135_v352r3R3.json": "2d38ebe2399e4af5",
+  "runs/pose_combined135_v352r3R3/B1_21.65/f1.inp.xz": "ed58be703c583f0b",
+  "s3d_pose_combined225_v352r3R3.json": "89c3d3c1f209489f",
+  "runs/pose_combined225_v352r3R3/B1_21.65/f1.inp.xz": "2606e80bf9e00edf",
+  "s3d_pose_combined315_v352r3R3.json": "f9868dae6fc7e811",
+  "runs/pose_combined315_v352r3R3/B1_21.65/f1.inp.xz": "7bbf9061663af6d9"
+ },
+ "poses": {
+  "neutral": {
+   "deck": {
+    "deck": "runs/pose_neutral_v352r3R3/B1_21.65/f1.inp.xz",
+    "deck_sha16": "7edd1b1fd5bf6a9b",
+    "Q_gimbal_axes_Nmm_per_MPa": [
+     307.26,
+     2298.09
+    ],
+    "rods_OP_statics_N_per_MPa": [
+     34.456,
+     26.329
+    ],
+    "TC09_boundary_removed": {
+     "Q_gimbal_axes_Nmm_per_MPa": [
+      293.56,
+      754.89
+     ],
+     "rods_OP_statics_N_per_MPa": [
+      13.866,
+      6.101
+     ]
+    },
+    "TC09_deficit_F_engine_N_per_MPa": [
+     9.9817,
+     -0.0867,
+     -0.6185
+    ],
+    "total_F_N_per_MPa": [
+     -0.0,
+     0.0,
+     204.1985
+    ],
+    "pressure_json_OP_net_N_per_MPa": [
+     -0.0,
+     -0.0,
+     204.1985
+    ]
+   },
+   "OP_unit_rods_from_post_N_per_MPa": [
+    34.4564,
+    26.3292
+   ],
+   "statics_vs_post_max_abs_diff_N_per_MPa": 0.00039999999999906777,
+   "cases": {
+    "GS": {
+     "as_found": {
+      "ang_accel_rad_s2": [
+       487.40390456370375,
+       699.122488623106
+      ],
+      "rod_abs_max_N": 441.0000000000001
+     },
+     "tc09_removed": {
+      "ang_accel_rad_s2": [
+       556.0140002082601,
+       630.4757786103463
+      ],
+      "rod_abs_max_N": 441.0000000000001
+     },
+     "op_zero": {
+      "ang_accel_rad_s2": [
+       584.0963112729571,
+       602.1113761149526
+      ],
+      "rod_abs_max_N": 441.0000000000001
+     },
+     "check_post_ang_accel_rad_s2": [
+      487.3967829638141,
+      699.1137304635248
+     ]
+    },
+    "TD0": {
+     "as_found": {
+      "rod_abs_max_N": 83.95333449151772,
+      "rod_max_N": {
+       "ROD_1": 76.71025749151771,
+       "ROD_2": 76.66268949151774
+      },
+      "rod_min_N": {
+       "ROD_1": -83.95333449151772,
+       "ROD_2": -80.09282049151774
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 83.95333449151772,
+      "rod_max_N": {
+       "ROD_1": 76.71025749151771,
+       "ROD_2": 76.66268949151774
+      },
+      "rod_min_N": {
+       "ROD_1": -83.95333449151772,
+       "ROD_2": -80.09282049151774
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 83.95333449151772,
+      "rod_max_N": {
+       "ROD_1": 76.71025749151771,
+       "ROD_2": 76.66268949151774
+      },
+      "rod_min_N": {
+       "ROD_1": -83.95333449151772,
+       "ROD_2": -80.09282049151774
+      }
+     },
+     "check_post_rod_abs_max_N": 83.95024666944227
+    },
+    "TDP": {
+     "as_found": {
+      "rod_abs_max_N": 162.88595508631772,
+      "rod_max_N": {
+       "ROD_1": 162.88595508631772,
+       "ROD_2": 142.51220299591773
+      },
+      "rod_min_N": {
+       "ROD_1": 2.2223631032822766,
+       "ROD_2": -14.243306987117755
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 111.38922055351772,
+      "rod_max_N": {
+       "ROD_1": 111.38922055351772,
+       "ROD_2": 91.92133319851774
+      },
+      "rod_min_N": {
+       "ROD_1": -49.27437142951772,
+       "ROD_2": -64.83417678451775
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 83.95333449151772,
+      "rod_max_N": {
+       "ROD_1": 76.71025749151771,
+       "ROD_2": 76.66268949151774
+      },
+      "rod_min_N": {
+       "ROD_1": -83.95333449151772,
+       "ROD_2": -80.09282049151774
+      }
+     },
+     "check_post_rod_abs_max_N": 162.8825857490411
+    },
+    "LC6": {
+     "as_found": {
+      "rod_abs_max_N": 20.497819763410725,
+      "rod_max_N": {
+       "ROD_1": 20.497819763410725,
+       "ROD_2": 13.475819763410726
+      },
+      "rod_min_N": {
+       "ROD_1": -20.497819763410725,
+       "ROD_2": -13.475819763410726
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 20.497819763410725,
+      "rod_max_N": {
+       "ROD_1": 20.497819763410725,
+       "ROD_2": 13.475819763410726
+      },
+      "rod_min_N": {
+       "ROD_1": -20.497819763410725,
+       "ROD_2": -13.475819763410726
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 20.497819763410725,
+      "rod_max_N": {
+       "ROD_1": 20.497819763410725,
+       "ROD_2": 13.475819763410726
+      },
+      "rod_min_N": {
+       "ROD_1": -20.497819763410725,
+       "ROD_2": -13.475819763410726
+      }
+     },
+     "check_post_rod_abs_max_N": 20.498199627031287
+    },
+    "LC2F": {
+     "as_found": {
+      "rod_abs_max_N": 154.62067386333086,
+      "rod_max_N": {
+       "ROD_1": 154.62067386333086,
+       "ROD_2": 118.49377228841625
+      },
+      "rod_min_N": {
+       "ROD_1": 146.32046449287714,
+       "ROD_2": 113.03045091796255
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 63.09255173170848,
+      "rod_max_N": {
+       "ROD_1": 63.09255173170848,
+       "ROD_2": 28.575695898308087
+      },
+      "rod_min_N": {
+       "ROD_1": 54.79234236125479,
+       "ROD_2": 23.112374527854392
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 6.844582685226848,
+      "rod_max_N": {
+       "ROD_1": 1.4556266852268476,
+       "ROD_2": 1.4556266852268478
+      },
+      "rod_min_N": {
+       "ROD_1": -6.844582685226848,
+       "ROD_2": -4.0076946852268485
+      }
+     },
+     "check_post_rod_abs_max_N": 154.6205820874276
+    }
+   }
+  },
+  "alpha+": {
+   "deck": {
+    "deck": "runs/pose_alpha+_v352r3R3/B1_21.65/f1.inp.xz",
+    "deck_sha16": "de0848593174cc78",
+    "Q_gimbal_axes_Nmm_per_MPa": [
+     307.25,
+     2298.09
+    ],
+    "rods_OP_statics_N_per_MPa": [
+     30.421,
+     31.837
+    ],
+    "TC09_boundary_removed": {
+     "Q_gimbal_axes_Nmm_per_MPa": [
+      293.56,
+      754.89
+     ],
+     "rods_OP_statics_N_per_MPa": [
+      12.638,
+      7.784
+     ]
+    },
+    "TC09_deficit_F_engine_N_per_MPa": [
+     9.9817,
+     -0.0867,
+     -0.6185
+    ],
+    "total_F_N_per_MPa": [
+     0.0,
+     -24.8856,
+     202.6765
+    ],
+    "pressure_json_OP_net_N_per_MPa": [
+     0.0,
+     -24.8855,
+     202.6765
+    ]
+   },
+   "OP_unit_rods_from_post_N_per_MPa": [
+    30.4213,
+    31.8368
+   ],
+   "statics_vs_post_max_abs_diff_N_per_MPa": 0.0002999999999993008,
+   "cases": {
+    "GS": {
+     "as_found": {
+      "ang_accel_rad_s2": [
+       626.8450238420863,
+       840.2925976889229
+      ],
+      "rod_abs_max_N": 552.0000000000001
+     },
+     "tc09_removed": {
+      "ang_accel_rad_s2": [
+       694.5231635467406,
+       772.4008614755786
+      ],
+      "rod_abs_max_N": 552.0000000000001
+     },
+     "op_zero": {
+      "ang_accel_rad_s2": [
+       706.2075701811032,
+       742.5325948469023
+      ],
+      "rod_abs_max_N": 552.0000000000001
+     },
+     "check_post_ang_accel_rad_s2": [
+      626.8658845973126,
+      840.3206747437234
+     ]
+    },
+    "TD0": {
+     "as_found": {
+      "rod_abs_max_N": 94.68796960615981,
+      "rod_max_N": {
+       "ROD_1": 78.89738133784988,
+       "ROD_2": 89.1309076061598
+      },
+      "rod_min_N": {
+       "ROD_1": -84.19054533784987,
+       "ROD_2": -94.68796960615981
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 94.68796960615981,
+      "rod_max_N": {
+       "ROD_1": 78.89738133784988,
+       "ROD_2": 89.1309076061598
+      },
+      "rod_min_N": {
+       "ROD_1": -84.19054533784987,
+       "ROD_2": -94.68796960615981
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 94.68796960615981,
+      "rod_max_N": {
+       "ROD_1": 78.89738133784988,
+       "ROD_2": 89.1309076061598
+      },
+      "rod_min_N": {
+       "ROD_1": -84.19054533784987,
+       "ROD_2": -94.68796960615981
+      }
+     },
+     "check_post_rod_abs_max_N": 94.6849642833
+    },
+    "TDP": {
+     "as_found": {
+      "rod_abs_max_N": 168.7549672637598,
+      "rod_max_N": {
+       "ROD_1": 154.98126558694986,
+       "ROD_2": 168.7549672637598
+      },
+      "rod_min_N": {
+       "ROD_1": -8.106661088749874,
+       "ROD_2": -15.063909948559804
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 110.50510780384988,
+      "rod_max_N": {
+       "ROD_1": 110.50510780384988,
+       "ROD_2": 108.5987460941598
+      },
+      "rod_min_N": {
+       "ROD_1": -52.582818871849874,
+       "ROD_2": -75.22013111815981
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 94.68796960615981,
+      "rod_max_N": {
+       "ROD_1": 78.89738133784988,
+       "ROD_2": 89.1309076061598
+      },
+      "rod_min_N": {
+       "ROD_1": -84.19054533784987,
+       "ROD_2": -94.68796960615981
+      }
+     },
+     "check_post_rod_abs_max_N": 168.75167278458423
+    },
+    "LC6": {
+     "as_found": {
+      "rod_abs_max_N": 17.97236448127122,
+      "rod_max_N": {
+       "ROD_1": 16.8775455426696,
+       "ROD_2": 17.97236448127122
+      },
+      "rod_min_N": {
+       "ROD_1": -16.8775455426696,
+       "ROD_2": -17.97236448127122
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 17.97236448127122,
+      "rod_max_N": {
+       "ROD_1": 16.8775455426696,
+       "ROD_2": 17.97236448127122
+      },
+      "rod_min_N": {
+       "ROD_1": -16.8775455426696,
+       "ROD_2": -17.97236448127122
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 17.97236448127122,
+      "rod_max_N": {
+       "ROD_1": 16.8775455426696,
+       "ROD_2": 17.97236448127122
+      },
+      "rod_min_N": {
+       "ROD_1": -16.8775455426696,
+       "ROD_2": -17.97236448127122
+      }
+     },
+     "check_post_rod_abs_max_N": 17.97268907746742
+    },
+    "LC2F": {
+     "as_found": {
+      "rod_abs_max_N": 144.1566826181161,
+      "rod_max_N": {
+       "ROD_1": 137.69347903219057,
+       "ROD_2": 144.1566826181161
+      },
+      "rod_min_N": {
+       "ROD_1": 130.85593851150495,
+       "ROD_2": 136.87521172906582
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 58.04979341062936,
+      "rod_max_N": {
+       "ROD_1": 58.04979341062936,
+       "ROD_2": 36.43462644641077
+      },
+      "rod_min_N": {
+       "ROD_1": 51.21225288994373,
+       "ROD_2": 29.153155557360467
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 5.708003444525149,
+      "rod_max_N": {
+       "ROD_1": 1.4496742603428192,
+       "ROD_2": 1.5734674445251482
+      },
+      "rod_min_N": {
+       "ROD_1": -5.387866260342819,
+       "ROD_2": -5.708003444525149
+      }
+     },
+     "check_post_rod_abs_max_N": 144.15648729554496
+    }
+   }
+  },
+  "alpha-": {
+   "deck": {
+    "deck": "runs/pose_alpha-_v352r3R3/B1_21.65/f1.inp.xz",
+    "deck_sha16": "dd4af993fc7089aa",
+    "Q_gimbal_axes_Nmm_per_MPa": [
+     307.26,
+     2298.08
+    ],
+    "rods_OP_statics_N_per_MPa": [
+     40.367,
+     21.982
+    ],
+    "TC09_boundary_removed": {
+     "Q_gimbal_axes_Nmm_per_MPa": [
+      293.56,
+      754.88
+     ],
+     "rods_OP_statics_N_per_MPa": [
+      15.934,
+      4.575
+     ]
+    },
+    "TC09_deficit_F_engine_N_per_MPa": [
+     9.9817,
+     -0.0867,
+     -0.6185
+    ],
+    "total_F_N_per_MPa": [
+     -0.0,
+     24.8855,
+     202.6765
+    ],
+    "pressure_json_OP_net_N_per_MPa": [
+     -0.0,
+     24.8855,
+     202.6765
+    ]
+   },
+   "OP_unit_rods_from_post_N_per_MPa": [
+    40.3667,
+    21.9819
+   ],
+   "statics_vs_post_max_abs_diff_N_per_MPa": 0.0002999999999957481,
+   "cases": {
+    "GS": {
+     "as_found": {
+      "ang_accel_rad_s2": [
+       631.8958598428486,
+       836.7592393971977
+      ],
+      "rod_abs_max_N": 552.0000000000002
+     },
+     "tc09_removed": {
+      "ang_accel_rad_s2": [
+       695.0540190232165,
+       768.7217331700466
+      ],
+      "rod_abs_max_N": 552.0000000000002
+     },
+     "op_zero": {
+      "ang_accel_rad_s2": [
+       704.062536173095,
+       742.1083287959551
+      ],
+      "rod_abs_max_N": 552.0000000000002
+     },
+     "check_post_ang_accel_rad_s2": [
+      631.9196796670149,
+      836.7886263770746
+     ]
+    },
+    "TD0": {
+     "as_found": {
+      "rod_abs_max_N": 98.22883396741047,
+      "rod_max_N": {
+       "ROD_1": 88.69918396741048,
+       "ROD_2": 78.39902457868754
+      },
+      "rod_min_N": {
+       "ROD_1": -98.22883396741047,
+       "ROD_2": -79.76195457868755
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 98.22883396741047,
+      "rod_max_N": {
+       "ROD_1": 88.69918396741048,
+       "ROD_2": 78.39902457868754
+      },
+      "rod_min_N": {
+       "ROD_1": -98.22883396741047,
+       "ROD_2": -79.76195457868755
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 98.22883396741047,
+      "rod_max_N": {
+       "ROD_1": 88.69918396741048,
+       "ROD_2": 78.39902457868754
+      },
+      "rod_min_N": {
+       "ROD_1": -98.22883396741047,
+       "ROD_2": -79.76195457868755
+      }
+     },
+     "check_post_rod_abs_max_N": 98.2288171173039
+    },
+    "TDP": {
+     "as_found": {
+      "rod_abs_max_N": 189.65658323431046,
+      "rod_max_N": {
+       "ROD_1": 189.65658323431046,
+       "ROD_2": 133.37591035198756
+      },
+      "rod_min_N": {
+       "ROD_1": 2.7285652994895315,
+       "ROD_2": -24.78506880538756
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 128.55022950541047,
+      "rod_max_N": {
+       "ROD_1": 128.55022950541047,
+       "ROD_2": 89.84113160368754
+      },
+      "rod_min_N": {
+       "ROD_1": -58.377788429410465,
+       "ROD_2": -68.31984755368754
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 98.22883396741047,
+      "rod_max_N": {
+       "ROD_1": 88.69918396741048,
+       "ROD_2": 78.39902457868754
+      },
+      "rod_min_N": {
+       "ROD_1": -98.22883396741047,
+       "ROD_2": -79.76195457868755
+      }
+     },
+     "check_post_rod_abs_max_N": 189.65646946673266
+    },
+    "LC6": {
+     "as_found": {
+      "rod_abs_max_N": 25.097657782385205,
+      "rod_max_N": {
+       "ROD_1": 25.097657782385205,
+       "ROD_2": 9.450748032092793
+      },
+      "rod_min_N": {
+       "ROD_1": -25.097657782385205,
+       "ROD_2": -9.450748032092793
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 25.097657782385205,
+      "rod_max_N": {
+       "ROD_1": 25.097657782385205,
+       "ROD_2": 9.450748032092793
+      },
+      "rod_min_N": {
+       "ROD_1": -25.097657782385205,
+       "ROD_2": -9.450748032092793
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 25.097657782385205,
+      "rod_max_N": {
+       "ROD_1": 25.097657782385205,
+       "ROD_2": 9.450748032092793
+      },
+      "rod_min_N": {
+       "ROD_1": -25.097657782385205,
+       "ROD_2": -9.450748032092793
+      }
+     },
+     "check_post_rod_abs_max_N": 25.09817389964839
+    },
+    "LC2F": {
+     "as_found": {
+      "rod_abs_max_N": 182.3195985475607,
+      "rod_max_N": {
+       "ROD_1": 182.3195985475607,
+       "ROD_2": 99.85866339727183
+      },
+      "rod_min_N": {
+       "ROD_1": 172.16001771605735,
+       "ROD_2": 96.02205253088742
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 72.89615236761408,
+      "rod_max_N": {
+       "ROD_1": 72.89615236761408,
+       "ROD_2": 21.900722387489342
+      },
+      "rod_min_N": {
+       "ROD_1": 62.73657153611077,
+       "ROD_2": 18.064111521104937
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 8.624890415751658,
+      "rod_max_N": {
+       "ROD_1": 1.5346904157516588,
+       "ROD_2": 1.4112854331922016
+      },
+      "rod_min_N": {
+       "ROD_1": -8.624890415751658,
+       "ROD_2": -2.4253254331922016
+      }
+     },
+     "check_post_rod_abs_max_N": 182.3198102520027
+    }
+   }
+  },
+  "beta+": {
+   "deck": {
+    "deck": "runs/pose_beta+_v352r3R3/B1_21.65/f1.inp.xz",
+    "deck_sha16": "7d927589d9f0dde8",
+    "Q_gimbal_axes_Nmm_per_MPa": [
+     306.06,
+     2298.08
+    ],
+    "rods_OP_statics_N_per_MPa": [
+     31.215,
+     22.962
+    ],
+    "TC09_boundary_removed": {
+     "Q_gimbal_axes_Nmm_per_MPa": [
+      292.84,
+      754.88
+     ],
+     "rods_OP_statics_N_per_MPa": [
+      12.846,
+      4.95
+     ]
+    },
+    "TC09_deficit_F_engine_N_per_MPa": [
+     9.9817,
+     -0.0867,
+     -0.6185
+    ],
+    "total_F_N_per_MPa": [
+     24.8856,
+     -0.0,
+     202.6764
+    ],
+    "pressure_json_OP_net_N_per_MPa": [
+     24.8855,
+     0.0,
+     202.6765
+    ]
+   },
+   "OP_unit_rods_from_post_N_per_MPa": [
+    31.2152,
+    22.9622
+   ],
+   "statics_vs_post_max_abs_diff_N_per_MPa": 0.00019999999999953388,
+   "cases": {
+    "GS": {
+     "as_found": {
+      "ang_accel_rad_s2": [
+       726.2247123519093,
+       939.1578352511962
+      ],
+      "rod_abs_max_N": 552.0000000000002
+     },
+     "tc09_removed": {
+      "ang_accel_rad_s2": [
+       720.4613145581515,
+       870.5098741622179
+      ],
+      "rod_abs_max_N": 552.0000000000002
+     },
+     "op_zero": {
+      "ang_accel_rad_s2": [
+       730.9872648946124,
+       841.078344175992
+      ],
+      "rod_abs_max_N": 552.0000000000002
+     },
+     "check_post_ang_accel_rad_s2": [
+      726.2359939558447,
+      939.1923102758084
+     ]
+    },
+    "TD0": {
+     "as_found": {
+      "rod_abs_max_N": 83.11110137912289,
+      "rod_max_N": {
+       "ROD_1": 77.37376337912289,
+       "ROD_2": 77.4451153791229
+      },
+      "rod_min_N": {
+       "ROD_1": -83.11110137912289,
+       "ROD_2": -79.2951163791229
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 83.11110137912289,
+      "rod_max_N": {
+       "ROD_1": 77.37376337912289,
+       "ROD_2": 77.4451153791229
+      },
+      "rod_min_N": {
+       "ROD_1": -83.11110137912289,
+       "ROD_2": -79.2951163791229
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 83.11110137912289,
+      "rod_max_N": {
+       "ROD_1": 77.37376337912289,
+       "ROD_2": 77.4451153791229
+      },
+      "rod_min_N": {
+       "ROD_1": -83.11110137912289,
+       "ROD_2": -79.2951163791229
+      }
+     },
+     "check_post_rod_abs_max_N": 83.11324175511115
+    },
+    "TDP": {
+     "as_found": {
+      "rod_abs_max_N": 155.44319708552288,
+      "rod_max_N": {
+       "ROD_1": 155.44319708552288,
+       "ROD_2": 134.8737383145229
+      },
+      "rod_min_N": {
+       "ROD_1": -5.041667672722909,
+       "ROD_2": -21.86649344372291
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 109.5016993011229,
+      "rod_max_N": {
+       "ROD_1": 109.5016993011229,
+       "ROD_2": 89.8251000291229
+      },
+      "rod_min_N": {
+       "ROD_1": -50.983165457122894,
+       "ROD_2": -66.91513172912289
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 83.11110137912289,
+      "rod_max_N": {
+       "ROD_1": 77.37376337912289,
+       "ROD_2": 77.4451153791229
+      },
+      "rod_min_N": {
+       "ROD_1": -83.11110137912289,
+       "ROD_2": -79.2951163791229
+      }
+     },
+     "check_post_rod_abs_max_N": 155.44521628268458
+    },
+    "LC6": {
+     "as_found": {
+      "rod_abs_max_N": 17.874584979666036,
+      "rod_max_N": {
+       "ROD_1": 17.874584979666036,
+       "ROD_2": 10.715584979666037
+      },
+      "rod_min_N": {
+       "ROD_1": -17.874584979666036,
+       "ROD_2": -10.715584979666037
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 17.874584979666036,
+      "rod_max_N": {
+       "ROD_1": 17.874584979666036,
+       "ROD_2": 10.715584979666037
+      },
+      "rod_min_N": {
+       "ROD_1": -17.874584979666036,
+       "ROD_2": -10.715584979666037
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 17.874584979666036,
+      "rod_max_N": {
+       "ROD_1": 17.874584979666036,
+       "ROD_2": 10.715584979666037
+      },
+      "rod_min_N": {
+       "ROD_1": -17.874584979666036,
+       "ROD_2": -10.715584979666037
+      }
+     },
+     "check_post_rod_abs_max_N": 17.87461197280024
+    },
+    "LC2F": {
+     "as_found": {
+      "rod_abs_max_N": 141.2854787826064,
+      "rod_max_N": {
+       "ROD_1": 141.2854787826064,
+       "ROD_2": 104.32385602021424
+      },
+      "rod_min_N": {
+       "ROD_1": 134.0446568908755,
+       "ROD_2": 99.97527012848337
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 59.01776512127914,
+      "rod_max_N": {
+       "ROD_1": 59.01776512127914,
+       "ROD_2": 23.65499118066987
+      },
+      "rod_min_N": {
+       "ROD_1": 51.77694322954828,
+       "ROD_2": 19.30640528893902
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 5.754742945865427,
+      "rod_max_N": {
+       "ROD_1": 1.4860789458654273,
+       "ROD_2": 1.4860789458654273
+      },
+      "rod_min_N": {
+       "ROD_1": -5.754742945865427,
+       "ROD_2": -2.8625069458654275
+      }
+     },
+     "check_post_rod_abs_max_N": 141.28534964477134
+    }
+   }
+  },
+  "beta-": {
+   "deck": {
+    "deck": "runs/pose_beta-_v352r3R3/B1_21.65/f1.inp.xz",
+    "deck_sha16": "a8fa3a4e69f50f35",
+    "Q_gimbal_axes_Nmm_per_MPa": [
+     303.87,
+     2298.09
+    ],
+    "rods_OP_statics_N_per_MPa": [
+     41.158,
+     32.95
+    ],
+    "TC09_boundary_removed": {
+     "Q_gimbal_axes_Nmm_per_MPa": [
+      289.91,
+      754.89
+     ],
+     "rods_OP_statics_N_per_MPa": [
+      16.087,
+      8.256
+     ]
+    },
+    "TC09_deficit_F_engine_N_per_MPa": [
+     9.9817,
+     -0.0867,
+     -0.6185
+    ],
+    "total_F_N_per_MPa": [
+     -24.8856,
+     -0.0,
+     202.6764
+    ],
+    "pressure_json_OP_net_N_per_MPa": [
+     -24.8855,
+     -0.0,
+     202.6765
+    ]
+   },
+   "OP_unit_rods_from_post_N_per_MPa": [
+    41.1584,
+    32.95
+   ],
+   "statics_vs_post_max_abs_diff_N_per_MPa": 0.00039999999999906777,
+   "cases": {
+    "GS": {
+     "as_found": {
+      "ang_accel_rad_s2": [
+       503.5665119834405,
+       762.0648540563848
+      ],
+      "rod_abs_max_N": 552.0000000000002
+     },
+     "tc09_removed": {
+      "ang_accel_rad_s2": [
+       572.1784578416982,
+       755.4750924788237
+      ],
+      "rod_abs_max_N": 552.0000000000002
+     },
+     "op_zero": {
+      "ang_accel_rad_s2": [
+       599.2416484335557,
+       743.6758358678792
+      ],
+      "rod_abs_max_N": 552.0000000000002
+     },
+     "check_post_ang_accel_rad_s2": [
+      503.5490242620901,
+      762.0844525650448
+     ]
+    },
+    "TD0": {
+     "as_found": {
+      "rod_abs_max_N": 99.77734501100124,
+      "rod_max_N": {
+       "ROD_1": 90.10380001100125,
+       "ROD_2": 89.94524001100123
+      },
+      "rod_min_N": {
+       "ROD_1": -99.77734501100124,
+       "ROD_2": -95.72438901100124
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 99.77734501100124,
+      "rod_max_N": {
+       "ROD_1": 90.10380001100125,
+       "ROD_2": 89.94524001100123
+      },
+      "rod_min_N": {
+       "ROD_1": -99.77734501100124,
+       "ROD_2": -95.72438901100124
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 99.77734501100124,
+      "rod_max_N": {
+       "ROD_1": 90.10380001100125,
+       "ROD_2": 89.94524001100123
+      },
+      "rod_min_N": {
+       "ROD_1": -99.77734501100124,
+       "ROD_2": -95.72438901100124
+      }
+     },
+     "check_post_rod_abs_max_N": 99.77921560519673
+    },
+    "TDP": {
+     "as_found": {
+      "rod_abs_max_N": 193.04124651980123,
+      "rod_max_N": {
+       "ROD_1": 193.04124651980123,
+       "ROD_2": 172.35342066100122
+      },
+      "rod_min_N": {
+       "ROD_1": 3.1601014977987347,
+       "ROD_2": -13.316208361001216
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 130.33749962000127,
+      "rod_max_N": {
+       "ROD_1": 130.33749962000127,
+       "ROD_2": 110.59355380300123
+      },
+      "rod_min_N": {
+       "ROD_1": -59.54364540200125,
+       "ROD_2": -75.07607521900124
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 99.77734501100124,
+      "rod_max_N": {
+       "ROD_1": 90.10380001100125,
+       "ROD_2": 89.94524001100123
+      },
+      "rod_min_N": {
+       "ROD_1": -99.77734501100124,
+       "ROD_2": -95.72438901100124
+      }
+     },
+     "check_post_rod_abs_max_N": 193.04315486537917
+    },
+    "LC6": {
+     "as_found": {
+      "rod_abs_max_N": 25.161132349747042,
+      "rod_max_N": {
+       "ROD_1": 25.161132349747042,
+       "ROD_2": 17.98913234974704
+      },
+      "rod_min_N": {
+       "ROD_1": -25.161132349747042,
+       "ROD_2": -17.98913234974704
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 25.161132349747042,
+      "rod_max_N": {
+       "ROD_1": 25.161132349747042,
+       "ROD_2": 17.98913234974704
+      },
+      "rod_min_N": {
+       "ROD_1": -25.161132349747042,
+       "ROD_2": -17.98913234974704
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 25.161132349747042,
+      "rod_max_N": {
+       "ROD_1": 25.161132349747042,
+       "ROD_2": 17.98913234974704
+      },
+      "rod_min_N": {
+       "ROD_1": -25.161132349747042,
+       "ROD_2": -17.98913234974704
+      }
+     },
+     "check_post_rod_abs_max_N": 25.1611946148913
+    },
+    "LC2F": {
+     "as_found": {
+      "rod_abs_max_N": 185.82439665701276,
+      "rod_max_N": {
+       "ROD_1": 185.82439665701276,
+       "ROD_2": 149.06252109849837
+      },
+      "rod_min_N": {
+       "ROD_1": 175.63970950144895,
+       "ROD_2": 141.77532194293457
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 73.54043304927706,
+      "rod_max_N": {
+       "ROD_1": 73.54043304927706,
+       "ROD_2": 38.46876896142484
+      },
+      "rod_min_N": {
+       "ROD_1": 63.35574589371328,
+       "ROD_2": 31.18156980586105
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 8.690973577781898,
+      "rod_max_N": {
+       "ROD_1": 1.4937135777818984,
+       "ROD_2": 1.4937135777818986
+      },
+      "rod_min_N": {
+       "ROD_1": -8.690973577781898,
+       "ROD_2": -5.793485577781898
+      }
+     },
+     "check_post_rod_abs_max_N": 185.8245454790345
+    }
+   }
+  },
+  "combined045": {
+   "deck": {
+    "deck": "runs/pose_combined045_v352r3R3/B1_21.65/f1.inp.xz",
+    "deck_sha16": "245b2642ee608a83",
+    "Q_gimbal_axes_Nmm_per_MPa": [
+     306.89,
+     2298.09
+    ],
+    "rods_OP_statics_N_per_MPa": [
+     34.398,
+     21.71
+    ],
+    "TC09_boundary_removed": {
+     "Q_gimbal_axes_Nmm_per_MPa": [
+      293.5,
+      754.89
+     ],
+     "rods_OP_statics_N_per_MPa": [
+      13.919,
+      4.513
+     ]
+    },
+    "TC09_deficit_F_engine_N_per_MPa": [
+     9.9817,
+     -0.0867,
+     -0.6185
+    ],
+    "total_F_N_per_MPa": [
+     17.5967,
+     17.5967,
+     202.6764
+    ],
+    "pressure_json_OP_net_N_per_MPa": [
+     17.5967,
+     17.5967,
+     202.6765
+    ]
+   },
+   "OP_unit_rods_from_post_N_per_MPa": [
+    34.3979,
+    21.7099
+   ],
+   "statics_vs_post_max_abs_diff_N_per_MPa": 0.00010000000000331966,
+   "cases": {
+    "GS": {
+     "as_found": {
+      "ang_accel_rad_s2": [
+       701.6964909399893,
+       911.3753206770784
+      ],
+      "rod_abs_max_N": 552.0000000000001
+     },
+     "tc09_removed": {
+      "ang_accel_rad_s2": [
+       709.6783987772113,
+       842.8375127929581
+      ],
+      "rod_abs_max_N": 552.0000000000001
+     },
+     "op_zero": {
+      "ang_accel_rad_s2": [
+       719.2444656864187,
+       814.4678818231313
+      ],
+      "rod_abs_max_N": 552.0000000000001
+     },
+     "check_post_ang_accel_rad_s2": [
+      701.6967665047252,
+      911.373804528216
+     ]
+    },
+    "TD0": {
+     "as_found": {
+      "rod_abs_max_N": 85.81361104999178,
+      "rod_max_N": {
+       "ROD_1": 78.41360704999177,
+       "ROD_2": 77.88463141697805
+      },
+      "rod_min_N": {
+       "ROD_1": -85.81361104999178,
+       "ROD_2": -78.91090141697805
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 85.81361104999178,
+      "rod_max_N": {
+       "ROD_1": 78.41360704999177,
+       "ROD_2": 77.88463141697805
+      },
+      "rod_min_N": {
+       "ROD_1": -85.81361104999178,
+       "ROD_2": -78.91090141697805
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 85.81361104999178,
+      "rod_max_N": {
+       "ROD_1": 78.41360704999177,
+       "ROD_2": 77.88463141697805
+      },
+      "rod_min_N": {
+       "ROD_1": -85.81361104999178,
+       "ROD_2": -78.91090141697805
+      }
+     },
+     "check_post_rod_abs_max_N": 85.81772964800044
+    },
+    "TDP": {
+     "as_found": {
+      "rod_abs_max_N": 164.4429957352918,
+      "rod_max_N": {
+       "ROD_1": 164.4429957352918,
+       "ROD_2": 132.18124328627806
+      },
+      "rod_min_N": {
+       "ROD_1": 0.21577763530822125,
+       "ROD_2": -24.614289547678048
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 113.22512348299176,
+      "rod_max_N": {
+       "ROD_1": 113.22512348299176,
+       "ROD_2": 89.17167600797805
+      },
+      "rod_min_N": {
+       "ROD_1": -51.00209461699177,
+       "ROD_2": -67.62385682597805
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 85.81361104999178,
+      "rod_max_N": {
+       "ROD_1": 78.41360704999177,
+       "ROD_2": 77.88463141697805
+      },
+      "rod_min_N": {
+       "ROD_1": -85.81361104999178,
+       "ROD_2": -78.91090141697805
+      }
+     },
+     "check_post_rod_abs_max_N": 164.44697991064396
+    },
+    "LC6": {
+     "as_found": {
+      "rod_abs_max_N": 20.978799254502874,
+      "rod_max_N": {
+       "ROD_1": 20.978799254502874,
+       "ROD_2": 9.023576051322367
+      },
+      "rod_min_N": {
+       "ROD_1": -20.978799254502874,
+       "ROD_2": -9.023576051322367
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 20.978799254502874,
+      "rod_max_N": {
+       "ROD_1": 20.978799254502874,
+       "ROD_2": 9.023576051322367
+      },
+      "rod_min_N": {
+       "ROD_1": -20.978799254502874,
+       "ROD_2": -9.023576051322367
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 20.978799254502874,
+      "rod_max_N": {
+       "ROD_1": 20.978799254502874,
+       "ROD_2": 9.023576051322367
+      },
+      "rod_min_N": {
+       "ROD_1": -20.978799254502874,
+       "ROD_2": -9.023576051322367
+      }
+     },
+     "check_post_rod_abs_max_N": 20.978965922734176
+    },
+    "LC2F": {
+     "as_found": {
+      "rod_abs_max_N": 155.54799125234683,
+      "rod_max_N": {
+       "ROD_1": 155.54799125234683,
+       "ROD_2": 98.67975376800567
+      },
+      "rod_min_N": {
+       "ROD_1": 147.0529542221823,
+       "ROD_2": 95.01520617380125
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 63.8318482936904,
+      "rod_max_N": {
+       "ROD_1": 63.8318482936904,
+       "ROD_2": 21.662270463447392
+      },
+      "rod_min_N": {
+       "ROD_1": 55.3368112635259,
+       "ROD_2": 17.99772286924297
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 7.0003745150822505,
+      "rod_max_N": {
+       "ROD_1": 1.494662515082251,
+       "ROD_2": 1.4504937971022145
+      },
+      "rod_min_N": {
+       "ROD_1": -7.0003745150822505,
+       "ROD_2": -2.2140537971022143
+      }
+     },
+     "check_post_rod_abs_max_N": 155.5478770664702
+    }
+   }
+  },
+  "combined135": {
+   "deck": {
+    "deck": "runs/pose_combined135_v352r3R3/B1_21.65/f1.inp.xz",
+    "deck_sha16": "ed58be703c583f0b",
+    "Q_gimbal_axes_Nmm_per_MPa": [
+     305.34,
+     2298.09
+    ],
+    "rods_OP_statics_N_per_MPa": [
+     44.72,
+     25.819
+    ],
+    "TC09_boundary_removed": {
+     "Q_gimbal_axes_Nmm_per_MPa": [
+      291.44,
+      754.89
+     ],
+     "rods_OP_statics_N_per_MPa": [
+      17.337,
+      5.878
+     ]
+    },
+    "TC09_deficit_F_engine_N_per_MPa": [
+     9.9817,
+     -0.0867,
+     -0.6185
+    ],
+    "total_F_N_per_MPa": [
+     -17.5968,
+     17.5967,
+     202.6764
+    ],
+    "pressure_json_OP_net_N_per_MPa": [
+     -17.5967,
+     17.5967,
+     202.6765
+    ]
+   },
+   "OP_unit_rods_from_post_N_per_MPa": [
+    44.72,
+    25.8187
+   ],
+   "statics_vs_post_max_abs_diff_N_per_MPa": 0.0002999999999993008,
+   "cases": {
+    "GS": {
+     "as_found": {
+      "ang_accel_rad_s2": [
+       549.2919970303738,
+       752.9383001160512
+      ],
+      "rod_abs_max_N": 552.0000000000002
+     },
+     "tc09_removed": {
+      "ang_accel_rad_s2": [
+       616.3103335323938,
+       738.3248216912676
+      ],
+      "rod_abs_max_N": 552.0000000000002
+     },
+     "op_zero": {
+      "ang_accel_rad_s2": [
+       641.4695923789438,
+       727.520629504519
+      ],
+      "rod_abs_max_N": 552.0000000000002
+     },
+     "check_post_ang_accel_rad_s2": [
+      549.2867553598227,
+      752.9320024599481
+     ]
+    },
+    "TD0": {
+     "as_found": {
+      "rod_abs_max_N": 108.33859734813875,
+      "rod_max_N": {
+       "ROD_1": 97.47371034813875,
+       "ROD_2": 77.41976793419082
+      },
+      "rod_min_N": {
+       "ROD_1": -108.33859734813875,
+       "ROD_2": -80.58274293419082
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 108.33859734813875,
+      "rod_max_N": {
+       "ROD_1": 97.47371034813875,
+       "ROD_2": 77.41976793419082
+      },
+      "rod_min_N": {
+       "ROD_1": -108.33859734813875,
+       "ROD_2": -80.58274293419082
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 108.33859734813875,
+      "rod_max_N": {
+       "ROD_1": 97.47371034813875,
+       "ROD_2": 77.41976793419082
+      },
+      "rod_min_N": {
+       "ROD_1": -108.33859734813875,
+       "ROD_2": -80.58274293419082
+      }
+     },
+     "check_post_rod_abs_max_N": 108.33808964589804
+    },
+    "TDP": {
+     "as_found": {
+      "rod_abs_max_N": 209.31874338813873,
+      "rod_max_N": {
+       "ROD_1": 209.31874338813873,
+       "ROD_2": 141.9925173650908
+      },
+      "rod_min_N": {
+       "ROD_1": 3.506435691861256,
+       "ROD_2": -16.009993503290808
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 140.83366870713874,
+      "rod_max_N": {
+       "ROD_1": 140.83366870713874,
+       "ROD_2": 92.1206870801908
+      },
+      "rod_min_N": {
+       "ROD_1": -64.97863898913874,
+       "ROD_2": -65.88182378819081
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 108.33859734813875,
+      "rod_max_N": {
+       "ROD_1": 97.47371034813875,
+       "ROD_2": 77.41976793419082
+      },
+      "rod_min_N": {
+       "ROD_1": -108.33859734813875,
+       "ROD_2": -80.58274293419082
+      }
+     },
+     "check_post_rod_abs_max_N": 209.31839311116713
+    },
+    "LC6": {
+     "as_found": {
+      "rod_abs_max_N": 27.645753236814713,
+      "rod_max_N": {
+       "ROD_1": 27.645753236814713,
+       "ROD_2": 12.786536971459679
+      },
+      "rod_min_N": {
+       "ROD_1": -27.645753236814713,
+       "ROD_2": -12.786536971459679
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 27.645753236814713,
+      "rod_max_N": {
+       "ROD_1": 27.645753236814713,
+       "ROD_2": 12.786536971459679
+      },
+      "rod_min_N": {
+       "ROD_1": -27.645753236814713,
+       "ROD_2": -12.786536971459679
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 27.645753236814713,
+      "rod_max_N": {
+       "ROD_1": 27.645753236814713,
+       "ROD_2": 12.786536971459679
+      },
+      "rod_min_N": {
+       "ROD_1": -27.645753236814713,
+       "ROD_2": -12.786536971459679
+      }
+     },
+     "check_post_rod_abs_max_N": 27.645475664591206
+    },
+    "LC2F": {
+     "as_found": {
+      "rod_abs_max_N": 201.83434255282683,
+      "rod_max_N": {
+       "ROD_1": 201.83434255282683,
+       "ROD_2": 117.04630176410771
+      },
+      "rod_min_N": {
+       "ROD_1": 190.6450935698555,
+       "ROD_2": 111.86197672904744
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 79.19773025480123,
+      "rod_max_N": {
+       "ROD_1": 79.19773025480123,
+       "ROD_2": 27.740531948848638
+      },
+      "rod_min_N": {
+       "ROD_1": 68.0084812718299,
+       "ROD_2": 22.556206913788365
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 9.636442491485658,
+      "rod_max_N": {
+       "ROD_1": 1.5528064914856583,
+       "ROD_2": 1.4155125175301349
+      },
+      "rod_min_N": {
+       "ROD_1": -9.636442491485658,
+       "ROD_2": -3.768812517530135
+      }
+     },
+     "check_post_rod_abs_max_N": 201.83435297282716
+    }
+   }
+  },
+  "combined225": {
+   "deck": {
+    "deck": "runs/pose_combined225_v352r3R3/B1_21.65/f1.inp.xz",
+    "deck_sha16": "2606e80bf9e00edf",
+    "Q_gimbal_axes_Nmm_per_MPa": [
+     305.34,
+     2298.09
+    ],
+    "rods_OP_statics_N_per_MPa": [
+     34.136,
+     36.261
+    ],
+    "TC09_boundary_removed": {
+     "Q_gimbal_axes_Nmm_per_MPa": [
+      291.44,
+      754.89
+     ],
+     "rods_OP_statics_N_per_MPa": [
+      13.817,
+      9.264
+     ]
+    },
+    "TC09_deficit_F_engine_N_per_MPa": [
+     9.9817,
+     -0.0867,
+     -0.6185
+    ],
+    "total_F_N_per_MPa": [
+     -17.5967,
+     -17.5967,
+     202.6764
+    ],
+    "pressure_json_OP_net_N_per_MPa": [
+     -17.5967,
+     -17.5967,
+     202.6765
+    ]
+   },
+   "OP_unit_rods_from_post_N_per_MPa": [
+    34.1365,
+    36.2611
+   ],
+   "statics_vs_post_max_abs_diff_N_per_MPa": 0.000499999999995282,
+   "cases": {
+    "GS": {
+     "as_found": {
+      "ang_accel_rad_s2": [
+       543.4582834016221,
+       756.3823221726599
+      ],
+      "rod_abs_max_N": 552.0000000000002
+     },
+     "tc09_removed": {
+      "ang_accel_rad_s2": [
+       611.2827487132475,
+       738.9866419482565
+      ],
+      "rod_abs_max_N": 552.0000000000002
+     },
+     "op_zero": {
+      "ang_accel_rad_s2": [
+       640.3670412953787,
+       726.1425336086338
+      ],
+      "rod_abs_max_N": 552.0000000000002
+     },
+     "check_post_ang_accel_rad_s2": [
+      543.466197810585,
+      756.3928383891989
+     ]
+    },
+    "TD0": {
+     "as_found": {
+      "rod_abs_max_N": 104.56663715890997,
+      "rod_max_N": {
+       "ROD_1": 77.86691222546678,
+       "ROD_2": 97.68085415890997
+      },
+      "rod_min_N": {
+       "ROD_1": -84.94274522546678,
+       "ROD_2": -104.56663715890997
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 104.56663715890997,
+      "rod_max_N": {
+       "ROD_1": 77.86691222546678,
+       "ROD_2": 97.68085415890997
+      },
+      "rod_min_N": {
+       "ROD_1": -84.94274522546678,
+       "ROD_2": -104.56663715890997
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 104.56663715890997,
+      "rod_max_N": {
+       "ROD_1": 77.86691222546678,
+       "ROD_2": 97.68085415890997
+      },
+      "rod_min_N": {
+       "ROD_1": -84.94274522546678,
+       "ROD_2": -104.56663715890997
+      }
+     },
+     "check_post_rod_abs_max_N": 104.56627876720265
+    },
+    "TDP": {
+     "as_found": {
+      "rod_abs_max_N": 188.37011908660998,
+      "rod_max_N": {
+       "ROD_1": 163.2425376809668,
+       "ROD_2": 188.37011908660998
+      },
+      "rod_min_N": {
+       "ROD_1": 0.43288023003321996,
+       "ROD_2": -13.87737223120999
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 120.85018300690997,
+      "rod_max_N": {
+       "ROD_1": 112.42332594446677,
+       "ROD_2": 120.85018300690997
+      },
+      "rod_min_N": {
+       "ROD_1": -50.38633150646679,
+       "ROD_2": -81.39730831090998
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 104.56663715890997,
+      "rod_max_N": {
+       "ROD_1": 77.86691222546678,
+       "ROD_2": 97.68085415890997
+      },
+      "rod_min_N": {
+       "ROD_1": -84.94274522546678,
+       "ROD_2": -104.56663715890997
+      }
+     },
+     "check_post_rod_abs_max_N": 188.36987272346767
+    },
+    "LC6": {
+     "as_found": {
+      "rod_abs_max_N": 20.452881342699463,
+      "rod_max_N": {
+       "ROD_1": 20.125331624966513,
+       "ROD_2": 20.452881342699463
+      },
+      "rod_min_N": {
+       "ROD_1": -20.125331624966513,
+       "ROD_2": -20.452881342699463
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 20.452881342699463,
+      "rod_max_N": {
+       "ROD_1": 20.125331624966513,
+       "ROD_2": 20.452881342699463
+      },
+      "rod_min_N": {
+       "ROD_1": -20.125331624966513,
+       "ROD_2": -20.452881342699463
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 20.452881342699463,
+      "rod_max_N": {
+       "ROD_1": 20.125331624966513,
+       "ROD_2": 20.452881342699463
+      },
+      "rod_min_N": {
+       "ROD_1": -20.125331624966513,
+       "ROD_2": -20.452881342699463
+      }
+     },
+     "check_post_rod_abs_max_N": 20.452518306208663
+    },
+    "LC2F": {
+     "as_found": {
+      "rod_abs_max_N": 163.97807447129645,
+      "rod_max_N": {
+       "ROD_1": 154.32514105195514,
+       "ROD_2": 163.97807447129645
+      },
+      "rod_min_N": {
+       "ROD_1": 146.1755888578021,
+       "ROD_2": 155.694385391932
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 63.322884276666045,
+      "rod_max_N": {
+       "ROD_1": 63.322884276666045,
+       "ROD_2": 43.06973389263275
+      },
+      "rod_min_N": {
+       "ROD_1": 55.17333208251301,
+       "ROD_2": 34.7860448132683
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 6.7070380970765235,
+      "rod_max_N": {
+       "ROD_1": 1.4425140970765242,
+       "ROD_2": 1.5802825396822242
+      },
+      "rod_min_N": {
+       "ROD_1": -6.7070380970765235,
+       "ROD_2": -6.7034065396822236
+      }
+     },
+     "check_post_rod_abs_max_N": 163.9780382153082
+    }
+   }
+  },
+  "combined315": {
+   "deck": {
+    "deck": "runs/pose_combined315_v352r3R3/B1_21.65/f1.inp.xz",
+    "deck_sha16": "7bbf9061663af6d9",
+    "Q_gimbal_axes_Nmm_per_MPa": [
+     306.89,
+     2298.09
+    ],
+    "rods_OP_statics_N_per_MPa": [
+     30.051,
+     26.052
+    ],
+    "TC09_boundary_removed": {
+     "Q_gimbal_axes_Nmm_per_MPa": [
+      293.5,
+      754.89
+     ],
+     "rods_OP_statics_N_per_MPa": [
+      12.49,
+      5.937
+     ]
+    },
+    "TC09_deficit_F_engine_N_per_MPa": [
+     9.9817,
+     -0.0867,
+     -0.6185
+    ],
+    "total_F_N_per_MPa": [
+     17.5967,
+     -17.5967,
+     202.6764
+    ],
+    "pressure_json_OP_net_N_per_MPa": [
+     17.5967,
+     -17.5967,
+     202.6765
+    ]
+   },
+   "OP_unit_rods_from_post_N_per_MPa": [
+    30.051,
+    26.0516
+   ],
+   "statics_vs_post_max_abs_diff_N_per_MPa": 0.00039999999999906777,
+   "cases": {
+    "GS": {
+     "as_found": {
+      "ang_accel_rad_s2": [
+       699.5714212832694,
+       913.1453392100384
+      ],
+      "rod_abs_max_N": 552.0000000000001
+     },
+     "tc09_removed": {
+      "ang_accel_rad_s2": [
+       709.5656245962754,
+       844.6650986239724
+      ],
+      "rod_abs_max_N": 552.0000000000001
+     },
+     "op_zero": {
+      "ang_accel_rad_s2": [
+       720.9160348110881,
+       814.8045990877895
+      ],
+      "rod_abs_max_N": 552.0000000000001
+     },
+     "check_post_ang_accel_rad_s2": [
+      699.5662086759918,
+      913.1387865663197
+     ]
+    },
+    "TD0": {
+     "as_found": {
+      "rod_abs_max_N": 83.10260706834578,
+      "rod_max_N": {
+       "ROD_1": 78.17216706834579,
+       "ROD_2": 78.78094702131362
+      },
+      "rod_min_N": {
+       "ROD_1": -83.10260706834578,
+       "ROD_2": -82.27460902131364
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 83.10260706834578,
+      "rod_max_N": {
+       "ROD_1": 78.17216706834579,
+       "ROD_2": 78.78094702131362
+      },
+      "rod_min_N": {
+       "ROD_1": -83.10260706834578,
+       "ROD_2": -82.27460902131364
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 83.10260706834578,
+      "rod_max_N": {
+       "ROD_1": 78.17216706834579,
+       "ROD_2": 78.78094702131362
+      },
+      "rod_min_N": {
+       "ROD_1": -83.10260706834578,
+       "ROD_2": -82.27460902131364
+      }
+     },
+     "check_post_rod_abs_max_N": 83.10539992916878
+    },
+    "TDP": {
+     "as_found": {
+      "rod_abs_max_N": 153.32992842534577,
+      "rod_max_N": {
+       "ROD_1": 153.32992842534577,
+       "ROD_2": 143.93618098251363
+      },
+      "rod_min_N": {
+       "ROD_1": -7.944845711345778,
+       "ROD_2": -17.119375060113633
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 109.40974449834579,
+      "rod_max_N": {
+       "ROD_1": 109.40974449834579,
+       "ROD_2": 93.62942558031362
+      },
+      "rod_min_N": {
+       "ROD_1": -51.86502963834578,
+       "ROD_2": -67.42613046231364
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 83.10260706834578,
+      "rod_max_N": {
+       "ROD_1": 78.17216706834579,
+       "ROD_2": 78.78094702131362
+      },
+      "rod_min_N": {
+       "ROD_1": -83.10260706834578,
+       "ROD_2": -82.27460902131364
+      }
+     },
+     "check_post_rod_abs_max_N": 153.33296118318557
+    },
+    "LC6": {
+     "as_found": {
+      "rod_abs_max_N": 16.34594644076049,
+      "rod_max_N": {
+       "ROD_1": 16.34594644076049,
+       "ROD_2": 13.91738177597535
+      },
+      "rod_min_N": {
+       "ROD_1": -16.345946440760486,
+       "ROD_2": -13.91738177597535
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 16.34594644076049,
+      "rod_max_N": {
+       "ROD_1": 16.34594644076049,
+       "ROD_2": 13.91738177597535
+      },
+      "rod_min_N": {
+       "ROD_1": -16.345946440760486,
+       "ROD_2": -13.91738177597535
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 16.34594644076049,
+      "rod_max_N": {
+       "ROD_1": 16.34594644076049,
+       "ROD_2": 13.91738177597535
+      },
+      "rod_min_N": {
+       "ROD_1": -16.345946440760486,
+       "ROD_2": -13.91738177597535
+      }
+     },
+     "check_post_rod_abs_max_N": 16.34570101046382
+    },
+    "LC2F": {
+     "as_found": {
+      "rod_abs_max_N": 136.06285515036558,
+      "rod_max_N": {
+       "ROD_1": 136.06285515036558,
+       "ROD_2": 118.19548226606503
+      },
+      "rod_min_N": {
+       "ROD_1": 129.43971693112297,
+       "ROD_2": 112.55290434383505
+      }
+     },
+     "tc09_removed": {
+      "rod_abs_max_N": 57.414723044229,
+      "rod_max_N": {
+       "ROD_1": 57.414723044229,
+       "ROD_2": 28.11087899392251
+      },
+      "rod_min_N": {
+       "ROD_1": 50.7915848249864,
+       "ROD_2": 22.468301071692533
+      }
+     },
+     "op_zero": {
+      "rod_abs_max_N": 5.145729109621299,
+      "rod_max_N": {
+       "ROD_1": 1.477409109621299,
+       "ROD_2": 1.521620961114988
+      },
+      "rod_min_N": {
+       "ROD_1": -5.145729109621299,
+       "ROD_2": -4.120956961114988
+      }
+     },
+     "check_post_rod_abs_max_N": 136.06303910425322
+    }
+   }
+  }
+ },
+ "envelope_9_poses": {
+  "as_found": {
+   "TD_rod_abs_max_N": [
+    153.32992842534577,
+    209.31874338813873
+   ],
+   "LC6_rod_abs_max_N": [
+    16.34594644076049,
+    27.645753236814713
+   ],
+   "LC2F_rod_abs_max_N": [
+    136.06285515036558,
+    201.83434255282683
+   ],
+   "GS_ang_accel_rad_s2": [
+    487.40390456370375,
+    939.1578352511962
+   ]
+  },
+  "tc09_removed": {
+   "TD_rod_abs_max_N": [
+    109.40974449834579,
+    140.83366870713874
+   ],
+   "LC6_rod_abs_max_N": [
+    16.34594644076049,
+    27.645753236814713
+   ],
+   "LC2F_rod_abs_max_N": [
+    57.414723044229,
+    79.19773025480123
+   ],
+   "GS_ang_accel_rad_s2": [
+    556.0140002082601,
+    870.5098741622179
+   ]
+  },
+  "op_zero": {
+   "TD_rod_abs_max_N": [
+    83.10260706834578,
+    108.33859734813875
+   ],
+   "LC6_rod_abs_max_N": [
+    16.34594644076049,
+    27.645753236814713
+   ],
+   "LC2F_rod_abs_max_N": [
+    5.145729109621299,
+    9.636442491485658
+   ],
+   "GS_ang_accel_rad_s2": [
+    584.0963112729571,
+    841.078344175992
+   ]
+  }
+ },
+ "max_statics_vs_post_diff_N_per_MPa": 0.000499999999995282
+}
