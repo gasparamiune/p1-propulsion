@@ -1,0 +1,89 @@
+--- /dev/shm/rev_elec3/fw210/sil/test_core.cpp	2026-10-13 15:21:32.000000000 +0000
++++ /dev/shm/rev_elec3/fw/sil/test_core.cpp	2026-10-20 22:12:00.855500394 +0000
+@@ -1,3 +1,4 @@
++// [v2.11 2026-10-13, LEAD CHANGELOG 203/205: test_v211.inc (above-FS, non-sticky over-range, ride-through CANDIDATE, cap 2.55 s, C1 scaling); test (17) unpurged guard; log v12; JSON version label v2.11 (was the stale v2.8.3)]
+ // [v2.10 2026-10-13, REV-ELEC-1 + LEAD CHANGELOG 164/166/168/172/175/181/186: test_v210.inc (v210-16 181 (4), v210-17 186 (2) R2 command hold); full list in 06-electronics/REPORT-v2.10-HANDBACK.md] ARGOS engine ECU - unit tests of the platform-independent core (v2.8.3, 2026-10-13: gnc.json v3 TVC tracker - group (26) of
+ // sil/test_v28.inc, flight-chain ramp lag, the linear chain-gain checks run with the tracker off; v2.8.1/v2.8.2 groups (21)-(25);
+ // the JSON "version" field said "v2.8 final" through v2.8.2 - corrected here; v2.8 final, 2026-10-13: COMB v2.4 / GNC v3 / MECH fold-in - seat
+@@ -15,6 +16,7 @@
+ #include <cstdio>
+ #include <cstring>
+ #include <fstream>
++#include <functional>
+ #include <limits>
+ #include <string>
+ #include <vector>
+@@ -78,7 +80,7 @@
+   const uint8_t msg[9] = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
+   check(can::crc8(msg, 9) == 0x4B, "CRC-8/SAE-J1850 check value 0x4B", hex(can::crc8(msg, 9), 2));
+   check(crc16_ccitt(msg, 9) == 0x29B1, "CRC-16/CCITT-FALSE check value 0x29B1", hex(crc16_ccitt(msg, 9), 4));
+-  check(sizeof(LogRecord) == 179, "LogRecord v11 is 179 bytes (1 kHz x 179 B = 179 kB/s to SD; v10 150 B, v8/v9 137 B, v7 134 B, v6 120 B)");
++  check(sizeof(LogRecord) == 180 && kLogVersion == 12, "LogRecord v12 is 180 bytes (v2.11: + ovr_flags; 1 kHz x 180 B = 180 kB/s to SD; v11 179 B, v10 150 B, v8/v9 137 B, v7 134 B, v6 120 B)");
+   check(can::keyFor(Cmd::ARM) == 0xA55B && can::keyFor(Cmd::IGNITE) == 0xA55E, "2-key state command keys");
+ 
+   // ------------------------------------------------------------- frame codec and supervision
+@@ -674,11 +676,18 @@
+             fmt("spike case state %.0f, steady case cause %.0f", (double)r.e.state(), (double)q.e.abortCause()));
+     }
+     {   // v2.6 OI-6: sensor over-range during IGNITION: HIGH = over-pressure (HARD_START), LOW = sensor fault
++      // v2.11 (LEAD 203 (1)(a)): in FLIGHT the HIGH over-range no longer latches PC_SENSOR (non-sticky over-range bit); the stand as built
+       Rig5 r; r.toIgnition(); r.run(150);
+       r.in.pc_raw_V = 4.9f; r.in.pc_Pa = 76.0e5f; r.tick();
+-      check(r.e.abortCause() == Abort::HARD_START && (r.o.fault_bits & fault::PC_SENSOR) && (r.o.fault_bits & fault::PC_OVERP),
+-            "v2.6 OI-6: over-range HIGH (4.9 V) in IGNITION -> HARD_START on the same tick, PC_SENSOR + PC_OVERP bits",
+-            fmt("cause %.0f, faults ", (double)r.e.abortCause()) + hex(r.o.fault_bits, 4));
++      Rig5 rs; rs.in.load_cell_N = 0.0f; rs.in.mode_strap = strap::STAND; rs.toIgnition(); rs.run(150);
++      rs.in.pc_raw_V = 4.9f; rs.in.pc_Pa = 76.0e5f; rs.tick();
++      check(r.e.abortCause() == Abort::HARD_START && !(r.o.fault_bits & fault::PC_SENSOR) && (r.o.fault_bits & fault::PC_OVERP) &&
++            r.o.pc_overrange && (r.o.ovr_flags & ovr::OVERRANGE) && !r.o.pc_valid &&
++            rs.e.abortCause() == Abort::HARD_START && (rs.o.fault_bits & fault::PC_SENSOR) && (rs.o.fault_bits & fault::PC_OVERP),
++            "v2.6 OI-6 / v2.11 203 (1)(a): over-range HIGH (4.9 V) in IGNITION -> HARD_START on the same tick; flight PC_OVERP + over-range bit "
++            "(no PC_SENSOR latch), stand PC_SENSOR + PC_OVERP (as built)",
++            fmt("flight cause %.0f faults ", (double)r.e.abortCause()) + hex(r.o.fault_bits, 4) + fmt(", stand cause %.0f faults ", (double)rs.e.abortCause()) +
++            hex(rs.o.fault_bits, 4));
+       Rig5 q; q.toIgnition(); q.run(150);
+       q.in.pc_raw_V = 0.05f; q.in.pc_Pa = -5.0e5f; q.tick();
+       check(q.e.abortCause() == Abort::PC_SENSOR && !(q.o.fault_bits & fault::PC_OVERP),
+@@ -830,7 +839,7 @@
+       check(run_ok && g.e.state() == State::RUN && g.o.tvc_supply_degraded && (g.r.flags & 0x4000) && g.e.abortCause() == Abort::NONE,
+             "FM-PWR-01 in flight: degraded flag set, burn continues (no abort)",
+             fmt("state %.0f, predicted %.2f V, log vplug %.0f mV", (double)g.e.state(), g.o.vplug_pred_V, (double)g.r.vplug_pred_mV));
+-      check(g.r.version == 11 && g.r.ibat_cA == 300, "log v11 (v10 fields unchanged) carries the battery current (0.01 A)", fmt("ibat_cA %.0f", (double)g.r.ibat_cA));
++      check(g.r.version == kLogVersion && g.r.ibat_cA == 300, "log v12 (v10 fields unchanged) carries the battery current (0.01 A)", fmt("ibat_cA %.0f", (double)g.r.ibat_cA));
+       g.voc = 8.30f; g.setI(1.0f); g.run(450); const bool still = g.o.tvc_supply_degraded; g.run(550);
+       check(still && !g.o.tvc_supply_degraded, "FM-PWR-01: flag holds 0.5 s after recovery, then clears (min + 0.1 V hysteresis)",
+             fmt("predicted %.2f V", g.o.vplug_pred_V));
+@@ -1030,7 +1039,7 @@
+       int n_long = -1;
+       for (int n = 1; n <= 300 && n_long < 0; ++n) { j.tick(); if (j.o.gimbal_sat_long == 1) n_long = n; }
+       j.run(10);
+-      const bool long1 = n_long > 0 && j.o.gimbal_sat_long == 1 && (j.o.gimbal_flags & tlmg::SAT_LONG) && j.r.sat_ms > 100 && (j.r.sat_flags & 0x04u) && j.r.version == 11;
++      const bool long1 = n_long > 0 && j.o.gimbal_sat_long == 1 && (j.o.gimbal_flags & tlmg::SAT_LONG) && j.r.sat_ms > 100 && (j.r.sat_flags & 0x04u) && j.r.version == kLogVersion;
+       check(long1, "jammed actuator (torque saturation proxy): episode passes 0.1 s, SAT_LONG, log v5 sat_ms/sat_flags b2 (v2.8.3: within 0.30 s of the jam)",
+             fmt("SAT_LONG %.0f ms after the jam, sat_ms %.0f, flags %.0f", n_long, (double)j.r.sat_ms, (double)j.r.sat_flags));
+       RigS s2; s2.tick(Cmd::TVC_TEST_ENABLE, 1); s2.run(100);
+@@ -1311,7 +1320,7 @@
+             n_drop - n_abort <= 1 && g.n_events == 1 && !g.o.mv_latch,
+             "v2.6 jam open at MECO: SHUTDOWN, no closing progress 0.10 s -> PINTLE_FAULT, ARM bus released on the next tick, one event",
+             fmt("needle %.2f mm, abort %.0f ms after SHUTDOWN, bus released %.0f ms later", x_meco * 1e3, n_abort, n_drop - n_abort));
+-      check((g.sat_or & 0x40u) && (g.r.sat_flags & 0x20u) && (g.r.sat_flags & 0x80u) && g.r.version == 11,
++      check((g.sat_or & 0x40u) && (g.r.sat_flags & 0x20u) && (g.r.sat_flags & 0x80u) && g.r.version == kLogVersion,
+             "v2.6 log v5/v6: sat_flags b6 no progress >= 20 ms (before the trip), b5 back-off, b7 jam record pending", hex(g.r.sat_flags, 2));
+     }
+     // (6) MAINT_JAM: ARM refused until CLEAR_JAM (keyed, SAFE only); NV flag from the HAL at boot
+@@ -1502,8 +1511,13 @@
+   }
+ 
+   std::printf("\n%d passed, %d failed\n", n_pass, n_fail);
+-  std::ofstream f(out + "/test_core.json");
+-  f << "{\n \"id\": \"test_core\", \"version\": \"v2.8.3\", \"passed\": " << n_pass << ", \"failed\": " << n_fail << ",\n \"lines\": [\n";
++#ifdef ECU_SIL_TEST_HOOKS
++  const char* tc_id = "test_core";            // v2.11 R2-08: hooks build
++#else
++  const char* tc_id = "test_core_nohooks";    // v2.11 R2-08: core compiled without ECU_SIL_TEST_HOOKS (as the Teensy build)
++#endif
++  std::ofstream f(out + "/" + tc_id + ".json");
++  f << "{\n \"id\": \"" << tc_id << "\", \"version\": \"v2.11\", \"passed\": " << n_pass << ", \"failed\": " << n_fail << ",\n \"lines\": [\n";
+   for (size_t i = 0; i < lines.size(); ++i) {
+     std::string l = lines[i]; for (auto& ch : l) if (ch == '"') ch = '\'';
+     f << "  \"" << l << "\"" << (i + 1 < lines.size() ? "," : "") << "\n";

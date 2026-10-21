@@ -1,0 +1,21 @@
+--- /dev/shm/rev_elec3/fw210/sil/plant.h	2026-10-13 14:02:58.000000000 +0000
++++ /dev/shm/rev_elec3/fw/sil/plant.h	2026-10-13 18:46:32.784307802 +0000
+@@ -1,3 +1,4 @@
++// [v2.11 2026-10-13, LEAD CHANGELOG 205: seatPassage() for the seat-mounted Pc transducer chain]
+ // [v2.10 2026-10-13, REV-ELEC-1 + LEAD CHANGELOG 164/166/168/172/175: photodiode head, bleed valve times, pool source; full list in 06-electronics/REPORT-v2.10-HANDBACK.md] ARGOS engine SIL - plant models (v2.8, 2026-10-13: MV-P poppet main valve; v2.6, 2026-10-12). NOT flight code. Predictions, not
+ // measurements.
+ //
+@@ -362,6 +363,13 @@
+                                     //   dependent inertance; NOT mass-conservative: a 1 -> 40 bar step gave a 1695 bar peak)
+ };
+ 
++// v2.11 (LEAD CHANGELOG 205): the seat passage of a seat-mounted transducer on the v3.5.1 head (Mechanical v351/pc/pc_line_period_v1:
++// dia 2.0 x 54.17 mm passage + dia 3.0 x 2.0 mm disc hole; lumped here as dia 2.044 mm equivalent x L). Same parameters as
++// calc/v2p11/fa1_chain_v2p11.cpp passage(): L [m] (CC-1 0.05617, CC-2 0.032), passage gas sound speed c [m/s] (MISSING, bracket 222 =
++// N2O vapour 200 K / 400 = products 400 K), front dead volume V_end [mm3] (ASSUMED 6, bound 20), 24 sections, n 1.15, mu 1.5e-5 (ASSUMED,
++// laminar friction only: low damping, conservative)
++SenseLineParams seatPassage(double L, double c, double V_end_mm3);
++
+ class SenseLine {
+  public:
+   explicit SenseLine(const SenseLineParams& p);

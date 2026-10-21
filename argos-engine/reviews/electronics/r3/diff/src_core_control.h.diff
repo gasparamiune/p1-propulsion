@@ -1,0 +1,13 @@
+--- /dev/shm/rev_elec3/fw210/src/core/control.h	2026-10-13 14:02:58.000000000 +0000
++++ /dev/shm/rev_elec3/fw/src/core/control.h	2026-10-20 22:02:27.184106206 +0000
+@@ -60,6 +60,10 @@
+   // v2.10 RE-04: x_meas_m = encoder lift (NaN when invalid) for the travel clamp / integrator hold (cfg::kLiftArriveTol_m)
+   float step(float pc_sp_abs_Pa, float pc_meas_abs_Pa, float ptank_abs_Pa, float dt, bool closed_loop, bool integrate = true,
+              float x_meas_m = __builtin_nanf(""));
++  // v2.11 (LEAD CHANGELOG 216 (9) R2-22): lift-commanded R2 hold. Returns x_hold_m behind the servo command rate limit only (no map, no
++  // trim, no clamp other than the travel limits); the setpoint slew state, the reference model and the feed-forward lift track
++  // sp_park_abs_Pa so that the next step() continues bumplessly. The trim is frozen (no integration while the hold is on).
++  float holdLift(float x_hold_m, float sp_park_abs_Pa, float ptank_abs_Pa, float dt);
+   float setpointActive() const { return sp_rl_.y; }
+   float integrator() const { return trim_ * x_ff_; }   // equivalent lift correction [m] (telemetry)
+   float trim() const { return trim_; }                  // learned lift ratio - 1 [-]

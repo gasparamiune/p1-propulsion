@@ -1,0 +1,376 @@
+--- /dev/shm/rev_elec3/fw210/src/core/engine_ecu.cpp	2026-10-13 15:14:58.000000000 +0000
++++ /dev/shm/rev_elec3/fw/src/core/engine_ecu.cpp	2026-10-21 02:28:20.150059160 +0000
+@@ -1,3 +1,5 @@
++// [v2.11 2026-10-20, LEAD CHANGELOG 216/227/230 + lead rulings 21:46:49Z / 21:51:07Z: case-TC A 423.15 K / start 403.15 K / stand T0 (CASE_WARM_STAND), R2 lift-commanded hold + ECU backstop E2 + 0.85 s, fixed ride RC, cold ARM margin + PREPRESS safe exit, pad / stand BASE_AMB lift refusal (216 (4)); full list in the ELEC-V211 handback]
++// [v2.11 2026-10-13, LEAD CHANGELOG 203/205: non-sticky flight HIGH over-range + above-FS flag, FA-1 ride-through CANDIDATE (default OFF), unpurged flight RELIGHT guard (UNPURGED), log v12; full list in the ELEC-V211 handback]
+ // [v2.10 2026-10-13, REV-ELEC-1 + LEAD CHANGELOG 164/166/168/172/175/181/186: state machine and monitors for the v2.10 rules; unpurged RELIGHT (integrated purge deleted); PC_VALID and encoder outputs; R2 command hold + Cmd::DROGUE (186 (2)); full list in 06-electronics/REPORT-v2.10-HANDBACK.md] ARGOS engine ECU - state machine, sequencing, safety monitor (v2.9, 2026-10-13: LEAD decisions - light detection by the ADOPTED
+ // relative rule (Combustion ignition_detect_v2p4: pre-lift baseline P0 over [E1 - 20 ms, E1] checked against the auto-zero ambient,
+ // rise >= 0.8 bar on filtered AND raw for 10 ms, floor 1.8 bar abs; kIgnitionPcAbs withdrawn); A3 flame-out relative to P0 on the lift
+@@ -49,7 +51,7 @@
+                             "PC_SENSOR", "BATT_LOW", "MV_FAULT", "ARM_LOST", "WATCHDOG", "PC_OVERPRESSURE",
+                             "HW_OVERPRESSURE", "TVC_SUPPLY", "OVERCURRENT", "MAINT_JAM", "TORCH_FAULT", "RELIGHT_LOCKOUT",
+                             "OVER_THRUST", "MODE_MISMATCH", "BAY_HOT", "TANK_HOT", "BLEED_FAULT", "TORCH_LOST",
+-                            "TANK_COLD"};
++                            "TANK_COLD", "CASE_WARM_STAND"};
+   const unsigned i = static_cast<unsigned>(a);
+   return i < sizeof(n) / sizeof(n[0]) ? n[i] : "?";
+ }
+@@ -145,6 +147,7 @@
+     // LEAD: baseline checked against the auto-zero ambient within residual + 0.1 bar. v2.10 (LEAD REV-ELEC-1 RE-02): one-sided -
+     // HIGH side keeps the MEASURED P0 (never ambient: zeroing a positive offset lowered the bar for a false light) and flags BASE_HIGH
+     // (the pad / stand lift was already refused in IGNITION; the A1 relight proceeds on the measured P0); LOW side P0 := 0 (ambient)
++    // (v2.11 LEAD 216 (4): on the pad / stand the lift was already refused in IGNITION as well; only the A1 relight gets here)
+     if (ign_pre_n_ == 0 || !std::isfinite(f0)) { ign_ref_f_ = 0.0f; ign_ref_r_ = 0.0f; ign_det_ |= det::BASE_AMB; }
+     else if (f0 > kIgnBaseCheck_Pa) { ign_ref_f_ = f0; ign_ref_r_ = r0; f2_ |= f2::BASE_HIGH; }
+     else if (f0 < -kIgnBaseCheck_Pa) { ign_ref_f_ = 0.0f; ign_ref_r_ = 0.0f; ign_det_ |= det::BASE_AMB; }
+@@ -196,6 +199,7 @@
+   if (in.pc_raw_V > kPcSensorMin_V && std::isfinite(in.pc_Pa) && std::isfinite(pc_f_)) {   // LOW invalid skipped; HIGH over-range counts
+     const float raw_abs = in.pc_Pa - pc_zero_ + pamb_Pa, filt_abs = pc_f_ + pamb_Pa;
+     if (in.pc_raw_V >= kPcSensorMax_V) ls_.overrange = true;
++    if (in.pc_raw_V >= kPcAboveFs_V) ls_.abovefs = true;                                    // v2.11 (LEAD 203 (1)(a)) above full scale
+     if (!(raw_abs <= ls_.peak_raw_Pa)) { ls_.peak_raw_Pa = raw_abs; ls_t_pk_raw_ = t; }     // NaN-safe: the first sample sets it
+     if (!(filt_abs <= ls_.peak_filt_Pa)) { ls_.peak_filt_Pa = filt_abs; ls_t_pk_filt_ = t; }
+     const bool explained = pc_map_now_ >= kLightSpikeLoAbs_Pa;   // the lit map at the lift reaches 8 bar (start ramp): not a spike
+@@ -335,7 +339,12 @@
+     if (hb_path_n_ >= kHbleedConfirmN) hb_path_ = true;
+   }
+   // v2.10 hard cap (LEAD CHANGELOG 164 (2)): both valves commanded open together longer than kHbleedCap_s -> both close at once
+-  if (hb_cmd_[0] && hb_cmd_[1] && hb_bit_step_ < 0) {
++#ifdef ECU_SIL_TEST_HOOKS
++  const bool hb_cap_on = !test_disable_hb_cap;   // v2.11 SIL only: shows the hardware both-open timer alone (S12 hw_timer)
++#else
++  constexpr bool hb_cap_on = true;
++#endif
++  if (hb_cap_on && hb_cmd_[0] && hb_cmd_[1] && hb_bit_step_ < 0) {
+     if (t_hb_both_ < 0.0) t_hb_both_ = t;
+     else if (t - t_hb_both_ > kHbleedCap_s + kTimeEps_s) {
+       hbFlowEnd(t); hb_cmd_[0] = false; hb2_ |= hb2::R_HOLD; hbEvent(hb::EV_CAP);
+@@ -383,6 +392,15 @@
+   const float f0 = static_cast<float>(sf / ign_pre_n_);
+   return std::isfinite(f0) && f0 > kIgnBaseCheck_Pa;
+ }
++// v2.11 (LEAD CHANGELOG 216 (4)): the next tick's P0 would be replaced by ambient (det::BASE_AMB): ring empty, mean not finite, or below
++// -kIgnBaseCheck_Pa (exactly the BASE_AMB branches of ignDetect)
++bool EngineEcu::baseLowNow() const {
++  if (ign_pre_n_ == 0) return true;
++  double sf = 0.0;
++  for (int k = 0; k < ign_pre_n_; ++k) sf += ign_pre_f_[k];
++  const float f0 = static_cast<float>(sf / ign_pre_n_);
++  return !std::isfinite(f0) || f0 < -kIgnBaseCheck_Pa;
++}
+ 
+ // v2.10 FA-1 photodiode
+ bool EngineEcu::photoValid(const Inputs& in) const {
+@@ -579,6 +597,7 @@
+   for (int k = 0; k < 2; ++k) if (in.ttank_wall_valid[k] && std::isfinite(in.ttank_wall_K[k])) tmin = std::fmin(tmin, in.ttank_wall_K[k]);
+   if (sat_ok) tmin = std::fmin(tmin, tsat);
+   tank_cold_ = !any || tmin < kTankIgnMin_K;
++  tank_tmin_K_ = any ? tmin : std::numeric_limits<float>::quiet_NaN();   // v2.11 LEAD 216 (7)
+   if (nw > 0 && sat_ok && std::fabs(wsum / static_cast<float>(nw) - tsat) > kTankXcheckMax_K) tank_xcheck_ = true;
+ }
+ 
+@@ -659,6 +678,7 @@
+       ignDetReset();                              // v2.9 light-rule baseline of this start
+       t_e3_ = -1.0; a7_flag_ = false;             // v2.9 A7 / E3 per burn
+       ls_ = LightSpikeRec{}; ls_t_pk_raw_ = ls_t_pk_filt_ = -1.0;   // v2.10 LIGHT_SPIKE record of this start
++      ride_tol_n_ = 0; p_t45_.reset(); ign_ovr_n_ = 0; ride_ovr_tol_n_ = 0;   // v2.11 ride-through CANDIDATE: per start
+       // v2.9 head-end bleed: a start from PURGE. v2.10: the closure step started in PURGE (V1 close command kPurgeFlowEndLead_s +
+       // kHbleedCloseTime_s before E0) and ends in IGNITION; the lift waits for its end up to kTorchGate_s (LEAD RE-05)
+       purge_start_ = prev == State::PURGE;
+@@ -697,6 +717,7 @@
+       // v2.5 COMB v2.1 start ramp (<= 2500 N/s) from the thrust of the map Pc at the ignition lift (bumpless)
+       thr_rl_.init = false; thr_rl_.step(thrust::thrustFromPcAbs(pcc_.setpointActive(), pamb_Pa), 0.0f, kDt_s); start_ramp_ = true;
+       hold_ramp_ = false;   // v2.10 LEAD 186 (2)
++      r2_backstop_ = false; r2_hold_ticks_ = 0;   // v2.11 LEAD 216 (2)(b): backstop per start (E2 = this RUN entry)
+       break;
+     case State::SHUTDOWN:   // v2.7 RC-01: pintle first; the NC valve stays latched until the seat is confirmed or kMvSeatTimeout_s
+       if (!hold_mv && mv_latch_) { mv_seat_wait_ = true; seat_n_ = 0; mv_seat_timeout_ = false; }
+@@ -749,6 +770,8 @@
+   // v2.8 final (LEAD 2026-10-13, ENG-12 15-24 C): tank above 24 C (max of the wall DS18B20 and Tsat(P_tank)) or no valid reading
+   if (tank_hot_) { *why = Abort::TANK_HOT; return false; }
+   if (tank_cold_) { *why = Abort::TANK_COLD; return false; }   // v2.10 RE-17 (ENG-12 15-24 C lower bound)
++  // v2.11 (LEAD 216 (7)): ARM margin above the 15 C bound (PREPRESS Tsat drop + repeatability, config.h kTankColdArmMargin_K)
++  if (!(tank_tmin_K_ >= kTankIgnMin_K + kTankColdArmMargin_K)) { *why = Abort::TANK_COLD; return false; }
+   if (!in.arm_plug_present) { *why = Abort::ARM_LOST; return false; }
+   if (t_now_ - last_fast_t_ > kLinkDegraded_s) { *why = Abort::LINK_LOST; return false; }   // FC heartbeat (CMD_FAST) required
+   if (in.vbat_V < kBattArmMin_V) { *why = Abort::BATT_LOW; return false; }
+@@ -759,8 +782,15 @@
+   // v2.7: the flame gate needs a plausible torch transducer on the vented torch (TEB band) unless the stand timing-only key is armed
+   if (!bypass_armed_ && (!in.ptorch_valid || std::fabs(in.ptorch_Pa) > kTorchArmZeroMax_Pa)) { *why = Abort::TORCH_FAULT; return false; }
+   if (in.ptank_Pa > kTankOverPressure_Pa) { *why = Abort::TANK_OVERPRESSURE; return false; }
+-  for (int k = 0; k < 3; ++k)
+-    if (in.tc_valid[k] && in.tc_K[k] > kCaseOverTemp_K) { *why = Abort::OVER_TEMP; return false; }
++  // v2.11 (LEAD 2026-10-20T21:46:49Z item 5): ARM on the START limit for the case TCs (TC1 / TC2 > kCaseRelightMax_K 130 C) and on the
++  // nozzle-holder limit for TC3 (> kNozzleHolderOverTemp_K); v2.8-v2.10 compared all three with the case abort kCaseOverTemp_K
++  for (int k = 0; k < 2; ++k)
++    if (in.tc_valid[k] && in.tc_K[k] > kCaseRelightMax_K) { *why = Abort::OVER_TEMP; return false; }
++  if (in.tc_valid[2] && in.tc_K[2] > kNozzleHolderOverTemp_K) { *why = Abort::OVER_TEMP; return false; }
++  // v2.11 STAND T0 RULE (LEAD 2026-10-20 item 3, ADOPTED): stand mode (strap) and TC1 or TC2 above 24 C -> ARM refused, its own code
++  if (modeStrapStand(in))
++    for (int k = 0; k < 2; ++k)
++      if (in.tc_valid[k] && in.tc_K[k] > kCaseStandArmMax_K) { *why = Abort::CASE_WARM_STAND; return false; }
+   // v2.10 RE-08 (LEAD CHANGELOG 166 (6)): both case TCs valid at ARM (an invalid case TC counts as hot, like bay and tank)
+   if (!in.tc_valid[0] || !in.tc_valid[1]) { *why = Abort::OVER_TEMP; return false; }
+   if (!in.mv_closed_sw || in.mv_sw_conflict) { *why = Abort::MV_FAULT; return false; }   // v2.10 RE-19: + ladder OPEN+CLOSED
+@@ -838,8 +868,18 @@
+         if (why == refuse::R4_SENSOR) ++ign_refused_r4_;
+         if (why == refuse::TANK_HOT || why == refuse::TANK_COLD) ++ign_refused_tank_;
+         refuseCmd(why);
++        // v2.11 (LEAD 216 (7)) SAFE EXIT: an IGNITE refused in PREPRESS (valve open, line primed) ends PREPRESS on this tick: back to
++        // ARMED (MV unlatched -> NC valve closes, CLOSED switch expected within kMvCloseConfirm_s else fault MV; pintle seated;
++        // auto-ignite cancelled). v2.10 held PREPRESS open up to kPrepressHoldMax_s (60 s) after such a refusal
++        if (st_ == State::PREPRESS) { auto_ignite_ = false; ++prepress_exit_n_; enter(State::ARMED, t); }
+         break;
+       }
++      // v2.11 (LEAD CHANGELOG 203 (7) ADOPTED; 186 (1), 204 (2)): FLIGHT with the head-end bleed fitted, a RELIGHT/IGNITE from COAST
++      // (no purge running) is an UNPURGED relight -> REFUSED. The accepted flight relight is the RELIGHT received during PURGE (below).
++      // Consequence: the COAST relight paths below (kMvHoldOpenInCoast, direct, prep) are reachable in flight only without the bleed
++      // fitted, and a flight relight on a state the purge does not cover (UNPRIMED / UNKNOWN segment: PURGE is refused PURGE_PATH) has
++      // no accepted path (Electronics v2.11 report, LEAD to rule). The stand keeps the unpurged start (CF-4 / T4).
++      if (st_ == State::COAST && unpurgedGuard()) { ++ign_refused_; refuseCmd(refuse::UNPURGED); break; }
+       cmd_refused_ = refuse::NONE;
+       if (st_ == State::COAST && !chamberVented()) f2_ |= f2::NOT_VENTED;   // v2.10 RE-07: flight relight not vented -> flag, proceeds
+       // v2.8 final: a flight relight is never refused on the tank interlock (the tank cools in each burn); flagged and logged
+@@ -852,11 +892,12 @@
+         break;
+       }
+       // MV held open through the coast (only with kMvHoldOpenInCoast): direct 0.3 s relight; otherwise PREPRESS (rule b)
+-      // v2.10 (LEAD CHANGELOG 175 (3)-(4), PURGE commit rule): a RELIGHT with NO preceding PURGE is an UNPURGED relight - accepted,
+-      // never refused or delayed for lack of a purge, path chosen from the line state as before (PRIMED -> direct, UNPRIMED/UNKNOWN ->
+-      // prep). The v2.9 sequence-integrated purge (RELIGHT in COAST -> PURGE, + 2.90 s) is DELETED. The FC alone decides a purge
+-      // (Cmd::PURGE). LEAD 186 (1): the FC commits iff the lead to the plain trigger is >= L* = 1.3 s (FC parameter), else no purge AND
+-      // no relight on that pass; the ECU still accepts an unpurged RELIGHT (FC rule; kept for GNC's held-release alternative, 186 (1))
++      // v2.10 (LEAD CHANGELOG 175 (3)-(4), PURGE commit rule): a RELIGHT with NO preceding PURGE is an UNPURGED relight; path chosen from
++      // the line state (PRIMED -> direct, UNPRIMED/UNKNOWN -> prep). The v2.9 sequence-integrated purge (RELIGHT in COAST -> PURGE,
++      // + 2.90 s) is DELETED. The FC alone decides a purge (Cmd::PURGE). LEAD 186 (1): the FC commits iff the lead to the plain trigger
++      // is >= L* = 1.3 s (FC parameter), else no purge AND no relight on that pass. v2.11 (LEAD 203 (7)): the ECU now REFUSES the
++      // unpurged RELIGHT in flight with the bleed fitted (guard above; GNC's held-release alternative NOT ADOPTED, 204 (2)); the paths
++      // below remain for the stand and for a build without the bleed
+       if (kMvHoldOpenInCoast && st_ == State::COAST && mv_latch_ && feedPrimed(in)) enter(State::IGNITION, t);
+       else if (st_ == State::COAST && directRelightOk(in)) {
+         // v2.8 Finding A (LEAD 2026-10-13): NC valve latch + opener ramp (rule b) and torch on this tick (E0); lift at E1
+@@ -952,18 +993,42 @@
+   const bool burning = (st_ == State::IGNITION || st_ == State::RUN);
+   const float pc_abs = pc_f_ + pamb_Pa;
+   // --- chamber over-pressure [LEAD 2026-10-12: MEOP 45 bar, ECU abort ~30 bar]. Every state except SAFE and not gated by
+-  //     the sensor-valid flag: a reading saturated high (> 4.75 V = 73 bar) also aborts. Cause HARD_START during ignition.
++  //     the sensor-valid flag: a reading saturated high (>= 4.75 V: 146.5 bar abs on the v2.11 C1 XTL-190SM-2000A chain, 74.4 bar g
++  //     = 75.4 bar abs on the 070BG; v2.10 comment '73 bar' corrected, REV-ELEC-2 R2-12) also aborts. Cause HARD_START during ignition.
+ #ifdef ECU_SIL_TEST_HOOKS
+   const bool fw_ovp_on = !test_disable_fw_ovp;
+ #else
+   constexpr bool fw_ovp_on = true;
+ #endif
+-  if (st_ != State::SAFE && fw_ovp_on && p_hard_.step(pc_abs > kPcOverPressureAbs_Pa, kPcOverPressureTime_s, dt)) {
++  // v2.11 FA-1 RIDE-THROUGH (LEAD CHANGELOG 203 (1)(b) CANDIDATE, config.h kRide*; default OFF): flight relight only (rule FLIGHT_RELIGHT,
++  //     never the stand or the pad first start), from the ignition-lift command of this start to E2 + kRideWinPostE2_s. Inside it the
++  //     filtered 30 bar persistence is kRideOvpTime_s and a raw reading above the 45 bar MEOP for kRideT45_s aborts HARD_START; the
++  //     IGNITION HIGH over-range rule needs kRideOverrangeN consecutive ticks (state logic, LEAD 216 (3)). The hardware comparator RC
++  //     is FIXED (BOM variant, whole burn; no firmware request since 2026-10-20). The same persistence timer runs through: an episode
++  //     still above 30 bar when the window closes trips at once on the as-built 5 ms.
++  ride_win_ = false; ride_tol_ = false; ride_t45_ = false;
++  if (ride_through && !stand_ && ign_rule_ == rule::FLIGHT_RELIGHT && t_lift_ >= 0.0) {
++    if (st_ == State::IGNITION) ride_win_ = true;
++    else if (st_ == State::RUN && t_lit_ >= t_lift_ && t - t_lit_ + kTimeEps_s < kRideWinPostE2_s) ride_win_ = true;
++  }
++  const float ovp_time = ride_win_ ? kRideOvpTime_s : kPcOverPressureTime_s;
++  const bool ovp_trip = st_ != State::SAFE && fw_ovp_on && p_hard_.step(pc_abs > kPcOverPressureAbs_Pa, ovp_time, dt);
++  if (ride_win_ && p_hard_.t >= kPcOverPressureTime_s) { ride_tol_ = true; ++ride_tol_n_; }   // as built would have tripped here
++  if (ovp_trip) {
+     faults_ |= fault::PC_OVERP;
+     const bool ign_phase = st_ == State::IGNITION || (st_ == State::RUN && ts < kRunSettle_s);
+     doAbort(ign_phase ? Abort::HARD_START : Abort::PC_OVERPRESSURE, t);
+     return;
+   }
++  if (ride_win_) {
++    const float raw_abs = in.pc_Pa - pc_zero_ + pamb_Pa;
++    ride_t45_ = std::isfinite(raw_abs) && raw_abs > kPcMeopLeadAbs_Pa;
++    if (fw_ovp_on && p_t45_.step(ride_t45_, kRideT45_s, dt)) {
++      faults_ |= fault::PC_OVERP;
++      doAbort(Abort::HARD_START, t);   // inside the window the state is IGNITION or RUN before kRunSettle_s
++      return;
++    }
++  } else p_t45_.reset();
+   // --- v2.8.1 over-thrust (LEAD 2026-10-13 ADOPTED, GNC m2_fc_thrust v1.1): flight, RUN, kOverThrustFrames consecutive fresh valid
+   //     FC_THRUST frames above kOverThrust_N (counted at frame receipt in step()). Runs with the Pc channel valid or not: with it lost the
+   //     firmware check above and the hardware comparator (same PC_SIG) are blind, and an in-range wrong Pc reading blinds them too
+@@ -1291,7 +1356,11 @@
+ 
+   // ---------------- sensors (gauge in; absolute for control)
+   pc_sensor_ok_ = in.pc_raw_V > kPcSensorMin_V && in.pc_raw_V < kPcSensorMax_V;
+-  if (!pc_sensor_ok_) faults_ |= fault::PC_SENSOR;
++  // v2.11 (LEAD CHANGELOG 203 (1)(a) ADOPTED): the HIGH over-range is its own non-sticky bit; PC_VALID (pc_sensor_ok_) is 0 only while it
++  // lasts. Flight: it no longer latches fault::PC_SENSOR (pressure, not a sensor fault); LOW / NaN still latch. Stand: as built
++  pc_overrange_ = in.pc_raw_V >= kPcSensorMax_V;
++  pc_above_fs_ = in.pc_raw_V >= kPcAboveFs_V;
++  if (!pc_sensor_ok_ && !(kPcOverrangeNonSticky && !stand_ && pc_overrange_)) faults_ |= fault::PC_SENSOR;
+   pc_f_ = pc_lpf_.step(in.pc_Pa - pc_zero_);
+   pfeed_lpf_.step(in.pfeed_Pa);
+   ptank_lpf_.step(in.ptank_Pa);
+@@ -1325,6 +1394,7 @@
+   bool ran_controller = false;
+   servo_us_[3] = kMvOpenerRest_us;
+   ceiling_active_ = false;
++  ride_ovr_tol_ = false;            // v2.11 LEAD 216 (3): set by the IGNITION over-range rule on a tolerated tick
+   const double ti = t - t_ign_;     // time since IGNITION entry (torch sequence clock)
+   bool torch_n2o = false, torch_prop = false;   // v2.7 SOL1 torch N2O, SOL2 torch propane (torchStep)
+   switch (st_) {
+@@ -1386,12 +1456,17 @@
+       arm_req = true; tvc_en = true;
+       if (relight_direct_ && mv_cocking_) mvOpener(t - t_mv_cmd_);   // v2.8 direct relight: the valve opens during the torch phase
+       if (!pc_sensor_ok_) {
+-        // v2.6 OI-6: a HIGH over-range is treated as real pressure (the sense line rings a hard start above the range before the
++        // v2.6 OI-6 (kept in v2.11 with C1, LEAD 203 (1)): a HIGH over-range is real pressure (the v2.10 sense line rang a hard start above the range before the
+         // filtered over-pressure check can persist 5 ms, v2.2-v2.9: 3 ms); LOW (open/short) stays a sensor fault. Both abort on this tick.
+-        if (in.pc_raw_V >= kPcSensorMax_V) { faults_ |= fault::PC_OVERP; doAbort(Abort::HARD_START, t); }
+-        else doAbort(Abort::PC_SENSOR, t);
+-        break;
+-      }
++        // v2.11 (LEAD 216 (3), ride-through build only): inside the window (flight relight, from the lift command E1) the HIGH rule needs
++        // kRideOverrangeN consecutive over-range ticks; a tolerated tick takes no light decision (the light counter holds) and is logged
++        if (in.pc_raw_V >= kPcSensorMax_V) {
++          ++ign_ovr_n_;
++          const bool win = ride_through && !stand_ && ign_rule_ == rule::FLIGHT_RELIGHT && t_lift_ >= 0.0;
++          if (!win || ign_ovr_n_ >= kRideOverrangeN) { faults_ |= fault::PC_OVERP; doAbort(Abort::HARD_START, t); break; }
++          ride_ovr_tol_ = true; ++ride_ovr_tol_n_;
++        } else { doAbort(Abort::PC_SENSOR, t); break; }
++      } else ign_ovr_n_ = 0;
+       // v2.7 RC-01 torch-flame gate: P_torch above kTorchLitAbs_Pa for kTorchConfirmN ticks while the main chamber is still
+       // vented (gauge < 1 bar). Not confirmed by cfg::kTorchGate_s (v2.8: 0.16 s; v2.7: eng::kTorchConfirmBy_s 0.100 s) -> TORCH_FAULT;
+       // the pintle stays seated until the confirmation (v2.8: the lift is commanded AT it), so no main N2O is admitted.
+@@ -1428,7 +1503,7 @@
+       }
+       // v2.9 light (E2) by the LEAD-adopted relative rule (ignDetect; v2.6-v2.8.3: filtered AND raw above 3.0 bar abs for 5 ticks).
+       // LEAD rule (a): the pintle stays at the ignition lift until then
+-      const bool light = ignDetect(in, t);
++      const bool light = !ride_ovr_tol_ && ignDetect(in, t);   // v2.11: no light decision on a tolerated over-range tick
+       if (light) {
+         lit_ = true; lit_since_boot_ = true; t_lit_ = t;
+         if (!lit_session_) { lit_session_ = true; lit_session_event_ = true; }   // v2.7: HAL sets NvJamRecord b2 (one write)
+@@ -1446,6 +1521,11 @@
+         if (ign_detect_relative && (stand_ || !lit_since_boot_) && baseHighNow()) {
+           f2_ |= f2::BASE_HIGH; faults_ |= fault::PC_SENSOR; doAbort(Abort::PC_SENSOR, t); break;
+         }
++        // v2.11 (LEAD CHANGELOG 216 (4)): P0 below -check (BASE_AMB) on the pad / stand -> the lift is REFUSED as well (PC_SENSOR, det::BASE_AMB):
++        // the pad / stand target is a refusal before the lift on either side; the A1 relight keeps P0 := 0 (ambient) and proceeds (v2.10)
++        if (ign_detect_relative && (stand_ || !lit_since_boot_) && baseLowNow()) {
++          ign_det_ |= det::BASE_AMB; faults_ |= fault::PC_SENSOR; doAbort(Abort::PC_SENSOR, t); break;
++        }
+         t_lift_ = t;
+       }
+       if (t_lift_ >= 0.0) pintle_target = std::fmin(kPintleUnlitLiftMax_m, ign_lift_m_ * std::fmin(1.0f, 1.0f + pcc_.trim()));
+@@ -1475,11 +1555,23 @@
+       // (the Pc setpoint slew kPcSpRateLimit_Paps still applies; a pre-MECO throttle-down is an ordinary FC command)
+       float thr = thrust_cmd_;
+       // v2.10 LEAD CHANGELOG 186 (2) R2 command hold (config.h): flight, drogue attached, Pc invalid -> open-loop command held at the start
+-      // level at once; the start-ramp limiter is parked at the held value so the command returns at <= kStartRamp_Nps after the release
+-      r2_hold_ = !stand_ && drogue_attached_ && !pc_sensor_ok_;
++      // level at once; the start-ramp limiter is parked at the held value so the command returns at <= kStartRamp_Nps after the release.
++      // v2.11 (LEAD 216 (9) R2-22): LIFT-commanded at kR2HoldLift_m (below); (LEAD 216 (2)(b) R2-02): ECU backstop at E2 + kR2HoldBackstop_s,
++      // latched for the start and logged. R2-23 (v2.11 statement): a HIGH over-range tick is Pc-invalid for the FC as well (TLM 0xFFFF /
++      // PC_VALID 0: the R2 Pc branch cannot be evaluated on that frame), so it engages the hold for exactly those ticks (non-sticky)
++      if (!r2_backstop_ && drogue_attached_ && !stand_ && t - t_lit_ + kTimeEps_s >= kR2HoldBackstop_s) {
++        r2_backstop_ = true; r2_backstop_event_ = true;
++      }
++      r2_hold_ = !stand_ && drogue_attached_ && !pc_sensor_ok_ && !r2_backstop_;
++      bool hold_lift = false;
++      float sp_hold = 0.0f;
+       if (r2_hold_) {
+-        thr = std::fmin(thrust_cmd_, kR2HoldThrust_N);
+-        thr_rl_.reset(thr); hold_ramp_ = true;
++        // map equivalent of the hold lift at this tank pressure with the learned trim removed: the open-loop command then equals
++        // kR2HoldLift_m (PcController::holdLift) and the setpoint / start-ramp states are parked there for a bumpless return
++        const float scale = 1.0f + pcc_.trim();
++        sp_hold = ValveMap::pcForLift(kR2HoldLift_m / (scale > 0.05f ? scale : 1.0f), ptank_abs);
++        thr = std::fmin(thrust_cmd_, std::fmin(kR2HoldThrust_N, thrust::thrustFromPcAbs(sp_hold, pamb_Pa)));
++        thr_rl_.reset(thr); hold_ramp_ = true; hold_lift = true; ++r2_hold_ticks_;
+       } else if (start_ramp_ || hold_ramp_) {
+         thr = thr_rl_.step(thrust_cmd_, kStartRamp_Nps, dt);
+         if (std::fabs(thr - thrust_cmd_) < 0.5f) { start_ramp_ = false; hold_ramp_ = false; }
+@@ -1492,8 +1584,11 @@
+         gimbal_target[0] = gimbal_target[1] = 0;
+       }
+       if (!pc_sensor_ok_) faults_ |= fault::OPEN_LOOP;
+-      pintle_target = pcc_.step(sp, pc_abs, ptank_abs, dt, pc_sensor_ok_, ts > kRunIntegHold_s,
+-                                in.pintle_meas_valid ? in.pintle_meas_m : std::numeric_limits<float>::quiet_NaN());
++      if (hold_lift && thrust_cmd_ + 1e-3f >= kR2HoldThrust_N)   // v2.11 lift-commanded hold (a lower FC command keeps the thrust path)
++        pintle_target = pcc_.holdLift(kR2HoldLift_m, std::fmin(sp, sp_hold), ptank_abs, dt);
++      else
++        pintle_target = pcc_.step(sp, pc_abs, ptank_abs, dt, pc_sensor_ok_, ts > kRunIntegHold_s,
++                                  in.pintle_meas_valid ? in.pintle_meas_m : std::numeric_limits<float>::quiet_NaN());
+       lift_clamp_now_ = pcc_.liftClamped();   // v2.10 RE-04 travel clamp (f2::LIFT_CLAMP, per tick, RUN only)
+       ran_controller = true;   // controller already rate-limits
+       pc_ref_ = pc_ref_lpf_.step(pcc_.setpointActive());
+@@ -1653,13 +1748,22 @@
+   out.state_t_ms = t_state_ms_; st_out_prev_ = st_;
+   out.tlm_flags = static_cast<uint8_t>(((ign_det_ & det::LIT) ? tlmf::E2 : 0u) | (rise_now_ ? tlmf::RISE_NOW : 0u) |
+                                        (rise_held_ ? tlmf::RISE_HELD : 0u) | (rise_held_t_ ? tlmf::RISE_HELD_T : 0u) |
+-                                       (r2_hold_ ? tlmf::R2_HOLD : 0u) | (drogue_attached_ ? tlmf::DROGUE : 0u));   // b0-b1 log only
++                                       (r2_hold_ ? tlmf::R2_HOLD : 0u) | (drogue_attached_ ? tlmf::DROGUE : 0u) |
++                                       (r2_backstop_ ? tlmf::R2_BACKSTOP : 0u));   // b0-b2 log only (b2 v2.11)
+   out.drogue_attached = drogue_attached_; out.r2_hold = r2_hold_;   // v2.10 LEAD 186 (2)
++  out.r2_backstop = r2_backstop_; out.r2_backstop_event = r2_backstop_event_; r2_backstop_event_ = false;   // v2.11 LEAD 216 (2)(b)
++  out.r2_hold_ticks = r2_hold_ticks_;
+   out.pc_sp_active_Pa = (st_ == State::RUN) ? pcc_.setpointActive() : 0.0f;
+   out.pintle_cmd_m = pintle_cmd_;
+   out.gimbal_cmd_shaped_rad[0] = gimbal_shaped_[0]; out.gimbal_cmd_shaped_rad[1] = gimbal_shaped_[1];
+   out.thrust_est_N = thrust_est_;
+   out.pc_valid = pc_sensor_ok_;   // v2.8.2 RG-15: TLM_FAST / TLM_GIMBAL invalid markers
++  // v2.11 (LEAD CHANGELOG 203 (1)): non-sticky over-range / above-FS bits and the ride-through CANDIDATE (log v12 ovr_flags)
++  out.pc_overrange = pc_overrange_; out.pc_above_fs = pc_above_fs_;
++  out.ovr_flags = static_cast<uint8_t>((pc_overrange_ ? ovr::OVERRANGE : 0u) | (pc_above_fs_ ? ovr::ABOVE_FS : 0u) |
++                                       (ride_win_ ? ovr::RIDE_WIN : 0u) | ((ride_tol_ || ride_ovr_tol_) ? ovr::RIDE_TOL : 0u) |
++                                       (ride_t45_ ? ovr::T45 : 0u) |
++                                       (ride_through ? ovr::RIDE_BUILD : 0u));
+   // v2.10 (LEAD CHANGELOG 175 (4)): pad launch-commit bit (TLM_RELIGHT d6 b7); (3): encoder lift for TLM_FAST d4-d5 (0xFFFF invalid)
+   out.pc_commit_valid = pc_sensor_ok_ && !(faults_ & fault::PC_SENSOR) && !(abort_latched_ && abort_ == Abort::PC_SENSOR);
+   out.pintle_meas_m = in.pintle_meas_m; out.pintle_meas_valid = in.pintle_meas_valid;
+@@ -1730,6 +1834,9 @@
+     out.seg_ratio = (out.seg_valid && pt_abs > 0.0f) ? pf_abs / pt_abs : std::numeric_limits<float>::quiet_NaN();
+     const bool in_purge = st_ == State::PURGE;   // v2.9: a RELIGHT is accepted in PURGE (ignition at t_purge, or at once after it)
+     out.relight_block = (st_ == State::COAST || in_purge) ? startBlock(in, t) : refuse::NOT_COAST;
++    // v2.11 (LEAD 203 (7)): flight, bleed fitted - in COAST a RELIGHT would be refused UNPURGED when nothing else blocks it (READY 0;
++    // the FC reads UNPURGED as 'PURGE first': the same startBlock() reasons apply to Cmd::PURGE, which also needs the direct path)
++    if (st_ == State::COAST && out.relight_block == refuse::NONE && unpurgedGuard()) out.relight_block = refuse::UNPURGED;
+     // v2.8 final (GNC v3 option (c), LEAD 2026-10-13): VALID only after the MECO valve closure (CLOSED seen with OPEN clear and the
+     // latch off in this coast, or the closure overdue by kMvCloseConfirm_s: the ECU will then take the prep path). PRIMED exactly when
+     // a RELIGHT now takes the direct path; UNKNOWN when P_feed or P_tank is invalid (prep path); UNPRIMED otherwise
+@@ -1741,10 +1848,11 @@
+                            : ((!(in.pfeed_valid && in.ptank_valid) || coast_enc_lost_) ? segstate::UNKNOWN
+                                                                                        : (directRelightOk(in) ? segstate::PRIMED : segstate::UNPRIMED)));
+     const float w = stand_ ? kIgnWindowRelightStand_s : kIgnWindowRelightLong_s;   // v2.8.1: stand R2 0.35 s (R3 deleted)
+-    // v2.9: in PURGE the remaining purge time. v2.10 (LEAD 175 (3)): in COAST a RELIGHT is unpurged (no integrated purge), so the
+-    // direct path has no prep time whether or not the bleed is fitted (810 ms flight); the prep path keeps its prep time (1370 ms)
++    // v2.9: in PURGE the remaining purge time. v2.10 (LEAD 175 (3)): in COAST a RELIGHT is unpurged (no integrated purge): direct path
++    // 810 ms flight, prep path 1370 ms; v2.11 (LEAD 203 (7)): flight with the bleed fitted refuses it UNPURGED, PURGE lead first (3710 ms)
+     float prep = kBleedSettle_s + kMvOpenRampSlow_s + kMvCockHold_s;
+     if (in_purge) prep = std::fmax(0.0f, static_cast<float>(purgeE0Est(t) - t));   // v2.10: to the scheduled E0 (flow time)
++    else if (unpurgedGuard()) prep = kPurgeRelight_s;   // v2.11 (LEAD 203 (7)): a PURGE must come first (E0 at PURGE + 2.90 s)
+     else if (directRelightOk(in)) prep = 0.0f;
+     out.relight_worst_ms = static_cast<uint16_t>(std::lround(1000.0f * (prep + kTorchGate_s + w)));
+   }
+@@ -1802,7 +1910,7 @@
+ }
+ 
+ void EngineEcu::fillLog(const Inputs& in, const Outputs& o, LogRecord& r) {
+-  r.magic = 0xA7E5; r.version = 11; r.state = static_cast<uint8_t>(o.state);
++  r.magic = 0xA7E5; r.version = kLogVersion; r.state = static_cast<uint8_t>(o.state);   // v2.11: 12
+   {   // v2.10 RE-25: t_us wraps every 71.6 min; the wrap count is logged
+     const double tus = in.t_s * 1e6;
+     r.t_us = static_cast<uint32_t>(std::fmod(tus, 4294967296.0));
+@@ -1893,12 +2001,14 @@
+     r.ls_t8r_ms = ms_u16(L.t8_raw_s); r.ls_t8f_ms = ms_u16(L.t8_filt_s);
+     r.ls_t30r_ms = ms_u8(L.t30_raw_s); r.ls_t30f_ms = ms_u8(L.t30_filt_s);
+     r.ls_flags = static_cast<uint8_t>((L.open ? 1u : 0u) | (L.done ? 2u : 0u) | (L.lit ? 4u : 0u) | (o.light_spike_event ? 8u : 0u) |
+-                                      (L.closed_by_exit ? 16u : 0u) | (L.masked ? 32u : 0u) | (L.overrange ? 64u : 0u));
++                                      (L.closed_by_exit ? 16u : 0u) | (L.masked ? 32u : 0u) | (L.overrange ? 64u : 0u) |
++                                      (L.abovefs ? 128u : 0u));   // v12 b7 above full scale (LEAD 203 (1)(a))
+   }
+   r.hb2_flags = o.hbleed2; r.purge_flow_ms = o.purge_flow_ms; r.fa1_flags = o.fa1;   // v2.10 purge, FA-1, f2 flags
+   r.photo_mV = (in.photo_valid && std::isfinite(in.photo_V)) ? static_cast<uint16_t>(std::lround(std::fmin(65.534f, std::fmax(0.0f, in.photo_V)) * 1000.0f)) : 0xFFFFu;
+   r.photo_dark_mV = static_cast<uint16_t>(std::lround(std::fmin(65.534f, std::fmax(0.0f, o.photo_dark_V)) * 1000.0f));
+   r.fault2 = o.fault2;
++  r.ovr_flags = o.ovr_flags;   // v12 (v2.11, LEAD 203 (1))
+   r.crc16 = crc16_ccitt(reinterpret_cast<const uint8_t*>(&r), sizeof(LogRecord) - 2);
+ }
+ 

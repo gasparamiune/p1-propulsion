@@ -1,0 +1,63 @@
+--- /dev/shm/rev_elec3/fw210/sil/test_v210.inc	2026-10-13 15:21:20.000000000 +0000
++++ /dev/shm/rev_elec3/fw/sil/test_v210.inc	2026-10-21 00:18:57.175787983 +0000
+@@ -7,7 +7,7 @@
+     r.tick(); if (r.o.light_spike_event) ++nev;
+     const LightSpikeRec& L = r.o.light_spike;
+     const uint16_t a1 = evt::lightSpikeArg(20.0e5f, 0.030f), a2 = evt::lightSpikeArg(200.0e5f, 2.0f), a3 = evt::lightSpikeArg(std::nanf(""), 0.0f);
+-    const bool log_ok = r.lr.version == 11 && r.lr.ls_raw_hPa == static_cast<uint16_t>(std::lround(L.peak_raw_Pa * 0.01f)) && r.lr.ls_tlight_ms == 0xFFFFu &&
++    const bool log_ok = r.lr.version == kLogVersion && r.lr.ls_raw_hPa == static_cast<uint16_t>(std::lround(L.peak_raw_Pa * 0.01f)) && r.lr.ls_tlight_ms == 0xFFFFu &&
+                         (r.lr.ls_flags & 0x16u) == 0x12u;   // done + closed by exit, not lit
+     check(r.e.abortCause() == Abort::NO_IGNITION && L.done && !L.lit && L.closed_by_exit && nev == 1 && std::fabs(L.peak_raw_Pa - 1.5e5f) < 600.0f &&
+               L.t8_raw_s == 0.0f && !std::isfinite(L.t_light_s) && a1 == (40u | (15u << 8)) && a2 == (254u | (255u << 8)) && a3 == 0x00FFu && log_ok,
+@@ -21,7 +21,15 @@
+       //          only trace in the fault word. pc_sensor_ok_ has ONE assignment (the voltage window, engine_ecu.cpp step()).
+     Rig9 r; r.thrust = 62.5f; r.toIgnition(); r.lightRun(3.0e5f); r.setPcAbs(7.6e5f);
+     int n = 0, ol = 0, inval = 0, tlm_bad = 0; bool flag = false; int n_flag = -1;
++    int b7_blank_bad = 0, b7_set_after = 0, b7_n = 0, b7_first0 = -1;   // v2.11 LEAD 216 (8) condition 4: TLM_RELIGHT d6 b7
+     auto obs = [&]() {
++      {   // d6 b7 (pad launch-commit 'Pc channel valid', latched by fault::PC_SENSOR): 1 through the blank, 0 from the A7 flag on
++        can::TlmRelight d; const bool okd = can::decodeTlmRelight(can::encodeTlmRelight(2, r.o), &d);
++        ++b7_n;
++        if (!flag && !r.o.a7_flag && !(okd && d.pc_valid)) ++b7_blank_bad;
++        if ((flag || r.o.a7_flag) && okd && d.pc_valid) ++b7_set_after;
++        if (b7_first0 < 0 && !(okd && d.pc_valid)) b7_first0 = n;
++      }
+       if (r.o.fault_bits & fault::OPEN_LOOP) ++ol;
+       if (!r.o.pc_valid) ++inval;
+       const can::Frame f = can::encodeTlmFast(1, r.o, r.e.pcAbsFiltered(), r.o.pintle_cmd_m);
+@@ -34,6 +42,14 @@
+     r.follow = true; for (int k = 0; k < 60; ++k) { r.tick(); ++n; obs(); } r.follow = false;
+     const int n_x = n;
+     for (int k = 0; k < 100 && r.e.state() == State::RUN; ++k) { r.setPcAbs(1.5f * r.o.pc_sp_active_Pa); r.tick(); ++n; obs(); }   // < PC_BAND 150 ms
++    r.follow = true; for (int k = 0; k < 100; ++k) { r.tick(); ++n; obs(); } r.follow = false;   // back in band: b7 stays 0 (latched)
++    const bool b7_ok = b7_blank_bad == 0 && b7_set_after == 0 && b7_first0 == n_flag && b7_n == n;
++    check(b7_ok && quiet,
++          "v2.11 LEAD 216 (8) condition 4 (v210-2 extended on TLM_RELIGHT d6 b7): b7 = 1 on every tick of the 7.6 bar excursion inside the "
++          "E2..E2 + 0.45 s A7 high-side blank (blind window: no A7 high flag, b7 untouched); b7 = 0 from the A7 flag tick after the blank "
++          "and stays 0 (latched by fault::PC_SENSOR) with Pc back in band",
++          fmtv("b7 bad in blank %d, b7 set after the flag %d, b7 first 0 at tick %d (A7 flag tick %d), ticks %d", b7_blank_bad, b7_set_after,
++               b7_first0, n_flag, b7_n));
+     check(quiet && flag && n_flag - n_x >= 50 && n_flag - n_x <= 60 && r.e.state() == State::RUN && r.e.abortCause() == Abort::NONE &&
+               ol == 0 && inval == 0 && tlm_bad == 0 && (r.o.fault_bits & fault::PC_SENSOR),
+           "v2.10 item 3 + RE-12: flight A7 high side quiet for a 7.6 bar excursion inside E2..E2 + 0.45 s; after the blank 1.5 x setpoint flags "
+@@ -152,6 +168,7 @@
+           fmt("(b) release E2+%.0f ms branch %.0f", b.t_rel * 1e3, b.branch) + fmt(", (c) E2+%.0f ms branch %.0f", c.t_rel * 1e3, c.branch) +
+               fmt("; EVENT t_ms %.0f arg %.0f (decimal)", (double)b.ev_ms, (double)b.ev_arg));
+   }
++#ifdef ECU_SIL_TEST_HOOKS   // v2.11 R2-08: needs the test-only schedule hook (absent from the no-hooks build build/test_core_nohooks)
+   {   // (v210-8) both-valves-open cap (LEAD CHANGELOG 164 (2)): a schedule that never closes V1 (test hook) -> both close at once at
+       //          kHbleedCap_s after V2 opened (EV_CAP, closure NOT CONFIRMED, BLEED_FAULT flag); flow reported = cap - open time + close time
+     Rig9 r(true); toCoast(r); r.run(600); r.e.test_inhibit_purge_close = true; r.tick(Cmd::PURGE);
+@@ -159,9 +176,11 @@
+       r.tick(); if (r.o.hbleed[0] && r.o.hbleed[1]) ++both; if (r.o.hbleed_event == hb::EV_CAP) ++ncap; if (r.o.hbleed2 & hb2::NOT_CONFIRMED) break; }
+     check(ncap == 1 && !r.o.hbleed[0] && !r.o.hbleed[1] && std::abs(both - static_cast<int>(std::lround(1000 * kHbleedCap_s)) - 1) <= 2 &&
+               (r.o.hbleed2 & hb2::NOT_CONFIRMED) && r.o.bleed_fault,
+-          "v2.10 hard cap: both bleed valves commanded open longer than 2.5 s + open + close time -> both close at once (EV_CAP), NOT CONFIRMED",
++          "v2.10 hard cap (v2.11 value kHbleedCap_s 2.55 s, command span, LEAD 203 (3) / 216 (5)): both bleed valves commanded open longer "
++          "than the cap -> both close at once (EV_CAP), NOT CONFIRMED",
+           fmt("both open %.0f ms (cap %.0f ms)", both, 1000 * kHbleedCap_s));
+   }
++#endif
+   {   // (v210-9) LEAD RE-07 second re-zero, 20.6 s coast (REV-ELEC-1 RE-07/RE-11): drift steps after the first re-zero. +0.25 bar at coast
+       //          + 5 s: the block before the RELIGHT re-zeroes (REZERO2, shift 0.25 bar), the chamber reads vented, no NOT_VENTED flag. +0.35 bar
+       //          (> 0.30 bar from the pad zero): REZERO2_REJ; flight RELIGHT proceeds with NOT_VENTED, stand refused NOT_VENTED. Bleed fitted:

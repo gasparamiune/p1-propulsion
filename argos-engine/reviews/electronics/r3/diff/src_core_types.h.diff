@@ -1,0 +1,101 @@
+--- /dev/shm/rev_elec3/fw210/src/core/types.h	2026-10-13 15:14:37.000000000 +0000
++++ /dev/shm/rev_elec3/fw/src/core/types.h	2026-10-21 02:28:20.147289027 +0000
+@@ -1,3 +1,4 @@
++// [v2.11 2026-10-13, LEAD CHANGELOG 203: refuse UNPURGED (16), ovr:: flags, LightSpikeRec.abovefs, Outputs pc_overrange / pc_above_fs / ovr_flags (ovp_long_rc removed 2026-10-20, LEAD 216 (3))]
+ // [v2.10 2026-10-13, REV-ELEC-1 + LEAD CHANGELOG 164/166/168/172/175/181/186: Abort TORCH_LOST / TANK_COLD, refuse SAFING_HOLD / TANK_COLD, f2 flags, Outputs pc_commit_valid / pintle_meas; Cmd::DROGUE + R2 hold outputs (186 (2)); full list in 06-electronics/REPORT-v2.10-HANDBACK.md] ARGOS engine ECU - shared types (v2.9, 2026-10-13: Abort::BLEED_FAULT, refuse::NO_HBLEED / PURGE_PATH, Inputs pmid_hi / pmid_valid
+ // (head-end bleed P_mid comparator via the MV switch ladder), Outputs hbleed[2] / hbleed_flags / hbleed_bit / hbleed_event (hb::), light-
+ // detection diagnostics ign_det / ign_ref_Pa / ign_rise_Pa (det::, LEAD-adopted relative rule), A3 relative flame-out ratio and A7 map
+@@ -72,8 +73,10 @@
+                           //   FLIGHT an unconfirmed closure is a FLAG to the FC (Outputs::bleed_fault), the relight proceeds
+   TORCH_LOST = 29,         // v2.10 FMEA FA-1 (b) (LEAD CHANGELOG 164 (8)): torch confirmed (E1 2oo2) but BOTH flame sensors (P_torch,
+                           //   photodiode) read no flame for cfg::kTorchLossTime_s before E2: pintle and NC valve close (fault NO_IGNITION)
+-  TANK_COLD = 30          // v2.10 RE-17: tank below cfg::kTankIgnMin_K (15 C) or no valid tank temperature at ARM (pad first start,
++  TANK_COLD = 30,         // v2.10 RE-17: tank below cfg::kTankIgnMin_K (15 C) or no valid tank temperature at ARM (pad first start,
+                           //   stand starts; a flight relight is flagged only, the tank cools in every burn)
++  CASE_WARM_STAND = 31    // v2.11 (LEAD 2026-10-20 stand T0 rule, ADOPTED): ARM refused in stand mode with TC1 or TC2 above
++                          //   cfg::kCaseStandArmMax_K (24 C) - a backstop; the founder pre-fire checklist (stand ambient <= 24 C) is the control
+ };
+ const char* abortName(Abort a);
+ 
+@@ -205,7 +208,21 @@
+                   PURGE_PATH = 13,  // v2.9: Cmd::PURGE while a RELIGHT would take the prep path (segment not shown primed, post-abort
+                                     //   vapour, coast pintle anomaly): the purge is defined on the direct path only
+                   TANK_COLD = 14,   // v2.10 RE-17: tank below cfg::kTankIgnMin_K or no valid tank temperature (pad first start, stand starts)
+-                  SAFING_HOLD = 15; // v2.10 LEAD 172 (1): CLEAR_LOCKOUT inside the ground no-light safing hold (cfg::kNoLightSafingMin_s)
++                  SAFING_HOLD = 15, // v2.10 LEAD 172 (1): CLEAR_LOCKOUT inside the ground no-light safing hold (cfg::kNoLightSafingMin_s)
++                  UNPURGED = 16;    // v2.11 LEAD 203 (7): flight, bleed fitted - RELIGHT/IGNITE in COAST with no purge running (the only accepted
++                                    //   flight relight is a RELIGHT during PURGE; cfg::kUnpurgedRelightGuard). TLM_RELIGHT d6: relight_block =
++                                    //   UNPURGED in COAST when no startBlock() reason applies (READY 0, read as 'PURGE first'; Cmd::PURGE is
++                                    //   accepted) and relight_worst_ms includes the PURGE lead (kPurgeRelight_s + gate + W)
++}
++// v2.11 (LEAD CHANGELOG 203 (1)) Pc over-range / ride-through flags: Outputs::ovr_flags, log v12 ovr_flags
++namespace ovr {
++constexpr uint8_t OVERRANGE = 1u << 0,     // reading >= cfg::kPcSensorMax_V this tick (non-sticky; PC_VALID 0 while set)
++                  ABOVE_FS = 1u << 1,      // reading >= cfg::kPcAboveFs_V this tick (above the transducer full scale; flag only)
++                  RIDE_WIN = 1u << 2,      // ride-through window open (CANDIDATE build option, flight relight, lift -> E2 + X)
++                  RIDE_TOL = 1u << 3,      // tolerated by the window: filtered Pc above 30 bar past the as-built persistence, or (2026-10-20) an IGNITION HIGH over-range tick below N
++                  LONG_RC_RETIRED = 1u << 4,   // v2.11 draft long-RC request: RETIRED 2026-10-20 (LEAD 216 (3) fixed RC); always 0
++                  T45 = 1u << 5,           // ride window: raw reading above the 45 bar MEOP this tick (T45 guard counting)
++                  RIDE_BUILD = 1u << 6;    // ride-through enabled in this build / configuration (EngineEcu::ride_through)
+ }
+ // v2.9 head-end bleed (LEAD 2026-10-13 A1 provision): Outputs::hbleed_flags bits, hbleed_bit codes, hbleed_event kinds (EVENT HBLEED)
+ namespace hb {
+@@ -275,7 +292,8 @@
+                                          //   start; never set on an invalid channel, LEAD 168 (1))
+ // v2.10 (LEAD CHANGELOG 186 (2)) LOG-ONLY bits b0-b1 of Outputs::tlm_flags / LogRecord::tlm_flags (TLM_FAST d1 carries b4-b7 only)
+ constexpr uint8_t R2_HOLD = 1u << 0,     // R2 command hold active this tick (flight RUN, drogue attached, Pc invalid)
+-                  DROGUE = 1u << 1;      // drogue attached as last reported by the FC (Cmd::DROGUE)
++                  DROGUE = 1u << 1,      // drogue attached as last reported by the FC (Cmd::DROGUE)
++                  R2_BACKSTOP = 1u << 2; // v2.11 (LEAD 216 (2)(b)): the hold was ended by the E2 + kR2HoldBackstop_s backstop (latched per start)
+ }
+ // v2.10 LIGHT_SPIKE record (LEAD 2026-10-13 CHANGELOG 160 (1): A5 deleted as an abort, flight and stand; this record and the EVENT
+ // LIGHT_SPIKE let IGN-1/T1 measure whether real lights spike). One per start, reset at the IGNITION entry. Window: E1 (lift command) to
+@@ -286,7 +304,7 @@
+ // below it (after E2 the start ramp raises the expected Pc); t30_*: time above cfg::kLightSpikeHiAbs_Pa. RECORD ONLY: no action attached.
+ // v2.10 (LEAD CHANGELOG 172 (5), REV-COMB-2 R2-10): every value is a LOWER BOUND of the chamber event (peaks low, durations short or
+ // missed): modelled light spikes last 1-3 ms and the 1L/Helmholtz modes sit at 1.1-1.8 kHz, while this channel is the 1/8 in sense line
+-// (144-188 Hz resonance, COMB) -> RC 2.4 kHz -> ADS131M04 sinc3 at 4 kSPS -> 4:1 average -> 1 kHz (config.h kLightSpikeLoAbs_Pa block).
++// (144-188 Hz resonance, COMB) -> RC 2.4 kHz -> ADS131M04 sinc3 at 4 kSPS -> 4:1 average -> 1 kHz (config.h kLightSpikeLoAbs_Pa block; v2.10 chain, v2.11 flight: C1 at the seat).
+ // The spike itself is measured on the stand dynamic Pc channel (bench plan v3 B-DPC-1: >= 20 kHz, anti-alias, flush mount), not here.
+ struct LightSpikeRec {
+   bool open = false;              // window open
+@@ -295,6 +313,7 @@
+   bool closed_by_exit = false;    // closed by leaving IGNITION/RUN before E2 + window (abort, shutdown, no light)
+   bool masked = false;            // a tick with Pc above 8 bar abs was not counted (lit map >= 8 bar abs)
+   bool overrange = false;         // a sample at or above the transducer HIGH limit (4.75 V) was counted
++  bool abovefs = false;           // v2.11 (LEAD 203 (1)(a)): a sample at or above cfg::kPcAboveFs_V (above the transducer full scale) was counted
+   float peak_raw_Pa = std::numeric_limits<float>::quiet_NaN();
+   float peak_filt_Pa = std::numeric_limits<float>::quiet_NaN();
+   float t_peak_raw_s = std::numeric_limits<float>::quiet_NaN();    // from the light estimate (from E1 when unlit); set at the close
+@@ -357,7 +376,10 @@
+                                   //   freezes its Pc-based estimators k_est_asc and the B apex predictor; FC_THRUST does NOT freeze)
+                                   //   v2.10 (LEAD CHANGELOG 175 (4)): the k_hat freeze is withdrawn FC-side; the markers are unchanged
+   bool drogue_attached = false;   // v2.10 (LEAD CHANGELOG 186 (2)): FC drogue state held by the ECU (Cmd::DROGUE); TLM_RELIGHT d6 b6 echo
+-  bool r2_hold = false;           // v2.10 (LEAD CHANGELOG 186 (2)): R2 command hold active this tick (open-loop command <= kR2HoldThrust_N)
++  bool r2_hold = false;           // v2.10 (LEAD CHANGELOG 186 (2)): R2 command hold active this tick (v2.11: lift-commanded kR2HoldLift_m)
++  bool r2_backstop = false;       // v2.11 (LEAD 216 (2)(b)): backstop fired in this start (hold ended at E2 + kR2HoldBackstop_s)
++  bool r2_backstop_event = false; // v2.11: ONE tick when the backstop fires (EVENT R2_BACKSTOP 0x24, arg = hold ticks this start)
++  int r2_hold_ticks = 0;          // v2.11: R2 hold ticks in this start
+   bool pc_commit_valid = true;    // v2.10 (LEAD CHANGELOG 175 (4), Pc VALID = launch-commit condition): ONE pad bit = pc_valid this tick
+                                   //   AND fault::PC_SENSOR not latched AND no latched PC_SENSOR abort / ARM refusal. TLM_RELIGHT d6 b7
+                                   //   (tlmr6::PC_VALID, 50 Hz, every state). Latched terms clear only with DISARM/SAFE in SAFE [DESIGN]
+@@ -445,7 +467,7 @@
+   uint8_t relight_block = 0;      // refuse:: reason a RELIGHT sent now would get (0 = would be accepted; NOT_COAST outside COAST)
+   uint16_t relight_worst_ms = 0;  // E0 -> Pc-confirm deadline of a RELIGHT sent now [ms]: direct path gate + W (flight 810), segment not
+                                   //   primed: + bleed settle + opener ramp + hold (flight 1370), assuming the feed primes by the end of
+-                                  //   the hold (PREPRESS bound 2420 ms, then PREPRESS_FAIL)
++                                  //   the hold (PREPRESS bound 2420 ms, then PREPRESS_FAIL); v2.11 flight, bleed fitted, in COAST: kPurgeRelight_s + gate + W (3710)
+   // v2.8.2 (GNC REV-GNC-1 RG-08): coast pintle-position anomaly (latched until a confirmed light or DISARM in SAFE)
+   uint8_t coast_pintle = 0;       // b0 encoder invalid on a COAST tick (TLM UNKNOWN), b1 lift above cfg::kCoastPintleOpen_m for
+                                   //   cfg::kCoastPintleOpenN COAST ticks (TLM UNPRIMED); either forces the prep path
+@@ -492,6 +514,10 @@
+   uint8_t fa1 = 0;                   // fa1:: flags
+   float photo_V = 0.0f;              // photodiode head reading this tick [V]
+   float photo_dark_V = 0.0f;         // dark level frozen at E0 (tracked before) [V]
++  // v2.11 (LEAD CHANGELOG 203 (1)): Pc over-range / above-full-scale (non-sticky, this tick) and the FA-1 ride-through CANDIDATE
++  bool pc_overrange = false;         // reading >= cfg::kPcSensorMax_V this tick (PC_VALID 0 only while it lasts; flight: no PC_SENSOR latch)
++  bool pc_above_fs = false;          // reading >= cfg::kPcAboveFs_V this tick (flag only)
++  uint8_t ovr_flags = 0;             // ovr:: bits (log v12)
+ };
+ 
+ }  // namespace ecu
