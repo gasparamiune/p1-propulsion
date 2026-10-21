@@ -1,0 +1,14 @@
+PASS Q1 re-ARM in the same power cycle decides as a fresh ECU (expected: equal decisions)
+     [k 1 dT 5 K non-vented 0.0 bar: fresh ARMED 1, re-ARM ARMED 1 (comp in SAFE 0.124 bar); k 1 dT 5 K non-vented 1.3 bar: fresh ARMED 0, re-ARM ARMED 0 (comp in SAFE 0.124 bar); k 1 dT 20 K non-vented 0.0 bar: fresh ARMED 1, re-ARM ARMED 1 (comp in SAFE 0.496 bar); k 1 dT 20 K non-vented 1.3 bar: fresh ARMED 0, re-ARM ARMED 0 (comp in SAFE 0.496 bar); k 3 dT 5 K non-vented 0.0 bar: fresh ARMED 1, re-ARM ARMED 1 (comp in SAFE 0.372 bar); k 3 dT 5 K non-vented 1.3 bar: fresh ARMED 0, re-ARM ARMED 0 (comp in SAFE 0.372 bar); k 3 dT 20 K non-vented 0.0 bar: fresh ARMED 0, re-ARM ARMED 0 (comp in SAFE 1.488 bar); k 3 dT 20 K non-vented 1.3 bar: fresh ARMED 0, re-ARM ARMED 0 (comp in SAFE 1.488 bar); ]
+FAIL Q2 a seat-TC step to T0 after E1 (unlit, vented chamber) never gives E2 (false light)
+     [false E2 4 of 8 stepped cases; controls lit 0; flight k 1 dT 15 K step 0: IGN 1 -> IGNITION / NONE (refuse 0); flight k 1 dT 15 K step 1: IGN 1 -> IGNITION / NONE (refuse 0); flight k 1 dT 55 K step 0: IGN 1 -> IGNITION / NONE (refuse 0); flight k 1 dT 55 K step 1: IGN 1 -> RUN (E2 15 ms after the step), +500 ms SAFE / FLAMEOUT (refuse 0); flight k 3 dT 15 K step 0: IGN 1 -> IGNITION / NONE (refuse 0); flight k 3 dT 15 K step 1: IGN 1 -> RUN (E2 16 ms after the step), +500 ms SAFE / FLAMEOUT (refuse 0); flight k 3 dT 55 K step 0: IGN 1 -> ABORT / TORCH_FAULT (refuse 0); flight k 3 dT 55 K step 1: IGN 1 -> ABORT / TORCH_FAULT (refuse 0); stand k 1 dT 15 K step 0: IGN 1 -> ABORT / NO_IGNITION (refuse 0); stand k 1 dT 15 K step 1: IGN 1 -> ABORT / NO_IGNITION (refuse 0); stand k 1 dT 55 K step 0: IGN 1 -> ABORT / NO_IGNITION (refuse 0); stand k 1 dT 55 K step 1: IGN 1 -> RUN (E2 15 ms after the step), +500 ms SAFE / FLAMEOUT (refuse 0); stand k 3 dT 15 K step 0: IGN 1 -> ABORT / NO_IGNITION (refuse 0); stand k 3 dT 15 K step 1: IGN 1 -> RUN (E2 16 ms after the step), +500 ms SAFE / FLAMEOUT (refuse 0); stand k 3 dT 55 K step 0: IGN 1 -> ABORT / TORCH_FAULT (refuse 0); stand k 3 dT 55 K step 1: IGN 1 -> ABORT / TORCH_FAULT (refuse 0); ]
+PASS Q3a TB_STATE PC_SENSOR HIGH discriminates 4.7495 / 4.7505 V (flight RUN, one tick)
+     [4.7495 V TB 0, 4.7505 V TB 1]
+PASS Q3b JFWD_LS discriminates 47.49 / 47.51 bar abs (one raw sample in the window)
+     [47.49 -> 0, 47.51 -> 1]
+PASS Q3c torch re-zero limit discriminates 0.595 / 0.605 bar
+     [0.595: accepted 1 rej 0; 0.605: accepted 0 rej 1]
+PASS Q3d BASE check 0.76 bar discriminates +/-0.01 bar on both sides (pad: lift refused PC_SENSOR outside)
+     [+0.75 refused 0, +0.77 refused 1 (BASE_HIGH), -0.75 refused 0, -0.77 refused 1 (BASE_AMB)]
+
+5 passed, 1 failed (a FAIL is a finding candidate, not a test of the author's suite)

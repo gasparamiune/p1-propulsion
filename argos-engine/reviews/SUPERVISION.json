@@ -894,6 +894,122 @@
    "review_file_sha256_16": "6b86fcd326568646",
    "lead_disposition": "CHANGELOG line 258",
    "not_physical_approval": true
+  },
+  {
+   "id": "REV-ELEC-4",
+   "date": "2026-10-21",
+   "reviewer": "Independent reviewer agent (not the author)",
+   "author": "Electronics specialist agent",
+   "deliverable": "06-electronics/staging_v2.12 (firmware and SIL v2.12, the electronics_v4.1.json candidate, bench plan v5, BOM v2.4 and the handback) with lead lines 253, 256-261 and 264 as they bear on it",
+   "hashes_sha256_16": {
+    "06-electronics/staging_v2.12/SHA256SUMS-v2.12.txt": "f6fd3a63817dfb34",
+    "06-electronics/staging_v2.12/results/electronics_v4.1.json": "c862375163393adc",
+    "06-electronics/staging_v2.12/docs/bench_plan_v5.md": "360c1d6695cc305c",
+    "06-electronics/staging_v2.12/results/bom_v2p4.csv": "eb6e77dcd4610383",
+    "interfaces/electronics.json (v4 at the review)": "11f7896ad0d0613b",
+    "interfaces/CHANGELOG.md (264 lines at the start)": "f7efe784da3944c5"
+   },
+   "criteria": "R3 closure; the author's brief items A1-A8 and B1-B11; rebuild and byte-identical re-runs; the v2.11 record re-run on v2.12; probes of the new thresholds; the lead's three questions of 13:58:21Z (Q1 carve-out of option (b), Q2 acceptance criteria for v2.13, Q3 the corrected stand acceptance limit)",
+   "verdict": "ACCEPT WITH COMMENTS, with option (b) carved out of every start with ignition until a reviewed v2.13 delta",
+   "blocking": [],
+   "major": [
+    "E4-01 option (b): a TC4 (C1 seat) reading error after E1 gives a false or premature E2 at every start, first start included (SIM, reviewer fw_rv); each case is a lost start recorded as FLAMEOUT, not as a sensor fault. Fix: firmware v2.13 with the light-window hold and the TC4 step / rate checks"
+   ],
+   "minor": [
+    "E4-02",
+    "E4-03",
+    "E4-04",
+    "E4-05",
+    "E4-06"
+   ],
+   "notes": [
+    "E4-N01",
+    "E4-N02",
+    "E4-N03",
+    "E4-N04",
+    "E4-N05",
+    "E4-N06",
+    "E4-N07",
+    "E4-N08",
+    "E4-N09",
+    "E4-N10",
+    "E4-N11"
+   ],
+   "confirmed": "rebuild clean; test_core 332 / 0 and no-hooks 331 / 0, both logs byte-identical to the staged ones; the four binaries and every author run reproduce byte-identically; the v2.11 record re-run on v2.12 is identical for S1-S10, S6R, S6C, S14-S17 and probeF, and the S12 / S13 changes are the predicted ones",
+   "permitted_use": "interfaces/electronics.json v4.1 as promoted by the lead (line 266) with the carve-out: option (b) (seat coefficient loaded) is not used for any start with ignition (pad first start, stand starts, relights) until a reviewed v2.13; the coefficient may be loaded for B-PC-1 / B-TC-1 bench work without ignition. Consequences: A1 flight NO-GO; stand first starts on the fallback within 264 (2); no stand relight; the T4 relight waits for v2.13",
+   "reviewer_artefacts": {
+    "dir": "reviews/electronics/r4/",
+    "manifest": "reviews/electronics/r4/MANIFEST_REV-ELEC-4.sha256",
+    "manifest_sha256_16": "71fa2008ffca16cb",
+    "verified_by_lead": "98/98 OK"
+   },
+   "review_file": "reviews/REVIEW-ELECTRONICS-R4.md",
+   "review_file_sha256_16": "70b7103472eebab4",
+   "lead_disposition": "CHANGELOG line 266 (the firmware v2.13 fix started 2026-10-21 on the founder's choice; its review REV-ELEC-5 follows)",
+   "not_physical_approval": true
+  },
+  {
+   "id": "REV-DS-1",
+   "date": "2026-10-21",
+   "reviewer": "Independent reviewer agent (not the author)",
+   "author": "Datasheet author agent",
+   "deliverable": "07-datasheet rev1: the rev1-draft (PDF 8e7d007d128dfb58, 151 pages, not published) and then the final check of rev1 FINAL (07-datasheet/out/rev1/, PDF e44ce71c0aecd4e5, 161 pages)",
+   "hashes_sha256_16": {
+    "07-datasheet/out/rev1/ARGOS-H1-ENGINE-DATASHEET_rev1-draft.pdf (not published)": "8e7d007d128dfb58",
+    "07-datasheet/out/rev1/ARGOS-H1-ENGINE-DATASHEET_rev1.pdf": "e44ce71c0aecd4e5",
+    "07-datasheet/out/rev1/trace.json": "f0c30a948d332497",
+    "07-datasheet/out/rev1/sources.json": "13fa5f78fa3f8f27",
+    "07-datasheet/out/rev1/qa_report.json": "54bd5fd0a80fe20b",
+    "07-datasheet/gen/build_datasheet.py (v0.3.1)": "e6267a992185b7db",
+    "07-datasheet/gen/decision_overrides.json (ovr-7)": "6746adf53921b1ef",
+    "interfaces/CHANGELOG.md (264 lines at the draft review)": "f7efe784da3944c5",
+    "interfaces/CHANGELOG.md (267 lines at the final check)": "9d912f1ecfd9c1f3"
+   },
+   "criteria": "draft: currency against the decision log, traceability (re-trace of 100 headline values), form, renders and image claims, founder actions, contradiction register and privacy; final: the checklist reviews/datasheet/r1/data/final_build_checklist_rev1draft.json (D1-01 to D1-13 and the lead's rulings applied; re-trace, form check and privacy scan re-run; CHANGELOG lines 1-264 unchanged and the new lines reviewed)",
+   "verdict": "rev1-draft: ACCEPT WITH CORRECTIONS on three conditions (final build applies D1-01 to D1-13 and the rulings; an independent check of the final passes; the draft is not published). Final check of rev1 FINAL: PASS WITH NOTES (0 BLOCKING; 8 notes, N-1 to N-8, that change no value; N-2, the v4.1 open-issue rows of section 14 and the F-10 inquiry printed without the SUSPENDED UNTIL v2.13 label, is the only gap against a GO label condition and goes to the next build); the final may be published",
+   "blocking": [],
+   "major": [
+    "D1-01",
+    "D1-02",
+    "D1-03",
+    "D1-04",
+    "D1-06"
+   ],
+   "minor": [
+    "D1-05",
+    "D1-07",
+    "D1-08",
+    "D1-09",
+    "D1-10",
+    "D1-11",
+    "D1-12",
+    "D1-13"
+   ],
+   "notes": [
+    "N-1 Appendix A: about 19 converted values print float noise; round display values to 6 significant figures",
+    "N-2 section 14 (p69-70) and p61: the v4.1 open-issue texts and the F-10 inquiry show option (b) residual / S13T outcomes without SUSPENDED UNTIL v2.13 (266 (6)); one keeps 'about 5 % at k = 3' without the E4-02 correction and the purge row lacks the ACCEPTED label; section 10.9 carries all of these",
+    "N-3 the running header reads 'PRELIMINARY rev1' where the 13:45Z ruling says 'rev1 PRELIMINARY'; the cover matches",
+    "N-4 lead-side: 266 (3) says '86 of 86 sources match'; it should be 85 of 86 plus the appended CHANGELOG line; its '14:05Z' batch stamp was not a date -u reading",
+    "N-5 the v2.13 status 'QUEUED, NOT STARTED' (p5 T030, p61, p62) is the record as of line 266; superseded by line 268; no rebuild",
+    "N-6 p154 T4680: an Appendix A cut falls inside a path",
+    "N-7 p11 group strip: two leader lines touch labels; the text stays readable",
+    "N-8 p5 T757: the quoted 264 (1) 'PENDING REVIEW' has no superseded mark"
+   ],
+   "confirmed": "draft: 100 of 100 headline values match, and all 25 harness mismatches resolve by hand; final: checklist items D1-01 to D1-13 all PASS; GO conditions PASS (N-2 aside); every lead ruling applied; retrace 5105 traces (4812 MATCH, 268 not compared, 25 flagged, all resolved by hand); form: 161 pages, footer on 161 of 161, 43 fonts all embedded, 5237 internal links with 0 broken; renders and CAD unchanged (16 views); final assets within 3.75 / 255 of the v3.5.2 render PNGs; privacy re-scan: only the 2 agent-words hits on p5 (T756, T758), both kept",
+   "permitted_use": "the rev1 FINAL PDF as PRELIMINARY rev1, a snapshot of the decision log up to line 266 (its firmware v2.13 status, queued and not started, is superseded by line 268); the rev1-draft is never published",
+   "reviewer_artefacts": {
+    "dir": "reviews/datasheet/r1/",
+    "manifest": "reviews/datasheet/r1/MANIFEST_REV-DS-1.sha256",
+    "manifest_sha256_16": "f840cb4854807a59",
+    "verified_by_lead": "23/23 OK",
+    "held_back": "scripts/form_check.py is kept out of public pushes"
+   },
+   "review_file": "reviews/REVIEW-DATASHEET-R1.md",
+   "review_file_sha256_16": "1ef95f92ae8aef27",
+   "final_check_file": "reviews/REVIEW-DATASHEET-R1-FINAL.md",
+   "final_check_file_sha256_16": "e326b8269c4c1b5f",
+   "lead_disposition": "CHANGELOG lines 267 (the final build) and 268 (the final check)",
+   "not_physical_approval": true
   }
  ]
 }

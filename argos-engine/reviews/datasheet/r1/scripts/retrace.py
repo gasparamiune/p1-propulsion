@@ -28,7 +28,7 @@ import subprocess
 import sys
 
 TOL_REL = 1e-9
-WITHHELD_RE = re.compile(r'\[withheld: [^\]]*\]')
+WITHHELD_RE = re.compile(r'\[withheld: [^\]]*\]|\[working copy; path not printed\]')  # rev1: path marker as a mask
 
 
 # ------------------------------------------------------------------ basic helpers
@@ -106,9 +106,10 @@ def text_contains(hay, needle):
 
 # ------------------------------------------------------------------ source cache
 class Sources:
-    def __init__(self, sources_json):
+    def __init__(self, sources_json, hub=None):
         self.meta = json.load(open(sources_json, encoding='utf-8'))
         self.src = self.meta.get('sources', {})
+        self.hub = hub
         self._cache = {}
 
     def info(self, sid):
@@ -125,6 +126,8 @@ class Sources:
             return out
         p = s.get('path')
         out.update(path=p, sha_build=s.get('sha256_16'), kind=s.get('kind'))
+        if p and not os.path.isabs(p) and self.hub:  # rev1 sources.json paths are hub-relative
+            p = os.path.join(self.hub, p)
         if p and os.path.isfile(p):
             out['exists'] = True
             raw = open(p, 'rb').read()
@@ -241,6 +244,18 @@ def resolve_cl(S, sid, key, entry):
             return r
         txt = re.sub(r'^\(%d\)\s*' % k, '', its[k])
     phrases, regex = parse_tail(tail)
+    mft = re.search(r'\[from "(.*?)" to "(.*?)"\]', tail)
+    if mft:  # rev1 clip locator: from the first occurrence of A to the end of the next occurrence of B
+        A_, B_ = mft.group(1), mft.group(2)
+        i = txt.find(A_)
+        j = txt.find(B_, i) if i >= 0 else -1
+        while j >= 0 and j + len(B_) < i + len(A_):
+            j = txt.find(B_, j + 1)
+        if i < 0 or j < 0:
+            r.update(ok=False, why=f'clip {A_!r}..{B_!r} not found in item text')
+            return r
+        txt = txt[i:j + len(B_)]
+        r['clip'] = True
     if phrases:
         hit = sentences_with(txt, phrases)
         if hit:
@@ -659,10 +674,11 @@ def main(argv=None):
     ap.add_argument('--all', action='store_true')
     ap.add_argument('--out-dir', required=True)
     ap.add_argument('--label', default='run')
+    ap.add_argument('--hub', help='base directory for hub-relative source paths')
     a = ap.parse_args(argv)
     T = json.load(open(a.trace, encoding='utf-8'))
     traces = {t['id']: t for t in T['traces']}
-    S = Sources(a.sources)
+    S = Sources(a.sources, a.hub)
     if a.all:
         ids = list(traces)
     elif a.ids_file:

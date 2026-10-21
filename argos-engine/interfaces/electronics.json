@@ -1,28 +1,39 @@
 {
  "id": "electronics",
- "version": "v4",
+ "version": "v4.1",
  "date": "2026-10-21",
- "generated_utc": "2026-10-21T05:38:05Z",
+ "generated_utc": "2026-10-21T12:38:44Z",
  "owner": "electronics (06-electronics)",
- "status": "DESIGN + SIL + schematic, STAGED for the lead (06-electronics/staging_v2.11/; interfaces/electronics.json v3 stays the published file until the lead promotes this one). Firmware v2.11 runs only in SIL (no Teensy HAL); the ECU v2.5 schematic passes ERC and a netlist cross-check (self-consistency only) and does NOT show the v2.11 board items (schematic v2.6 NOT drawn: C1 bridge amplifiers, U330 / U570 values, the ride-through C330 variant, the both-open timer U576-U579); no board has been built and nothing here is hardware-validated or physical approval. Values carry tags; open items are in open_issues and are closed by the bench plan (06-electronics/docs/bench_plan_v4.md).",
+ "status": "DESIGN + SIL + schematic, STAGED for the lead (06-electronics/staging_v2.12/; interfaces/electronics.json v4 stays the published file until the lead promotes this one). Firmware v2.12 runs only in SIL (no Teensy HAL): the REV-ELEC-3 R3-01 option (b) seat compensation of the C1 Pc reading on the working basis given at 11:25Z (LEAD 261 (3); the lead confirms or changes it, the fallback and decision (3) at this handback), the TB-state of the LC-TB70 v2 F4 set with PC_SENSOR HIGH, the flight J-FWD indication, the purge FINAL as calibration constants with rule (d), log v13. The ECU v2.5 schematic does NOT show the v2.11 / v2.12 board items (schematic v2.6 NOT drawn); no board has been built and nothing here is hardware-validated or physical approval. Values carry tags; open items are in open_issues.",
  "units": "SI unless the key names another unit (mm in *_mm envelopes, deg in *_deg, kg-cm never used in keys)",
  "supersedes": {
-  "file": "electronics.json v3 (2026-10-13, firmware v2.10)",
-  "sha256_16": "38bf149f368c1d4c",
+  "file": "electronics.json v4 (2026-10-21, firmware v2.11)",
+  "sha256_16": "11f7896ad0d0613b",
   "hub_path": "interfaces/electronics.json (unchanged by this staging)",
-  "local_copy": "results/electronics_v3.json (identical)",
+  "staged_from": "06-electronics/staging_v2.11/",
   "earlier": {
-   "v2": {
-    "sha256_16": "da067408c1594814",
-    "archive": "06-electronics/archive/v2.9/interfaces/electronics_v2.json"
-   },
-   "v1": {
-    "sha256_16": "42fe12e15baa6e3e",
-    "archive": "06-electronics/results/electronics_v1.json"
+   "file": "electronics.json v3 (2026-10-13, firmware v2.10)",
+   "sha256_16": "38bf149f368c1d4c",
+   "hub_path": "interfaces/electronics.json (unchanged by this staging)",
+   "local_copy": "results/electronics_v3.json (identical)",
+   "earlier": {
+    "v2": {
+     "sha256_16": "da067408c1594814",
+     "archive": "06-electronics/archive/v2.9/interfaces/electronics_v2.json"
+    },
+    "v1": {
+     "sha256_16": "42fe12e15baa6e3e",
+     "archive": "06-electronics/results/electronics_v1.json"
+    }
    }
   }
  },
  "scripts": [
+  "06-electronics/calc/v2p12/make_interface_json_v4p1.py (this file; reuses calc/make_interface_json_v3.py Cfg and calc/v2p11/make_interface_json_v4.py refresh_cfg)",
+  "06-electronics/calc/v2p12/c1_drift_v2p12.py (R3-01 A1-A5, A7, A8 numbers)",
+  "06-electronics/calc/v2p12/jfwd_ls_threshold_v2p12.py (flight J-FWD indication on the 896 grid)",
+  "06-electronics/calc/v2p12/r4_02_reclass_v2p12.py (R4-02 re-classification with Mechanical inside_v2)",
+  "06-electronics/calc/v2p12/make_bench_plan_v5.py, make_bom_v2p4.py",
   "06-electronics/calc/v2p11/make_interface_json_v4.py (this file; imports calc/make_interface_json_v3.py for its evaluator and checks)",
   "06-electronics/calc/v2p11/pc_transducer_v3.py (C1 Pc / P_feed / P_mid selection, conditioning, U330 / U570, sil/ovp_hw_params.h)",
   "06-electronics/calc/v2p11/fa1_chain_v2p11.cpp + fa1_chain_summary.py (FA-1 grid through the v2.10 and C1 chains; ride-through sizing)",
@@ -37,195 +48,41 @@
   "carried from v3 unchanged (inputs hash-checked, carried_inputs): calc/bleed_driver_v1.py, fault_path_v4.py, hbleed_provision_v1.py, ecu_v2p3_values_v1.py, pintle_rail_v3.py, over_thrust_v3.py, pintle_rate_map_v1.py; hardware/kicad_gen/run_all.sh (schematic v2.5)"
  ],
  "inputs": {
-  "gnc.json": "v3.1 4f3209323b0e0ed4",
-  "mechanical.json": "v2.2 f790d31b5ca7d954",
-  "combustion.json": "v2.4b fd3a7da6d27c7c66",
-  "lc_tb70_envelope": "04-fea/v352/lc_tb70_envelope_v1.json 6f710726e4787134",
-  "review": "reviews/REVIEW-ELECTRONICS-R2.md c7dee8d6c73c9920 (REV-ELEC-2; R2-01..R2-23)",
-  "changelog": "interfaces/CHANGELOG.md, 250 lines at generation, b31c5453833d02ee (the brief was written on 248 lines addde6a1263549fc; lead line 249 records the Part A rulings; line 250 assigns Electronics no item)",
-  "firmware": "v2.11 (SIL record 8c1a534c3af1b0ba, source tree cb3e35025d7ec130, 44 files; manifest eaa9efc5112a8178)",
-  "generated_headers": {
-   "src/core/engine_params.h": [
-    [
-     "combustion.json",
-     "v2.3",
-     "d9ec54fbf450e243",
-     "HISTORICAL (names v2.3; the file is now v2.4b)"
-    ],
-    [
-     "gnc.json",
-     "v3",
-     "3e97c378cfebee95",
-     "HISTORICAL (names v3; the file is now v3.1)"
-    ],
-    [
-     "pintle_mini_servo_v1.json",
-     "(not named in the header)",
-     "62b326482617125a",
-     "current"
-    ]
-   ],
-   "src/core/mech_params.h": [
-    [
-     "mechanical.json",
-     "v2",
-     "4f024ed4ccb4618c",
-     "HISTORICAL (names v2; the file is now v2.2)"
-    ]
-   ],
-   "src/core/mv_ladder_table.h": [],
-   "src/core/n2o_sat_table.h": [
-    [
-     "Table",
-     "(not named in the header)",
-     "b11b49519ba2fe30",
-     "not checked (source not mapped)"
-    ]
-   ],
-   "src/core/valve_map_table.h": [
-    [
-     "throttle_map_csv",
-     "(not named in the header)",
-     "4f2e6d846f7253da",
-     "current"
-    ]
-   ],
-   "sil/fa1_replay_cases.h": [],
-   "sil/gnc_tables.h": [
-    [
-     "gnc.json",
-     "v3",
-     "3e97c378cfebee95",
-     "HISTORICAL (names v3; the file is now v3.1)"
-    ],
-    [
-     "gnc.json",
-     "v1",
-     "ad2477c8be8932db",
-     "HISTORICAL (names v1; the file is now v3.1)"
-    ]
-   ],
-   "sil/mech_tables.h": [
-    [
-     "mechanical.json",
-     "v2",
-     "4f024ed4ccb4618c",
-     "HISTORICAL (names v2; the file is now v2.2)"
-    ]
-   ],
-   "sil/ovp_hw_params.h": [],
-   "sil/plant_tables.h": [
-    [
-     "combustion.json",
-     "v2.3",
-     "d9ec54fbf450e243",
-     "HISTORICAL (names v2.3; the file is now v2.4b)"
-    ],
-    [
-     "geometry",
-     "(not named in the header)",
-     "598365dac1bfa0c1",
-     "not checked (source not mapped)"
-    ],
-    [
-     "table",
-     "v1",
-     "aa3021ea5ae5ea6c",
-     "not checked (source not mapped)"
-    ]
-   ]
-  },
-  "generated_headers_note": "status as recorded by the v2.11 SIL manifest. engine_params.h / plant_tables.h / gnc_tables.h / valve_map_table.h stay generated from combustion.json v2.3 and gnc.json v3 (HISTORICAL): gen_tables.py v3.3 cannot parse the v2.4b igniter sequence (results/gen_headers_regen_check_v2p11.json); the v2.3 -> v2.4b leaf diff of the keys the generator reads finds 0 numeric changes outside the igniter sequence and 6 inside it (results/gen_tables_v2p4b_leafdiff_v1.json 711f8f01f81d9497); gnc.json v3 -> v3.1: no numeric leaf changed under the subtrees the generators read (results/gnc_v31_read_keys_check_v2p10.json 68f0459f360a845d); mech_params.h / mech_tables.h name mechanical.json v2: gen_mech_params.py regenerated them from v2.2 and only the source comment line differs (0 / 0 code lines changed; results/gen_headers_regen_check_v2p11.json 3223fcc77035a012; the tree keeps the v2 comment, no binary effect)",
-  "carried_inputs": {
-   "fault_path_v4.json": "unchanged since v3 (d918544530e69de7)",
-   "bleed_driver_v1.json": "unchanged since v3 (298b405b0621acd5)",
-   "hbleed_provision_v1.json": "unchanged since v3 (d9709d1e28dc12d7)",
-   "over_thrust_v3.json": "unchanged since v3 (770bf284d14b1336)",
-   "pintle_rate_map_v1.json": "unchanged since v3 (411b0573d604364e)",
-   "eng03_slew_check_v1.json": "unchanged since v3 (2c357fce063c19ca)",
-   "pintle_rail_v3.json": "unchanged since v3 (694e471732ad070a)",
-   "ecu_v2p3_values_v1.json": "unchanged since v3 (d3f10bb0868cfe59)",
-   "mv_latch_magnet_v1.json": "unchanged since v3 (90225910d7e98850)",
-   "tvc_supply_budget_v1.json": "unchanged since v3 (3ee9d60ad039ed45)",
-   "pintle_mini_servo_v1.json": "unchanged since v3 (62b326482617125a)"
-  },
+  "combustion.json": "v2.4d 7dbf425c12300658",
+  "gnc.json": "v3.2 bde317782574cbd9",
+  "mechanical.json": "v2.4 66bc53d88d444679",
+  "lc_tb70_envelope": "04-fea/v352/lc_tb70_envelope_v2.json 7ebd2fd63dc878ef; classifier lc_tb70_envelope.py d14489808338006b",
+  "purge_duration": "02-combustion/data/v2p4/purge_duration_v2p4.json 1ff6bfcd7d2f454c (R4-13)",
+  "review": "reviews/REVIEW-ELECTRONICS-R3.md fcf05f8bc7382cd1 (REV-ELEC-3; R3-01..R3-06, N-01..N-10)",
+  "changelog": "interfaces/CHANGELOG.md, 262 lines at generation, bc80542b3d3e9076 (the brief was written on 260 lines 01c944f5997648da)",
+  "firmware": "v2.12 (config.h line 1 in firmware.v2p12.config_h_line_1); no v2.12 SIL MANIFEST (not run in the time box): binaries and test logs in firmware.v2p12",
   "files_read_sha256_16": {
-   "firmware/src/core/engine_params.h": "6b73317fcd7d07ac",
-   "firmware/src/core/mech_params.h": "7301439a64bb18f4",
-   "firmware/src/core/config.h": "8e85c419b3125cdf",
-   "/home/claude/work/shared-fallback/engine/interfaces/CHANGELOG.md": "b31c5453833d02ee",
-   "/home/claude/work/shared-fallback/engine/interfaces/electronics.json": "38bf149f368c1d4c",
-   "results/electronics_v3.json": "38bf149f368c1d4c",
-   "/home/claude/work/shared-fallback/engine/interfaces/gnc.json": "4f3209323b0e0ed4",
-   "/home/claude/work/shared-fallback/engine/interfaces/mechanical.json": "f790d31b5ca7d954",
-   "/home/claude/work/shared-fallback/engine/interfaces/combustion.json": "fd3a7da6d27c7c66",
-   "/home/claude/work/shared-fallback/engine/04-fea/v352/lc_tb70_envelope_v1.json": "6f710726e4787134",
-   "/home/claude/work/shared-fallback/engine/reviews/REVIEW-ELECTRONICS-R2.md": "c7dee8d6c73c9920",
-   "firmware/Makefile": "88bffc3d62595061",
-   "hardware/kicad_gen/make_ecu_kicad.py": "c750bf9dec7ab932",
-   "hardware/kicad/argos_ecu.kicad_sch": "c0192697e551394e",
-   "hardware/kicad/pin_map_v2p5.csv": "ab8b28958d33062c",
-   "hardware/kicad/erc/netlist_crosscheck.txt": "21c54b651090a2f5",
-   "hardware/kicad/erc/argos_ecu_erc.rpt": "189eaa8518d874a8",
-   "results/sil_v2p11/MANIFEST_v1.json": "eaa9efc5112a8178",
-   "results/sil_v2p11/S5_mc.json": "371585b2264f7c11",
-   "results/sil_v2p11/S6_aborts.json": "3930a3a24345e4d9",
-   "results/sil_v2p11/S6R_in_window_overpressure.json": "006985357aca234e",
-   "results/sil_v2p11/S6C_rc_cost.json": "7b8b53b17a520775",
-   "results/sil_v2p11/S8_priming.json": "359bbd6bc2dcdac3",
-   "results/sil_v2p11/S9_pc_transducer.json": "4b541dae65be53c6",
-   "results/sil_v2p11/S10_relight_v2p8.json": "e151f299a90d4308",
-   "results/sil_v2p11/S10v211_cold_rule.json": "f87935edb5f23564",
+   "interfaces/electronics.json": "11f7896ad0d0613b",
+   "interfaces/combustion.json": "7dbf425c12300658",
+   "interfaces/gnc.json": "bde317782574cbd9",
+   "interfaces/mechanical.json": "66bc53d88d444679",
+   "interfaces/CHANGELOG.md": "bc80542b3d3e9076",
+   "reviews/REVIEW-ELECTRONICS-R3.md": "fcf05f8bc7382cd1",
+   "04-fea/v352/lc_tb70_envelope_v2.json": "7ebd2fd63dc878ef",
+   "04-fea/v352/lc_tb70_envelope.py": "d14489808338006b",
+   "02-combustion/data/v2p4/purge_duration_v2p4.json": "1ff6bfcd7d2f454c",
+   "results/v2p12/c1_drift_v2p12.json": "aefee7551cae1bbf",
+   "results/v2p12/jfwd_ls_threshold_v2p12.json": "fcb80586681ca03b",
+   "results/v2p12/sil/S13T_seat_drift_bpc1_false.json": "24c3aa3c108a7651",
+   "results/v2p12/sil/S13T_seat_drift_bpc1_true.json": "eaae63e074be887e",
+   "results/v2p12/sil/S13T_prefix_v212a_run_log_bpc1_false.txt": "4e87b91cce6bba4a",
+   "results/v2p12/sil/S12_bleed.json": "02d49def4fba065e",
    "results/sil_v2p11/S12_bleed.json": "40a11d4d42d69026",
-   "results/sil_v2p11/S13/S13_ignition_rule.json": "388d492f539f757d",
-   "results/sil_v2p11/S13/S13B_ext_bpc1_false.json": "a932482085179686",
-   "results/sil_v2p11/S13/S13B_ext_bpc1_true.json": "b27c919c09eacd48",
-   "results/sil_v2p11/S14/S14_v2p10.json": "669714aac967e9bd",
-   "results/sil_v2p11/S15/S15_start_mc.json": "cc8d67cde0e4ac4d",
-   "results/sil_v2p11/S16/S16_coast206.json": "da7245e7ed813b87",
-   "results/sil_v2p11/S17/S17_r2hold.json": "7391c5dd2af2deef",
-   "results/sil_v2p11/S17v2_r2v2_sweep.json": "404a19d7064b336f",
-   "results/sil_v2p11/probeF/S5_probeF.json": "715716c61eaadd3b",
-   "results/sil_v2p11/compare_v2p10_v2p11.json": "7bb97d757dbdcc46",
-   "results/sil_v2p11/S5_mc.csv": "cffc09ff942872c8",
-   "results/sil_v2p11/test_core_log.txt": "3d9c40a8cd5d417d",
-   "results/sil_v2p11/test_core_nohooks_log.txt": "226a5bb1e36b1954",
-   "results/sil_v2p11_runmap.json": "fd78364bc21458fd",
-   "results/sil_v2p11/compare_v2p10_v2p11.txt": "fc6328d37a3e9d80",
-   "results/pc_transducer_v3.json": "161982ca107d83a7",
-   "results/fa1_chain_v2p11.json": "eea3b964e41f0afe",
-   "results/bom_v2p3.json": "82d1ef1c6fcf92d3",
-   "results/case_tc_channel_v1.json": "6f29c93eff893adf",
-   "results/tf1_rate_v1.json": "0c1bb777739dcf8f",
-   "results/gen_tables_v2p4b_leafdiff_v1.json": "711f8f01f81d9497",
-   "results/gen_headers_regen_check_v2p11.json": "3223fcc77035a012",
-   "results/gnc_v31_read_keys_check_v2p10.json": "68f0459f360a845d",
-   "results/fault_path_v4.json": "d918544530e69de7",
-   "results/bleed_driver_v1.json": "298b405b0621acd5",
-   "results/hbleed_provision_v1.json": "d9709d1e28dc12d7",
-   "results/over_thrust_v3.json": "770bf284d14b1336",
-   "results/pintle_rate_map_v1.json": "411b0573d604364e",
-   "results/eng03_slew_check_v1.json": "2c357fce063c19ca",
-   "results/pintle_rail_v3.json": "694e471732ad070a",
-   "results/ecu_v2p3_values_v1.json": "d3f10bb0868cfe59",
-   "results/mv_latch_magnet_v1.json": "90225910d7e98850",
-   "results/tvc_supply_budget_v1.json": "3ee9d60ad039ed45",
-   "results/pintle_mini_servo_v1.json": "62b326482617125a",
-   "docs/bench_plan_v4.md": "5b1c9336d7b8db50",
-   "firmware/src/core/protocol.h": "905de7204a814ca3",
-   "firmware/src/core/types.h": "d7fe0f1522a5948c",
-   "/home/claude/work/shared-fallback/engine/06-electronics/firmware/src/core/engine_params.h": "6b73317fcd7d07ac",
-   "/home/claude/work/shared-fallback/engine/06-electronics/firmware/src/core/mech_params.h": "7301439a64bb18f4",
-   "/home/claude/work/shared-fallback/engine/06-electronics/firmware/src/core/config.h": "0880af5a27880a5b",
-   "results/arm_build_v2p11_log.txt": "db0c07a664e69932",
-   "firmware/sil/sil_main.cpp": "54eedc9c1cddd3fa",
-   "results/bom_v2p3.csv": "305dc29ff856475b",
-   "firmware/src/core/engine_ecu.cpp": "2b47b62b0887c937",
-   "firmware/src/core/control.cpp": "4b3a715ce4dec6e8",
-   "firmware/src/core/protocol.cpp": "edb205a7a6afeab0",
-   "firmware/src/core/sensor_scale.cpp": "b5da2c24c9af3c38",
-   "firmware/sil/sc_v211_r2.inc": "b7def3b13a22d708",
-   "results/fa1_chain_v2p11_cases.csv": "eecbff7c67550447"
+   "results/v2p12/sil/r4_02_reclass_v2p12.json": "f3d91aba932ac851",
+   "results/v2p12/sil/a8_bandhigh/S6R_in_window_overpressure.json": "d8a3fbfa684e6f6e",
+   "results/v2p12/sil/a8_bandhigh/S6C_rc_cost.json": "0d52b41da3402df9",
+   "results/v2p12/sil/test_core_v2p12_log.txt": "c645af8aba83dd04",
+   "results/v2p12/sil/test_core_nohooks_v2p12_log.txt": "92b788bcdd5afb23",
+   "results/v2p12/sil/binaries_v2p12.txt": "ff6e18ba695416b8",
+   "docs/bench_plan_v5.md": "360c1d6695cc305c",
+   "results/bom_v2p4.csv": "eb6e77dcd4610383",
+   "firmware/src/core/config.h": "413369c33caa831b",
+   "firmware/src/core/protocol.h": "e53520aa489e5a67"
   }
  },
  "change_summary_v3_to_v4": [
@@ -784,7 +641,7 @@
   "open": "CHANGELOG line 249 (lead, 2026-10-21): ..._torch, the face-peak inputs of (4) and Electronics' S6R input finding: 10 S6R runs have their input outside LC-TB70, the Combustion v2.4a replay head-face peak 88.02 bar being above the Z3 level 75.519 bar, and 46 of 896 grid cases peak above 75.519 bar [SIM]); the datasheet and its review; the final push (p1-propulsion PR #5, ..."
  },
  "firmware": {
-  "version": "v2.11",
+  "version": "v2.12",
   "target": "PJRC Teensy 4.1 (i.MX RT1062). HAL NOT written (RE-06; LEAD 166 (9): Electronics open item, required before B-PC-1). The core runs in SIL and test_core only",
   "record": {
    "manifest": "06-electronics/results/sil_v2p11/MANIFEST_v1.json",
@@ -1596,6 +1453,34 @@
     "src": "config.h kIgnWindowRelightStand_s"
    },
    "rule": "compile-time constant; the SIL what-if SIL_WHATIF_RELIGHT_W #errors without ECU_SIL_TEST_HOOKS"
+  },
+  "v2p12": {
+   "config_h_line_1": "// [v2.12 2026-10-21, REV-ELEC-3 (R3-01..R3-06, N-07, N-09) and LEAD 253 / 256 (2) / 257 (2) / 258 (2)-(4): C1 seat compensation",
+   "tests": {
+    "test_core": "332 passed, 0 failed",
+    "test_core_nohooks": "331 passed, 0 failed",
+    "logs": [
+     "results/v2p12/sil/test_core_v2p12_log.txt c645af8aba83dd04",
+     "results/v2p12/sil/test_core_nohooks_v2p12_log.txt 92b788bcdd5afb23"
+    ]
+   },
+   "binaries_sha256_16": {
+    "test_core": "9ff1535e5f9c5589",
+    "test_core_nohooks": "7c6d7ce6fe37fb7f",
+    "sil": "7023f964d8e35565",
+    "sil_bpc1": "792bf7affbbfd615"
+   },
+   "binaries_note": "built with g++ -O2 (Makefile flags) in /dev/shm; not part of a manifest (no v2.12 MANIFEST)",
+   "changes": [
+    "seat compensation (R3-01 option (b)): Pc_comp = Pc_in - coef x (T_seat - T_seat,ARM) before every use; coef per serial (setPcSeatCoef), T_seat = Inputs::tc_bore_K (TC4, MAX31856 U904); SEAT_NOREF / SEAT_FROZEN fallbacks; U330 not compensated",
+    "ARM sanity static term: |gauge - coef x (T_seat - T_cal)| <= kPcArmZeroMax_Pa (T_cal per serial, setPcSeatTcal; v2.11 check when coef 0)",
+    "TB-state (f3 b0/b1): HW_OVERPRESSURE, PC_OVERPRESSURE, HARD_START, OVER_TEMP, PC_SENSOR HIGH (>= 4.75 V) in any non-SAFE state; stand: the HIGH over-range aborts PC_SENSOR as before and now sets TB_STATE; flight: TB_STATE latched, no abort",
+    "flight J-FWD indication (f3 b5): LIGHT_SPIKE raw >= kJfwdLsRawAbs_Pa 47.5 bar abs or raw >= 4.75 V",
+    "torch re-zero limit kPtorchRezeroMax_Pa 0.60 bar (070BG basis; f3 b6 on a rejection)",
+    "kIgnBaseCheck_Pa = kIgnResidual_Pa + kIgnBaseDrift_Pa 0.06 bar + 0.10 bar",
+    "purge FINAL: kPurgeFlow_s 2.43 s, kHbleedCap_s 2.39 s, both calibration constants (setPurgeCal, SAFE only, rule (d) bounds)",
+    "log v13: + seat_comp_hPa, seat_ref_dK, f3_flags (185 B)"
+   ]
   }
  },
  "sil_fail_dispositions": [
@@ -2264,9 +2149,9 @@
       "src": "config.h kA7StartHiBlank_s"
      },
      "kIgnBaseCheck_Pa": {
-      "v": 70000.0,
+      "v": 76000.0,
       "unit": "Pa",
-      "tag": "LEAD",
+      "tag": "LEAD form + R3-01 item 4",
       "src": "config.h kIgnBaseCheck_Pa"
      },
      "kPcArmZeroMax_Pa": {
@@ -2687,9 +2572,9 @@
    "src": "config.h kIgnResidual_Pa"
   },
   "kIgnBaseCheck_Pa": {
-   "v": 70000.0,
+   "v": 76000.0,
    "unit": "Pa",
-   "tag": "LEAD",
+   "tag": "LEAD form + R3-01 item 4",
    "src": "config.h kIgnBaseCheck_Pa"
   },
   "kIgnFloorAbs_Pa": {
@@ -5189,13 +5074,19 @@
      "the mode-3 estimator re-initialised at the Pc-invalid onset (LEAD 227 (6)): without the flush 264 / 326 (normal) and 160 / 172 (starved040) of 1000 dead runs are released at 0.5 / 0.8 s (the lit plateau carried through the 20 ms filter)",
      "the main-chamber photodiode view proven (FLAMEOUT_OPT armed), or the reference re-taken at the ECU E2 or at the light: photodiode-blind families with the flush and reference none release 20 / 42 (normal_noopt) and 42 / 98 (starved040_noopt) of 1000 dead runs at 0.5 / 0.8 s; with either re-taken reference none",
      "FC frame noise inside the 227 (6) budget (noise_budget_227_6)",
-     "inside the W10 < 6 m/s envelope only: at the all-winds bound the flush + hold design releases 320 of 1000 normal dead runs at 0.8 s (0 at 0.5 s); 227 (5) scopes the window to W10 < 6"
+     "inside the W10 < 6 m/s envelope only: at the all-winds bound the flush + hold design releases 320 of 1000 normal dead runs at 0.8 s (0 at 0.5 s); 227 (5) scopes the window to W10 < 6",
+     "R3-04 (1): the FC Pc branch OFF, or its threshold moved with margin: with the branch on (release on Pc valid and filtered Pc >= 3.0 bar abs) every normal-family run is released at E2 (0 ms after E2), at both windows, 1000 of 1000, the dead kind included (OI-FC-PC-BRANCH)",
+     "R3-04 (2): the cold-flow bound, basis the Combustion v2.4a adiabatic bound (cold_flow_thrust_v2p4a): at cold flow x 1.3 the hold + flush margins fall from +5.789 / +4.954 N to +2.077 / +1.242 N and the FC iid noise budget for P <= 1e-3 to 1.10 / 0.63 N rms at 0.5 / 0.8 s (3.06 / 2.51 N at x 1.0)"
     ],
     "fc_pc_branch_finding": {
      "v": "with the FC Pc branch (release on a frame with Pc valid and filtered Pc >= 3.0 bar abs) every normal-family run, lit or about to flame out, is released at the E2 frame (release 0 ms after E2 in 1000 of 1000 evaluations): Pc_f at E2 is 3.04 bar abs, 0.04 bar above the branch threshold, so R2 never decides those runs, and a flame-out after that release is outside R2 (no drogue held). The dead-side numbers above are taken with the branch OFF for the normal family (mode 3 decides). GNC / FC owner to state the branch margin or move it",
      "tag": "SIM S17v2 (fc_pc_branch true groups; sc_v211_r2.inc header)"
     },
-    "limits": "SIL closed-loop plant (ASSUMED / COMB SIM inputs) with GNC R2 v2 evaluated offline on the recorded histories; dead bound d from GNC r2v2_eval (fo_none) applied to every frame; cold flow = Combustion v2.4a adiabatic bound at the plant lift; starved plateau = a shape stand-in; frame phase TO-VERIFY (all 10 run). Not flight-software or hardware evidence"
+    "limits": "SIL closed-loop plant (ASSUMED / COMB SIM inputs) with GNC R2 v2 evaluated offline on the recorded histories; dead bound d from GNC r2v2_eval (fo_none) applied to every frame; cold flow = Combustion v2.4a adiabatic bound at the plant lift; starved plateau = a shape stand-in; frame phase TO-VERIFY (all 10 run). Not flight-software or hardware evidence",
+    "decided_by_R2_runs": {
+     "v": "640 of the 2000 runs per window are decided by R2; in 1360 the ECU leaves RUN (FLAMEOUT) before any R2 decision",
+     "tag": "SIM (S17v2, REV-ELEC-3 R3-04 (3))"
+    }
    },
    "noise_budget_227_6": {
     "question": "CHANGELOG line 227 (lead, 2026-10-19): ... confirms it or returns it to the lead. (6) Mode-3 estimator: ADOPTED as a flight-software requirement. The mode-3 filter is re-initialised at the Pc-invalid onset (GNC rev4 R2 (a), first option). Electronics implements it in v2.11 and runs S17; GNC re-runs R2 with the flush afterwards. Electronics states the FC frame-noise budget against the +5.3 to +6.0 N mode-3 margin: at 5 N rms (iid ASSUMED) the bounding run rel...",
@@ -6572,8 +6463,9 @@
     }
    },
    "jfwd_rule": {
-    "v": "the J-FWD rule (> 60 bar abs, CHANGELOG 248 founder rule) is triggered in 25 required runs (the FA-1 envelope + 50 bar plateau family: zone 3, peak 75.52 bar abs): after such an abort the J-FWD joint counts as used (bench plan v4 F-14)",
-    "tag": "SIM + LEAD 248"
+    "v": "v4.1 (REV-ELEC-3 R3-02): the v4 text cited \"bench plan v4 F-14\" for a 60 bar rule F-14 did not hold. The LC-TB70 v1 60 bar rule (any head excursion above 60.0 bar abs: replace the J-FWD screws, gauge the TC-01 holes / TC-02 taps) was triggered in 25 required S6R runs (FA-1 envelope + 50 bar plateau family, zone 3, peak 75.52 bar abs); it is now the LC-TB70 v2 J-FWD replace rule on Q_JFWD > 60.0 bar abs (LEAD 258 (3)), quoted verbatim in bench plan v5 F-14 with the founder rule (LEAD 248) beside it; the S6R runs are re-classified with Q_JFWD in rev_comb_4_items_v2p12.R4-02",
+    "tag": "SIM + LEAD 248, 258 (3); corrected v4.1",
+    "v_v4": "the J-FWD rule (> 60 bar abs, CHANGELOG 248 founder rule) is triggered in 25 required runs (the FA-1 envelope + 50 bar plateau family: zone 3, peak 75.52 bar abs): after such an abort the J-FWD joint counts as used (bench plan v4 F-14)"
    },
    "input_outside_envelope": {
     "v": "10 runs (the Combustion v2.4a FA-1 replay max-face case, alone and with a 50 bar plateau, in all 5 builds): input head peak 88.02 bar abs > Z3 75.519 bar abs; 46 of 896 grid cases peak above it (141 above 63.1). Not Electronics' to fix: routed to REV-COMB-4 and Mechanical by CHANGELOG 249 (15). No v2.11 claim depends on these runs (the required set excludes them; the ECU abort times in them are recorded)",
@@ -7272,9 +7164,9 @@
   {
    "limit": "purge both-open command cap",
    "value": {
-    "v": 2.55,
+    "v": 2.39,
     "unit": "s",
-    "tag": "LEAD CHANGELOG 203 (3), PROVISIONAL 216 (5) / 230 (3)",
+    "tag": "LEAD 256 (2) / 257 (2)",
     "src": "config.h kHbleedCap_s"
    },
    "basis": "LEAD 203 (3) <= 2.55 s; 230 (3): the scheduled command span 2.45 s does not fit a 2.39 s cap, so 2.55 s is kept; physical flow at the cap 2.60 s = 76.05 g on the one basis 29.25 g/s, 80.76 g at the warm end 31.06 g/s",
@@ -7473,9 +7365,9 @@
   {
    "limit": "light-rule baseline check",
    "value": {
-    "v": 70000.0,
+    "v": 76000.0,
     "unit": "Pa",
-    "tag": "LEAD",
+    "tag": "LEAD form + R3-01 item 4",
     "src": "config.h kIgnBaseCheck_Pa"
    },
    "basis": "residual + 0.1 bar; per location (pad / stand refuse, A1 keeps / zeroes P0)",
@@ -9677,15 +9569,15 @@
     "src": "config.h kPurgeRelight_s"
    },
    "flow_start": {
-    "v": 0.35,
+    "v": 0.42,
     "unit": "s",
     "tag": "DERIVED",
     "src": "config.h kPurgeFlowStart_s"
    },
    "flow": {
-    "v": 2.5,
+    "v": 2.43,
     "unit": "s",
-    "tag": "LEAD CHANGELOG 164 (1)",
+    "tag": "LEAD 256 (2) / 257 (2)",
     "src": "config.h kPurgeFlow_s"
    },
    "flow_min_fc_planning": {
@@ -9707,9 +9599,9 @@
     "src": "config.h kHbleedPathBy_s"
    },
    "cap_both_open": {
-    "v": 2.55,
+    "v": 2.39,
     "unit": "s",
-    "tag": "LEAD CHANGELOG 203 (3), PROVISIONAL 216 (5) / 230 (3)",
+    "tag": "LEAD 256 (2) / 257 (2)",
     "src": "config.h kHbleedCap_s"
    },
    "post_flow_hold_max": {
@@ -10299,7 +10191,8 @@
  },
  "log_v12": {
   "v": "LogRecord v12 = 180 bytes at 1 kHz: v11 + ovr_flags (v12 (v2.11, LEAD 203 (1)): ovr:: b0 HIGH over-range this tick (non-sticky) b1 above full scale this tick b2 ride-through window open b3 30 bar persistence tolerated by the window b4 RETIRED (draft long comparator RC request; RC FIXED, LEAD 216 (3): always 0) b5 T45 guard counting b6 ride-through enabled (build/config) b7 zero); LIGHT_SPIKE ls_flags b7 = above full scale; tlm_flags b2 = R2 backstop reached",
-  "tag": "DESIGN protocol.h; test_core \"LogRecord v12 is 180 bytes\""
+  "tag": "DESIGN protocol.h; test_core \"LogRecord v12 is 180 bytes\"",
+  "superseded_by": "log_v13 (v2.12)"
  },
  "bom": {
   "file": "06-electronics/results/bom_v2p3.csv (v2.3) 305dc29ff856475b; results/bom_v2p3.json 82d1ef1c6fcf92d3 (calc/v2p11/bom_v2p3.py)",
@@ -10598,104 +10491,112 @@
     "basis": "REV-ELEC-2 R2-20"
    }
   ],
-  "price_rule": "checked: every row is TO-QUOTE delivered to Soenderborg DK-6400 (DK VAT, shipping and duty) or n/a (no purchase); the 3 catalogue listings are recorded as listing prices only; no zero and no \"from\" price"
+  "price_rule": "checked: every row is TO-QUOTE delivered to Soenderborg DK-6400 (DK VAT, shipping and duty) or n/a (no purchase); the 3 catalogue listings are recorded as listing prices only; no zero and no \"from\" price",
+  "v2p4": {
+   "file": "06-electronics/results/bom_v2p4.csv eb6e77dcd4610383",
+   "change": "rows 205 (TC4 becomes the C1 seat TC, flight use defined) and 251 (compensated band, R3-05) text only; 266 rows, line numbers kept; no price entered (TO-QUOTE delivered to Soenderborg, DK-6400)"
+  }
  },
  "bench_plan": {
-  "file": "06-electronics/docs/bench_plan_v4.md 5b1c9336d7b8db50",
-  "tests": [
-   "RE-15 board checks (before fabrication)",
-   "HAL-1: Teensy HAL (RE-06; LEAD 166 (9): Electronics open item, required before B-PC-1)",
-   "B-PWR-1 / B-PWR-2: power and arming (RE-09)",
-   "B-ECU-1: I/O, CAN and log",
-   "B-PT-1 (new): tank-pressure channel calibration (LEAD 172 (4) guard band)",
-   "B-PC-1: Pc chain on the C1 transducer (REV §9; LEAD 166 (1), (5), 205, 206 (3))",
-   "B-DPC-1 (new): stand dynamic Pc channel (LEAD 172 (5); range and proof per LEAD 194 (7), REV-COMB-3 R3-10)",
-   "B-TC-1 (new): case-TC channel (Part A, LEAD rulings 2026-10-20; LEAD 243 (3))",
-   "B-MV-1: main valve",
-   "B-PNT-1: pintle (ENG-03; REV §9)",
-   "B-TVC-1: gimbal (REV §9; RE-24)",
-   "CHK-PW (new): hardware purge window (LEAD 166 (3); schematic v2.5)",
-   "CHK-BT (new): hardware both-commanded-open timer (LEAD 166 (3), 216 (5); schematic v2.6 U576-U579, NOT drawn)",
-   "B-BLEED-1: head-end bleed (REV §9; LEAD 164, 166 (3))",
-   "B-IGN-1: igniter EMI (REV §9 via IGN-1; RE-18)",
-   "B-FC-1: FC link, drogue telemetry, ABORT path, R2 command hold (LEAD 168, 175, 181, 186)",
-   "B-SAFE-1 (new): stand safing after a no-light (LEAD 172 (1))",
-   "HIL-OT-1 / HIL-TR-1 / HIL-RST-1 (RE-28; LEAD 166 (8))",
-   "LEAK-1, CF-3, CF-4 (Mechanical / Combustion rigs; Electronics instrumentation)",
-   "IGN-1 / T1: relative light rule on hardware (REV §9)",
-   "T1-T4 F_acc (written out; no v1 text is needed)",
-   "GSE: launch commit wind (LEAD 181 (6): HARD rule for A1; was provisional in LEAD 161 (6))",
-   "A1 pad go/no-go list (LEAD 181 (6); LEAD 175 (4); combustion.json v2.4 arm preconditions)"
-  ],
-  "founder_block": [
-   {
-    "id": "F-1",
-    "action": "RFQ BOM 237"
-   },
-   {
-    "id": "F-2",
-    "action": "RFQ BOM 238"
-   },
-   {
-    "id": "F-3",
-    "action": "RFQ BOM 244"
-   },
-   {
-    "id": "F-4",
-    "action": "RFQ BOM 245"
-   },
-   {
-    "id": "F-5",
-    "action": "RFQ BOM 250"
-   },
-   {
-    "id": "F-6",
-    "action": "RFQ BOM 251 (Electronics addition)"
-   },
-   {
-    "id": "F-7",
-    "action": "TE inquiry (M3234-000005-070BG)"
-   },
-   {
-    "id": "F-8",
-    "action": "PCB inquiry (113B22)"
-   },
-   {
-    "id": "F-9",
-    "action": "NI inquiry (NI 9234)"
-   },
-   {
-    "id": "F-10",
-    "action": "Kulite inquiry (XTL-190SM-2000A)"
-   },
-   {
-    "id": "F-11",
-    "action": "anemometer mast and logger (BOM 250)"
-   },
-   {
-    "id": "F-12",
-    "action": "spare-070BG over-range row (LEAD 203 (2), 216 (6); moved from B-PC-1)"
-   },
-   {
-    "id": "F-13",
-    "action": "stand T0 rule (LEAD ruling 2026-10-20)"
-   },
-   {
-    "id": "F-14",
-    "action": "J-FWD rule (LEAD 248 founder rule)"
-   }
-  ],
-  "founder_block_rule": "CHANGELOG line 216 (lead, 2026-10-13): ...al (96-104 g) goes to GNC and the FMEA. (6) R2-06: the founder-executable block is added to the bench plan and to the founder action list: RFQs delivered to Sonderborg DK-6400 for BOM rows 237, 238, 244, 245, 250 (no price until quoted); TE (070BG saturation, recovery, post-over-range shift; line-205 replacement unit), PCB (113B22 excitation at 19 V compliance, coating) and NI inquiries; the anemometer mast and logger; the spare-070BG over-range row on a bench supply and DAQ, hydraulic only, never returned to N2O s...",
-  "v2p11_rows_checked": [
-   "B-TC-1 heading",
-   "CHK-BT heading",
-   "B-TC-1 tau row",
-   "B-FC-1 LOST DROGUE 0 row",
-   "F-13 stand T0",
-   "F-14 J-FWD",
-   "IGN-1 E2 - light <= 20 ms"
-  ],
-  "note": "bench plan v3 is superseded; every row passes on hardware before the item it closes is used; nothing here has been run"
+  "file": "06-electronics/docs/bench_plan_v5.md 360c1d6695cc305c",
+  "generator": "06-electronics/calc/v2p12/make_bench_plan_v5.py (from bench_plan_v4.md 5b1c9336d7b8db50)",
+  "v4": {
+   "file": "06-electronics/docs/bench_plan_v4.md 5b1c9336d7b8db50",
+   "tests": [
+    "RE-15 board checks (before fabrication)",
+    "HAL-1: Teensy HAL (RE-06; LEAD 166 (9): Electronics open item, required before B-PC-1)",
+    "B-PWR-1 / B-PWR-2: power and arming (RE-09)",
+    "B-ECU-1: I/O, CAN and log",
+    "B-PT-1 (new): tank-pressure channel calibration (LEAD 172 (4) guard band)",
+    "B-PC-1: Pc chain on the C1 transducer (REV §9; LEAD 166 (1), (5), 205, 206 (3))",
+    "B-DPC-1 (new): stand dynamic Pc channel (LEAD 172 (5); range and proof per LEAD 194 (7), REV-COMB-3 R3-10)",
+    "B-TC-1 (new): case-TC channel (Part A, LEAD rulings 2026-10-20; LEAD 243 (3))",
+    "B-MV-1: main valve",
+    "B-PNT-1: pintle (ENG-03; REV §9)",
+    "B-TVC-1: gimbal (REV §9; RE-24)",
+    "CHK-PW (new): hardware purge window (LEAD 166 (3); schematic v2.5)",
+    "CHK-BT (new): hardware both-commanded-open timer (LEAD 166 (3), 216 (5); schematic v2.6 U576-U579, NOT drawn)",
+    "B-BLEED-1: head-end bleed (REV §9; LEAD 164, 166 (3))",
+    "B-IGN-1: igniter EMI (REV §9 via IGN-1; RE-18)",
+    "B-FC-1: FC link, drogue telemetry, ABORT path, R2 command hold (LEAD 168, 175, 181, 186)",
+    "B-SAFE-1 (new): stand safing after a no-light (LEAD 172 (1))",
+    "HIL-OT-1 / HIL-TR-1 / HIL-RST-1 (RE-28; LEAD 166 (8))",
+    "LEAK-1, CF-3, CF-4 (Mechanical / Combustion rigs; Electronics instrumentation)",
+    "IGN-1 / T1: relative light rule on hardware (REV §9)",
+    "T1-T4 F_acc (written out; no v1 text is needed)",
+    "GSE: launch commit wind (LEAD 181 (6): HARD rule for A1; was provisional in LEAD 161 (6))",
+    "A1 pad go/no-go list (LEAD 181 (6); LEAD 175 (4); combustion.json v2.4 arm preconditions)"
+   ],
+   "founder_block": [
+    {
+     "id": "F-1",
+     "action": "RFQ BOM 237"
+    },
+    {
+     "id": "F-2",
+     "action": "RFQ BOM 238"
+    },
+    {
+     "id": "F-3",
+     "action": "RFQ BOM 244"
+    },
+    {
+     "id": "F-4",
+     "action": "RFQ BOM 245"
+    },
+    {
+     "id": "F-5",
+     "action": "RFQ BOM 250"
+    },
+    {
+     "id": "F-6",
+     "action": "RFQ BOM 251 (Electronics addition)"
+    },
+    {
+     "id": "F-7",
+     "action": "TE inquiry (M3234-000005-070BG)"
+    },
+    {
+     "id": "F-8",
+     "action": "PCB inquiry (113B22)"
+    },
+    {
+     "id": "F-9",
+     "action": "NI inquiry (NI 9234)"
+    },
+    {
+     "id": "F-10",
+     "action": "Kulite inquiry (XTL-190SM-2000A)"
+    },
+    {
+     "id": "F-11",
+     "action": "anemometer mast and logger (BOM 250)"
+    },
+    {
+     "id": "F-12",
+     "action": "spare-070BG over-range row (LEAD 203 (2), 216 (6); moved from B-PC-1)"
+    },
+    {
+     "id": "F-13",
+     "action": "stand T0 rule (LEAD ruling 2026-10-20)"
+    },
+    {
+     "id": "F-14",
+     "action": "J-FWD rule (LEAD 248 founder rule)"
+    }
+   ],
+   "founder_block_rule": "CHANGELOG line 216 (lead, 2026-10-13): ...al (96-104 g) goes to GNC and the FMEA. (6) R2-06: the founder-executable block is added to the bench plan and to the founder action list: RFQs delivered to Sonderborg DK-6400 for BOM rows 237, 238, 244, 245, 250 (no price until quoted); TE (070BG saturation, recovery, post-over-range shift; line-205 replacement unit), PCB (113B22 excitation at 19 V compliance, coating) and NI inquiries; the anemometer mast and logger; the spare-070BG over-range row on a bench supply and DAQ, hydraulic only, never returned to N2O s...",
+   "v2p11_rows_checked": [
+    "B-TC-1 heading",
+    "CHK-BT heading",
+    "B-TC-1 tau row",
+    "B-FC-1 LOST DROGUE 0 row",
+    "F-13 stand T0",
+    "F-14 J-FWD",
+    "IGN-1 E2 - light <= 20 ms"
+   ],
+   "note": "bench plan v3 is superseded; every row passes on hardware before the item it closes is used; nothing here has been run"
+  }
  },
  "mass_statement": {
   "electronics_changes": {
@@ -10740,10 +10641,11 @@
   },
   {
    "id": "OI-PURGE-CAP",
-   "severity": "HIGH",
-   "issue": "cap 2.55 s kept (230 (3): the scheduled command span 2.45 s does not fit 2.39 s); vented mass at the cap 76.05 g on the one basis 29.25 g/s (76 g limit), 80.76 g at the warm end 31.06 g/s, 86.14 g at Cd 0.80; firmware cap failed: the hardware both-open timer bounds 81.65-92.48 g (PURGE_WIN alone 96.33-109.10 g); option: kPurgeFlow_s 2.43 s with a 2.39 s cap (head_end_bleed_provision.cap_decision_230_3)",
+   "severity": "CLOSED (LEAD 256 (2), 257 (2), 258 (2))",
+   "issue": "FINAL: 2.43 s flow / 2.39 s cap as calibration constants, rule (d) (d1) (d2) (purge_final_v2p12); residual: CF-4 / B-BLEED-1 re-set",
    "owner": "LEAD",
-   "closure": "lead decision on the cap; measured-time form after CF-4 / B-BLEED-1"
+   "closure": "lead decision on the cap; measured-time form after CF-4 / B-BLEED-1",
+   "issue_v4": "cap 2.55 s kept (230 (3): the scheduled command span 2.45 s does not fit 2.39 s); vented mass at the cap 76.05 g on the one basis 29.25 g/s (76 g limit), 80.76 g at the warm end 31.06 g/s, 86.14 g at Cd 0.80; firmware cap failed: the hardware both-open timer bounds 81.65-92.48 g (PURGE_WIN alone 96.33-109.10 g); option: kPurgeFlow_s 2.43 s with a 2.39 s cap (head_end_bleed_provision.cap_decision_230_3)"
   },
   {
    "id": "OI-WINDOW-LATENT",
@@ -10762,9 +10664,10 @@
   {
    "id": "OI-A1-BASE-AMB",
    "severity": "MEDIUM",
-   "issue": "replaces OI-RE02-CRITERIA (closed under the 216 (4) per-location criteria, 0 fails in both builds). A1 relight BASE_AMB: P0 := 0, the lift is commanded, the A7 HOLD band aborts PC_SENSOR 50 ms after the lift, no light, no false E2 (relight lost, fail-safe); 0 of 500 runs in the S13 A Monte Carlo at the A1 state; 216 (4) set no A1 target",
+   "issue": "S13T with the drift model: option (b) 0 BASE_AMB in the A1 sweep (both builds); fallback BASE_AMB -> PC_SENSOR at k = 3 (default build) and at k >= 1.5 on the - sign (B-PC-1-shown build) (r3_01_c1_drift.decision_3); LEAD decision (3) at this handback",
    "owner": "LEAD",
-   "closure": "accept the outcome or rule the alternative (keep the measured P0 below ambient; not implemented)"
+   "closure": "accept the outcome or rule the alternative (keep the measured P0 below ambient; not implemented)",
+   "issue_v4": "replaces OI-RE02-CRITERIA (closed under the 216 (4) per-location criteria, 0 fails in both builds). A1 relight BASE_AMB: P0 := 0, the lift is commanded, the A7 HOLD band aborts PC_SENSOR 50 ms after the lift, no light, no false E2 (relight lost, fail-safe); 0 of 500 runs in the S13 A Monte Carlo at the A1 state; 216 (4) set no A1 target"
   },
   {
    "id": "OI-TEB-FALSE-LIGHT",
@@ -10915,10 +10818,46 @@
   },
   {
    "id": "OI-STALE-LABELS",
-   "severity": "LOW",
-   "issue": "disclosed, no binary effect: config.h l.757-768 still describes the v2.10 thrust-commanded hold (the v2.11 rule is in r2_command_hold; the kR2HoldThrust_N tag is current); config.h l.832-834 / 865-866 describe the v2.10 170BG P_mid chain (LMV331, 9.86 / 8.86 bar g; \"restriction DOWNSTREAM of V2\") while the decided path and U570 on C1 are as in head_end_bleed_provision; config.h l.900 says U576-U578 (the timer is U576-U579, l.945); scenario labels S9 (v2.6 TEB), S12 \"S12 v2.10\", S14_v2p10, S15, S16, S17_r2hold, probeF; test_core v210-16 \"0.5 s adopted, 0.8 s checked\"; results/pc_transducer_v3.json records the pre-249 (4) 112.2 bar abs check and its combustion v2.4a input; BOM 212 / 214 notes name \"electronics.json v2\", BOM 245 still names the over-range row B-PC-1 (now F-12); mech_params.h / mech_tables.h name mechanical.json v2 (regenerated from v2.2: the comment line only); the manifest rebuild paths and the \"scratch\" field of results/gen_headers_regen_check_v2p11.json point to a removed scratch folder, and the manifest \"date\" field is the tool default",
+   "severity": "CLOSED (N-09, v2.12)",
+   "issue": "config.h comments corrected in v2.12 (rev_elec_3_author_status.N-09)",
    "owner": "Electronics",
-   "closure": "v2.12 text pass (comments, labels)"
+   "closure": "v2.12 text pass (comments, labels)",
+   "issue_v4": "disclosed, no binary effect: config.h l.757-768 still describes the v2.10 thrust-commanded hold (the v2.11 rule is in r2_command_hold; the kR2HoldThrust_N tag is current); config.h l.832-834 / 865-866 describe the v2.10 170BG P_mid chain (LMV331, 9.86 / 8.86 bar g; \"restriction DOWNSTREAM of V2\") while the decided path and U570 on C1 are as in head_end_bleed_provision; config.h l.900 says U576-U578 (the timer is U576-U579, l.945); scenario labels S9 (v2.6 TEB), S12 \"S12 v2.10\", S14_v2p10, S15, S16, S17_r2hold, probeF; test_core v210-16 \"0.5 s adopted, 0.8 s checked\"; results/pc_transducer_v3.json records the pre-249 (4) 112.2 bar abs check and its combustion v2.4a input; BOM 212 / 214 notes name \"electronics.json v2\", BOM 245 still names the over-range row B-PC-1 (now F-12); mech_params.h / mech_tables.h name mechanical.json v2 (regenerated from v2.2: the comment line only); the manifest rebuild paths and the \"scratch\" field of results/gen_headers_regen_check_v2p11.json point to a removed scratch folder, and the manifest \"date\" field is the tool default"
+  },
+  {
+   "id": "OI-C1-SEAT-DRIFT",
+   "severity": "HIGH",
+   "owner": "LEAD (ruling) / Electronics / founders (B-PC-1, F-10) / Mechanical (seat TC mount)",
+   "issue": "R3-01: option (b) implemented in SIL; needs the lead ruling, the per-serial coefficient and T_cal (B-PC-1 over 0-85 C), the thermal-zero maximum (F-10), the seat TC mounting at the C1 boss and the P_mid / U570 temperature (MISSING)",
+   "closure": "lead ruling; B-PC-1 zero-TC row; F-10 answer"
+  },
+  {
+   "id": "OI-STAND-RELIGHT-COEF",
+   "severity": "MEDIUM",
+   "owner": "Electronics / founders",
+   "issue": "S13T: a stand relight after a B1-length burn is refused NOT_VENTED when the seat coefficient is 10 % low at k >= 2 (0.27-0.40 bar residual on the 0.30 bar limit): B-PC-1 must hold the coefficient to about 5 % at k = 3 (safe refusal)",
+   "closure": "B-PC-1 per-serial residual over the 50.4 K span"
+  },
+  {
+   "id": "OI-PTORCH-PROOF",
+   "severity": "HIGH",
+   "owner": "LEAD / Electronics / Combustion / Mechanical",
+   "issue": "R4-12: 070BG proof 141.0 bar abs < 166.14 bar abs required at FA1S; isolate or move P_torch to a C1-family unit (rev_comb_4_items_v2p12.R4-12)",
+   "closure": "lead choice; F-7 / F-12 data"
+  },
+  {
+   "id": "OI-T4-RESIZE",
+   "severity": "MEDIUM",
+   "owner": "Combustion / Mechanical / LEAD",
+   "issue": "N-07: at the B1 end-of-burn rate the re-sized T4 relight (4.59 s) needs the case TCs <= 112.7 C at the relight; the B1 p99 burn ends at about 137.8 C; a coast longer than about 19 s or a shorter relight (bench plan v5 T1-T4)",
+   "closure": "Combustion re-run of the T4 rows on the re-sized profile; Mechanical soak-back"
+  },
+  {
+   "id": "OI-JFWD-FLIGHT",
+   "severity": "MEDIUM",
+   "owner": "LEAD",
+   "issue": "a flagged first light (f3 JFWD_LS) leaves the relight on a used joint; line 231 covers one Z3 event per assembly (LEAD 258 (4) OPEN)",
+   "closure": "lead ruling before flight acceptance"
   }
  ],
  "requests": [
@@ -11256,9 +11195,9 @@
    "rule": "trigger numbers only from config.h placeholders; every listed constant quoted; none unresolved",
    "result": "PASS"
   },
-  "firmware_version": "v2.11 (config.h stamp = Makefile header)",
+  "firmware_version": "v2.12 (config.h line 1)",
   "schematic_version": "v2.5 (generator REV = KiCad root rev = pin map rows); v2.6 NOT drawn (OI-SCHEMATIC-V2P6)",
-  "sil_manifest": "firmware_version v2.11; binaries sil, sil_bpc1, test_core, test_core_nohooks identical to a rebuild of the current tree; test_core 326 passed, 0 failed / no-hooks 325 passed, 0 failed; scenarios_file at its current hash",
+  "sil_manifest": "v2.11 manifest eaa9efc5112a8178 describes v2.11; no v2.12 manifest (NOT DONE in the time box)",
   "arm_build_log": "results/arm_build_v2p11_log.txt: 96 warnings, 0 errors; its recorded source hashes equal the current tree (engine_ecu.cpp 2b47b62b0887c937, control.cpp 4b3a715ce4dec6e8, protocol.cpp edb205a7a6afeab0, sensor_scale.cpp b5da2c24c9af3c38, config.h 8e85c419b3125cdf, protocol.h 905de7204a814ca3, types.h d7fe0f1522a5948c)",
   "structural_checks": [
    "Pc transducer selection kPcXdcrSel = 1 (C1 Kulite XTL-190SM-2000A)",
@@ -11377,6 +11316,1283 @@
   "carried_constants_refreshed": 6,
   "kelvin_difference_rule": "a K constant below 100 K is a temperature difference and is rendered in K only (v3 rendered kTankWallUnc_K as \"0.56 K (-272.6 C)\" in the TANK_HOT trigger; the JSON values are unchanged)",
   "constant_tag_rule": "tag = the bracketed [..] text of the constant's header comment; v4 reads a bracket that closes on a later // line to its end (v3 kept the first 120 characters): 7 constants completed (kRefModelDelay_s, kRideOvpTime_s, kRideWinPostE2_s, kTankColdPrepressDrop_K, kTorchGate_s, kHbleedCloseTime_s, kAdcZin_ohm); a carried leaf whose tag changed only this way is listed under carried_constants_refreshed",
-  "scope": "consistency of this file with its sources only; not a check of the design or of hardware"
+  "scope": "consistency of this file with its sources only; not a check of the design or of hardware",
+  "log": "protocol.h: LogRecord 185 bytes, kLogVersion 13 (asserted 185 / 13)",
+  "tests_v2p12": "test_core 332 / 0, no-hooks 331 / 0 (passed / failed)",
+  "config_changes_listed": 7
+ },
+ "change_summary_v4_to_v4p1": [
+  "R3-01 (MAJOR): C1 thermal-zero drift re-derived from the seat rise from ARM (Mechanical SIM, both nodes), k 1-3, both signs, T0 flight 0-40 C / stand 0-24 C; option (b) seat compensation implemented (firmware + SIL); S13T re-run on the drift model in both builds",
+  "v2.12 finding of the S13T pre-run: the ARM sanity check (0.5 bar) refuses ARM at the T0 extremes for k >= 1.5 with the uncompensated static zero term; option (b) now removes coef x (T_seat - T_cal) at the check (setPcSeatTcal); the fallback keeps the v2.11 check",
+  "R3-02: bench plan v5 F-14 with the LC-TB70 v2 rules verbatim, the TB-state set (F4 + PC_SENSOR HIGH, implemented), Q_JFWD per platform; the v4 S6R jfwd_rule citation corrected",
+  "R3-03 / R3-05 / R3-06: bench plan v5 B-TC-1 CJTO trim + EMI mean shift; C1 compensated band (F-6, F-10, BOM 251 in BOM v2.4); F-13 soak",
+  "R3-04: verdict_227_5.conditions gains the FC Pc branch and the cold-flow bound; the 640 runs decided by R2 stated",
+  "LEAD 256 (2) / 257 (2) / 258 (2): purge FINAL 2.43 s / 2.39 s as calibration constants with rule (d) (d1) (d2); PURGE at E0 - 2.90 s; S12 re-run",
+  "LEAD 258 (3)-(4) / REV-COMB-4 R4-02: S6R and N-04 burn-on cases re-classified with inside_v2 (Z3 v2, Q_JFWD); flight J-FWD indication",
+  "REV-COMB-4 R4-09 / R4-12 / R4-13 texts; torch re-zero limit on the 070BG basis; kIgnBaseCheck_Pa = residual + drift + 0.1 bar",
+  "log v13 (185 B); bench plan v5; BOM v2.4 (rows 205 and 251 text)"
+ ],
+ "config_changes_v4_to_v4p1": [
+  {
+   "path": "/abort_matrix/causes[11]/thresholds/kIgnBaseCheck_Pa",
+   "src": "config.h kIgnBaseCheck_Pa",
+   "v4": [
+    70000.0,
+    "LEAD"
+   ],
+   "v4p1": [
+    76000.0,
+    "LEAD form + R3-01 item 4"
+   ]
+  },
+  {
+   "path": "/light_rule/kIgnBaseCheck_Pa",
+   "src": "config.h kIgnBaseCheck_Pa",
+   "v4": [
+    70000.0,
+    "LEAD"
+   ],
+   "v4p1": [
+    76000.0,
+    "LEAD form + R3-01 item 4"
+   ]
+  },
+  {
+   "path": "/limits_v2p11[4]/value",
+   "src": "config.h kHbleedCap_s",
+   "v4": [
+    2.55,
+    "LEAD CHANGELOG 203 (3), PROVISIONAL 216 (5) / 230 (3)"
+   ],
+   "v4p1": [
+    2.39,
+    "LEAD 256 (2) / 257 (2)"
+   ]
+  },
+  {
+   "path": "/limits_v2p11[14]/value",
+   "src": "config.h kIgnBaseCheck_Pa",
+   "v4": [
+    70000.0,
+    "LEAD"
+   ],
+   "v4p1": [
+    76000.0,
+    "LEAD form + R3-01 item 4"
+   ]
+  },
+  {
+   "path": "/head_end_bleed_provision/schedule/flow_start",
+   "src": "config.h kPurgeFlowStart_s",
+   "v4": [
+    0.35,
+    "DERIVED"
+   ],
+   "v4p1": [
+    0.42,
+    "DERIVED"
+   ]
+  },
+  {
+   "path": "/head_end_bleed_provision/schedule/flow",
+   "src": "config.h kPurgeFlow_s",
+   "v4": [
+    2.5,
+    "LEAD CHANGELOG 164 (1)"
+   ],
+   "v4p1": [
+    2.43,
+    "LEAD 256 (2) / 257 (2)"
+   ]
+  },
+  {
+   "path": "/head_end_bleed_provision/schedule/cap_both_open",
+   "src": "config.h kHbleedCap_s",
+   "v4": [
+    2.55,
+    "LEAD CHANGELOG 203 (3), PROVISIONAL 216 (5) / 230 (3)"
+   ],
+   "v4p1": [
+    2.39,
+    "LEAD 256 (2) / 257 (2)"
+   ]
+  }
+ ],
+ "lead_rulings_v2p12": {
+  "253_7_i": {
+   "v": "ride-through = the flight-relight build, fixed RC; recorded with its four conditions",
+   "tag": "LEAD 253 (7)(i)",
+   "conditions": [
+    {
+     "n": 1,
+     "condition": "schematic v2.6 drawn",
+     "status": "OPEN (OI-SCHEMATIC-V2P6)"
+    },
+    {
+     "n": 2,
+     "condition": "the R3-01 drift term in the comparator bands",
+     "status": "DONE in SIL / CALC: U330 bands per k, node and ambient (r3_01_c1_drift.A8); S6R / S6C band-high re-check with +4.456 bar (a8)"
+    },
+    {
+     "n": 3,
+     "condition": "OI-SEAT-RINGING closed at B-DPC-1 / HIL-TR-1",
+     "status": "OPEN (hardware)"
+    },
+    {
+     "n": 4,
+     "condition": "N-04: if REV-COMB-4 finds the 29-33 burn-on peaks physical and Mechanical cannot cover them, re-opened",
+     "status": "R4-02 re-classification against Z3 v2 below (rev_comb_4_items_v2p12.R4-02)"
+    }
+   ]
+  },
+  "253_7_ii": {
+   "v": "purge: PROVISIONAL in 253, FINAL by 256 (2) with (a)-(c), (d) by 257 (2), (d1) / (d2) by 258 (2)",
+   "tag": "LEAD 253 (7)(ii), 256 (2), 257 (2), 258 (2)",
+   "implemented": "purge_final_v2p12"
+  },
+  "253_7_iii": {
+   "v": "decision (3), the A1 BASE_AMB outcome, held for the S13 A re-run with the drift model: recommendation in r3_01_c1_drift.decision_3",
+   "tag": "LEAD 253 (7)(iii)"
+  },
+  "253_7_iv": {
+   "v": "an unprimed or UNKNOWN-line relight with the bleed fitted stays refused for A1 (fail-safe); OI-UNPURGED-RELIGHT open until Combustion models it",
+   "tag": "LEAD 253 (7)(iv)",
+   "firmware": "unchanged (refuse UNPURGED 16; prep path refused with the bleed fitted)"
+  },
+  "253_7_v": {
+   "v": "both bleed valves stuck open is an FMEA residual for A1 (104.17 g in the first burn, leak flag 5.05 s after injection [SIM]); the pad BIT stays; the low U570 threshold is not credited as detection",
+   "tag": "LEAD 253 (7)(v)"
+  },
+  "253_7_vi": {
+   "v": "cite SIL MANIFEST eaa9efc5112a8178 in place of 620b3d566fe0c8b9",
+   "tag": "LEAD 253 (7)(vi)",
+   "status": "done in v4 (firmware.record); kept"
+  },
+  "256_2": {
+   "v": "PURGE FINAL: 2.43 s flow with the 2.39 s cap ADOPTED with (a) 2.2 s at 283.15 K stated wherever 1.9 s is quoted, (b) measured Cd x A >= 0.91 x the Cd 0.70 value (>= 0.95 x with the FD-01 bound) else re-sized, (c) line unlined",
+   "tag": "LEAD 256 (2)"
+  },
+  "257_2": {
+   "v": "(d): kPurgeFlow_s and the cap re-set from the measured Cd x A (measured-time form, mdot at 297.15 K), never above 2.43 / 2.39 s",
+   "tag": "LEAD 257 (2)"
+  },
+  "258_2": {
+   "v": "(d1) upper 95 % bound of the measured Cd x A; (d2) CF-4 shows the 283.15 K need at the re-set flow",
+   "tag": "LEAD 258 (2)"
+  },
+  "258_3_4": {
+   "v": "Z3 v2 ADOPTED (NOT EVALUATED in flight); J-FWD replace rule on Q_JFWD > 60.0 bar abs, no minimum duration; routed: F4 PC_SENSOR HIGH abort, inside_v2 re-classification, Q_JFWD logging",
+   "tag": "LEAD 258 (3)-(4)",
+   "implemented": "tb_state_v2p12, jfwd_v2p12, rev_comb_4_items_v2p12.R4-02"
+  },
+  "261_2": {
+   "v": "T4 re-sized to the shortest firing (about 2.0 kg); bench plan v5 T1-T4 rows re-sized inside A = 150 C (N-07)",
+   "tag": "LEAD 261 (2)"
+  },
+  "261_3": {
+   "v": "working basis: option (b) with the seat TC on the MAX31856 #4 channel and the flagged v2.11 fallback; ruled at the handback",
+   "tag": "LEAD 261 (3)"
+  }
+ },
+ "log_v13": {
+  "v": "LogRecord v13 = 185 bytes at 1 kHz: v12 + int16 seat_comp_hPa (INT16_MIN = compensation off) + int16 seat_ref_dK (T_seat,ARM - 273.15 K in 0.1 K; INT16_MIN = no reference) + uint8 f3_flags (b0 TB_STATE, b1 TB_PCS_HIGH, b2 SEAT_COMP, b3 SEAT_FROZEN, b4 SEAT_NOREF, b5 JFWD_LS, b6 PT_RZ_REJ, b7 zero); kLogVersion 13",
+  "tag": "DESIGN protocol.h; test_core \"LogRecord v13 is 185 bytes\""
+ },
+ "r3_01_c1_drift": {
+  "status": "SIL / CALC evidence complete for items 1-8 except P_mid / U570 (MISSING, Mechanical); option (b) implemented on the working basis; CLOSED WITH RESIDUAL pending the lead ruling (b) / fallback / decision (3), B-PC-1 (per-serial coefficient, T_cal) and F-10 (thermal-zero maximum)",
+  "evidence": {
+   "c1_drift": "results/v2p12/c1_drift_v2p12.json aefee7551cae1bbf",
+   "S13T_default_build": "results/v2p12/sil/S13T_seat_drift_bpc1_false.json 24c3aa3c108a7651",
+   "S13T_bpc1_build": "results/v2p12/sil/S13T_seat_drift_bpc1_true.json eaae63e074be887e",
+   "S13T_pre_run_log": "results/v2p12/sil/S13T_prefix_v212a_run_log_bpc1_false.txt 4e87b91cce6bba4a (before the ARM static term)"
+  },
+  "A1_k_sweep": [
+   1.0,
+   1.5,
+   2.0,
+   3.0
+  ],
+  "A2_seat_rise_vs_ARM_K": {
+   "A1_NF2b": {
+    "ARM": 0.0,
+    "E0": 14.508,
+    "E1": 14.534,
+    "MECO": 0.352,
+    "PURGE_cmd": 12.569,
+    "light": 14.721,
+    "rezero1_end_COAST+1.4s": 0.804,
+    "rezero1_start_COAST+1.0s": 0.599,
+    "rezero2_end": 12.533,
+    "shutdown2": 15.151
+   },
+   "B1_R4_GVHI": {
+    "ARM": 0.0,
+    "S+10s": 41.01,
+    "S+120s": 91.804,
+    "S+300s": 93.026,
+    "S+30s": 65.543,
+    "S+5s": 30.36,
+    "S+600s": 84.0,
+    "S+60s": 81.36,
+    "first_light_rise_by_construction": -0.005,
+    "rezero1_end_S+1.4s": 22.045,
+    "rezero1_start_S+1.0s": 21.205,
+    "shutdown": 19.502,
+    "stand_E0_S+18.67s": 54.317,
+    "stand_E1_S+18.715s": 54.373,
+    "stand_PURGE_cmd_S+15.77s": 50.478,
+    "stand_light_S+19.03s": 54.764,
+    "stand_rezero2_end_S+15.72s": 50.406
+   },
+   "B1_R4_GVLO": {
+    "ARM": 0.0,
+    "S+10s": 42.461,
+    "S+120s": 82.719,
+    "S+300s": 87.146,
+    "S+30s": 63.272,
+    "S+5s": 31.878,
+    "S+600s": 81.222,
+    "S+60s": 73.949,
+    "first_light_rise_by_construction": -0.005,
+    "rezero1_end_S+1.4s": 23.383,
+    "rezero1_start_S+1.0s": 22.518,
+    "shutdown": 20.755,
+    "stand_E0_S+18.67s": 54.605,
+    "stand_E1_S+18.715s": 54.653,
+    "stand_PURGE_cmd_S+15.77s": 51.281,
+    "stand_light_S+19.03s": 54.983,
+    "stand_rezero2_end_S+15.72s": 51.217
+   }
+  },
+  "A2_T0": {
+   "statement": "the ARM-referenced rise is T0-independent to first order: rise(T0) = rise(20 C) x (T_aw - T0) / (T_aw - 293.15 K) (Mechanical F1 08:02:01Z, quoted by the lead brief: +/-0.8 % over 0-40 C at T_aw 2800 K, +/-1.7 % at 1500 K, <= 0.035 K on any re-zero2-referenced drift) [DERIVED]; the limits below carry the 1500 K factor (1.0166) on every ARM-referenced rise",
+   "factor_at_0C_and_40C_by_T_aw": {
+    "2800.0": [
+     1.008,
+     0.992
+    ],
+    "1500.0": [
+     1.0166,
+     0.9834
+    ]
+   },
+   "factor_used": 1.0166,
+   "not_covered_MISSING": [
+    "T-dependent Al6061 conductivity",
+    "N2O feed temperature different from T0",
+    "non-uniform pre-ARM temperature (sun, a warm stand): the F-13 soak condition bounds it on the stand only"
+   ],
+   "ranges": {
+    "stand": "T0 <= 24 C (F-13, 249 (2)); lower end stated 0 C",
+    "flight": "0-40 C (stated here for the A1 relight; GNC / lead to confirm)"
+   },
+   "comparator": "U330 sees s k c (T_seat - T_trim) = s k c ((T0 - 20 C) + rise): the T0 term is NOT removed by any zero"
+  },
+  "A1_A3_uncompensated_by_k": {
+   "1.0": {
+    "A1_shift_rz1_bar": 0.0203,
+    "A1_shift_rz2_bar": 0.316,
+    "A1_drift_ARM_to_E1_bar": 0.3664,
+    "A1_drift_rz2_to_E1_bar": 0.0504,
+    "stand_shift_rz1_bar": 0.5895,
+    "stand_shift_rz2_bar": 1.2913,
+    "stand_drift_ARM_to_E1_bar": 1.3779,
+    "stand_drift_rz2_to_E1_bar": 0.1,
+    "v211_A1_rz2_accepted_0p30": false,
+    "v211_stand_rz2_accepted_0p30": false,
+    "option_a_limit_A1_bar": 0.417,
+    "option_a_limit_stand_bar": 1.392,
+    "option_a_largest_nonvented_accepted_A1_bar": 0.733,
+    "option_a_largest_nonvented_accepted_stand_bar": 2.684
+   },
+   "1.5": {
+    "A1_shift_rz1_bar": 0.0304,
+    "A1_shift_rz2_bar": 0.474,
+    "A1_drift_ARM_to_E1_bar": 0.5496,
+    "A1_drift_rz2_to_E1_bar": 0.0757,
+    "stand_shift_rz1_bar": 0.8843,
+    "stand_shift_rz2_bar": 1.9369,
+    "stand_drift_ARM_to_E1_bar": 2.0668,
+    "stand_drift_rz2_to_E1_bar": 0.15,
+    "v211_A1_rz2_accepted_0p30": false,
+    "v211_stand_rz2_accepted_0p30": false,
+    "option_a_limit_A1_bar": 0.575,
+    "option_a_limit_stand_bar": 2.038,
+    "option_a_largest_nonvented_accepted_A1_bar": 1.049,
+    "option_a_largest_nonvented_accepted_stand_bar": 3.975
+   },
+   "2.0": {
+    "A1_shift_rz1_bar": 0.0406,
+    "A1_shift_rz2_bar": 0.632,
+    "A1_drift_ARM_to_E1_bar": 0.7329,
+    "A1_drift_rz2_to_E1_bar": 0.1009,
+    "stand_shift_rz1_bar": 1.1791,
+    "stand_shift_rz2_bar": 2.5825,
+    "stand_drift_ARM_to_E1_bar": 2.7558,
+    "stand_drift_rz2_to_E1_bar": 0.2,
+    "v211_A1_rz2_accepted_0p30": false,
+    "v211_stand_rz2_accepted_0p30": false,
+    "option_a_limit_A1_bar": 0.733,
+    "option_a_limit_stand_bar": 2.684,
+    "option_a_largest_nonvented_accepted_A1_bar": 1.365,
+    "option_a_largest_nonvented_accepted_stand_bar": 5.266
+   },
+   "3.0": {
+    "A1_shift_rz1_bar": 0.0608,
+    "A1_shift_rz2_bar": 0.948,
+    "A1_drift_ARM_to_E1_bar": 1.0993,
+    "A1_drift_rz2_to_E1_bar": 0.1513,
+    "stand_shift_rz1_bar": 1.7686,
+    "stand_shift_rz2_bar": 3.8738,
+    "stand_drift_ARM_to_E1_bar": 4.1336,
+    "stand_drift_rz2_to_E1_bar": 0.3,
+    "v211_A1_rz2_accepted_0p30": false,
+    "v211_stand_rz2_accepted_0p30": false,
+    "option_a_limit_A1_bar": 1.049,
+    "option_a_limit_stand_bar": 3.975,
+    "option_a_largest_nonvented_accepted_A1_bar": 1.997,
+    "option_a_largest_nonvented_accepted_stand_bar": 7.849
+   }
+  },
+  "A3_option_b_residual_budget": {
+   "terms": "eps 0.1 x k c rise x 1.0166 (ASSUMED B-PC-1 per-serial table) + k c (gradient head-top node vs diaphragm, SIM + lag 0.25 s x seat rate (ASSUMED tau) + 0.3 K (ASSUMED TC + CJ))",
+   "by_k": {
+    "1.0": {
+     "A1_ARM_to_rz1_bar": 0.02,
+     "A1_ARM_to_rz2_bar": 0.062,
+     "A1_ARM_to_E1_bar": 0.065,
+     "A1_rz2_to_E1_bar": 0.009,
+     "stand_B1_ARM_to_rz1_bar": 0.136,
+     "stand_B1_ARM_to_rz2_bar": 0.184,
+     "stand_B1_ARM_to_E1_bar": 0.188,
+     "stand_B1_rz2_to_E1_bar": 0.018,
+     "A1_rz2_accepted_at_0p30": true,
+     "stand_rz1_accepted_at_0p30": true,
+     "stand_rz2_accepted_at_0p30": true
+    },
+    "1.5": {
+     "A1_ARM_to_rz1_bar": 0.03,
+     "A1_ARM_to_rz2_bar": 0.092,
+     "A1_ARM_to_E1_bar": 0.097,
+     "A1_rz2_to_E1_bar": 0.014,
+     "stand_B1_ARM_to_rz1_bar": 0.204,
+     "stand_B1_ARM_to_rz2_bar": 0.275,
+     "stand_B1_ARM_to_E1_bar": 0.282,
+     "stand_B1_rz2_to_E1_bar": 0.027,
+     "A1_rz2_accepted_at_0p30": true,
+     "stand_rz1_accepted_at_0p30": false,
+     "stand_rz2_accepted_at_0p30": false
+    },
+    "2.0": {
+     "A1_ARM_to_rz1_bar": 0.04,
+     "A1_ARM_to_rz2_bar": 0.123,
+     "A1_ARM_to_E1_bar": 0.13,
+     "A1_rz2_to_E1_bar": 0.018,
+     "stand_B1_ARM_to_rz1_bar": 0.273,
+     "stand_B1_ARM_to_rz2_bar": 0.367,
+     "stand_B1_ARM_to_E1_bar": 0.376,
+     "stand_B1_rz2_to_E1_bar": 0.036,
+     "A1_rz2_accepted_at_0p30": true,
+     "stand_rz1_accepted_at_0p30": false,
+     "stand_rz2_accepted_at_0p30": false
+    },
+    "3.0": {
+     "A1_ARM_to_rz1_bar": 0.059,
+     "A1_ARM_to_rz2_bar": 0.185,
+     "A1_ARM_to_E1_bar": 0.195,
+     "A1_rz2_to_E1_bar": 0.027,
+     "stand_B1_ARM_to_rz1_bar": 0.409,
+     "stand_B1_ARM_to_rz2_bar": 0.551,
+     "stand_B1_ARM_to_E1_bar": 0.564,
+     "stand_B1_rz2_to_E1_bar": 0.054,
+     "A1_rz2_accepted_at_0p30": true,
+     "stand_rz1_accepted_at_0p30": false,
+     "stand_rz2_accepted_at_0p30": false
+    }
+   },
+   "largest_nonvented_accepted_bar": 0.485
+  },
+  "A3_recommendation": {
+   "v": "option (b): kPcRezeroMax_Pa stays 0.30 bar on the COMPENSATED residual; option (a) (widened limit) would defeat OI-12 (the vented check)",
+   "tag": "DERIVED"
+  },
+  "A4_base_check": {
+   "rule": "kIgnBaseCheck_Pa >= residual + k_max c rise(latest accepted zero -> E1) + 0.1 bar (R3-01 item 4)",
+   "uncompensated_drift_rz2_to_E1_bar_k3": {
+    "A1": 0.1513,
+    "stand": 0.3
+   },
+   "uncompensated_needed_bar": {
+    "default": 0.851,
+    "bpc1": 0.551
+   },
+   "compensated_residual_rz2_to_E1_bar_k3": {
+    "A1": 0.027,
+    "stand": 0.054
+   },
+   "rejected_rezero_uncompensated_ARM_to_E1_bar": {
+    "1.0": {
+     "A1": 0.3664,
+     "stand": 1.3779
+    },
+    "1.5": {
+     "A1": 0.5496,
+     "stand": 2.0668
+    },
+    "2.0": {
+     "A1": 0.7329,
+     "stand": 2.7558
+    },
+    "3.0": {
+     "A1": 1.0993,
+     "stand": 4.1336
+    }
+   }
+  },
+  "A7_torch": {
+   "coef_070BG_bar_per_K": 0.01,
+   "head_contribution_ARM_to_rz2_K": {
+    "A1": 12.768,
+    "stand_B1": 51.692
+   },
+   "shift_at_head_contribution_bar": {
+    "A1": 0.128,
+    "stand_B1": 0.517
+   },
+   "upper_bracket": "070BG compensated band edge 85 C (the TEB holds only inside -20..85 C): rise <= 85 C - T0; TEB worst-case change <= 2 x 1.05 = 2.1 bar",
+   "local_heat": "MISSING (torch heat into the seat / passage, ENG-IG-01 conduction, 3-D boss, the 070BG's own temperature): Mechanical torch_port_bl08_v352"
+  },
+  "A8_U330": {
+   "by_k": {
+    "1.0": {
+     "A1_relight_burn_end_T0_0C_shift_bar": -0.114,
+     "A1_relight_burn_end_T0_0C_band_bar_abs": [
+      30.96,
+      34.22
+     ],
+     "A1_relight_burn_end_T0_20C_shift_bar": 0.382,
+     "A1_relight_burn_end_T0_20C_band_bar_abs": [
+      30.7,
+      34.48
+     ],
+     "A1_relight_burn_end_T0_40C_shift_bar": 0.878,
+     "A1_relight_burn_end_T0_40C_band_bar_abs": [
+      30.2,
+      34.98
+     ],
+     "B1_burn_end_stand_T0_0C_shift_bar": 0.027,
+     "B1_burn_end_stand_T0_0C_band_bar_abs": [
+      31.05,
+      34.13
+     ],
+     "B1_burn_end_stand_T0_24C_shift_bar": 0.622,
+     "B1_burn_end_stand_T0_24C_band_bar_abs": [
+      30.45,
+      34.73
+     ],
+     "stand_relight_light_T0_0C_shift_bar": 0.89,
+     "stand_relight_light_T0_0C_band_bar_abs": [
+      30.19,
+      34.99
+     ],
+     "stand_relight_light_T0_24C_shift_bar": 1.485,
+     "stand_relight_light_T0_24C_band_bar_abs": [
+      29.59,
+      35.59
+     ]
+    },
+    "1.5": {
+     "A1_relight_burn_end_T0_0C_shift_bar": -0.171,
+     "A1_relight_burn_end_T0_0C_band_bar_abs": [
+      30.91,
+      34.27
+     ],
+     "A1_relight_burn_end_T0_20C_shift_bar": 0.573,
+     "A1_relight_burn_end_T0_20C_band_bar_abs": [
+      30.5,
+      34.68
+     ],
+     "A1_relight_burn_end_T0_40C_shift_bar": 1.317,
+     "A1_relight_burn_end_T0_40C_band_bar_abs": [
+      29.76,
+      35.42
+     ],
+     "B1_burn_end_stand_T0_0C_shift_bar": 0.041,
+     "B1_burn_end_stand_T0_0C_band_bar_abs": [
+      31.04,
+      34.14
+     ],
+     "B1_burn_end_stand_T0_24C_shift_bar": 0.934,
+     "B1_burn_end_stand_T0_24C_band_bar_abs": [
+      30.14,
+      35.04
+     ],
+     "stand_relight_light_T0_0C_shift_bar": 1.335,
+     "stand_relight_light_T0_0C_band_bar_abs": [
+      29.74,
+      35.44
+     ],
+     "stand_relight_light_T0_24C_shift_bar": 2.228,
+     "stand_relight_light_T0_24C_band_bar_abs": [
+      28.85,
+      36.33
+     ]
+    },
+    "2.0": {
+     "A1_relight_burn_end_T0_0C_shift_bar": -0.228,
+     "A1_relight_burn_end_T0_0C_band_bar_abs": [
+      30.85,
+      34.33
+     ],
+     "A1_relight_burn_end_T0_20C_shift_bar": 0.764,
+     "A1_relight_burn_end_T0_20C_band_bar_abs": [
+      30.31,
+      34.87
+     ],
+     "A1_relight_burn_end_T0_40C_shift_bar": 1.756,
+     "A1_relight_burn_end_T0_40C_band_bar_abs": [
+      29.32,
+      35.86
+     ],
+     "B1_burn_end_stand_T0_0C_shift_bar": 0.055,
+     "B1_burn_end_stand_T0_0C_band_bar_abs": [
+      31.02,
+      34.16
+     ],
+     "B1_burn_end_stand_T0_24C_shift_bar": 1.245,
+     "B1_burn_end_stand_T0_24C_band_bar_abs": [
+      29.83,
+      35.35
+     ],
+     "stand_relight_light_T0_0C_shift_bar": 1.78,
+     "stand_relight_light_T0_0C_band_bar_abs": [
+      29.3,
+      35.88
+     ],
+     "stand_relight_light_T0_24C_shift_bar": 2.971,
+     "stand_relight_light_T0_24C_band_bar_abs": [
+      28.11,
+      37.07
+     ]
+    },
+    "3.0": {
+     "A1_relight_burn_end_T0_0C_shift_bar": -0.342,
+     "A1_relight_burn_end_T0_0C_band_bar_abs": [
+      30.73,
+      34.45
+     ],
+     "A1_relight_burn_end_T0_20C_shift_bar": 1.146,
+     "A1_relight_burn_end_T0_20C_band_bar_abs": [
+      29.93,
+      35.25
+     ],
+     "A1_relight_burn_end_T0_40C_shift_bar": 2.634,
+     "A1_relight_burn_end_T0_40C_band_bar_abs": [
+      28.44,
+      36.74
+     ],
+     "B1_burn_end_stand_T0_0C_shift_bar": 0.082,
+     "B1_burn_end_stand_T0_0C_band_bar_abs": [
+      31.0,
+      34.18
+     ],
+     "B1_burn_end_stand_T0_24C_shift_bar": 1.867,
+     "B1_burn_end_stand_T0_24C_band_bar_abs": [
+      29.21,
+      35.97
+     ],
+     "stand_relight_light_T0_0C_shift_bar": 2.671,
+     "stand_relight_light_T0_0C_band_bar_abs": [
+      28.41,
+      36.77
+     ],
+     "stand_relight_light_T0_24C_shift_bar": 4.456,
+     "stand_relight_light_T0_24C_band_bar_abs": [
+      26.62,
+      38.56
+     ]
+    }
+   },
+   "low_end_below_fw30_when_shift_gt_bar": 1.077,
+   "k_low_end_below_30_A1_T0_40C": 1.227,
+   "k_low_end_below_30_A1_T0_20C": 2.82,
+   "k_low_end_below_30_stand_T0_24C_B1_end": 1.73,
+   "band_high_add_for_S6R_S6C_recheck_bar": 4.456
+  },
+  "A5_model": {
+   "v": "pc_zero_err(t) = s x k x 0.0248 bar/K x ((T0 - T_trim) + f(T0) x dT_seat(t)), dT_seat from Mechanical's seat history interpolated onto the SIL timeline (burn compressed onto the SIL burn, coast and relight in real time); applied to the C1 reading before the ADC and the U330 RC; seat TC model: lag 0.25 s, error +/-0.30 K after 0.70 s (comp_under / comp_over with the coefficient -/+10 %); P_mid / U570 at BL-08: MISSING (Mechanical c1seat/torch_port_bl08_v352_v1.json 20220647d32cbbbc gives the steps)",
+   "tag": "SIM on Mechanical SIM + DATASHEET typical; k ASSUMED"
+  },
+  "A8_fw_thresholds_after_rejected_rezero2": {
+   "v": "after a REJECTED re-zero2 the ARM zero is kept: the firmware 30 bar abs abort (PC_OVERPRESSURE) and the ride-through T45 rule (raw > 45 bar abs for kRideT45_s 7 ms -> HARD_START) then see the zero error e since ARM and act at an actual Pc of 30 - e / 45 - e (s = +1 reads high: earlier; s = -1 reads low: later)",
+   "e_option_b_budget_bar": {
+    "1.0": {
+     "A1": 0.065,
+     "stand": 0.188
+    },
+    "1.5": {
+     "A1": 0.097,
+     "stand": 0.282
+    },
+    "2.0": {
+     "A1": 0.13,
+     "stand": 0.376
+    },
+    "3.0": {
+     "A1": 0.195,
+     "stand": 0.564
+    }
+   },
+   "e_fallback_bar": {
+    "1.0": {
+     "A1": 0.3664,
+     "stand": 1.3779
+    },
+    "1.5": {
+     "A1": 0.5496,
+     "stand": 2.0668
+    },
+    "2.0": {
+     "A1": 0.7329,
+     "stand": 2.7558
+    },
+    "3.0": {
+     "A1": 1.0993,
+     "stand": 4.1336
+    }
+   },
+   "when": "fallback: re-zero2 is rejected at EVERY A1 relight (shift 0.32-0.95 bar > 0.30 for k 1-3), so the A1 relight burn runs on the ARM zero: at k = 2 the 30 bar abort acts at 29.27-30.73 bar abs and T45 at 44.27-45.73 bar abs, at k = 3 28.90-31.10 / 43.90-46.10 bar abs (the k = 3 relight is lost anyway, decision_3); on the stand a rejected re-zero ends in the NOT_VENTED refusal (no light, S13T). Option (b): re-zero2 accepted at the A1 relight for k 1-3 (e at E1 0.009-0.027 bar; 0.065-0.195 bar if it were rejected); on the stand rejected only with a coefficient error near 10 % (budget: k >= 1.5; S13T comp_under: k >= 2 GVHI, k = 3 GVLO), and the vent check then refuses",
+   "U330_ordering": "U330 is not compensated: with option (b) the firmware reading is right and the U330 low band edge falls below the 30 bar abort when its shift exceeds 1.077 bar (A8_U330: k 1.227 at A1 T0 40 C, 2.82 at A1 T0 20 C, 1.73 on the stand at T0 24 C) - an earlier HW_OVERPRESSURE instead of PC_OVERPRESSURE, both abort",
+   "tag": "DERIVED (c1_drift_v2p12.json A3 / A4 numbers); k ASSUMED"
+  },
+  "A6_S13T": {
+   "default_build": {
+    "file": "results/v2p12/sil/S13T_seat_drift_bpc1_false.json",
+    "sha256_16": "24c3aa3c108a7651",
+    "n_runs": 240,
+    "n_false_E2": 0,
+    "n_ARM_refused": 49,
+    "U330_trips": 0,
+    "TB_STATE": 0,
+    "JFWD_LS": 0,
+    "outcomes": {
+     "A1_flight/comp": {
+      "RUN": 24,
+      "unlit_NO_IGNITION": 24
+     },
+     "A1_flight/comp_under": {
+      "RUN": 8
+     },
+     "A1_flight/comp_over": {
+      "RUN": 8
+     },
+     "A1_flight/off": {
+      "ARM_REFUSED": 28,
+      "PC_SENSOR": 1,
+      "RUN": 8,
+      "TORCH_FAULT": 1,
+      "unlit_NO_IGNITION": 8,
+      "unlit_PC_SENSOR": 1,
+      "unlit_TORCH_FAULT": 1
+     },
+     "stand_after_B1_GVHI/comp": {
+      "RUN": 16,
+      "unlit_NO_IGNITION": 16
+     },
+     "stand_after_B1_GVHI/comp_under": {
+      "REFUSED": 4,
+      "RUN": 4
+     },
+     "stand_after_B1_GVHI/comp_over": {
+      "RUN": 8
+     },
+     "stand_after_B1_GVHI/off": {
+      "ARM_REFUSED": 14,
+      "REFUSED": 18
+     },
+     "stand_after_B1_GVLO/comp": {
+      "RUN": 16
+     },
+     "stand_after_B1_GVLO/comp_under": {
+      "REFUSED": 2,
+      "RUN": 6
+     },
+     "stand_after_B1_GVLO/comp_over": {
+      "RUN": 8
+     },
+     "stand_after_B1_GVLO/off": {
+      "ARM_REFUSED": 7,
+      "REFUSED": 9
+     }
+    },
+    "E2_minus_light_ms_RUN": [
+     15.0,
+     19.0,
+     106
+    ],
+    "U330_node_max_relight_bar_abs_equiv": 15.725,
+    "BASE_AMB_runs": [
+     "A1_flight_T0_20C_off_s-1_k3.0_lit",
+     "A1_flight_T0_20C_off_s-1_k3.0_unlit"
+    ],
+    "comp_under_refused": [
+     "stand_after_B1_GVHI_T0_24C_comp_under_s+1_k2.0_lit",
+     "stand_after_B1_GVHI_T0_24C_comp_under_s+1_k3.0_lit",
+     "stand_after_B1_GVHI_T0_24C_comp_under_s-1_k2.0_lit",
+     "stand_after_B1_GVHI_T0_24C_comp_under_s-1_k3.0_lit",
+     "stand_after_B1_GVLO_T0_24C_comp_under_s+1_k3.0_lit",
+     "stand_after_B1_GVLO_T0_24C_comp_under_s-1_k3.0_lit"
+    ],
+    "A1_option_b": {
+     "lit_RUN": 40,
+     "lit": 40,
+     "unlit_NO_IGNITION": 24,
+     "unlit": 24,
+     "BASE_AMB": 0,
+     "NOT_VENTED": 0
+    },
+    "A1_fallback_T0_20C": [
+     [
+      1.0,
+      -1,
+      "RUN",
+      1
+     ],
+     [
+      1.0,
+      1,
+      "RUN",
+      1
+     ],
+     [
+      1.5,
+      -1,
+      "RUN",
+      1
+     ],
+     [
+      1.5,
+      1,
+      "RUN",
+      1
+     ],
+     [
+      2.0,
+      -1,
+      "RUN",
+      1
+     ],
+     [
+      2.0,
+      1,
+      "RUN",
+      1
+     ],
+     [
+      3.0,
+      -1,
+      "PC_SENSOR",
+      1
+     ],
+     [
+      3.0,
+      1,
+      "TORCH_FAULT",
+      1
+     ]
+    ]
+   },
+   "bpc1_build": {
+    "file": "results/v2p12/sil/S13T_seat_drift_bpc1_true.json",
+    "sha256_16": "eaae63e074be887e",
+    "n_runs": 240,
+    "n_false_E2": 0,
+    "n_ARM_refused": 49,
+    "U330_trips": 0,
+    "TB_STATE": 0,
+    "JFWD_LS": 0,
+    "outcomes": {
+     "A1_flight/comp": {
+      "RUN": 24,
+      "unlit_NO_IGNITION": 24
+     },
+     "A1_flight/comp_under": {
+      "RUN": 8
+     },
+     "A1_flight/comp_over": {
+      "RUN": 8
+     },
+     "A1_flight/off": {
+      "ARM_REFUSED": 28,
+      "PC_SENSOR": 3,
+      "RUN": 6,
+      "TORCH_FAULT": 1,
+      "unlit_NO_IGNITION": 6,
+      "unlit_PC_SENSOR": 3,
+      "unlit_TORCH_FAULT": 1
+     },
+     "stand_after_B1_GVHI/comp": {
+      "RUN": 16,
+      "unlit_NO_IGNITION": 16
+     },
+     "stand_after_B1_GVHI/comp_under": {
+      "REFUSED": 4,
+      "RUN": 4
+     },
+     "stand_after_B1_GVHI/comp_over": {
+      "RUN": 8
+     },
+     "stand_after_B1_GVHI/off": {
+      "ARM_REFUSED": 14,
+      "REFUSED": 18
+     },
+     "stand_after_B1_GVLO/comp": {
+      "RUN": 16
+     },
+     "stand_after_B1_GVLO/comp_under": {
+      "REFUSED": 2,
+      "RUN": 6
+     },
+     "stand_after_B1_GVLO/comp_over": {
+      "RUN": 8
+     },
+     "stand_after_B1_GVLO/off": {
+      "ARM_REFUSED": 7,
+      "REFUSED": 9
+     }
+    },
+    "E2_minus_light_ms_RUN": [
+     15.0,
+     19.0,
+     104
+    ],
+    "U330_node_max_relight_bar_abs_equiv": 15.726,
+    "BASE_AMB_runs": [
+     "A1_flight_T0_20C_off_s-1_k1.5_lit",
+     "A1_flight_T0_20C_off_s-1_k1.5_unlit",
+     "A1_flight_T0_20C_off_s-1_k2.0_lit",
+     "A1_flight_T0_20C_off_s-1_k2.0_unlit",
+     "A1_flight_T0_20C_off_s-1_k3.0_lit",
+     "A1_flight_T0_20C_off_s-1_k3.0_unlit"
+    ],
+    "comp_under_refused": [
+     "stand_after_B1_GVHI_T0_24C_comp_under_s+1_k2.0_lit",
+     "stand_after_B1_GVHI_T0_24C_comp_under_s+1_k3.0_lit",
+     "stand_after_B1_GVHI_T0_24C_comp_under_s-1_k2.0_lit",
+     "stand_after_B1_GVHI_T0_24C_comp_under_s-1_k3.0_lit",
+     "stand_after_B1_GVLO_T0_24C_comp_under_s+1_k3.0_lit",
+     "stand_after_B1_GVLO_T0_24C_comp_under_s-1_k3.0_lit"
+    ],
+    "A1_option_b": {
+     "lit_RUN": 40,
+     "lit": 40,
+     "unlit_NO_IGNITION": 24,
+     "unlit": 24,
+     "BASE_AMB": 0,
+     "NOT_VENTED": 0
+    },
+    "A1_fallback_T0_20C": [
+     [
+      1.0,
+      -1,
+      "RUN",
+      1
+     ],
+     [
+      1.0,
+      1,
+      "RUN",
+      1
+     ],
+     [
+      1.5,
+      -1,
+      "PC_SENSOR",
+      1
+     ],
+     [
+      1.5,
+      1,
+      "RUN",
+      1
+     ],
+     [
+      2.0,
+      -1,
+      "PC_SENSOR",
+      1
+     ],
+     [
+      2.0,
+      1,
+      "RUN",
+      1
+     ],
+     [
+      3.0,
+      -1,
+      "PC_SENSOR",
+      1
+     ],
+     [
+      3.0,
+      1,
+      "TORCH_FAULT",
+      1
+     ]
+    ]
+   },
+   "pre_run_refusals_before_the_v2p12_fixes": {
+    "A1_flight": {
+     "v": "56 of 112 runs REFUSED at ARM (ARM sanity 0.5 bar without the static term: T0 0 / 40 C, both comp modes, every run at k >= 1.5 and one sign at k = 1.0 - the static term 0.496 bar plus the SIL ARM reading)",
+     "tag": "SIM (pre-fix log)"
+    },
+    "stand": {
+     "v": "128 of 128 runs REFUSED: SIL harness error (the A1 tank-state jump was applied to the stand and tripped the S1 MV-seat monitor, LOCKOUT 6); fixed in sc_v212.inc (no tank jump on the stand); not a firmware finding",
+     "tag": "SIM (pre-fix log)"
+    }
+   }
+  },
+  "stand_relight_after_B1": {
+   "v": "option (b): RUN (all comp / comp_over runs; comp_under refused NOT_VENTED at k >= 2-3: a coefficient 10 % low leaves 0.27-0.40 bar on the 0.30 bar limit); fallback (coefficient 0): REFUSED NOT_VENTED (refuse 8) in every run that arms - the uncompensated drift 0.78-4.10 bar exceeds the re-zero limit, both re-zeros are rejected and the stand vent check refuses (safe: no light attempted). RULE: a stand relight after a B1-length burn needs option (b) with the per-serial coefficient within about 5 % at k = 3 (B-PC-1 row)",
+   "tag": "SIM (S13T)"
+  },
+  "decision_3": {
+   "v": "RECOMMENDATION: keep the A1 BASE_AMB outcome as built (PC_SENSOR abort on the relight, fail-safe, no false E2) and adopt option (b): with the compensation BASE_AMB occurs in 0 of the A1 runs (T0 0 / 20 / 40 C, k 1-3, both signs, coefficient +/-10 %, TC +/-0.3 K), every lit A1 run reaches RUN with E2 - light 15-19 ms and no unlit run reaches E2 (both builds). With the fallback (coefficient 0) at T0 20 C the A1 relight is lost at k = 3 in the default build (TORCH_FAULT on +, BASE_AMB -> PC_SENSOR on -) and already at k >= 1.5 on the - sign in the B-PC-1-shown build (base check 0.46 bar against the 0.55 bar needed); ARM is refused at T0 0 / 40 C (|T0 - T_cal| = 20 K) for k >= 1.5 and on one sign at k = 1.0 in SIL (static term 0.496 bar plus the ARM reading against 0.5 bar). The fallback is acceptable only with k <= 2 (default build) or k <= 1 (B-PC-1-shown build) by F-10, and with k x 0.0248 bar/K x |T0 - T_cal| clearly below 0.5 bar at ARM",
+   "tag": "SIM (S13T) + DERIVED"
+  }
+ },
+ "tb_state_v2p12": {
+  "set": {
+   "v": "HW_OVERPRESSURE, PC_OVERPRESSURE, HARD_START, OVER_TEMP, PC_SENSOR HIGH (>= 4.75 V = 146.5 bar abs); LOW side not added; OVER_THRUST information only",
+   "tag": "Mechanical F4 CONFIRMED (mechanical.json v2.4 lc_tb70_envelope_v352.F4_abort_set) + LEAD 258 (4)"
+  },
+  "firmware": {
+   "v": "f3 TB_STATE latched from the cause in any non-SAFE state until the next ARM; TB_PCS_HIGH for the HIGH cause; stand: the HIGH over-range aborts PC_SENSOR (5 ms persistence); flight: latched, no abort (the non-sticky over-range bit, log ovr_flags b0)",
+   "tag": "DESIGN engine_ecu.cpp tbMark; test_core v212-2"
+  },
+  "founder_rule": "bench plan v5 F-14 (LEAD 248): after a TB-state abort or a case-TC abort the J-FWD joint counts as used"
+ },
+ "jfwd_v2p12": {
+  "rule": {
+   "v": "Q_JFWD = max(head peak, max S(T) at T 0.2-0.5 ms on the light and excursion windows) > 60.0 bar abs at any time, no minimum duration -> line-231 J-FWD inspection and TC-02 taps gauged",
+   "tag": "LEAD 258 (3); mechanical.json v2.4 jfwd_replace_rule_v2"
+  },
+  "SIL": "inside_v2 on the plant head pressure at 25 us (exact): calc/v2p12/r4_02_reclass_v2p12.py",
+  "stand": "B-DPC-1 DC-restored with C1, step <= 0.05 ms, after a no-event noise record (TO-VERIFY): bench plan v5 F-14 / B-DPC-1",
+  "flight": {
+   "v": "C1 LIGHT_SPIKE raw >= 47.5 bar abs -> f3 JFWD_LS: on the 896 grid 0 misses of the Q_JFWD > 60 cases on each C1 chain; lowest raw peak of a Q > 60 case per chain {\"c1_cc1_c222_v20\": 48.377, \"c1_cc1_c222_v6\": 48.121, \"c1_cc1_c400_v6\": 47.75, \"c1_cc2_c222_v6\": 47.986}; flags of the Q <= 60 cases {\"c1_cc1_c222_v20\": \"152 of 598\", \"c1_cc1_c222_v6\": \"148 of 598\", \"c1_cc1_c400_v6\": \"128 of 598\", \"c1_cc2_c222_v6\": \"132 of 598\"}; ideal sampler 40.381 bar abs (information); Z3 v2 NOT EVALUATED in flight",
+   "tag": "DERIVED (results/v2p12/jfwd_ls_threshold_v2p12.json fcb80586681ca03b); TO-VERIFY on hardware"
+  }
+ },
+ "purge_final_v2p12": {
+  "kPurgeFlow_s": {
+   "v": 2.43,
+   "unit": "s",
+   "tag": "LEAD 256 (2) / 257 (2)",
+   "src": "config.h kPurgeFlow_s"
+  },
+  "kHbleedCap_s": {
+   "v": 2.39,
+   "unit": "s",
+   "tag": "LEAD 256 (2) / 257 (2)",
+   "src": "config.h kHbleedCap_s"
+  },
+  "kPurgeRelight_s": {
+   "v": 2.9,
+   "unit": "s",
+   "tag": "LEAD CHANGELOG 164 (2)",
+   "src": "config.h kPurgeRelight_s"
+  },
+  "calibration": {
+   "v": "both constants are calibration values: the config values are the DEFAULTS and the MAXIMA; EngineEcu::setPurgeCal(flow, cap) in SAFE only, 1.0 s <= flow <= 2.43 s, cap <= 2.39 s, flow + t_o - t_c + 2 ticks < cap",
+   "tag": "DESIGN; test_core v212-3"
+  },
+  "rule_d": {
+   "v": "after CF-4 / B-BLEED-1: cap <= 76 g / mdot(297.15 K) - (t_close - t_open) with mdot from (d1) the upper 95 % bound of the measured N2O Cd x A; flow <= cap + t_close - t_open - 2 ticks; never above 2.43 / 2.39 s; (d2) CF-4 shows the 283.15 K need at the re-set flow; 2.397 s at the defaults",
+   "tag": "LEAD 257 (2), 258 (2); config.h"
+  },
+  "purge_command_time": {
+   "v": "PURGE at E0 - 2.90 s; flow start PURGE + 0.42 s; flow end E0 - 0.05 s; scheduled both-open command span 2.38 s",
+   "tag": "DERIVED config.h"
+  },
+  "vented_mass_DERIVED": {
+   "v": "scheduled 2.43 s: 71.1 g at 29.25 g/s (289.5 K), 75.5 g at 31.06 g/s (297.15 K); at the cap (flow 2.44 s) 71.4 / 75.8 g",
+   "tag": "DERIVED"
+  },
+  "need": {
+   "v": "1.9 s at 289.5 K AND 2.2 s at 283.15 K (LEAD 256 (2)(a)); 1.8 s at 297.15 K",
+   "tag": "Combustion purge_duration_v2p4.json 1ff6bfcd7d2f454c (R4-13)"
+  },
+  "S12": {
+   "file": "results/v2p12/sil/S12_bleed.json 02d49def4fba065e",
+   "fail": 4,
+   "fail_cases": [
+    "stuck_open_after_lift_d0.6mm_stand",
+    "stuck_open_after_lift_d0.8mm_stand",
+    "stuck_open_after_lift_d1.0mm_stand",
+    "stuck_open_first_burn_d1.0mm"
+   ],
+   "fail_disposition": "the same 4 cases as v2.11 (results/sil_v2p11/S12_bleed.json 40a11d4d42d69026): sil_fail_dispositions \"S12 stuck_open_after_lift d0.6/0.8/1.0 mm stand, stuck_open_first_burn d1.0 mm\", OPEN (OI-BLEED-DETECT, LEAD 203 (4)); the first-burn case is the LEAD 253 (7)(v) FMEA residual; no new fail",
+   "mass_over_limit_cases": 5,
+   "mass_over_limit_cases_v2p11": 6,
+   "nominal_purge_mass_g_v2p11_to_v2p12": [
+    78.6,
+    76.38
+   ],
+   "rows": {
+    "purge_integrated_nominal": {
+     "pass": true,
+     "purge_mass_g": 76.38,
+     "mass_checked": true,
+     "purge_mass_limit_g": 76.0,
+     "mass_le_limit": false,
+     "ecu_purge_flow_ms_DERIVED_from_commands": 2430,
+     "both_valves_cmd_open_s": 2.38,
+     "bleed_flow_max_g_s": 31.85,
+     "first_abort": "NONE"
+    },
+    "purge_prescheduled_nominal": {
+     "pass": true,
+     "purge_mass_g": 76.38,
+     "mass_checked": true,
+     "purge_mass_limit_g": 76.0,
+     "mass_le_limit": false,
+     "ecu_purge_flow_ms_DERIVED_from_commands": 2430,
+     "both_valves_cmd_open_s": 2.38,
+     "bleed_flow_max_g_s": 31.85,
+     "first_abort": "NONE"
+    },
+    "cap_v1_close_inhibited_EVIDENCE": {
+     "pass": true,
+     "purge_mass_g": 76.73,
+     "mass_checked": false,
+     "purge_mass_limit_g": 76.0,
+     "mass_le_limit": true,
+     "ecu_purge_flow_ms_DERIVED_from_commands": 2441,
+     "both_valves_cmd_open_s": 2.391,
+     "bleed_flow_max_g_s": 31.85,
+     "first_abort": "NONE"
+    },
+    "hw_timer_alone_min_2.577s_cap_off_close_inhibited_EVIDENCE": {
+     "pass": true,
+     "purge_mass_g": 82.61,
+     "mass_checked": false,
+     "purge_mass_limit_g": 76.0,
+     "mass_le_limit": true,
+     "ecu_purge_flow_ms_DERIVED_from_commands": 4160,
+     "both_valves_cmd_open_s": 3.01,
+     "bleed_flow_max_g_s": 31.85,
+     "first_abort": "NONE"
+    },
+    "hw_timer_alone_nom_2.659s_cap_off_close_inhibited_EVIDENCE": {
+     "pass": true,
+     "purge_mass_g": 85.21,
+     "mass_checked": false,
+     "purge_mass_limit_g": 76.0,
+     "mass_le_limit": true,
+     "ecu_purge_flow_ms_DERIVED_from_commands": 4160,
+     "both_valves_cmd_open_s": 3.01,
+     "bleed_flow_max_g_s": 31.85,
+     "first_abort": "NONE"
+    },
+    "hw_timer_alone_max_2.741s_cap_off_close_inhibited_EVIDENCE": {
+     "pass": true,
+     "purge_mass_g": 87.84,
+     "mass_checked": false,
+     "purge_mass_limit_g": 76.0,
+     "mass_le_limit": true,
+     "ecu_purge_flow_ms_DERIVED_from_commands": 4160,
+     "both_valves_cmd_open_s": 3.01,
+     "bleed_flow_max_g_s": 31.85,
+     "first_abort": "NONE"
+    }
+   },
+   "note": "SIL plant mass is an ESTIMATE on its own bleed flow (single 1.0 mm equivalent orifice, Cd 0.70, Dyer flux at the SIL tank state: 31.85 g/s, 2.5 % above the 31.06 g/s bound, hence 76.38 g nominal against 75.5 g DERIVED), not the 29.25 / 31.06 g/s Combustion basis the decision uses; EVIDENCE cases are not mass-checked (mass_checked false); B-BLEED-1 measures"
+  },
+  "hardware_timer": {
+   "v": "T_hw,min 2.577 s >= cap + 1 tick 2.391 s; option RSET 59.0 kOhm -> 2.475 s nominal / 2.398 s minimum, NOT applied",
+   "tag": "DERIVED (DATASHEET LTC6993 AS RECALLED, TO-VERIFY)"
+  }
+ },
+ "rev_comb_4_items_v2p12": {
+  "R4-09": {
+   "v": "Pc-port face bound 130.2 / 131.3 / 130.5 bar abs over c 181-1200 m/s (CC-1 6 mm3 / CC-1 20 mm3 / CC-2): C1 over-range margin to the 137.9 bar abs FS >= 6.6 bar at c >= 181 m/s (not about 16 bar); 15.2 bar to the 4.75 V level 146.5 bar abs",
+   "tag": "DERIVED on Combustion v2.4c SIM"
+  },
+  "R4-12": {
+   "v": "P_torch (TE M3234-000005-070BG on J901) sees the FA-1 passage pressure, design case FA1S 151.04 bar abs = 150.03 bar g: the 070BG proof 140 bar g = 141.0 bar abs [DATASHEET, bench plan F-12] is BELOW the required 1.1 x FA1S = 166.14 bar abs: NOT MET. Saturation level and recovery after over-range: MISSING in the datasheet (F-7 (a)-(c), F-12 measure them on the spare). Options for the lead: (1) isolate the 070BG from the passage during the light (a snubber or orifice: changes the torch gate reading, TO-DESIGN with Combustion / Mechanical); (2) move P_torch to a C1-family XTL-190SM-2000A (proof 206.8 bar abs [DATASHEET] >= 166.14; output saturates at the INA333 rail above 146.5 bar abs; recovery TO-VERIFY at B-PC-1), which re-bases kTorchArmZeroMax_Pa and kPtorchRezeroMax_Pa on the C1 zero (not done here)",
+   "tag": "DATASHEET + DERIVED; OPEN (OI-PTORCH-PROOF)"
+  },
+  "R4-13": {
+   "v": "config.h now cites purge_duration_v2p4.json 1ff6bfcd7d2f454c (1.9 s at 289.5 K on 2 x 0.707 mm, 2.2 s at 283.15 K); 256 (2)(a) applied wherever 1.9 s is quoted (config.h kPurgeFlowMin_s, bench plan v5, this file)",
+   "tag": "DONE (source text)"
+  },
+  "R4-02": {
+   "file": "results/v2p12/sil/r4_02_reclass_v2p12.json f3d91aba932ac851",
+   "S6R_summary": {
+    "n": 10,
+    "inside": 10,
+    "outside": 0,
+    "not_evaluable": 0,
+    "jfwd_rule_triggered": 10
+   },
+   "N04_summary": {
+    "n_cases_peak_above_75p519": 46,
+    "as_built_abort_counts_by_chain_fw5": {
+     "c1_cc1_c222_v20": 32,
+     "c1_cc1_c222_v6": 29,
+     "c1_cc1_c400_v6": 33,
+     "c1_cc2_c222_v6": 32
+    },
+    "ride_abort_counts_by_chain_fw15": {
+     "c1_cc1_c222_v20": 0,
+     "c1_cc1_c222_v6": 0,
+     "c1_cc1_c400_v6": 0,
+     "c1_cc2_c222_v6": 0
+    },
+    "inside_v2": 46,
+    "outside_v2": 0,
+    "not_evaluable": 0,
+    "jfwd_rule_triggered": 46,
+    "Q_JFWD_range_bar_abs": [
+     87.153,
+     113.11
+    ],
+    "ESP_max_bar_abs": 146.512
+   },
+   "S6R_runs": [
+    {
+     "run": "S6R_fa1rep_max_face_alone_control__as_built",
+     "inside": true,
+     "zone_max": 3,
+     "peak_bar_abs": 88.019,
+     "S_max_0p02_50ms_bar_abs": 146.484,
+     "S_max_at_T_ms": 3.475,
+     "Q_JFWD_bar_abs": 112.793,
+     "jfwd_rule_triggered": true,
+     "reasons": []
+    },
+    {
+     "run": "S6R_fa1rep_max_face_alone_control__as_built_hwOnly_bandHigh",
+     "inside": true,
+     "zone_max": 3,
+     "peak_bar_abs": 88.019,
+     "S_max_0p02_50ms_bar_abs": 146.484,
+     "S_max_at_T_ms": 3.475,
+     "Q_JFWD_bar_abs": 112.793,
+     "jfwd_rule_triggered": true,
+     "reasons": []
+    },
+    {
+     "run": "S6R_fa1rep_max_face_alone_control__ride",
+     "inside": true,
+     "zone_max": 3,
+     "peak_bar_abs": 88.019,
+     "S_max_0p02_50ms_bar_abs": 146.484,
+     "S_max_at_T_ms": 3.475,
+     "Q_JFWD_bar_abs": 112.793,
+     "jfwd_rule_triggered": true,
+     "reasons": []
+    },
+    {
+     "run": "S6R_fa1rep_max_face_alone_control__ride_hwOnly_tauMax_bandHigh",
+     "inside": true,
+     "zone_max": 3,
+     "peak_bar_abs": 88.019,
+     "S_max_0p02_50ms_bar_abs": 146.484,
+     "S_max_at_T_ms": 3.475,
+     "Q_JFWD_bar_abs": 112.793,
+     "jfwd_rule_triggered": true,
+     "reasons": []
+    },
+    {
+     "run": "S6R_fa1rep_max_face_alone_control__ride_tauMax_bandHigh",
+     "inside": true,
+     "zone_max": 3,
+     "peak_bar_abs": 88.019,
+     "S_max_0p02_50ms_bar_abs": 146.484,
+     "S_max_at_T_ms": 3.475,
+     "Q_JFWD_bar_abs": 112.793,
+     "jfwd_rule_triggered": true,
+     "reasons": []
+    },
+    {
+     "run": "S6R_fa1rep_max_face_then_plateau_50bar__as_built",
+     "inside": true,
+     "zone_max": 3,
+     "peak_bar_abs": 88.019,
+     "S_max_0p02_50ms_bar_abs": 146.424,
+     "S_max_at_T_ms": 3.5,
+     "Q_JFWD_bar_abs": 112.731,
+     "jfwd_rule_triggered": true,
+     "reasons": []
+    },
+    {
+     "run": "S6R_fa1rep_max_face_then_plateau_50bar__as_built_hwOnly_bandHigh",
+     "inside": true,
+     "zone_max": 3,
+     "peak_bar_abs": 88.019,
+     "S_max_0p02_50ms_bar_abs": 146.424,
+     "S_max_at_T_ms": 3.5,
+     "Q_JFWD_bar_abs": 112.731,
+     "jfwd_rule_triggered": true,
+     "reasons": []
+    },
+    {
+     "run": "S6R_fa1rep_max_face_then_plateau_50bar__ride",
+     "inside": true,
+     "zone_max": 3,
+     "peak_bar_abs": 88.019,
+     "S_max_0p02_50ms_bar_abs": 146.424,
+     "S_max_at_T_ms": 3.5,
+     "Q_JFWD_bar_abs": 112.731,
+     "jfwd_rule_triggered": true,
+     "reasons": []
+    },
+    {
+     "run": "S6R_fa1rep_max_face_then_plateau_50bar__ride_hwOnly_tauMax_bandHigh",
+     "inside": true,
+     "zone_max": 3,
+     "peak_bar_abs": 88.019,
+     "S_max_0p02_50ms_bar_abs": 146.424,
+     "S_max_at_T_ms": 3.5,
+     "Q_JFWD_bar_abs": 112.731,
+     "jfwd_rule_triggered": true,
+     "reasons": []
+    },
+    {
+     "run": "S6R_fa1rep_max_face_then_plateau_50bar__ride_tauMax_bandHigh",
+     "inside": true,
+     "zone_max": 3,
+     "peak_bar_abs": 88.019,
+     "S_max_0p02_50ms_bar_abs": 146.424,
+     "S_max_at_T_ms": 3.5,
+     "Q_JFWD_bar_abs": 112.731,
+     "jfwd_rule_triggered": true,
+     "reasons": []
+    }
+   ],
+   "tag": "DERIVED on SIM (SIL plant / replay traces x Combustion v2.4b grid; Mechanical inside_v2); grid counts on an ASSUMED construct",
+   "flight": "Z3 v2 and Q_JFWD NOT EVALUATED in flight (1 kHz record; the LIGHT_SPIKE raw peak is a lower bound: f3 JFWD_LS indication at 47.5 bar abs)"
+  },
+  "A8_band_high_recheck": {
+   "S6R": "results/v2p12/sil/a8_bandhigh/S6R_in_window_overpressure.json d8a3fbfa684e6f6e: required 105 / passed 105, ECU runs outside the envelope 0",
+   "S6C": "results/v2p12/sil/a8_bandhigh/S6C_rc_cost.json 0d52b41da3402df9: 21 cases, causes {\"HW_OVERPRESSURE\": 10, \"OVER_THRUST\": 6, \"PC_OVERPRESSURE\": 5}",
+   "basis": "band high + 4.456 bar (k = 3 stand relight light at T0 24 C, the largest drift term of A8); v1 classifier labels in these files (the S6R JSON keeps the v2.11 LC-TB70 v1 inside()); Z3 v2 is R4-02"
+  }
+ },
+ "rev_elec_3_author_status": {
+  "R3-01": "CLOSED WITH RESIDUAL: r3_01_c1_drift (lead ruling on (b) / fallback / decision (3) pending; B-PC-1, F-10)",
+  "R3-02": "CLOSED: bench plan v5 F-14 (verbatim rules, TB-state set, Q_JFWD signals); TB-state implemented; citation corrected (ride_through.S6R_in_window_overpressure.jfwd_rule)",
+  "R3-03": "CLOSED: bench plan v5 B-TC-1 CJTO trim step (or the untrimmed formula) and EMI mean-shift pass",
+  "R3-04": "CLOSED: verdict_227_5.conditions + decided_by_R2_runs",
+  "R3-05": "CLOSED: 100 F band 0-55.6 C ordered, 0-85 C and the thermal-zero maximum asked (F-6, F-10, BOM v2.4 row 251); B-PC-1 zero-TC row per serial over 0-85 C",
+  "R3-06": "CLOSED: F-13 soak (TC1 / TC2 within 1 K of the facility thermometer for 30 min) and the +/-0.5 K thermometer",
+  "N-01": "bench plan v5 B-MV-1 row (post-abort closure with the pintle on the ARM bus, with HIL-TR-1)",
+  "N-02": "label: S6R input_peak_bar_abs = the profile head pressure at the abort (or at the run end), NOT the profile target (slow ramps abort before it: 36.41 / 18.71 bar against 60); SIL field name unchanged",
+  "N-04": "R4-02 re-classification",
+  "N-07": "bench plan v5 T1-T4 rows re-sized inside A = 150 C (open conflict on the T4 coast: OI-T4-RESIZE)",
+  "N-09": "config.h comments corrected (R2 hold, 070BG re-zero basis, P_mid chain, closure-confirmation signal, U576-U579; also the ARM limit FS basis and the flow-start 0.42 s); OI-STALE-LABELS CLOSED"
  }
 }

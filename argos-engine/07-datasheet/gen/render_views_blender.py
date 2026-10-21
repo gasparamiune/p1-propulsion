@@ -65,6 +65,10 @@ LOOK = {
     'ELASTOMER-PU': ((0.12, 0.12, 0.12), 0.0, 0.70),
     'MICA': ((0.55, 0.45, 0.30), 0.0, 0.50),
     'COTS-MIXED': ((0.10, 0.11, 0.14), 0.0, 0.55),
+    # v0.3.0 (CAD v3.5.2 codes)
+    'SS440C-HT': ((0.55, 0.55, 0.57), 1.0, 0.28),
+    'GLIDCOP-AL15': ((0.80, 0.45, 0.30), 1.0, 0.30),
+    'FLEX-GRAPHITE-TH': ((0.20, 0.20, 0.21), 0.3, 0.60),
 }
 
 # Thrust-chamber laid-out view: ordered groups (head -> nozzle), matched by PN prefix.
@@ -80,7 +84,7 @@ LAYOUT_GROUPS = [
     ('post-chamber insulator', ['ENG-TC-08']),
     ('aft section', ['ENG-TC-09']),
     ('throat insert and sleeve', ['ENG-NZ-01', 'ENG-NZ-02']),
-    ('nozzle joint J1', ['ENG-NZ-03', 'ENG-NZ-04']),
+    ('nozzle joint J1', ['ENG-NZ-03', 'ENG-NZ-04', 'ENG-NZ-06']),
 ]
 
 
