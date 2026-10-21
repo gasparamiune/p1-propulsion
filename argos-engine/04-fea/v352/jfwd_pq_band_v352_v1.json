@@ -1,0 +1,770 @@
+{
+ "id": "jfwd_pq_band_v352",
+ "version": "v1",
+ "date": "2026-10-21",
+ "owner": "mechanical",
+ "basis": "J-FWD P+Q select-fit band, re-sized ONCE on the final anchors (lead 2026-10-21T05:50:45Z re-map brief R2; R3 / R4 / R8 as cited).\nMechanical, 2026-10-21, v1.  Paper / Python only: no FE run, no ccx.  CALC / DERIVED on SIM inputs, none of it physical approval.\n\nR2 (verbatim essentials): 'the P+Q select-fit band APPLIES (line 240: IN718 [0.040, 0.0761] mm radial, narrower TC-02 spigot OD\ntolerance); re-size it once from the v7 grid (MS at 0.040 / 0.059 / 0.070 / 0.078) on the final anchors (SOAK52 370.3 MPa under C1);\nlead CALC to confirm or correct: \"With the bore at 57.25 H8 (0/+0.046) a [0.040, 0.0684] radial band leaves a spigot OD window of about\n0.011 mm unless the spigot is select-fitted to the measured bore\"; if no band inside [0.040, 0.0761] closes the seat line it stays a\nFOUND NEGATIVE; the band goes on the TC-02 drawing text only after the re-size; no geometry change without asking the lead first.'\n\nMethod: relax v8 (jfwd_relax_v352.py cc0db230aaf77ac1, json 51e9eddb9b9e6711; FEA3D-2's FINAL envelope v6 43a5d78b67c615fc and the cD\ninput record 5a41c8d74897bdda) is imported for its module-level model only (its __main__ block, which writes its json, is not run).  Its\nband function is restated here unchanged: per soak state, MS(g) = 2 Fty(T_line) / (PQ_env x F_sh,IN718(g, F_V) / F_sh,A4-80(0.078,\n3750)) - 1, with PQ_env the seat-line P+Q of the final anchors (s6 + C1; cD excluded and recorded beside, R3) and T_line the FE\nline temperature.  Every grid value of relax v8 is re-computed and asserted equal; the new points (0.0680 / 0.0684 / 0.0685 / 0.0686,\nthe line-240 edge 0.0761) and g at MS = +0.05 use the same function.  Criterion at the J-F1 cap 3750 N; 4096 N is information.\nR4: the seat-line P+Q is NOT shown mesh-converged (s9 -> s6 +12 to +18 %, s6 -> cD -1.5 to -7.3 %, not monotonic); the FE are at the\ndrawn bound g 0.078, outside the band, so every band MS is the model's scaling of the 0.078 FE [DERIVED], quoted as found with the MF note.\nR8: every J-FWD FE except cD is on the interim TC-01 (d10.5 flats); the effect of the final d11.2 part is ASSUMED small.\nUsage: jfwd_pq_band_v352.py -> v352/jfwd/jfwd_pq_band_v352_v1.json",
+ "inputs": {
+  "relax_v8_script": {
+   "path": "/home/claude/work/mechanical/v352/jfwd/jfwd_relax_v352.py",
+   "sha256_16": "cc0db230aaf77ac1"
+  },
+  "relax_v8_json": {
+   "path": "/home/claude/work/mechanical/v352/jfwd/jfwd_relax_v352_v8.json",
+   "sha256_16": "51e9eddb9b9e6711"
+  },
+  "rows_v8_json": {
+   "path": "/home/claude/work/mechanical/v352/jfwd/jfwd_in718_rows_v352_v8.json",
+   "sha256_16": "af072cc2e70711ca"
+  },
+  "envelope_v6_sha256_16": "43a5d78b67c615fc",
+  "v7inputs_cD_sha256_16": "5a41c8d74897bdda",
+  "meshcorr_sha256_16": "adac16afd42ef7bd"
+ },
+ "anchors_R3": {
+  "SOAK70": {
+   "PQ_env_MPa": 362.1,
+   "from": "patch_b2",
+   "T_line_C": 157.6,
+   "rows_v8_MS_at_0.078_3750": -0.059,
+   "rows_v8_from": "(b2)"
+  },
+  "SOAK": {
+   "PQ_env_MPa": 366.8,
+   "from": "patch_b2r",
+   "T_line_C": 158.0,
+   "rows_v8_MS_at_0.078_3750": -0.075,
+   "rows_v8_from": "(b2) rep"
+  },
+  "SOAK52": {
+   "PQ_env_MPa": 370.3,
+   "from": "patch_b1",
+   "T_line_C": 152.7,
+   "rows_v8_MS_at_0.078_3750": -0.033,
+   "rows_v8_from": "(b1)"
+  }
+ },
+ "grid_check": "96 relax v8 grid values re-computed and equal; g at MS 0 equal in all 24 state cases",
+ "per_key": {
+  "lo|seat|3750": {
+   "g_max_at_MS0_mm": 0.06892,
+   "governing_state": "SOAK",
+   "g_max_at_MS_+0.05_mm": 0.06345,
+   "per_state": {
+    "SOAK70": {
+     "PQ_env_MPa": 362.1,
+     "T_line_C": 157.6,
+     "Fty_AL6061-T6_at_T_line_MPa": 170.99,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.3645,
+      "0.059": 0.115,
+      "0.07": 0.0083,
+      "0.078": -0.0574
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.0727,
+      "0.068": 0.0261,
+      "0.0684": 0.0225,
+      "0.0685": 0.0216,
+      "0.0686": 0.0207,
+      "0.0761": -0.0426
+     },
+     "g_at_MS0_mm": 0.07095,
+     "g_at_MS_+0.05_mm": 0.06543
+    },
+    "SOAK": {
+     "PQ_env_MPa": 366.8,
+     "T_line_C": 158.0,
+     "Fty_AL6061-T6_at_T_line_MPa": 170.29,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.3365,
+      "0.059": 0.0945,
+      "0.07": -0.0093,
+      "0.078": -0.0732
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.0534,
+      "0.068": 0.0081,
+      "0.0684": 0.0046,
+      "0.0685": 0.0037,
+      "0.0686": 0.0028,
+      "0.0761": -0.0588
+     },
+     "g_at_MS0_mm": 0.06892,
+     "g_at_MS_+0.05_mm": 0.06345
+    },
+    "SOAK52": {
+     "PQ_env_MPa": 370.3,
+     "T_line_C": 152.7,
+     "Fty_AL6061-T6_at_T_line_MPa": 179.59,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.4074,
+      "0.059": 0.1472,
+      "0.07": 0.0363,
+      "0.078": -0.0318
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.1032,
+      "0.068": 0.0548,
+      "0.0684": 0.051,
+      "0.0685": 0.0501,
+      "0.0686": 0.0492,
+      "0.0761": -0.0165
+     },
+     "g_at_MS0_mm": 0.07413,
+     "g_at_MS_+0.05_mm": 0.06851
+    }
+   }
+  },
+  "lo|seat|4096": {
+   "g_max_at_MS0_mm": 0.0687,
+   "governing_state": "SOAK",
+   "g_max_at_MS_+0.05_mm": 0.06323,
+   "per_state": {
+    "SOAK70": {
+     "PQ_env_MPa": 362.1,
+     "T_line_C": 157.6,
+     "Fty_AL6061-T6_at_T_line_MPa": 170.99,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.361,
+      "0.059": 0.1127,
+      "0.07": 0.0064,
+      "0.078": -0.059
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.0705,
+      "0.068": 0.0242,
+      "0.0684": 0.0205,
+      "0.0685": 0.0197,
+      "0.0686": 0.0188,
+      "0.0761": -0.0443
+     },
+     "g_at_MS0_mm": 0.07073,
+     "g_at_MS_+0.05_mm": 0.06522
+    },
+    "SOAK": {
+     "PQ_env_MPa": 366.8,
+     "T_line_C": 158.0,
+     "Fty_AL6061-T6_at_T_line_MPa": 170.29,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.3331,
+      "0.059": 0.0923,
+      "0.07": -0.0112,
+      "0.078": -0.0749
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.0513,
+      "0.068": 0.0062,
+      "0.0684": 0.0027,
+      "0.0685": 0.0018,
+      "0.0686": 0.0009,
+      "0.0761": -0.0605
+     },
+     "g_at_MS0_mm": 0.0687,
+     "g_at_MS_+0.05_mm": 0.06323
+    },
+    "SOAK52": {
+     "PQ_env_MPa": 370.3,
+     "T_line_C": 152.7,
+     "Fty_AL6061-T6_at_T_line_MPa": 179.59,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.4038,
+      "0.059": 0.1448,
+      "0.07": 0.0343,
+      "0.078": -0.0335
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.1009,
+      "0.068": 0.0528,
+      "0.0684": 0.049,
+      "0.0685": 0.0481,
+      "0.0686": 0.0472,
+      "0.0761": -0.0183
+     },
+     "g_at_MS0_mm": 0.07391,
+     "g_at_MS_+0.05_mm": 0.06829
+    }
+   }
+  },
+  "lo|ring|3750": {
+   "g_max_at_MS0_mm": 0.06892,
+   "governing_state": "SOAK",
+   "g_max_at_MS_+0.05_mm": 0.06345,
+   "per_state": {
+    "SOAK70": {
+     "PQ_env_MPa": 362.1,
+     "T_line_C": 157.6,
+     "Fty_AL6061-T6_at_T_line_MPa": 170.99,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.3645,
+      "0.059": 0.115,
+      "0.07": 0.0083,
+      "0.078": -0.0574
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.0727,
+      "0.068": 0.0261,
+      "0.0684": 0.0225,
+      "0.0685": 0.0216,
+      "0.0686": 0.0207,
+      "0.0761": -0.0426
+     },
+     "g_at_MS0_mm": 0.07095,
+     "g_at_MS_+0.05_mm": 0.06543
+    },
+    "SOAK": {
+     "PQ_env_MPa": 366.8,
+     "T_line_C": 158.0,
+     "Fty_AL6061-T6_at_T_line_MPa": 170.29,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.3365,
+      "0.059": 0.0945,
+      "0.07": -0.0093,
+      "0.078": -0.0732
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.0534,
+      "0.068": 0.0081,
+      "0.0684": 0.0046,
+      "0.0685": 0.0037,
+      "0.0686": 0.0028,
+      "0.0761": -0.0588
+     },
+     "g_at_MS0_mm": 0.06892,
+     "g_at_MS_+0.05_mm": 0.06345
+    },
+    "SOAK52": {
+     "PQ_env_MPa": 370.3,
+     "T_line_C": 152.7,
+     "Fty_AL6061-T6_at_T_line_MPa": 179.59,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.4074,
+      "0.059": 0.1472,
+      "0.07": 0.0363,
+      "0.078": -0.0318
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.1032,
+      "0.068": 0.0548,
+      "0.0684": 0.051,
+      "0.0685": 0.0501,
+      "0.0686": 0.0492,
+      "0.0761": -0.0165
+     },
+     "g_at_MS0_mm": 0.07413,
+     "g_at_MS_+0.05_mm": 0.06851
+    }
+   }
+  },
+  "lo|ring|4096": {
+   "g_max_at_MS0_mm": 0.0687,
+   "governing_state": "SOAK",
+   "g_max_at_MS_+0.05_mm": 0.06323,
+   "per_state": {
+    "SOAK70": {
+     "PQ_env_MPa": 362.1,
+     "T_line_C": 157.6,
+     "Fty_AL6061-T6_at_T_line_MPa": 170.99,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.361,
+      "0.059": 0.1127,
+      "0.07": 0.0064,
+      "0.078": -0.059
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.0705,
+      "0.068": 0.0242,
+      "0.0684": 0.0205,
+      "0.0685": 0.0197,
+      "0.0686": 0.0188,
+      "0.0761": -0.0443
+     },
+     "g_at_MS0_mm": 0.07073,
+     "g_at_MS_+0.05_mm": 0.06522
+    },
+    "SOAK": {
+     "PQ_env_MPa": 366.8,
+     "T_line_C": 158.0,
+     "Fty_AL6061-T6_at_T_line_MPa": 170.29,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.3331,
+      "0.059": 0.0923,
+      "0.07": -0.0112,
+      "0.078": -0.0749
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.0513,
+      "0.068": 0.0062,
+      "0.0684": 0.0027,
+      "0.0685": 0.0018,
+      "0.0686": 0.0009,
+      "0.0761": -0.0605
+     },
+     "g_at_MS0_mm": 0.0687,
+     "g_at_MS_+0.05_mm": 0.06323
+    },
+    "SOAK52": {
+     "PQ_env_MPa": 370.3,
+     "T_line_C": 152.7,
+     "Fty_AL6061-T6_at_T_line_MPa": 179.59,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.4038,
+      "0.059": 0.1448,
+      "0.07": 0.0343,
+      "0.078": -0.0335
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.1009,
+      "0.068": 0.0528,
+      "0.0684": 0.049,
+      "0.0685": 0.0481,
+      "0.0686": 0.0472,
+      "0.0761": -0.0183
+     },
+     "g_at_MS0_mm": 0.07391,
+     "g_at_MS_+0.05_mm": 0.06829
+    }
+   }
+  },
+  "hi|seat|3750": {
+   "g_max_at_MS0_mm": 0.06862,
+   "governing_state": "SOAK",
+   "g_max_at_MS_+0.05_mm": 0.0631,
+   "per_state": {
+    "SOAK70": {
+     "PQ_env_MPa": 362.1,
+     "T_line_C": 157.6,
+     "Fty_AL6061-T6_at_T_line_MPa": 170.99,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.3554,
+      "0.059": 0.1108,
+      "0.07": 0.0057,
+      "0.078": -0.059
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.0692,
+      "0.068": 0.0233,
+      "0.0684": 0.0198,
+      "0.0685": 0.0189,
+      "0.0686": 0.018,
+      "0.0761": -0.0444
+     },
+     "g_at_MS0_mm": 0.07067,
+     "g_at_MS_+0.05_mm": 0.0651
+    },
+    "SOAK": {
+     "PQ_env_MPa": 366.8,
+     "T_line_C": 158.0,
+     "Fty_AL6061-T6_at_T_line_MPa": 170.29,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.3277,
+      "0.059": 0.0905,
+      "0.07": -0.0118,
+      "0.078": -0.0748
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.05,
+      "0.068": 0.0054,
+      "0.0684": 0.0019,
+      "0.0685": 0.001,
+      "0.0686": 0.0002,
+      "0.0761": -0.0606
+     },
+     "g_at_MS0_mm": 0.06862,
+     "g_at_MS_+0.05_mm": 0.0631
+    },
+    "SOAK52": {
+     "PQ_env_MPa": 370.3,
+     "T_line_C": 152.7,
+     "Fty_AL6061-T6_at_T_line_MPa": 179.59,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.3982,
+      "0.059": 0.143,
+      "0.07": 0.0337,
+      "0.078": -0.0334
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.0997,
+      "0.068": 0.052,
+      "0.0684": 0.0483,
+      "0.0685": 0.0474,
+      "0.0686": 0.0465,
+      "0.0761": -0.0183
+     },
+     "g_at_MS0_mm": 0.07388,
+     "g_at_MS_+0.05_mm": 0.06822
+    }
+   }
+  },
+  "hi|seat|4096": {
+   "g_max_at_MS0_mm": 0.0684,
+   "governing_state": "SOAK",
+   "g_max_at_MS_+0.05_mm": 0.06288,
+   "per_state": {
+    "SOAK70": {
+     "PQ_env_MPa": 362.1,
+     "T_line_C": 157.6,
+     "Fty_AL6061-T6_at_T_line_MPa": 170.99,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.352,
+      "0.059": 0.1085,
+      "0.07": 0.0039,
+      "0.078": -0.0606
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.0671,
+      "0.068": 0.0214,
+      "0.0684": 0.0179,
+      "0.0685": 0.017,
+      "0.0686": 0.0161,
+      "0.0761": -0.0461
+     },
+     "g_at_MS0_mm": 0.07045,
+     "g_at_MS_+0.05_mm": 0.06488
+    },
+    "SOAK": {
+     "PQ_env_MPa": 366.8,
+     "T_line_C": 158.0,
+     "Fty_AL6061-T6_at_T_line_MPa": 170.29,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.3244,
+      "0.059": 0.0882,
+      "0.07": -0.0136,
+      "0.078": -0.0764
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.0479,
+      "0.068": 0.0035,
+      "0.0684": 0.0,
+      "0.0685": -0.0008,
+      "0.0686": -0.0017,
+      "0.0761": -0.0622
+     },
+     "g_at_MS0_mm": 0.0684,
+     "g_at_MS_+0.05_mm": 0.06288
+    },
+    "SOAK52": {
+     "PQ_env_MPa": 370.3,
+     "T_line_C": 152.7,
+     "Fty_AL6061-T6_at_T_line_MPa": 179.59,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.3946,
+      "0.059": 0.1406,
+      "0.07": 0.0318,
+      "0.078": -0.0351
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.0975,
+      "0.068": 0.05,
+      "0.0684": 0.0463,
+      "0.0685": 0.0454,
+      "0.0686": 0.0445,
+      "0.0761": -0.02
+     },
+     "g_at_MS0_mm": 0.07367,
+     "g_at_MS_+0.05_mm": 0.068
+    }
+   }
+  },
+  "hi|ring|3750": {
+   "g_max_at_MS0_mm": 0.06862,
+   "governing_state": "SOAK",
+   "g_max_at_MS_+0.05_mm": 0.0631,
+   "per_state": {
+    "SOAK70": {
+     "PQ_env_MPa": 362.1,
+     "T_line_C": 157.6,
+     "Fty_AL6061-T6_at_T_line_MPa": 170.99,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.3554,
+      "0.059": 0.1108,
+      "0.07": 0.0057,
+      "0.078": -0.059
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.0692,
+      "0.068": 0.0233,
+      "0.0684": 0.0198,
+      "0.0685": 0.0189,
+      "0.0686": 0.018,
+      "0.0761": -0.0444
+     },
+     "g_at_MS0_mm": 0.07067,
+     "g_at_MS_+0.05_mm": 0.0651
+    },
+    "SOAK": {
+     "PQ_env_MPa": 366.8,
+     "T_line_C": 158.0,
+     "Fty_AL6061-T6_at_T_line_MPa": 170.29,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.3277,
+      "0.059": 0.0905,
+      "0.07": -0.0118,
+      "0.078": -0.0748
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.05,
+      "0.068": 0.0054,
+      "0.0684": 0.0019,
+      "0.0685": 0.001,
+      "0.0686": 0.0002,
+      "0.0761": -0.0606
+     },
+     "g_at_MS0_mm": 0.06862,
+     "g_at_MS_+0.05_mm": 0.0631
+    },
+    "SOAK52": {
+     "PQ_env_MPa": 370.3,
+     "T_line_C": 152.7,
+     "Fty_AL6061-T6_at_T_line_MPa": 179.59,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.3982,
+      "0.059": 0.143,
+      "0.07": 0.0337,
+      "0.078": -0.0334
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.0997,
+      "0.068": 0.052,
+      "0.0684": 0.0483,
+      "0.0685": 0.0474,
+      "0.0686": 0.0465,
+      "0.0761": -0.0183
+     },
+     "g_at_MS0_mm": 0.07388,
+     "g_at_MS_+0.05_mm": 0.06822
+    }
+   }
+  },
+  "hi|ring|4096": {
+   "g_max_at_MS0_mm": 0.0684,
+   "governing_state": "SOAK",
+   "g_max_at_MS_+0.05_mm": 0.06288,
+   "per_state": {
+    "SOAK70": {
+     "PQ_env_MPa": 362.1,
+     "T_line_C": 157.6,
+     "Fty_AL6061-T6_at_T_line_MPa": 170.99,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.352,
+      "0.059": 0.1085,
+      "0.07": 0.0039,
+      "0.078": -0.0606
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.0671,
+      "0.068": 0.0214,
+      "0.0684": 0.0179,
+      "0.0685": 0.017,
+      "0.0686": 0.0161,
+      "0.0761": -0.0461
+     },
+     "g_at_MS0_mm": 0.07045,
+     "g_at_MS_+0.05_mm": 0.06488
+    },
+    "SOAK": {
+     "PQ_env_MPa": 366.8,
+     "T_line_C": 158.0,
+     "Fty_AL6061-T6_at_T_line_MPa": 170.29,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.3244,
+      "0.059": 0.0882,
+      "0.07": -0.0136,
+      "0.078": -0.0764
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.0479,
+      "0.068": 0.0035,
+      "0.0684": 0.0,
+      "0.0685": -0.0008,
+      "0.0686": -0.0017,
+      "0.0761": -0.0622
+     },
+     "g_at_MS0_mm": 0.0684,
+     "g_at_MS_+0.05_mm": 0.06288
+    },
+    "SOAK52": {
+     "PQ_env_MPa": 370.3,
+     "T_line_C": 152.7,
+     "Fty_AL6061-T6_at_T_line_MPa": 179.59,
+     "MS_at_gap_relax_v8_grid": {
+      "0.04": 0.3946,
+      "0.059": 0.1406,
+      "0.07": 0.0318,
+      "0.078": -0.0351
+     },
+     "MS_at_gap_new_points": {
+      "0.0631": 0.0975,
+      "0.068": 0.05,
+      "0.0684": 0.0463,
+      "0.0685": 0.0454,
+      "0.0686": 0.0445,
+      "0.0761": -0.02
+     },
+     "g_at_MS0_mm": 0.07367,
+     "g_at_MS_+0.05_mm": 0.068
+    }
+   }
+  }
+ },
+ "RESULT": {
+  "band_mm_radial": [
+   0.04,
+   0.0686
+  ],
+  "band_upper_edge_basis": "g at MS 0 at 3750 N = 0.06862 mm (both k_b ends, governing SOAK 366.8 MPa from patch_b2r, k_b hi), rounded down",
+  "governs": "SOAK ((b2) rep, s6 as solved, 366.8 MPa at T_line 158.0 C) sets the edge, not SOAK52 (370.3 MPa under C1 at 152.7 C: g at MS 0 0.07388 mm); the edge is the v7 value, unchanged by the final anchors",
+  "MS_min_at_band_edge_3750": {
+   "MS": 0.0002,
+   "state": "SOAK",
+   "k_b_end": "hi"
+  },
+  "flag": "within the 0.05 flag (MS +0.000 at the edge): quoted FLAG, not a margin",
+  "g_at_MS0_4096_info_mm": 0.0684,
+  "g_for_MS_+0.05_3750_mm": 0.0631,
+  "line_240_band_[0.040,0.0761]": {
+   "MS_min_at_0.0761_3750": {
+    "MS": -0.0606,
+    "state": "SOAK",
+    "k_b_end": "hi"
+   },
+   "verdict": "the line-240 band does NOT close the seat line at its upper edge (FOUND NEGATIVE as drawn there); a band inside it does"
+  },
+  "closes_seat_line": true,
+  "lead_CALC_check": {
+   "quoted": "With the bore at 57.25 H8 (0/+0.046) a [0.040, 0.0684] radial band leaves a spigot OD window of about 0.011 mm unless the spigot is select-fitted to the measured bore",
+   "computed_[0.040,0.0684]_window_mm": 0.0108,
+   "computed_[0.040,0.0686]_window_mm": 0.0112,
+   "verdict": "CONFIRMED (0.0108 mm at 0.0684, the 4096 N information edge; 0.0112 mm at 0.0686, the 3750 N criterion edge)"
+  },
+  "fit_windows": {
+   "drawn_f7_now": {
+    "plug_OD_mm": [
+     57.14,
+     57.17
+    ],
+    "g_radial_mm": [
+     0.04,
+     0.078
+    ],
+    "seat_line_MS_min_3750": {
+     "MS": -0.0748,
+     "state": "SOAK",
+     "k_b_end": "hi"
+    }
+   },
+   "band": {
+    "band_mm_radial": [
+     0.04,
+     0.0686
+    ],
+    "plug_OD_max_mm": 57.17,
+    "plug_OD_min_mm": 57.1588,
+    "OD_window_mm": 0.0112,
+    "formula": "window = 2 (g_hi - g_lo) - 0.046 (H8 bore tolerance)"
+   },
+   "lead_0.0684": {
+    "band_mm_radial": [
+     0.04,
+     0.0684
+    ],
+    "plug_OD_max_mm": 57.17,
+    "plug_OD_min_mm": 57.1592,
+    "OD_window_mm": 0.0108,
+    "formula": "window = 2 (g_hi - g_lo) - 0.046 (H8 bore tolerance)"
+   },
+   "flag_free_MS_0.05": {
+    "band_mm_radial": [
+     0.04,
+     0.0631
+    ],
+    "plug_OD_max_mm": 57.17,
+    "plug_OD_min_mm": 57.1698,
+    "OD_window_mm": 0.0002,
+    "formula": "window = 2 (g_hi - g_lo) - 0.046 (H8 bore tolerance)"
+   },
+   "line_240": {
+    "band_mm_radial": [
+     0.04,
+     0.0761
+    ],
+    "plug_OD_max_mm": 57.17,
+    "plug_OD_min_mm": 57.1438,
+    "OD_window_mm": 0.0262,
+    "formula": "window = 2 (g_hi - g_lo) - 0.046 (H8 bore tolerance)"
+   }
+  },
+  "drawn_options": {
+   "57.20 -0.030/-0.041 (57.159-57.170)": {
+    "g_radial_mm": [
+     0.04,
+     0.0685
+    ],
+    "OD_window_mm": 0.011,
+    "MS_min_3750_criterion": {
+     "MS": 0.001,
+     "state": "SOAK",
+     "k_b_end": "hi"
+    },
+    "MS_min_4096_info": {
+     "MS": -0.0008,
+     "state": "SOAK",
+     "k_b_end": "hi"
+    },
+    "flag_0.05": true
+   },
+   "57.20 -0.030/-0.040 (57.160-57.170)": {
+    "g_radial_mm": [
+     0.04,
+     0.068
+    ],
+    "OD_window_mm": 0.01,
+    "MS_min_3750_criterion": {
+     "MS": 0.0054,
+     "state": "SOAK",
+     "k_b_end": "hi"
+    },
+    "MS_min_4096_info": {
+     "MS": 0.0035,
+     "state": "SOAK",
+     "k_b_end": "hi"
+    },
+    "flag_0.05": true
+   }
+  },
+  "select_fit": {
+   "rule": "select fit: the TC-02 plug OD is ground to the MEASURED TC-01 bore D_meas: OD = D_meas - 2 g with g in the band, i.e. D_meas - 0.1372 <= OD <= D_meas - 0.080 (window 0.0572 mm on the diameter), less twice the combined measurement uncertainty of bore and OD at each end (TO-DEFINE by the shop; the bore and OD are measured at 20 +/- 1 C, at the seat line and the two lands, and recorded with the part serials)",
+   "window_on_diameter_mm": 0.0572,
+   "flag_free_variant": "for MS >= +0.05 (no 0.05 flag) g <= 0.0631 mm: D_meas - 0.1262 <= OD <= D_meas - 0.080 (window 0.0462 mm); a drawn-tolerance version of it leaves 0.0002 mm, not drawable"
+  },
+  "what_it_acts_on": "the TC-01 seat-line P+Q rows only (seat d+6.051 z'0 and the ring family on it); the screw rows, the LCF and the other J-FWD rows take no credit from the band (they stay at the FE gap 0.078)",
+  "MF_note_R4": "seat-line P+Q NOT shown mesh-converged: s9 -> s6 +12 to +18 %, s6 -> cD -1.5 to -7.3 %, not monotonic; the band MS are the relax v8 model's scaling of the FE at g 0.078 (outside the band) [DERIVED]; extrapolations are information only",
+  "cad_basis_R8": "every J-FWD FE except cD is on the interim TC-01 (history/ENG-TC-01.step.1ad07e472709b1b2, d10.5 flats); the final part fcb3b5b93bebdb01 (d11.2) removes 104.037 mm3; the wall at the hole (2.688 mm) is unchanged and the head footprint is inside both flats; the effect is ASSUMED small (lead R8; CHANGELOG 249 (11))",
+  "stand_T0_24C_info": {
+   "label": "INFORMATION (stand T0 rule 249 (2), ambient <= 24 C; FE at T0 20 C): ASSUMED uniform +4 K on the seat-line temperature with the FE P+Q unchanged, k_b hi, 3750 N; not a criterion, not a hot-day FE run",
+   "per_state": {
+    "SOAK70": {
+     "Fty_at_T_line_MPa": 170.99,
+     "Fty_at_T_line_+4K_MPa": 163.97,
+     "MS_at_band_edge_+4K": -0.0238,
+     "g_at_MS0_+4K_mm": 0.06587
+    },
+    "SOAK": {
+     "Fty_at_T_line_MPa": 170.29,
+     "Fty_at_T_line_+4K_MPa": 163.27,
+     "MS_at_band_edge_+4K": -0.041,
+     "g_at_MS0_+4K_mm": 0.06384
+    },
+    "SOAK52": {
+     "Fty_at_T_line_MPa": 179.59,
+     "Fty_at_T_line_+4K_MPa": 172.57,
+     "MS_at_band_edge_+4K": 0.0056,
+     "g_at_MS0_+4K_mm": 0.06923
+    }
+   },
+   "g_at_MS0_+4K_min_mm": 0.06384,
+   "MS_at_band_edge_+4K_min": -0.041
+  },
+  "drawing_text_status": "goes on the TC-02 drawing text (03-cad/v3.5.2/texts) after this re-size, per R2; the TC-02 STEP is unchanged (no geometry change); the parts / BOM strings 'plug 57.20 f7' change only on the lead's word"
+ }
+}

@@ -1,7 +1,30 @@
 """J-FWD: TC-01 wall relaxation, screw plastic set and the no-slack check over two consecutive firings.
-Mechanical, 2026-10-20, v7 (v6 9465eaeac9af407f / json b157ebc2027833e4 kept as jfwd_relax_v352_v6.py; v5 95409d512c83bb44 ACCEPTED by the lead 12:52Z
+Mechanical, 2026-10-21, v8 (v7 82221fdf0035f338 / json 345e27062d54ad20 kept as jfwd_relax_v352_v7.py; v6 9465eaeac9af407f / json
+b157ebc2027833e4 kept as jfwd_relax_v352_v6.py; v5 95409d512c83bb44 ACCEPTED by the lead 12:52Z
 and kept as jfwd_relax_v352_v5.py; v4 80e1df3323c19340 kept as jfwd_relax_v352_v4.py; v3 48c2ab7d2698bb2f kept as jfwd_relax_v352_v3.py and
 imported for the shared joint machinery: Screw, state_s, u_install, the rev-4 row histories, engmat tables).
+
+v8 (lead 2026-10-21T05:50:45Z re-map brief, rulings R1-R8; CHANGELOG 249, 250, 252): the re-map ONCE on FEA3D-2's FINAL envelope v6,
+hub 04-fea/assembly3d_v352/results/v352/jfwd_soak_envelope_v352_v6.json 43a5d78b67c615fc (script ac75b2c41146aead), with the input record
+results/v352/jfwd_v7inputs_cD_v352.json 5a41c8d74897bdda (md 424146c89c8c9f01, script 0cc1c2bf2d3f0092) [SIM / DERIVED / CALC; none of it
+is physical approval].
+ - INSTANCES (hub jfwd_patches; every file read is sha16-asserted): js5, (a), (a'), (a''), (b2), (b2) rep and, new, (b1) = seat_s9L12_mu02A
+   (s9, R0.2, mu 0.2) with (b1) rep (its SOAK_rep / SOAK52_rep), (b2') = seat_s9L12_mu0 (s9, R0.2, mu 0) and (cD) = seat_sDL12_mu0 (sD,
+   FINAL TC-01 d11.2, mu 0).  Screw moments from shank.json for (b2), (b1), (b2'), (cD) (equal to runcmp 'A' where both exist; asserted).
+ - C1 (R3; lead 01:30:18Z (5)): (b1)'s seat line d+6.051 z'0 = as solved x ratio_floored (s6 / s9 at mu 0, that line and state) from
+   results/v352/jfwd_b1_meshcorr_v352.json adac16afd42ef7bd, MS = 2 Fty(T) / PmPb - 1 (checked); (b2') as solved.  s6 + C1 stand and the
+   anchors are FINAL (cD / s6 0.927 / 0.947 / 0.966 / 0.959 / 0.985 in PRELOAD / SOAK52 / SOAK / SOAK70 / FA1S).  cD's LOCAL values (seat
+   line, ring family, under-head band) are recorded BESIDE, not entered; cD's resultants (head, plane and section forces, seat window, seat
+   radial force, screw moments) enter as solved (worst-of), as in v6.
+ - MF NOTE (R4): the seat-line P+Q is NOT shown mesh-converged (s9 -> s6 +12 to +18 %, s6 -> cD -1.5 to -7.3 %, not monotonic); it is
+   quoted as found; extrapolations are information only.
+ - ring family: (b1), (b2'), (cD) carry the drawn R0.2 edge, so (as (b2) in v7) the ring-family P+Q IS the seat line.
+ - the per-state envelope here (v7 convention: the repeats are instances) is ASSERTED equal to the record's v7_convention view (9 numbers,
+   M_max_at_x and 7 'from' fields per state, FEA3D-2's tolerances) and to v6's per-instance N_plane / seat window / seat line.
+ - CAD BASIS (R8): every J-FWD FE except cD is on the interim TC-01 (history/ENG-TC-01.step.1ad07e472709b1b2, d10.5 flats); the final
+   part fcb3b5b93bebdb01 (d11.2) removes 104.037 mm3, the wall at the hole (2.688 mm) is unchanged and the head footprint is inside both
+   flats: the effect is ASSUMED small.
+ - the moves against v7 are in 'v7_to_v8_moves'.
 
 v7 (lead 15:37Z (b2) rulings R1-R3 and order item 1, plan ACCEPTED 15:41Z): FEA3D's (b2) = seat_s6L12_mu0 (mesh s6 with the drawn R0.2
 bore-side edge break, L12, mu 0, 3750 N, FIT 0.078, A4-80; step order SEAT-PRELOAD-SOAK52-SOAK-SOAK70-FA1S-SOAK_rep-SOAK52_rep) joins as the
@@ -81,7 +104,7 @@ from pathlib import Path
 import numpy as np
 
 J = Path("/home/claude/work/mechanical/v352/jfwd")
-OUT = J / "jfwd_relax_v352_v7.json"
+OUT = J / "jfwd_relax_v352_v8.json"
 V3 = J / "jfwd_relax_v352_v3.py"
 _spec = importlib.util.spec_from_file_location("jfwd_relax_v352_v3", str(V3))
 RV3 = importlib.util.module_from_spec(_spec)
@@ -96,12 +119,39 @@ F_RELAX = HUBI / "js5_mu0_T3750_g078_relax.json"
 F_SEATF = HUBI / "js5_mu0_T3750_g078_seatforce.json"
 F_BEND = HUBI / "js5_mu0_T3750_g078_screw_bend.json"
 F_CELLS = HUBI / "js5_mu0_T3750_g078_cells.json"
-RUNS = Path("/home/claude/work/fea3d/jfwd/runs")
+RUNS = Path("/home/claude/work/shared-fallback/engine/04-fea/assembly3d_v352/jfwd_patches")   # v8: the hub copies (FEA3D-2, CHANGELOG 252)
 PATCHES = {"patch_a": RUNS / "seat_s5L8_mu0", "patch_a2": RUNS / "seat_s5L8_mu0_go", "patch_a3": RUNS / "seat_s5L12_mu0_go",   # v6: (a'') joins
-           "patch_b2": RUNS / "seat_s6L12_mu0"}                                                                                # v7: (b2) joins
-LABEL = {"js5": "js5", "patch_a": "(a)", "patch_a2": "(a')", "patch_a3": "(a'')", "patch_b2": "(b2)", "patch_b2r": "(b2) rep"}
-H = ("js5",) + tuple(PATCHES) + ("patch_b2r",)            # v7: 'patch_b2r' = the (b2) repeat instances (SOAK_rep, SOAK52_rep)
-REP = {"patch_b2r": ("patch_b2", {"SOAK": "SOAK_rep", "SOAK52": "SOAK52_rep"})}
+           "patch_b2": RUNS / "seat_s6L12_mu0",
+           "patch_b1": RUNS / "seat_s9L12_mu02A", "patch_b2p": RUNS / "seat_s9L12_mu0", "patch_cD": RUNS / "seat_sDL12_mu0"}   # v8: (b1), (b2'), (cD) join;                                                                                # v7: (b2) joins
+LABEL = {"js5": "js5", "patch_a": "(a)", "patch_a2": "(a')", "patch_a3": "(a'')", "patch_b2": "(b2)", "patch_b2r": "(b2) rep",
+         "patch_b1": "(b1)", "patch_b1r": "(b1) rep", "patch_b2p": "(b2')", "patch_cD": "(cD)"}
+H = ("js5", "patch_a", "patch_a2", "patch_a3", "patch_b2", "patch_b2r", "patch_b1", "patch_b1r", "patch_b2p", "patch_cD")   # v8: FEA3D-2's order;            # v7: 'patch_b2r' = the (b2) repeat instances (SOAK_rep, SOAK52_rep)
+REP = {"patch_b2r": ("patch_b2", {"SOAK": "SOAK_rep", "SOAK52": "SOAK52_rep"}), "patch_b1r": ("patch_b1", {"SOAK": "SOAK_rep", "SOAK52": "SOAK52_rep"})}
+SHANK_MOMENTS = ("patch_b2", "patch_b1", "patch_b2p", "patch_cD")   # v8: screw moments from shank.json (the v7 treatment of (b2))
+RING_ON_SEAT = ("patch_b2", "patch_b1", "patch_b2p", "patch_cD")    # drawn R0.2 edge: the ring-family P+Q is the seat line
+LOCAL_EXCLUDE = ("patch_cD",)                                       # R3: cD's local values beside, not entered
+C1_INST = ("patch_b1", "patch_b1r")                                 # R3: (b1)'s seat line at C1
+MF_NOTE = ("the seat-line P+Q is NOT shown mesh-converged: s9 -> s6 +12 to +18 %, s6 -> cD -1.5 to -7.3 %, not monotonic, mesh and geometry "
+           "not split (FEA3D-2, CHANGELOG 252 (1)); quoted as found; extrapolations are information only (lead R4)")
+CAD_BASIS = ("every J-FWD FE except cD is on the interim TC-01 (history/ENG-TC-01.step.1ad07e472709b1b2, d10.5 flats); the final part "
+             "fcb3b5b93bebdb01 (d11.2) removes 104.037 mm3; the wall at the hole (2.688 mm) is unchanged and the head footprint is inside "
+             "both flats; the effect is ASSUMED small (lead R8; CHANGELOG 249 (11))")
+PATCH_SHA = {   # v8: hub jfwd_patches files read, sha256/16 (FEA3D-2 publication, CHANGELOG 252)
+    "seat_s5L8_mu0": {"seatforce.json": "881bd80f1f7e50f4", "compare.json": "57724671790d58e0", "shank.json": "412becc103964e88",
+                      "runcmp_js5_mu0_T3750_g078.json": "bb4b1bf65698cf59", "meta.json": "7d83b099b59efc1b"},
+    "seat_s5L8_mu0_go": {"seatforce.json": "31809993c76bdbba", "compare.json": "08fd149167aed345", "shank.json": "a9df8135a22c50f0",
+                         "runcmp_js5_mu0_T3750_g078.json": "a9ded921af87e2a5", "meta.json": "893bb4314f5a962c"},
+    "seat_s5L12_mu0_go": {"seatforce.json": "2866b53d2a0142d2", "compare.json": "5041b4179e3bb536", "shank.json": "06e7090b26995c9e",
+                          "runcmp_js5_mu0_T3750_g078.json": "3cda6193a39c4a86", "meta.json": "02528aa52fd491a4"},
+    "seat_s6L12_mu0": {"seatforce.json": "9eb36a729ef6b5a5", "compare.json": "727e10ba6c8fb41b", "shank.json": "280e383e5b87dd07",
+                       "runcmp_js5_mu0_T3750_g078.json": "d3b1ec0ec36b25e6", "meta.json": "b333ee2994cc6fb0",
+                       "envelope_candidate.json": "de99e3cd582d7f8f", "summary.json": "961b19102a002f6b"},
+    "seat_s9L12_mu02A": {"seatforce.json": "553a0ed1cbe51548", "compare.json": "eba047e47f69e8af", "shank.json": "a7c05620613b091a",
+                         "runcmp_js5_mu0_T3750_g078.json": "65dce4c6b8eeca3d", "meta.json": "806ecf80a7992d4f"},
+    "seat_s9L12_mu0": {"seatforce.json": "722b28f49473b8dc", "compare.json": "0ae76ed185599268", "shank.json": "c402e74c125b5182",
+                       "runcmp_js5_mu0_T3750_g078.json": "2ba6a90e8f45c033", "meta.json": "0cd19a44ade24b9f"},
+    "seat_sDL12_mu0": {"seatforce.json": "52ab8f40fae1bb75", "compare.json": "c891db7dcb3445c9", "shank.json": "0ef43b2e27a72e8c",
+                       "runcmp_js5_mu0_T3750_g078.json": "9388cce4e668e44d", "meta.json": "675917103538c9b3"}}
 B2 = ("patch_b2", "patch_b2r")
 
 
@@ -119,15 +169,23 @@ def H_at(st):
 
 PATCH = PATCHES["patch_a"]
 P_SEATF, P_CMP, P_RUNCMP, P_META = (PATCH / n for n in ("seatforce.json", "compare.json", "runcmp_js5_mu0_T3750_g078.json", "meta.json"))
-F_ENV = Path("/home/claude/work/fea3d/results/v352/jfwd_soak_envelope_v352_v3.json")   # v7: the ADOPTED envelope v3 (lead 15:55Z)
-ENV_SHA16 = "0872de4ea7e3601d"
+HUBA = Path("/home/claude/work/shared-fallback/engine/04-fea/assembly3d_v352")
+F_ENV = HUBA / "results/v352/jfwd_soak_envelope_v352_v6.json"     # v8: the FINAL envelope v6 (lead R1; v7 read the ADOPTED v3 0872de4ea7e3601d)
+ENV_SHA16 = "43a5d78b67c615fc"
+F_V7IN = HUBA / "results/v352/jfwd_v7inputs_cD_v352.json"        # v8: the input record with v6 (lead 05:27Z (3))
+F_MC = HUBA / "results/v352/jfwd_b1_meshcorr_v352.json"          # v8: the C1 record
+assert sha(F_V7IN) == "5a41c8d74897bdda" and sha(F_MC) == "adac16afd42ef7bd", (sha(F_V7IN), sha(F_MC))
 assert sha(F_ENV) == ENV_SHA16, ("adopted envelope changed", sha(F_ENV))
 F_B2C = PATCHES["patch_b2"] / "envelope_candidate.json"                                # FEA3D's (b2) candidate (cross-check of the (b2) rows)
 INPUT_FILES = {"js5_relax": F_RELAX, "js5_seatforce": F_SEATF, "js5_screw_bend": F_BEND, "js5_cells": F_CELLS, "relax_v3_module": V3,
                "fea3d_soak_envelope": F_ENV, "patch_b2_envelope_candidate": F_B2C, "patch_b2_shank": PATCHES["patch_b2"] / "shank.json",
-               "patch_b2_summary": PATCHES["patch_b2"] / "summary.json"}
+               "patch_b2_summary": PATCHES["patch_b2"] / "summary.json", "fea3d_v7inputs_cD_record": F_V7IN, "fea3d_b1_meshcorr": F_MC}
 for h, d in PATCHES.items():
     for n in ("seatforce.json", "compare.json", "runcmp_js5_mu0_T3750_g078.json", "meta.json"):
+        INPUT_FILES[f"{h}_{n.split('.')[0]}"] = d / n
+for h, d in PATCHES.items():                       # v8: every hub patch file read is sha16-asserted
+    for n, s16 in PATCH_SHA[d.name].items():
+        assert sha(d / n) == s16, (d.name, n, sha(d / n))
         INPUT_FILES[f"{h}_{n.split('.')[0]}"] = d / n
 
 _rel = json.loads(F_RELAX.read_text())
@@ -136,11 +194,14 @@ _SF = {h: json.loads((d / "seatforce.json").read_text()) for h, d in PATCHES.ite
 _CM = {h: json.loads((d / "compare.json").read_text()) for h, d in PATCHES.items()}
 _RC = {h: json.loads((d / "runcmp_js5_mu0_T3750_g078.json").read_text()) for h, d in PATCHES.items()}
 _MT = {h: json.loads((d / "meta.json").read_text()) for h, d in PATCHES.items()}
-_SH = {"patch_b2": json.loads((PATCHES["patch_b2"] / "shank.json").read_text())}        # v7: (b2) screw moments incl. the repeats
+_SH = {h: json.loads((PATCHES[h] / "shank.json").read_text()) for h in SHANK_MOMENTS}        # v7: (b2) screw moments incl. the repeats
 _B2C = json.loads(F_B2C.read_text())
 _sfp, _cmp, _rc, _meta = _SF["patch_a"], _CM["patch_a"], _RC["patch_a"], _MT["patch_a"]
 _env = json.loads(F_ENV.read_text())
-assert _env["version"] == "v3" and _env["status"].startswith("ADOPTED"), (_env["version"], _env["status"])
+assert _env["version"] == "v6" and _env["status"].startswith("FINAL"), (_env["version"], _env["status"])
+_V7IN = json.loads(F_V7IN.read_text())
+_MC = json.loads(F_MC.read_text())
+assert _V7IN["inputs_sha16"]["results/v352/jfwd_soak_envelope_v352_v6.json"] == ENV_SHA16
 SP = _rel["shell_pull"]
 FE = {k: {"F_S": SP[k]["screw_force_N"], "F_fit": SP[k]["FIT_radial_N"], "F_sh": SP[k]["F_sh_N"]} for k in ("PRELOAD", "SOAK70", "SOAK", "SOAK52")}
 assert abs(FE["SOAK70"]["F_S"] - 5694.7) < 0.05 and abs(FE["SOAK"]["F_S"] - 7382.8) < 0.05 and abs(FE["SOAK52"]["F_S"] - 6559.9) < 0.05
@@ -155,6 +216,9 @@ assert ORDER["patch_a3"] == ["SEAT", "PRELOAD", "SOAK70", "FA1S", "SOAK", "SOAK5
 assert ORDER["patch_b2"] == ["SEAT", "PRELOAD", "SOAK52", "SOAK", "SOAK70", "FA1S", "SOAK_rep", "SOAK52_rep"]
 ORDER["patch_b2r"] = ORDER["patch_b2"]
 assert _MT["patch_b2"]["step_base"] == {"SOAK_rep": "SOAK", "SOAK52_rep": "SOAK52"}
+assert ORDER["patch_b1"] == ORDER["patch_b2"] and _MT["patch_b1"]["step_base"] == _MT["patch_b2"]["step_base"]
+assert ORDER["patch_b2p"] == ORDER["patch_cD"] == ["SEAT", "PRELOAD", "SOAK52", "SOAK", "SOAK70", "FA1S"]
+ORDER["patch_b1r"] = ORDER["patch_b1"]
 SOAKS = ("SOAK70", "SOAK", "SOAK52")
 STATES = ("PRELOAD", "SOAK70", "SOAK", "SOAK52", "FA1S")
 
@@ -185,8 +249,8 @@ def hist_row(h, st):
     z0 = [r for r in _CM[hp]["steps"][step]["z0_gradient"] if r["family"] == "seat" and abs(r["delta_deg"] - 6.051) < 0.01 and abs(r["z_prime_mm"]) < 0.01]
     assert len(z0) == 1
     z0 = z0[0]
-    if hp == "patch_b2":                           # v7: (b2) moments from its shank.json (patch values; equal to runcmp 'A' where both exist)
-        sh = _SH["patch_b2"]["steps"][step]
+    if hp in SHANK_MOMENTS:                        # v7: (b2) moments from its shank.json (patch values; equal to runcmp 'A' where both exist); v8: + (b1), (b2'), (cD)
+        sh = _SH[hp]["steps"][step]
         mm = [sh["M_max_threaded"], sh["M_max_shank_in_TC01"]]
         if step in _RC[hp]["steps"]:
             for k_ in ("M_max_threaded", "M_max_shank_in_TC01"):
@@ -195,6 +259,7 @@ def hist_row(h, st):
         rc = _RC[hp]["steps"][st]
         mm = [rc["M_max_threaded"][key], rc["M_max_shank_in_TC01"][key]]
     secs = list(c["screw_sections"].values()) + mm
+    xs = [float(k[1:]) if k.startswith("x") else None for k in c["screw_sections"]] + [x.get("x") for x in mm]   # v8: x' of the max (FEA3D-2's rule)
     uh = c["under_head_band"]
     nh = s["screw"]["HEAD_on_screw_along_n_N"]
     seat_n = s["seat_TC02"]["along_n_inward_N"]
@@ -207,7 +272,8 @@ def hist_row(h, st):
            "seat_line_PmPb_MPa": z0["PmPb_global" if h == "js5" else "PmPb_patch"], "seat_line_MS_PQ": z0["MS_PQ_global" if h == "js5" else "MS_PQ_patch"],
            "seat_line_T_C": z0["T_mean_C"],
            "ring_line_d8p02_PmPb_MPa": c["lines"]["ring"]["PmPb"], "ring_line_d8p02_MS_PQ": c["lines"]["ring"]["MS_PQ_2Fty"],
-           "M_max_Nmm": max(x["M"] for x in secs), "N_section_max_N": max(x["N"] for x in secs),
+           "M_max_Nmm": max(x["M"] for x in secs), "M_max_at_x_mm": xs[max(range(len(secs)), key=lambda i: secs[i]["M"])],
+           "N_section_max_N": max(x["N"] for x in secs),
            "UH_band_vm_MPa": uh["vm_MPa"], "UH_band_T_C": uh["T_C"],
            "UH_band_MS_strain_min_n15_n30": min(uh["neuber_MS_strain_n15"], uh["neuber_MS_strain_n30"])}
     if h == "js5":
@@ -215,8 +281,16 @@ def hist_row(h, st):
         out["ring_line_d8p126_PmPb_MPa"], out["ring_line_d8p126_MS_PQ"] = r, m
     # v7 re-arbitration: the ring family's P+Q line per instance.  Sharp edge: the ring lines (d8.02 z'3, js5 d-8.126 z'3).  (b2): the contact
     # ring sits on d+6.051 z'0 (FEA3D 15:37Z), so its ring-family P+Q IS the seat line; its d8.02 z'3 line stays as information.
-    if hp == "patch_b2":
-        out["ring_family_PmPb_MPa"], out["ring_family_line"] = z0["PmPb_patch"], "d+6.051 z'0 (contact ring on the seat line, (b2))"
+    if h in C1_INST:                               # v8 (R3): (b1)'s seat line at C1 = as solved x ratio_floored (meshcorr governing line)
+        g = _MC["states"][st]["instances"][step]["governing_line"]
+        assert abs(g["PmPb_b1_MPa"] - out["seat_line_PmPb_MPa"]) <= 0.05 and abs(g["MS_b1"] - out["seat_line_MS_PQ"]) <= 0.0005, (h, st, g)
+        _2fty = g["PmPb_b1_MPa"] * (1.0 + g["MS_b1"])
+        assert abs(_2fty / g["C1_PmPb_MPa"] - 1.0 - g["C1_MS"]) < 0.002, (h, st, _2fty, g)
+        assert abs(g["PmPb_b1_MPa"] * g["ratio_floored"] - g["C1_PmPb_MPa"]) <= 0.1, (h, st, g)
+        out["seat_line_as_solved_s9"] = {"PmPb_MPa": g["PmPb_b1_MPa"], "MS_PQ": g["MS_b1"], "ratio_floored": g["ratio_floored"]}
+        out["seat_line_PmPb_MPa"], out["seat_line_MS_PQ"] = g["C1_PmPb_MPa"], g["C1_MS"]
+    if hp in RING_ON_SEAT:
+        out["ring_family_PmPb_MPa"], out["ring_family_line"] = out["seat_line_PmPb_MPa"], f"d+6.051 z'0 (contact ring on the seat line, drawn R0.2 edge, {LABEL[h]})"
     else:
         rv = [v for v in (out["ring_line_d8p02_PmPb_MPa"], out.get("ring_line_d8p126_PmPb_MPa")) if v is not None]
         out["ring_family_PmPb_MPa"], out["ring_family_line"] = max(rv), "ring lines d8.02 z'3 / d-8.126 z'3 (sharp edge)"
@@ -230,10 +304,10 @@ HISTS = {st: {h: hist_row(h, st) for h in H_at(st)} for st in STATES}
 B2_GLOBAL_CHECK = {}
 for _h in PATCHES:
     for _st in STATES:
-        _ref = "patch_a3" if _h == "patch_b2" else "patch_a"
+        _ref = "patch_a3" if _h in RING_ON_SEAT else "patch_a"
         _g1, _g2 = _CM[_ref]["steps"][_st]["global_same_sets"], _CM[_h]["steps"][_st]["global_same_sets"]
-        if _h == "patch_b2":
-            B2_GLOBAL_CHECK[_st] = {"ring_global_b2": _g2["lines"]["ring"]["PmPb"], "ring_global_a3": _g1["lines"]["ring"]["PmPb"],
+        if _h in RING_ON_SEAT:                      # v8: (b1), (b2'), (cD) are on their own meshes too: recorded, not asserted
+            B2_GLOBAL_CHECK[_st if _h == "patch_b2" else f"{_st}|{LABEL[_h]}"] = {"ring_global_b2": _g2["lines"]["ring"]["PmPb"], "ring_global_a3": _g1["lines"]["ring"]["PmPb"],
                                     "seat_global_b2": _g2["lines"]["seat"]["PmPb"], "seat_global_a3": _g1["lines"]["seat"]["PmPb"]}
             continue
         assert abs(_g1["lines"]["ring"]["PmPb"] - _g2["lines"]["ring"]["PmPb"]) < 0.05, (_h, _st)
@@ -248,30 +322,50 @@ for _st in STATES:
         _r = HISTS[_st][_h]
         ENV_XCHK[f"{_st}|{_l}"] = {"N_plane_fea3d": _e["N_plane_N"][_l], "N_plane_here": _r["N_plane_N"], "N_head_here": _r["N_head_N"],
                                    "window_fea3d": _e["seat_window_N"][_l], "window_here": _r["seat_window_N"],
-                                   "seat_line_PmPb_fea3d": _e["lines"]["d+6.051_z+0.0"]["PmPb_MPa"][_l], "seat_line_PmPb_here": _r["seat_line_PmPb_MPa"]}
+                                   "seat_line_PmPb_fea3d": _e["lines"]["d+6.051_z+0.0"]["PmPb_MPa"].get(_l), "seat_line_PmPb_here": _r["seat_line_PmPb_MPa"]}
         assert abs(_e["N_plane_N"][_l] - _r["N_plane_N"]) < 0.5 and abs(_e["seat_window_N"][_l] - _r["seat_window_N"]) < 0.5, (_st, _l)
-        assert abs(_e["lines"]["d+6.051_z+0.0"]["PmPb_MPa"][_l] - _r["seat_line_PmPb_MPa"]) < 0.15, (_st, _l)
+        if _l in _e["lines"]["d+6.051_z+0.0"]["PmPb_MPa"]:
+            assert abs(_e["lines"]["d+6.051_z+0.0"]["PmPb_MPa"][_l] - _r["seat_line_PmPb_MPa"]) < 0.15, (_st, _l)
+        else:
+            assert _h in LOCAL_EXCLUDE, (_st, _l)          # v8: cD is not in v6's lines (R3)
 
 
 def envelope(st):
     X = HISTS[st]
     HH = tuple(X)
-    hi = lambda k: max(HH, key=lambda h: X[h][k])
-    lo = lambda k: min(HH, key=lambda h: X[h][k])
-    ring = [X[h]["ring_family_PmPb_MPa"] for h in HH]                 # v7: (b2)'s ring family = its seat line
+    HL = tuple(h for h in HH if h not in LOCAL_EXCLUDE)               # v8 (R3): the local quantities without cD
+    hi = lambda k, S=HH: max(S, key=lambda h: X[h][k])
+    lo = lambda k, S=HH: min(S, key=lambda h: X[h][k])
+    ring = [X[h]["ring_family_PmPb_MPa"] for h in HL]                 # v7: (b2)'s ring family = its seat line (v8: also (b1), (b2'))
     Ns = [X[h]["N_head_N"] for h in HH]
     e = {"N_head_N": X[hi("N_head_N")]["N_head_N"], "N_head_from": hi("N_head_N"), "N_head_min_N": X[lo("N_head_N")]["N_head_N"], "N_head_min_from": lo("N_head_N"),
          "seat_window_N": X[lo("seat_window_N")]["seat_window_N"], "seat_window_from": lo("seat_window_N"),
-         "seat_line_PmPb_MPa": X[hi("seat_line_PmPb_MPa")]["seat_line_PmPb_MPa"], "seat_line_MS_PQ": X[lo("seat_line_MS_PQ")]["seat_line_MS_PQ"],
-         "seat_line_from": lo("seat_line_MS_PQ"),
+         "seat_line_PmPb_MPa": X[hi("seat_line_PmPb_MPa", HL)]["seat_line_PmPb_MPa"], "seat_line_PmPb_from": hi("seat_line_PmPb_MPa", HL),
+         "seat_line_MS_PQ": X[lo("seat_line_MS_PQ", HL)]["seat_line_MS_PQ"], "seat_line_from": lo("seat_line_MS_PQ", HL),
          "ring_line_PmPb_MPa": max(ring), "M_max_Nmm": X[hi("M_max_Nmm")]["M_max_Nmm"], "M_from": hi("M_max_Nmm"),
-         "N_section_max_N": X[hi("N_section_max_N")]["N_section_max_N"], "UH_band_MS_strain_min": X[lo("UH_band_MS_strain_min_n15_n30")]["UH_band_MS_strain_min_n15_n30"],
-         "UH_from": lo("UH_band_MS_strain_min_n15_n30"),
-         "spread_N_rel": round((max(Ns) - min(Ns)) / min(Ns), 4)}
+         "M_max_at_x_mm": X[hi("M_max_Nmm")]["M_max_at_x_mm"], "N_section_max_N": X[hi("N_section_max_N")]["N_section_max_N"],
+         "UH_band_MS_strain_min": X[lo("UH_band_MS_strain_min_n15_n30", HL)]["UH_band_MS_strain_min_n15_n30"],
+         "UH_from": lo("UH_band_MS_strain_min_n15_n30", HL),
+         "spread_N_rel": round((max(Ns) - min(Ns)) / min(Ns), 4),
+         "instances_resultants": [LABEL[h] for h in HH], "instances_local": [LABEL[h] for h in HL]}
     return e
 
 
 ENV = {st: envelope(st) for st in STATES}
+# v8: the envelope here reproduces FEA3D-2's input record (v7_convention view): 9 numbers, M_max_at_x and 7 'from' fields per state
+_NUMK = ("N_head_N", "N_head_min_N", "seat_window_N", "seat_line_PmPb_MPa", "seat_line_MS_PQ", "M_max_Nmm", "N_section_max_N",
+         "UH_band_MS_strain_min", "spread_N_rel", "M_max_at_x_mm")
+_TOLK = {"seat_line_MS_PQ": 0.0005, "UH_band_MS_strain_min": 0.0005, "spread_N_rel": 0.00005}
+_FROMK = ("N_head_from", "N_head_min_from", "seat_window_from", "seat_line_PmPb_from", "seat_line_from", "M_from", "UH_from")
+V7IN_XCHK = {}
+for _st in STATES:
+    _v = _V7IN["views"][_st]["v7_convention"]
+    for _k in _NUMK:
+        assert abs(ENV[_st][_k] - _v[_k]) <= _TOLK.get(_k, 0.05), (_st, _k, ENV[_st][_k], _v[_k])
+    for _k in _FROMK:
+        assert ENV[_st][_k] == _v[_k], (_st, _k, ENV[_st][_k], _v[_k])
+    assert ENV[_st]["instances_resultants"] == _v["instances_resultants"] and ENV[_st]["instances_local"] == _v["instances_local"], _st
+    V7IN_XCHK[_st] = {"equal_within_FEA3D2_tolerances": True, "numbers": list(_NUMK), "from_fields": list(_FROMK)}
 
 # ---- model temperatures per FE state (A4-80 deltas: the FE screw is A4-80)
 _tL, _aL, _cL = ROWS4["GVLO"]
@@ -314,7 +408,7 @@ KB_SRC = {"lo": f"{LABEL[H70_LO]} SOAK70 head force {N70[H70_LO]} N", "hi": f"{L
 KB_V4 = {"lo_js5_SOAK70": RV3.K_B5, "hi_patch_SOAK70": calib_kb(K_SH_JS5, N70["patch_a"])}
 
 # ---- c per family and per k_b end: worst-history FE P+Q over the model's F_sh at each state
-PQ_SEAT = {st: max(HISTS[st][h]["seat_line_PmPb_MPa"] for h in H_at(st)) for st in ("PRELOAD",) + SOAKS}
+PQ_SEAT = {st: max(HISTS[st][h]["seat_line_PmPb_MPa"] for h in H_at(st) if h not in LOCAL_EXCLUDE) for st in ("PRELOAD",) + SOAKS}
 PQ_RING = {st: ENV[st]["ring_line_PmPb_MPa"] for st in ("PRELOAD",) + SOAKS}
 
 
@@ -498,7 +592,7 @@ def opt_params(nm, end, fam):
 
 
 if __name__ == "__main__":
-    res = {"id": "jfwd_relax_v352", "version": "v7", "date": "2026-10-20", "owner": "mechanical", "basis": __doc__.strip(),
+    res = {"id": "jfwd_relax_v352", "version": "v8", "date": "2026-10-21", "owner": "mechanical", "basis": __doc__.strip(),
            "inputs": {k: {"path": str(p), "sha256_16_at_read": sha(p)} for k, p in INPUT_FILES.items()}}
     res["inputs"]["rows"] = SRC4
     res["inputs"]["constants"] = {"k_c_N_mm": round(K_C), "k_sh_K_js5_N_mm": round(K_SH_JS5, 1), "embedding_um": {k: v * 1e3 for k, v in EMB.items()},
@@ -510,6 +604,9 @@ if __name__ == "__main__":
                             "run": str(PATCHES[src_of(h, "SOAK")[0]]) if h != "js5" else "hub jfwd_interim js5"} for h in H}
     res["b2_global_columns_vs_a3"] = B2_GLOBAL_CHECK
     res["fea3d_envelope_crosscheck"] = ENV_XCHK
+    res["fea3d_v7inputs_cD_crosscheck"] = V7IN_XCHK
+    res["cD_beside_R3"] = {"rule": _V7IN["rule"], "beside": _V7IN["beside"], "cD_rows": _V7IN["cD_rows"], "MF_note": MF_NOTE}
+    res["cad_basis_R8"] = CAD_BASIS
     res["k_b_bracket"] = {"lo_N_mm": round(KB["lo"]), "lo_from": KB_SRC["lo"], "hi_N_mm": round(KB["hi"]), "hi_from": KB_SRC["hi"],
                           "v4_bracket_N_mm": {k: round(v) for k, v in KB_V4.items()}, "widened": KB["lo"] < KB_V4["lo_js5_SOAK70"] - 1.0}
     res["c_move_v4_to_v5"] = {e5: {fam: {"v4": round(CFAM_V4[e4][fam][0], 5), "v4_state": CFAM_V4[e4][fam][1], "v5": round(CFAM[e5][fam][0], 5),
@@ -639,38 +736,38 @@ if __name__ == "__main__":
                 gmin = min((v["g_at_MS0_mm"] for v in per.values() if isinstance(v["g_at_MS0_mm"], float)), default=None)
                 band[f"{e}|{fam}|{FV:.0f}"] = {"g_max_mm": gmin, "per_state": per}
     res["PQ_select_fit_band_on_envelope_IN718"] = band
-    # ---- v7: what moves from v6 (lead 15:37Z order: 'flag every quoted row that turns negative')
-    _v6 = json.loads((J / "jfwd_relax_v352_v6.json").read_text())
-    mv = {"k_b_bracket": {"v6": {k: _v6["k_b_bracket"][f"{k}_N_mm"] for k in ("lo", "hi")}, "v7": {k: round(KB[k]) for k in ("lo", "hi")},
-                          "v6_from": {k: _v6["k_b_bracket"][f"{k}_from"] for k in ("lo", "hi")}, "v7_from": KB_SRC},
-          "tilt": {"v6": {k: _v6["tilt_basis_Fc"][k] for k in ("slope_b", "intercept_a_Nmm", "M_pre_env_Nmm_at_3750N", "M_pre_min_Nmm_at_3750N_range_basis")},
-                   "v7": {"slope_b": round(B_M, 4), "intercept_a_Nmm": round(A_M, 1), "M_pre_env_Nmm_at_3750N": M_PRE_ENV,
+    # ---- v8: what moves from v7 (lead 15:37Z order: 'flag every quoted row that turns negative')
+    _v7 = json.loads((J / "jfwd_relax_v352_v7.json").read_text())
+    mv = {"k_b_bracket": {"v7": {k: _v7["k_b_bracket"][f"{k}_N_mm"] for k in ("lo", "hi")}, "v8": {k: round(KB[k]) for k in ("lo", "hi")},
+                          "v7_from": {k: _v7["k_b_bracket"][f"{k}_from"] for k in ("lo", "hi")}, "v8_from": KB_SRC},
+          "tilt": {"v7": {k: _v7["tilt_basis_Fc"][k] for k in ("slope_b", "intercept_a_Nmm", "M_pre_env_Nmm_at_3750N", "M_pre_min_Nmm_at_3750N_range_basis")},
+                   "v8": {"slope_b": round(B_M, 4), "intercept_a_Nmm": round(A_M, 1), "M_pre_env_Nmm_at_3750N": M_PRE_ENV,
                           "M_pre_min_Nmm_at_3750N_range_basis": M_PRE_MIN}},
-          "N_ratio": {"v6": _v6["inputs"]["constants"]["N_ratio"], "v7": round(N_RATIO, 4)},
-          "c": {e: {fam: {"v6": _v6["calibration_bracket_and_model_check"][e][f"c_{fam}"]["used"], "v7": round(CFAM[e][fam][0], 5),
-                          "v7_state": CFAM[e][fam][1]} for fam in ("seat", "ring")} for e in KB},
+          "N_ratio": {"v7": _v7["inputs"]["constants"]["N_ratio"], "v8": round(N_RATIO, 4)},
+          "c": {e: {fam: {"v7": _v7["calibration_bracket_and_model_check"][e][f"c_{fam}"]["used"], "v8": round(CFAM[e][fam][0], 5),
+                          "v8_state": CFAM[e][fam][1]} for fam in ("seat", "ring")} for e in KB},
           "verdict_24": {}, "seat_force_vs_lowest_window": {}, "series_compliance_f_max": {}, "PQ_band_g_max": {}}
     for k, v in verdict.items():
-        o = _v6["verdict_24"].get(k)
+        o = _v7["verdict_24"].get(k)
         keys = ("F_S_min_N", "n_unseated", "cold_end_F_S_min_2250_N", "fibre_over_Rp_max", "screw_shakedown_min_MS", "max_screw_set_um", "max_wall_set_um",
                 "F_S_max_N", "screw_fibre_max_MPa")
-        mv["verdict_24"][k] = {kk: {"v6": (o or {}).get(kk), "v7": v[kk], "moved": (o or {}).get(kk) != v[kk]} for kk in keys}
+        mv["verdict_24"][k] = {kk: {"v7": (o or {}).get(kk), "v8": v[kk], "moved": (o or {}).get(kk) != v[kk]} for kk in keys}
     for e in KB:
         for st in SOAKS + ("PRELOAD",):
             r7 = chk[e]["states"].get(st)
-            r6_ = _v6["calibration_bracket_and_model_check"][e]["states"].get(st)
+            r6_ = _v7["calibration_bracket_and_model_check"][e]["states"].get(st)
             if r7 is None:
                 continue
             mv["seat_force_vs_lowest_window"][f"{e}|{st}"] = {"model_F_c_N": r7["model"]["F_c_N"], "lowest_window_N": ENV[st]["seat_window_N"],
-                                                              "from": LABEL[ENV[st]["seat_window_from"]], "rel_v7": r7["model_vs_lowest_seat_window_rel"],
-                                                              "rel_v6": (r6_ or {}).get("model_vs_lowest_seat_window_rel")}
+                                                              "from": LABEL[ENV[st]["seat_window_from"]], "rel_v8": r7["model_vs_lowest_seat_window_rel"],
+                                                              "rel_v7": (r6_ or {}).get("model_vs_lowest_seat_window_rel")}
     for e in KB:
-        mv["series_compliance_f_max"][e] = {"v6": _v6["a_series_compliance_IN718_seat_line"].get(e, {}).get("f_max"), "v7": sc.get(e, {}).get("f_max")}
+        mv["series_compliance_f_max"][e] = {"v7": _v7["a_series_compliance_IN718_seat_line"].get(e, {}).get("f_max"), "v8": sc.get(e, {}).get("f_max")}
     for k, v in band.items():
-        mv["PQ_band_g_max"][k] = {"v6": _v6["PQ_select_fit_band_on_envelope_IN718"].get(k, {}).get("g_max_mm"), "v7": v["g_max_mm"]}
+        mv["PQ_band_g_max"][k] = {"v7": _v7["PQ_select_fit_band_on_envelope_IN718"].get(k, {}).get("g_max_mm"), "v8": v["g_max_mm"]}
     mv["FA1S_window_and_M"] = {"lowest_window_N": ENV["FA1S"]["seat_window_N"], "from": LABEL[ENV["FA1S"]["seat_window_from"]],
                                "M_max_Nmm": ENV["FA1S"]["M_max_Nmm"], "M_from": LABEL[ENV["FA1S"]["M_from"]]}
-    res["v6_to_v7_moves"] = mv
+    res["v7_to_v8_moves"] = mv
     s = json.dumps(res, indent=1, default=float)
     OUT.write_text(s)
     print(OUT.name, hashlib.sha256(s.encode()).hexdigest()[:16])
@@ -694,6 +791,6 @@ if __name__ == "__main__":
     print("c move", json.dumps(res["c_move_v4_to_v5"]))
     print("MOVES", json.dumps({k: v for k, v in mv.items() if k != "verdict_24"}, default=float)[:4000])
     for k, v in mv["verdict_24"].items():
-        print("MV", k, {kk: (x["v6"], x["v7"]) for kk, x in v.items() if x["moved"]})
+        print("MV", k, {kk: (x["v7"], x["v8"]) for kk, x in v.items() if x["moved"]})
     for k, v in band.items():
         print("PQ band", k, v["g_max_mm"], {st: (x["g_at_MS0_mm"], x["MS_at_gap"][0.078]) for st, x in v["per_state"].items()})

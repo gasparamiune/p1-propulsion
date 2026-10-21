@@ -1,0 +1,295 @@
+{
+ "id": "jf1b_loctite_v352",
+ "version": "v1",
+ "date": "2026-10-20",
+ "owner": "mechanical",
+ "basis": "J-F1b cycle temperature (rule of lead 19:53:27Z item 4) and the LOCTITE 243 tap-zone temperature at the abort TB states (same item;\ncontinued 20:30:00Z and 20:49:35Z: read-only).  Mechanical, 2026-10-20, v1.  Reads only existing fields and records (no solver run, no\nthermal run, no ccx); every file is read into memory (npz arrays by numpy, JSON as text); nothing is decompressed to disk.\nSIM (CalculiX thermal / S-AX fields) and ASSUMED (the TB surrogate) as tagged; not physical approval.\n\nJ-F1b RULE (lead 19:53:27Z (4), verbatim): \"Peak = max(160 C, the highest J-FWD spring/screw-zone temperature in any soak or abort TB\nstate that rows v7 used, + 10 C), rounded up to the next 5 C. Dwell at peak is at least that state's computed time above (peak - 10 C).\"\n  States rows v7 used (jfwd_in718_rows_v352_v7.json 'states', thermal definitions from FEA3D js5 meta.json step_defs, the same in every\n  history (a), (a'), (a''), (b2)): PRELOAD 20 C; SOAK70 = S-AX GVLO field B1_70.7 mapped; SOAK = uniform 'soak 64.7 s GVLO row means'\n  (TC-01 158.0 / TC-02 96.0 / SCREW 127.0); SOAK52 = S-AX GVLO field B1_51.7 mapped; FA1S = uniform 45.6 C.  No abort TB state is used by\n  rows v7 (no TB, abort or B1_ key in the file).\n  Spring / screw zone (drawn and ruled geometry): the screw (head dk max 9.5, ISO 7380-1 M5; shank and thread d 5.0; thread engaged in the\n  TC-02 tap from the TC-02 OD to the tip at r_flat + t_spring,min - L_max = 31.313 + 0.44 - 10.8 = 20.953) and the disc spring HW-170 solid\n  under the head (De 10.0 h12 max, Di 5.2; the full annulus bears on the TC-01 flat at r_flat 31.313 and under the head), each placed with\n  the ruled offsets: axial 0.3705 (F4, the z-direction centring stack) and tangential 0.557 (full float; F2 registered stack 0.4865 is\n  inside it).  The axisymmetric fields have no hole: a point (y tangential, dz axial) on the flat is read at r = sqrt(r_flat^2 + y^2),\n  z = z_row + dz, z_row = TC-01 forward end - 12.000 (hole row 12.000 BASIC from datum B, the TC-01 forward end face); the head, outside\n  the TC-01 material, takes the TC-01 OD value at its z (as the part-aware nearest-node mapping does).\n  Values: (1) FEA3D's js5 records of the states as applied (meta mapped_fields, post steps: SCREW node set max / mean, shank maximum,\n  TC-01 band, TC-02 thread); (2) the S-AX state field itself (res.npz T, the file FEA3D mapped: quadratic CAX6 interpolation on the\n  TC-01 / TC-02 elements) over the zone; (3) the B1 history of the thermal run behind the S-AX states (every output frame of\n  DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_GVLO, thermal frame z = S-AX z + 6.544 (run.json dz_frame), linear interpolation on the\n  thermal nodes) for the 'computed time above' (linear crossing interpolation as tf1_exposure_v352.py).\nLOCTITE 243 tap zone at the abort TB states: the adopted abort value A = 150 C (CHANGELOG 243 (3), 16:53Z) on both gap-conductance\n  bounds: the TB_a150 state field = the B1 end-of-burn field (t 21.651 s) of the rev-4 thermal run + the uniform shift_K of the S-AX\n  TB_a150 run.json (sax.py 'case_to_abort', ASSUMED surrogate; the S-AX res.npz of the TB states are not on disk, so the field is read\n  from the thermal history at the same frame plus the recorded shift, which is how sax.py built it).  Tap zone = TC-02 nodes within the\n  thread band |dz| <= 2.5 + 0.3705 of the hole row and r from the screw tip 20.953 to the TC-02 OD; the TC-02 part maximum is checked\n  against bpkg_abort_v352_v1 (223.4 / 208.0 C).  The ASSUMED shifted history (the whole B1 history with the shift) is information only.\nUsage: jf1b_loctite_v352.py -> v352/jfwd/jf1b_loctite_v352_v1.json",
+ "inputs": [
+  {
+   "path": "/home/claude/work/mechanical/v352/jfwd/jfwd_in718_rows_v352_v7.json",
+   "sha256_16": "6113d28b64d0dba5"
+  },
+  {
+   "path": "/home/claude/work/shared-fallback/engine/04-fea/assembly3d_v352/jfwd_interim/js5_mu0_T3750_g078_cells.json",
+   "sha256_16": "f9ed41727b0d4a46"
+  },
+  {
+   "path": "/home/claude/work/fea3d/jfwd/runs/js5_mu0_T3750_g078/post.json",
+   "sha256_16": "0a7a6a6f678957f7"
+  },
+  {
+   "path": "/home/claude/work/fea3d/jfwd/runs/js5_mu0_T3750_g078/meta.json",
+   "sha256_16": "782bb37c280f9efa"
+  },
+  {
+   "path": "/home/claude/work/mechanical/runs/structural/L1_thv352_NF2b_GVLO_r10free_cad352/mesh.npz",
+   "sha256_16": "c1b81a9aea53d395"
+  },
+  {
+   "path": "/home/claude/work/mechanical/runs/structural/L1_thv352_NF2b_GVLO_r10free_cad352/B1_70.7/res.npz",
+   "sha256_16": "5d0783af6cdf0a94"
+  },
+  {
+   "path": "/home/claude/work/mechanical/runs/structural/L1_thv352_NF2b_GVLO_r10free_cad352/B1_51.7/res.npz",
+   "sha256_16": "a11bec10dbc54cf7"
+  },
+  {
+   "path": "/home/claude/work/mechanical/v352/tb70/hist/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_GVLO_hist.npz",
+   "sha256_16": "1c083a6c9246abb8"
+  },
+  {
+   "path": "/home/claude/work/mechanical/v352/tb70/hist/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_R4_GVLO_hist.npz",
+   "sha256_16": "b51e5672fb41058e"
+  },
+  {
+   "path": "/home/claude/work/mechanical/v352/tb70/hist/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_R4_GVHI_hist.npz",
+   "sha256_16": "e525fa1ad783b7de"
+  },
+  {
+   "path": "/home/claude/work/mechanical/runs/structural/L1_thv352_NF2b_R4_GVLO_r10free_cad352r4_eh0p1/TB_a150/run.json",
+   "sha256_16": "8511f3049b5dc1b0"
+  },
+  {
+   "path": "/home/claude/work/mechanical/runs/structural/L1_thv352_NF2b_R4_GVHI_r10free_cad352r4_eh0p1/TB_a150/run.json",
+   "sha256_16": "7aa967e846fd2ab0"
+  }
+ ],
+ "geometry": {
+  "r_flat_mm": 31.313,
+  "screw_tip_r_mm": 20.953,
+  "spring_De_max_Di_mm": [
+   10.0,
+   5.2
+  ],
+  "head_dk_max_mm": 9.5,
+  "screw_d_mm": 5.0,
+  "axial_offset_F4_mm": 0.3705,
+  "tangential_offset_full_float_mm": 0.557,
+  "z_row": "TC-01 forward end - 12.000 in each model's own frame"
+ },
+ "states_rows_v7_used": {
+  "PRELOAD": {
+   "kind_in_rows_v7": "soak",
+   "thermal_definition_js5": "PRELOAD 20 C (assembly)",
+   "fea3d_js5_record": {
+    "SCREW_node_set": null,
+    "screw_T_shank_max_C": 20.0,
+    "TC01_band_T_C": 20.0,
+    "TC01_all_T_C": 20.0,
+    "TC02_thread_T_C": 20.0
+   }
+  },
+  "SOAK70": {
+   "kind_in_rows_v7": "soak",
+   "thermal_definition_js5": "soak GVLO B1_70.7 mapped (S-AX field), unpressurised",
+   "fea3d_js5_record": {
+    "SCREW_node_set": {
+     "n_outside": 36,
+     "max_nearest_mm": 0.1334,
+     "T_mean_C": 124.55,
+     "T_min_C": 96.01,
+     "T_max_C": 159.8
+    },
+    "screw_T_shank_max_C": 158.6,
+    "TC01_band_T_C": 156.5,
+    "TC01_all_T_C": 158.1,
+    "TC02_thread_T_C": 97.7
+   }
+  },
+  "SOAK": {
+   "kind_in_rows_v7": "soak",
+   "thermal_definition_js5": "soak 64.7 s GVLO row means, unpressurised",
+   "fea3d_js5_record": {
+    "SCREW_node_set": null,
+    "screw_T_shank_max_C": 127.0,
+    "TC01_band_T_C": 158.0,
+    "TC01_all_T_C": 158.0,
+    "TC02_thread_T_C": 96.0
+   }
+  },
+  "SOAK52": {
+   "kind_in_rows_v7": "soak",
+   "thermal_definition_js5": "soak GVLO B1_51.7 mapped (S-AX field), unpressurised",
+   "fea3d_js5_record": {
+    "SCREW_node_set": {
+     "n_outside": 36,
+     "max_nearest_mm": 0.1334,
+     "T_mean_C": 120.47,
+     "T_min_C": 92.28,
+     "T_max_C": 155.85
+    },
+    "screw_T_shank_max_C": 154.1,
+    "TC01_band_T_C": 151.0,
+    "TC01_all_T_C": 152.9,
+    "TC02_thread_T_C": 94.9
+   }
+  },
+  "FA1S": {
+   "kind_in_rows_v7": "FA1",
+   "thermal_definition_js5": "FA1S 151.04 bar abs, 45.6 C",
+   "fea3d_js5_record": {
+    "SCREW_node_set": null,
+    "screw_T_shank_max_C": 45.6,
+    "TC01_band_T_C": 45.6,
+    "TC01_all_T_C": 45.6,
+    "TC02_thread_T_C": 45.6
+   }
+  }
+ },
+ "abort_TB_states_in_rows_v7": "none (no TB, abort or B1_ key in jfwd_in718_rows_v352_v7.json; its five states are listed above)",
+ "zone_temperatures_by_state": {
+  "SOAK70": {
+   "field": "S-AX GVLO B1_70.7 (L1_thv352_NF2b_GVLO_r10free_cad352/B1_70.7/res.npz)",
+   "spring_footprint_on_TC01_flat_max_C": 160.29,
+   "at_y_dz_mm": [
+    -0.557,
+    -5.37
+   ],
+   "head_max_C": 160.15,
+   "shank_in_TC01_wall_max_C": 158.91,
+   "thread_in_TC02_tap_max_C": 97.65,
+   "thread_in_TC02_tap_min_C": 95.92,
+   "points_outside_the_part_mesh": {
+    "spring": 0,
+    "shank": 0,
+    "thread": 0
+   },
+   "zone_max_C": 160.29,
+   "TC02_OD_at_row_mm": 28.625
+  },
+  "SOAK52": {
+   "field": "S-AX GVLO B1_51.7 (L1_thv352_NF2b_GVLO_r10free_cad352/B1_51.7/res.npz)",
+   "spring_footprint_on_TC01_flat_max_C": 156.56,
+   "at_y_dz_mm": [
+    -0.557,
+    -5.37
+   ],
+   "head_max_C": 156.36,
+   "shank_in_TC01_wall_max_C": 154.57,
+   "thread_in_TC02_tap_max_C": 94.74,
+   "thread_in_TC02_tap_min_C": 92.12,
+   "points_outside_the_part_mesh": {
+    "spring": 0,
+    "shank": 0,
+    "thread": 0
+   },
+   "zone_max_C": 156.56,
+   "TC02_OD_at_row_mm": 28.625
+  },
+  "SOAK": {
+   "field": "uniform (js5 step_defs: 'soak 64.7 s GVLO row means')",
+   "zone_max_C": 158.0,
+   "TC01_C": 158.0,
+   "SCREW_C": 127.0,
+   "TC02_C": 96.0
+  },
+  "PRELOAD": {
+   "zone_max_C": 20.0
+  },
+  "FA1S": {
+   "zone_max_C": 45.6,
+   "note": "FA-1 state, not a soak or TB state"
+  }
+ },
+ "B1_history_GVLO_NF2b": {
+  "thermal_run": "DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_GVLO",
+  "frd_sha256_16": "00c8f9eaf7edf1d6",
+  "frames": 363,
+  "dz_frame_thermal_minus_sax_mm": 6.544,
+  "zone_curve": "max over the spring footprint (flat) and the head (TC-01 OD at its z) per frame",
+  "at_B1_70.7_frame_C": 160.29,
+  "at_B1_51.7_frame_C": 156.56,
+  "at_64.65_s_frame_C": 161.04,
+  "history_max_C": 161.04,
+  "t_of_history_max_s": 63.65,
+  "t_above_s": {
+   "150C": 53.0,
+   "155C": 36.5,
+   "160C": 14.3,
+   "165C": 0.0,
+   "170C": 0.0
+  }
+ },
+ "J_F1b": {
+  "rule": "lead 19:53:27Z (4): Peak = max(160 C, the highest J-FWD spring/screw-zone temperature in any soak or abort TB state that rows v7 used, + 10 C), rounded up to the next 5 C; dwell at peak at least that state's computed time above (peak - 10 C)",
+  "governing_state": "SOAK70",
+  "governing_field": "S-AX GVLO B1_70.7 (L1_thv352_NF2b_GVLO_r10free_cad352/B1_70.7/res.npz)",
+  "governing_location": "HW-170 spring outer rim on the TC-01 flat, aft side (De 10.0 max, F4 axial offset 0.3705 aft), (y, dz) = [-0.557, -5.37] mm from the hole axis",
+  "T_zone_max_C": 160.29,
+  "js5_SCREW_node_set_max_C": {
+   "SOAK70": 159.8,
+   "SOAK52": 155.85
+  },
+  "peak_raw_C": 170.29,
+  "peak_C": 175.0,
+  "dwell_min_s": 0.0,
+  "dwell_basis": "time above 165 C of the zone curve in the B1 GVLO history (the thermal run behind SOAK70)",
+  "sensitivity": {
+   "zone = js5 SCREW node set only (159.8 C at SOAK70)": {
+    "peak_C": 170.0,
+    "dwell_min_s": 13.2,
+    "dwell_basis": "time above 160 C of the head curve"
+   },
+   "spring centred (no F4 offset)": "see zone_centred_C"
+  },
+  "purpose_now": "J-F1b now checks one fresh single-use J-FWD joint (new IN718 screw, new HW-170 spring, LOCTITE 243, J-F1 torque) through the hottest soak the rows assume: residual preload, breakaway torque and the spring / locker condition after the cycle; its replacement-interval purpose is superseded by the single-use rule (lead 19:53:27Z (4))",
+  "zone_centred_C": {
+   "spring_footprint_max_C_SOAK70_no_axial_offset": 160.07
+  }
+ },
+ "LOCTITE_243_tap_zone_TB_a150": {
+  "GVLO": {
+   "thermal_run": "DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_R4_GVLO",
+   "TB_a150_run_json": "/home/claude/work/mechanical/runs/structural/L1_thv352_NF2b_R4_GVLO_r10free_cad352r4_eh0p1/TB_a150/run.json",
+   "shift_K": 40.386,
+   "end_of_burn_frame_s": 21.651,
+   "TC02_part_max_TB_a150_C": 223.4,
+   "TC02_part_max_bpkg_S-AX_C": 223.4,
+   "tap_zone": "TC-02 thermal nodes |dz| <= 2.8705 mm of the hole row, r 20.953 to the TC-02 OD 28.325",
+   "n_tap_nodes": 176,
+   "TB_a150_tap_zone_max_C": 128.0,
+   "TB_a150_tap_zone_min_C": 115.7,
+   "at_r_dz_mm": [
+    21.933,
+    -2.588
+   ],
+   "TB_a150_TC02_band_all_r_max_C": 128.4,
+   "TB_a150_jfwd_TC01_zone_max_C_info": 104.5,
+   "shifted_history_ASSUMED_info": {
+    "tap_zone_max_C": 148.7,
+    "t_of_max_s": 266.65,
+    "t_above_150C_s": 0.0,
+    "t_above_180C_s": 0.0,
+    "jfwd_TC01_zone_max_C": 201.4
+   },
+   "nominal_unshifted_tap_zone_max_C_info": 108.3
+  },
+  "GVHI": {
+   "thermal_run": "DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_R4_GVHI",
+   "TB_a150_run_json": "/home/claude/work/mechanical/runs/structural/L1_thv352_NF2b_R4_GVHI_r10free_cad352r4_eh0p1/TB_a150/run.json",
+   "shift_K": 31.376,
+   "end_of_burn_frame_s": 21.651,
+   "TC02_part_max_TB_a150_C": 208.0,
+   "TC02_part_max_bpkg_S-AX_C": 208.0,
+   "tap_zone": "TC-02 thermal nodes |dz| <= 2.8705 mm of the hole row, r 20.953 to the TC-02 OD 28.325",
+   "n_tap_nodes": 176,
+   "TB_a150_tap_zone_max_C": 116.0,
+   "TB_a150_tap_zone_min_C": 104.3,
+   "at_r_dz_mm": [
+    21.933,
+    -2.588
+   ],
+   "TB_a150_TC02_band_all_r_max_C": 116.5,
+   "TB_a150_jfwd_TC01_zone_max_C_info": 110.4,
+   "shifted_history_ASSUMED_info": {
+    "tap_zone_max_C": 146.9,
+    "t_of_max_s": 201.65,
+    "t_above_150C_s": 0.0,
+    "t_above_180C_s": 0.0,
+    "jfwd_TC01_zone_max_C": 164.0
+   },
+   "nominal_unshifted_tap_zone_max_C_info": 115.5
+  }
+ },
+ "t_s": 4.9
+}

@@ -1,7 +1,9 @@
 """J-FWD embedding / fit / J-F1 band rows on K_js5, v2: RE-STATED AT THE J-F1 BAND CAPPED AT 3750 N (lead 17:55:55Z F1: 'Re-state the
 rows that depend on the minimum at the new minimum: about 2060 N with today's K range scaled by 3750 / 4096, or the J-F1 lot result.
 That covers the cold-after-embedding seating and the K_js5 rows.  If any turns negative, stop and tell me.').  Mechanical, 2026-10-20,
-v2 (v1 671c61b55f9a086f / json 939b7f3708928613 kept as jfwd_embed_fit_js5_v352_v1.py).  CALC on SIM temperatures; DERIVED unless
+v2 (v1 671c61b55f9a086f / json 939b7f3708928613 kept as jfwd_embed_fit_js5_v352_v1.py).  v3 (2026-10-21; v2 d4b4455c7112629f / json
+e2624bf729633fb8 kept as jfwd_embed_fit_js5_v352_v2.py): re-run on relax v8 / rows v8 (lead 2026-10-21T05:50:45Z re-map brief R1-R8: FEA3D-2's FINAL envelope v6 43a5d78b67c615fc with the input record jfwd_v7inputs_cD_v352.json 5a41c8d74897bdda; instances add (b1), (b1) rep, (b2'), (cD)); method unchanged.
+  CALC on SIM temperatures; DERIVED unless
 tagged.  No solver run, no thermal run.
 v2 band: J-F1 torque = 3750 x K_min x d = 3750 x 0.1465 x 5 = 2746.9 N mm (2.747 N m on today's K window 0.1465-0.267); minimum
 2746.9 / (0.267 x 5) = 2057.6 N (= 2250 x 3750 / 4096 within the rounding of 2250); the J-F1 lot result replaces both when it exists.
@@ -45,18 +47,18 @@ from pathlib import Path
 
 T0 = time.time()
 J = Path("/home/claude/work/mechanical/v352/jfwd")
-OUT = J / "jfwd_embed_fit_js5_v352_v2.json"
+OUT = J / "jfwd_embed_fit_js5_v352_v3.json"
 RELAX_PY = J / "jfwd_relax_v352.py"
-RELAXJ = J / "jfwd_relax_v352_v7.json"
-ROWSJ = J / "jfwd_in718_rows_v352_v7.json"
+RELAXJ = J / "jfwd_relax_v352_v8.json"
+ROWSJ = J / "jfwd_in718_rows_v352_v8.json"
 V1J = J / "jfwd_embed_fit_js5_v352_v1.json"
 EMB4J = J / "jfwd_embed_v352_v1.json"
 FIT4J = J / "jfwd_fit_v352_v1.json"
-ENV_SHA16 = "0872de4ea7e3601d"
-ROWS7_SHA16, V1J_SHA16 = "6113d28b64d0dba5", "939b7f3708928613"
+ENV_SHA16 = "43a5d78b67c615fc"
+ROWS7_SHA16, V1J_SHA16 = "af072cc2e70711ca", "939b7f3708928613"
 sha = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()[:16]
 
-_spec = importlib.util.spec_from_file_location("jfwd_relax_v7", RELAX_PY)
+_spec = importlib.util.spec_from_file_location("jfwd_relax_v8", RELAX_PY)
 R = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(R)
 rel = json.loads(RELAXJ.read_text())
@@ -64,10 +66,10 @@ rws = json.loads(ROWSJ.read_text())
 emb4 = json.loads(EMB4J.read_text())
 v1 = json.loads(V1J.read_text())
 assert R.ENV_SHA16 == ENV_SHA16 and rel["inputs"]["fea3d_soak_envelope"]["sha256_16_at_read"] == ENV_SHA16, "envelope"
-assert sha(ROWSJ) == ROWS7_SHA16 and rws["version"] == "v7" and rws["inputs"]["fea3d_soak_envelope"]["sha256_16"] == ENV_SHA16, "rows v7"
+assert sha(ROWSJ) == ROWS7_SHA16 and rws["version"] == "v8" and rws["inputs"]["fea3d_soak_envelope"]["sha256_16"] == ENV_SHA16, "rows v8"
 assert sha(V1J) == V1J_SHA16 and v1["version"] == "v1", "js5 v1 json"
 INK = R.IN_KEY
-assert any(k.startswith(INK + "|") for k in rel["verdict_24"]), "relax v7 json carries another IN718 key"
+assert any(k.startswith(INK + "|") for k in rel["verdict_24"]), "relax v8 json carries another IN718 key"
 
 END = {}
 for end in ("lo", "hi"):
@@ -91,7 +93,7 @@ F_CAP = 3750.0                          # J-F1 maximum, CAPPED (F1)
 T_JF1 = F_CAP * K_WIN[0] * D_NOM        # 2746.875 N mm = 2.747 N m
 F_MIN = T_JF1 / (K_WIN[1] * D_NOM)      # 2057.58 N
 F_NOM = T_JF1 / (0.20 * D_NOM)          # 2746.9 N at K 0.20
-assert abs(F_MIN - rws["J_F1"]["minimum_N_today_K_window"]) < 0.05 and rws["J_F1"]["maximum_N"] == F_CAP, "rows v7 J_F1 band"
+assert abs(F_MIN - rws["J_F1"]["minimum_N_today_K_window"]) < 0.05 and rws["J_F1"]["maximum_N"] == F_CAP, "rows v8 J_F1 band"
 BAND = {"J-F1_min_2058": F_MIN, "J-F1_max_3750": F_CAP}
 GAPS_DRAW = dict(R.GAPS)
 GAPS_INFO = {"CAD_0.025_js4_info": 0.025, "H7h6_min_info": 0.0, "H7h6_max_info": 0.0245, "H7g6_min_info": 0.005, "H7g6_max_info": 0.0295}
@@ -101,6 +103,8 @@ GOV = ("J-F1_min_2058", "nominal_2747_K0.20", "J-F1_max_3750")
 mn = lambda x: min(x["firing_1"]["F_S_min_N"], x["firing_2"]["F_S_min_N"])
 
 # ---- A: cold embedding
+REPRO = {"note": "v3: the v1 record at the superseded keys is no longer an equality check (relax v8 moved k_b lo and c); recorded with moved flags",
+         "A_cold_embedding": {}, "B_first_firing_4096": {}, "D_torque_window": {}}
 A = {}
 for end, (scr, ksh, kb, c) in END.items():
     for gn, g in dict(GAPS_DRAW, **GAPS_INFO).items():
@@ -122,7 +126,8 @@ for k, x in A.items():
            "superseded_max_4096_info": "J-F1_max_4096"}.get(iname)
     if old:
         y = v1["A_cold_embedding"][f"{end}|{gn}|{old}|{en}"]
-        assert x["F_after_embedding_N"] == y["F_after_embedding_N"] and x["fit_after"] == y["fit_after"], (k, x["F_after_embedding_N"], y["F_after_embedding_N"])
+        REPRO["A_cold_embedding"][k] = {"v1": [y["F_after_embedding_N"], y["fit_after"]], "v3": [x["F_after_embedding_N"], x["fit_after"]],
+                                        "moved": [x["F_after_embedding_N"], x["fit_after"]] != [y["F_after_embedding_N"], y["fit_after"]]}   # v3: recorded (relax v8 k_b / c moved)
 
 # ---- B: first firing at the 3750 N maximum (4096 information), no embedding credit (1-DOF model, information)
 B = {}
@@ -140,7 +145,7 @@ for end, (scr, ksh, kb, c) in END.items():
 for k, x in B.items():
     if k.endswith("|4096"):
         y = v1["B_first_firing_4096_no_embedding_model_info"][k[:-5]]
-        assert x["F_S_max_N"] == y["F_S_max_N"], (k, x["F_S_max_N"], y["F_S_max_N"])
+        REPRO["B_first_firing_4096"][k] = {"v1": y["F_S_max_N"], "v3": x["F_S_max_N"], "moved": x["F_S_max_N"] != y["F_S_max_N"]}   # v3: recorded
 
 
 # ---- C: in-service minimum after embedding: the 24-case grid RE-RUN at the band
@@ -168,7 +173,7 @@ for end, (scr, ksh, kb, c) in END.items():
     GRID[end] = R.run_grid(GAPS_DRAW, BAND, ksh, kb, c, scr)
     C24[end] = band_summary(GRID[end], "J-F1_min_2058")
     rv7 = rel["worse_end_quoted"][f"{INK}|seat"]["both_ends"][end]
-    C24[end]["relax_v7_at_2250_4096_info"] = {"F_S_min_N": rv7["F_S_min_N"], "n_unseated": rv7["n_unseated"],
+    C24[end]["relax_v8_at_2250_4096_info"] = {"F_S_min_N": rv7["F_S_min_N"], "n_unseated": rv7["n_unseated"],
                                               "cold_end_F_S_min_2250_N": rv7["cold_end_F_S_min_2250_N"], "max_wall_set_um": rv7["max_wall_set_um"]}
 C = {}
 for end in END:
@@ -200,7 +205,8 @@ for end, (scr, ksh, kb, c) in END.items():
                                 "max_wall_set_um": max(x["wall_set_after_firing_2_um"] for x in d.values())}
         if f"{end}|{FV:.0f}" in {f"{e}|{F:.0f}" for e in END for F in (2250.0, 3000.0, 4096.0, 4164.0, 5461.0)}:
             y = v1["D_torque_window_without_slack"]["rows"][f"{end}|{FV:.0f}"]
-            assert D[f"{end}|{FV:.0f}"]["F_S_min_N"] == y["F_S_min_N"] and D[f"{end}|{FV:.0f}"]["n_unseated_of_12"] == y["n_unseated_of_12"], (end, FV)
+            REPRO["D_torque_window"][f"{end}|{FV:.0f}"] = {"v1": [y["F_S_min_N"], y["n_unseated_of_12"]], "v3": [D[f"{end}|{FV:.0f}"]["F_S_min_N"], D[f"{end}|{FV:.0f}"]["n_unseated_of_12"]],
+                                                           "moved": [D[f"{end}|{FV:.0f}"]["F_S_min_N"], D[f"{end}|{FV:.0f}"]["n_unseated_of_12"]] != [y["F_S_min_N"], y["n_unseated_of_12"]]}   # v3: recorded
 window = {end: [D[f"{end}|{FV:.0f}"]["F_install_N"] for FV in F_SWEEP if D[f"{end}|{FV:.0f}"]["all_seated"]] for end in END}
 fsmin_same = {end: len({D[f"{end}|{FV:.0f}"]["F_S_min_N"] for FV in F_SWEEP}) == 1 for end in END}
 
@@ -239,7 +245,7 @@ for end, (scr, ksh, kb, c) in END.items():
     FB[f"{end}|seat"] = gap_cap_band(scr, ksh, kb, c)
 sf = rel["select_fit_gap_cap_IN718"]
 F = {"at_band_2058_3750": FB,
-     "from_relax_v7_at_2250_4096_info": {k: {"g_cap_mm": v["g_cap_mm"], "note": v.get("note"),
+     "from_relax_v8_at_2250_4096_info": {k: {"g_cap_mm": v["g_cap_mm"], "note": v.get("note"),
                                              "any_gap_0_to_0.0375_seats_all": any(v["below_0.040_info"].values()),
                                              "any_gap_0.040_to_0.120_seats_all": any(v["sweep_0.040_0.120"].values())} for k, v in sf.items()},
      "H7h6_H7g6": ("the contingency fits (radial 0-0.0245 / 0.005-0.0295) lie inside the 0-0.0375 sweep: "
@@ -271,7 +277,7 @@ for end in END:
     if C24[end]["installed_cold_after_embedding_min_N_at_J_F1_min"] <= 0:
         turned.append(f"C {end}: installed cold after embedding at 2058 N {C24[end]['installed_cold_after_embedding_min_N_at_J_F1_min']} N")
 known_neg = {end: {"F_S_min_N": C24[end]["F_S_min_N"], "n_unseated_of_24": C24[end]["n_unseated"],
-                   "relax_v7_at_2250_4096": C24[end]["relax_v7_at_2250_4096_info"]["F_S_min_N"]} for end in END}
+                   "relax_v8_at_2250_4096": C24[end]["relax_v8_at_2250_4096_info"]["F_S_min_N"]} for end in END}
 b_max = {end: max((v for k, v in B.items() if k.startswith(end + "|") and k.endswith("|3750")), key=lambda v: v["F_S_max_N"]) for end in END}
 slack_cold = sorted(k for k, v in A.items() if k.split("|")[1] in GAPS_INFO and k.split("|")[2] in GOV and v["fit_after"] == "SLACK")
 _n_per_gap = 2 * len(GOV) * len(R.EMB)
@@ -281,7 +287,7 @@ stmt = (f"On K_js5 (k_sh {END['lo'][1]:.0f} N/mm), IN718 flight screw, NO SPRING
         f"{F_MIN:.1f}-{F_CAP:.0f} N): cold after embedding every drawing gap keeps the head seated (2057.6 N, sensitivity 21 um: minimum "
         f"{a_min['lo']['F_after_embedding_signed_N']:.0f} / {a_min['hi']['F_after_embedding_signed_N']:.0f} N at k_b lo / hi, fit "
         f"{a_min['lo']['fit_after']} / {a_min['hi']['fit_after']}; v1 at 2250 N: {v1_a['lo']} / {v1_a['hi']} N); the 24-case grid at 2057.6 / 3750 N "
-        f"reaches the same in-service minimum as relax v7 at 2250 / 4096 N ({C24['lo']['F_S_min_N']} / {C24['hi']['F_S_min_N']} N, "
+        f"reaches the same in-service minimum as relax v8 at 2250 / 4096 N ({C24['lo']['F_S_min_N']} / {C24['hi']['F_S_min_N']} N, "
         f"{C24['lo']['n_unseated']} / {C24['hi']['n_unseated']} of 24 unseated: the KNOWN no-spring negative of 239 (3), unchanged; route (i) "
         f"answers it, jfwd_spring v4); its cold end after firing 2 at 2057.6 N is {C24['lo']['cold_end_F_S_min_N_at_J_F1_min']} / "
         f"{C24['hi']['cold_end_F_S_min_N_at_J_F1_min']} N; the first firing at 3750 N without embedding credit reaches {b_max['lo']['F_S_max_N']} / "
@@ -294,10 +300,11 @@ stmt = (f"On K_js5 (k_sh {END['lo'][1]:.0f} N/mm), IN718 flight screw, NO SPRING
           f"goes SLACK cold after embedding ({slack_cold_txt}; information fits, not drawn).  Turned negative at the new minimum (drawing gaps): "
         + ("NONE" if not turned else "; ".join(turned)) + ".")
 
-out = {"id": "jfwd_embed_fit_js5_v352", "version": "v2", "date": "2026-10-20", "owner": "mechanical", "basis": __doc__.strip(),
+out = {"id": "jfwd_embed_fit_js5_v352", "version": "v3", "date": "2026-10-21", "owner": "mechanical", "basis": __doc__.strip(),
        "status": "CALC on SIM temperatures; DERIVED unless tagged; negatives SHOWN AS FOUND; not physical approval",
-       "inputs": {"relax_module": {"path": str(RELAX_PY), "sha256_16": sha(RELAX_PY)}, "relax_v7": {"path": str(RELAXJ), "sha256_16": sha(RELAXJ)},
-                  "rows_v7": {"path": str(ROWSJ), "sha256_16": sha(ROWSJ)}, "js5_v1": {"path": str(V1J), "sha256_16": sha(V1J)},
+       "v1_record_at_superseded_keys_v3": REPRO,
+       "inputs": {"relax_module": {"path": str(RELAX_PY), "sha256_16": sha(RELAX_PY)}, "relax_v8": {"path": str(RELAXJ), "sha256_16": sha(RELAXJ)},
+                  "rows_v8": {"path": str(ROWSJ), "sha256_16": sha(ROWSJ)}, "js5_v1": {"path": str(V1J), "sha256_16": sha(V1J)},
                   "fea3d_soak_envelope": {"sha256_16": ENV_SHA16},
                   "screw_key": INK, "k_b_N_mm": {e: round(v[2]) for e, v in END.items()}, "k_sh_N_mm": round(END["lo"][1]), "k_c_N_mm": round(R.K_C),
                   "c_seat_MPa_per_N": {e: round(v[3], 5) for e, v in END.items()}, "f_Z_um": {k: round(v * 1e3, 1) for k, v in R.EMB.items()},
@@ -311,7 +318,7 @@ out = {"id": "jfwd_embed_fit_js5_v352", "version": "v2", "date": "2026-10-20", "
        "C_relax_v7_at_2250_4096_info": v1["C_in_service_minimum_after_embedding_relax_v7"],
        "D_torque_window_without_slack": {"rows": D, "window_N_by_end": window, "F_S_min_identical_over_preloads": fsmin_same},
        "A_cold_embedding_slack_at_contingency_gaps_info": {"rows": slack_cold, "summary": slack_cold_txt, "rows_per_gap": _n_per_gap},
-       "E_J_F1_maximum_rows_v7": E, "F_contingency_fits_K_js5": F, "K_js4_record": K4,
+       "E_J_F1_maximum_rows_v8": E, "F_contingency_fits_K_js5": F, "K_js4_record": K4,
        "stop_test_lead_F1": {"turned_negative_at_new_minimum": turned, "verdict": "NONE TURNED NEGATIVE" if not turned else "STOP: TELL THE LEAD",
                              "known_no_spring_negative_unchanged_239_3": known_neg,
                              "a_min_case": a_min_key},

@@ -1,10 +1,27 @@
 """J-FWD screw-dependent rows re-issued for the ruled screw IN718 M5 x10 (ENG-HW-101-IN718), lead 11:25Z item 2, 11:41Z, 12:09Z item 5,
 relay 12:28Z, relay 13:14Z, lead 14:03Z item 3, lead 14:14Z items 3-4, lead 14:34Z items 2-3, lead 15:37Z item 1, lead 16:53Z R2 / R4.
-Mechanical, 2026-10-20, v7 (v6 d44587001b0b3c36 / json dbdb965a4160ec6e kept as jfwd_in718_rows_v352_v6.py;
+Mechanical, 2026-10-21, v8 (v7 880ffe58c8af05e6 / json 6113d28b64d0dba5 kept as jfwd_in718_rows_v352_v7.py;
+v6 d44587001b0b3c36 / json dbdb965a4160ec6e kept as jfwd_in718_rows_v352_v6.py;
 v5 cc985da00b81ce97 / json 4d12e0187ac1a9c4 kept as jfwd_in718_rows_v352_v5.py; v4 802559c3a4e10834
 / json 6b41f1ce01e489f1 kept as jfwd_in718_rows_v352_v4.py; v3 0a8aa3f87c0fc8bc ACCEPTED by the lead 14:03Z, kept as jfwd_in718_rows_v352_v3.py;
 v2 b92cef86a2bc3919 kept).  [DERIVED] from SIM (FEA3D js5 complete run + seat patches (a), (a') and (a'')); no new run.  CALC / DERIVED,
 not physical approval.
+
+v8 (lead 2026-10-21T05:50:45Z re-map brief, rulings R1-R8; CHANGELOG 249, 250, 252): every FE-anchored row re-mapped ONCE on FEA3D-2's
+FINAL envelope v6 (43a5d78b67c615fc) and the input record jfwd_v7inputs_cD_v352.json (5a41c8d74897bdda) through relax v8 (instances js5,
+(a), (a'), (a''), (b2), (b2) rep, (b1), (b1) rep, (b2'), (cD); (b1)'s seat line at C1; cD's resultants as solved, its local values beside).
+ - LOCAL rows (under-head band, seat / ring P+Q, Pm > Fty counts) run over the instances without cD; cD's value is recorded BESIDE in each
+   (R3).  The seat-line P+Q is NOT shown mesh-converged (MF note, R4): quoted as found, extrapolations information only.
+ - R5: screw rows with a moment (soak fibre, preload fibre) are quoted with M as solved; (b1)'s moment x 1.4036 (PRELOAD) and x 1.4764
+   (SOAK) (s6 / s9 threaded-length ratios, jfwd_b1_meshcorr_v352.json resultant_flags) are INFORMATION beside.
+ - R6: HW-101 5020A Eq. 22 at max(CALC, FE) per resultant: V 4079.2 N (FE, (b1) FA1S V_plane) and M = CALC 3888.1 x 1.120 (FE (b1) 4269.8
+   lower); the fix v2 CALC row is reproduced first and kept as the record; the TC-01 hole bearing stays on the CALC row (fix v2).
+ - R7: the LC2 / FA1U / FA1D parts rows from FEA3D-2's jfwd_js5b_rows_v352.json (91278d6b039c5b27) with the lead's slot rules: external
+   load factored, preload not; TC-01 / TC-02 LC2 yield slot = LC2Y, ultimate slot = LC2U (SF 1.0 on the factored state at 3750 N); the
+   hand-form LC2N / LC2M parts rows are information beside (TC-01 LC2N -0.183 ultimate stays visible); screw LC2N / LC2M = criterion
+   (234 (1)(b)); FA1U / FA1D parts rows = criterion (231 (1)), bounded by FA1S.
+ - R8 CAD basis: every J-FWD FE except cD is on the interim TC-01 (d10.5 flats); the final part (d11.2) removes 104.037 mm3, the wall at
+   the hole (2.688) is unchanged and the head footprint is inside both flats: the effect is ASSUMED small (cited in the rows).
 
 v7 (lead 16:53Z R2 'ROUTE (i) ADOPTED, conditional on the rev-5 CAD check' (the CAD check passed: checks/test_rev5_jfwd_v2.json
 32c41e1e207f9d64, reported 17:49:15Z, ACCEPTED 17:55:55Z) and R4 (union basis 36.401, rows v6 wording fix, datum B), and the lead's
@@ -121,11 +138,11 @@ import json, math, hashlib, importlib.util
 from pathlib import Path
 
 J = Path("/home/claude/work/mechanical/v352/jfwd")
-OUT = J / "jfwd_in718_rows_v352_v7.json"
-_spec = importlib.util.spec_from_file_location("jfwd_relax_v352_v6", str(J / "jfwd_relax_v352.py"))
+OUT = J / "jfwd_in718_rows_v352_v8.json"
+_spec = importlib.util.spec_from_file_location("jfwd_relax_v352_v8", str(J / "jfwd_relax_v352.py"))
 R = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(R)
-assert "v7 (v6 9465eaeac9af407f" in R.__doc__
+assert "v8 (v7 82221fdf0035f338" in R.__doc__
 sha = R.sha
 tab = R.tab
 CELLS = json.loads(R.F_CELLS.read_text())["steps"]
@@ -146,7 +163,7 @@ JF1_TAG = {"3750": "GOVERNING (J-F1 maximum, FE-anchored)", "4096": "INFORMATION
 A_S, Z_3 = IN.A_s, IN.Z_3
 HS = R.H
 LBL = R.LABEL
-_RXJ = J / "jfwd_relax_v352_v7.json"                                  # v6: the relax v7 24-case result (run before this script)
+_RXJ = J / "jfwd_relax_v352_v8.json"                                  # v6: the relax v7 24-case result (run before this script)
 _RX = json.loads(_RXJ.read_text())["worse_end_quoted"]
 _INK = R.IN_KEY                                                       # lead 16:07Z (3) label
 SLACK_TXT = (f"none from this fix: the 24-case minimum is reached at the 2250 N and at the 4096 N installations alike (the first-firing "
@@ -154,6 +171,17 @@ SLACK_TXT = (f"none from this fix: the 24-case minimum is reached at the 2250 N 
              f"{_RX[_INK + '|seat']['F_S_min_N']} N, {_RX[_INK + '|seat']['n_unseated']} of 24 unseated; ring family "
              f"{_RX[_INK + '|ring']['F_S_min_N']} N, {_RX[_INK + '|ring']['n_unseated']} of 24 unseated)")
 FLAG = 0.05
+JS5B = R.HUBA / "results/v352/jfwd_js5b_rows_v352.json"            # v8 (R7): FEA3D-2 LC2 / FA1U / FA1D parts rows
+assert sha(JS5B) == "91278d6b039c5b27", sha(JS5B)
+_MI = {(f["state"], f["instance"]): f["ratio_s6_s9"] for f in R._MC["resultant_flags"] if f["quantity"] == "M_max_threaded_Nmm max"}
+M_INFO = {"PRELOAD": _MI[("PRELOAD", "(b1)")], "SOAK": _MI[("SOAK", "(b1)")]}   # v8 (R5): s6 / s9 ratios on (b1)'s moment, information
+assert M_INFO == {"PRELOAD": 1.4036, "SOAK": 1.4764} and _MI[("SOAK", "(b1) rep")] == 1.4764, _MI
+CD_LBL = [R.LABEL[h] for h in R.LOCAL_EXCLUDE]
+
+
+def HL_at(st):
+    """v8 (R3): the instances that enter the LOCAL rows (cD beside)."""
+    return tuple(h for h in R.H_at(st) if h not in R.LOCAL_EXCLUDE)
 
 
 def flag(ms):
@@ -438,8 +466,9 @@ def rows_state(st):
                           "V6_RECORD_MS_strain_n15_n30_head_direct_force_scaled": mss, "V6_RECORD_MS_strain": min(mss),
                           "sigma_el_spring_quoted_MPa": round(sel * A_ANN / A_SPR[QUOTED_UH_BASIS], 1),
                           "MS_strain_by_spring_basis": spr_uh, "MS_strain": spr_uh[QUOTED_UH_BASIS]}
+        uh_cD = {k: uh.pop(k) for k in CD_LBL if k in uh}           # v8 (R3): cD's local value beside, not entered
         hw = min(uh, key=lambda k: uh[k]["MS_strain"])
-        r["TC01_under_head_band_neuber"] = {"per_history": uh, "MS_strain": uh[hw]["MS_strain"], "from": hw,
+        r["TC01_under_head_band_neuber"] = {"cD_beside_R3": uh_cD,"per_history": uh, "MS_strain": uh[hw]["MS_strain"], "from": hw,
                                             "quoted_basis": f"{QUOTED_UH_BASIS} (lead 17:55:55Z F1), mean-pressure scaling ASSUMED",
                                             "tag": "ASSUMED (sigma_el x A_ANN 47.12 / A_supp; edge loading at the tangential overhang not represented)",
                                             "by_basis_min": {k: min(uh[q]["MS_strain_by_spring_basis"][k] for q in uh) for k in A_SPR},
@@ -471,7 +500,7 @@ def rows_state(st):
                     x = R.HISTS[st][h]
                     if key:
                         pq0, T = x[key], x["seat_line_T_C"]
-                    elif h in R.B2:                       # v6 / relax v7: (b2)'s contact ring sits on d+6.051 z'0: its ring family IS the seat line
+                    elif R.src_of(h, st)[0] in R.RING_ON_SEAT:    # v6 / relax v7: (b2)'s contact ring sits on d+6.051 z'0 (v8: every R0.2 instance)
                         pq0, T = x["ring_family_PmPb_MPa"], x["seat_line_T_C"]
                     else:
                         cand = [(x["ring_line_d8p02_PmPb_MPa"], cmp_side(h, st)["lines"]["ring"]["T_mean_C"])]
@@ -493,9 +522,10 @@ def rows_state(st):
                     pq_ii = pq0 * n_in(st, h, FV) / x["N_head_N"]
                     per[LBL[h]] = {"PmPb_A4-80_MPa": pq0, "T_C": T, "two_Fty_MPa": round(two_fy, 1), "PmPb_IN718_Fsh_MPa": round(pq_i, 1), "MS_PQ_Fsh": ms(two_fy, pq_i),
                                    "PmPb_IN718_headforce_bound_MPa": round(pq_ii, 1), "MS_PQ_headforce_bound": ms(two_fy, pq_ii)}
+                per_cD = {k: per.pop(k) for k in CD_LBL if k in per}     # v8 (R3): cD's local value beside, not entered
                 hw = min(per, key=lambda k: per[k]["MS_PQ_Fsh"])
                 hb = min(per, key=lambda k: per[k]["MS_PQ_headforce_bound"])
-                r[fam + "_PQ"] = {"per_history": per, "MS_PQ_2Fty": per[hw]["MS_PQ_Fsh"], "from": hw,
+                r[fam + "_PQ"] = {"per_history": per, "MS_PQ_2Fty": per[hw]["MS_PQ_Fsh"], "from": hw, "cD_beside_R3": per_cD, "MF_note_R4": R.MF_NOTE,
                                   "bound_MS": per[hb]["MS_PQ_headforce_bound"], "bound_from": hb}
         # (6) number of TC-01 lines with Pm > Fty(T) (54 seat + 10 hole-edge lines), per history, head-force scaling (bound) and F_sh scaling
         if st in R.SOAKS:
@@ -514,7 +544,8 @@ def rows_state(st):
                                        "max_Pm_over_Fty_bound": round(max(q[pmk] * k_n / fy(q) for q in ls), 3), "n_lines": len(ls)}
                 cnt[LBL[h]] = fam_counts
             r["TC01_lines_Pm_gt_Fty"] = {"per_history": cnt,
-                                         "envelope": {fam: {k: max(cnt[LBL[h]][fam][k] for h in R.H_at(st)) for k in ("A4-80", "IN718_Fsh", "IN718_headforce_bound", "max_Pm_over_Fty_bound")}
+                                         "envelope_note_v8": "over the instances without cD (R3; cD's count is in per_history, beside); (b1) lines as solved (C1 is a governing-line correction)",
+                                         "envelope": {fam: {k: max(cnt[LBL[h]][fam][k] for h in HL_at(st)) for k in ("A4-80", "IN718_Fsh", "IN718_headforce_bound", "max_Pm_over_Fty_bound")}
                                                       for fam in ("seat", "hole_edge")},
                                          "js5_relax_json_count_A4-80": {fam: R._rel["steps"][st]["families"][fam]["n_lines_soak_Pm_gt_Fty"] for fam in ("seat", "hole_edge")}}
         # (7) screw fibre at the soak (secondary bending, ruling 10:08:57Z): fibre yield = screw plastic set; shakedown vs 2 Fty_IN718(T)
@@ -549,10 +580,35 @@ def rows_state(st):
                 fib[LBL[h]] = {"N_section_N": round(Nsec, 1), "M_Nmm": round(M_in, 1), "fibre_MPa": round(f, 1), "Fty_IN718_MPa": round(rp, 1), "MS_y_fibre": ms(rp, f),
                                "fibre_cold_MPa": round(f_pre, 1), "range_MPa": round(rngf, 1), "two_Fty_MPa": round(2 * rp, 1), "MS_shakedown": ms(2 * rp, rngf),
                                "section_excess_N": round(exc, 1), "equiv_axial_set_um": round(dp_um, 3)}
+                if st in M_INFO and R.src_of(h, st)[0] == "patch_b1":    # v8 (R5): (b1)'s moment x the s6 / s9 ratio, INFORMATION
+                    f_x = Nsec / A_S + M_in * M_INFO[st] / Z_3
+                    fib[LBL[h]]["info_M_x_ratio"] = {"factor": M_INFO[st], "M_Nmm": round(M_in * M_INFO[st], 1), "fibre_MPa": round(f_x, 1),
+                                                     "MS_y_fibre_info": ms(rp, f_x), "MS_shakedown_info": ms(2 * rp, f_x - f_pre)}
             hw = min(fib, key=lambda k: fib[k]["MS_y_fibre"])
             r["screw_fibre_soak"] = {"per_history": fib, "MS_y_fibre": fib[hw]["MS_y_fibre"], "MS_shakedown": min(v["MS_shakedown"] for v in fib.values()),
                                      "range_max_MPa": max(v["range_MPa"] for v in fib.values()), "max_equiv_axial_set_um": max(v["equiv_axial_set_um"] for v in fib.values()),
                                      "from": hw}
+            _inf = {k: v["info_M_x_ratio"] for k, v in fib.items() if "info_M_x_ratio" in v}
+            if _inf:
+                r["screw_fibre_soak_info_M_x_ratio"] = {"factor": M_INFO[st], "per_history": _inf,
+                                                        "MS_y_fibre_info": min(v["MS_y_fibre_info"] for v in _inf.values()),
+                                                        "MS_shakedown_info": min(v["MS_shakedown_info"] for v in _inf.values()),
+                                                        "basis": "R5: (b1)'s moment x the s6 / s9 threaded-length ratio (meshcorr resultant_flags), information; cold end as quoted"}
+        if st == "PRELOAD":                                       # v8 (R5): the screw fibre at the preload, M as solved; (b1) x 1.4036 information
+            rp = tab("IN718", "Fty", Ts)
+            fpr = {}
+            for h in R.H_at(st):
+                x = R.HISTS[st][h]
+                f_ = x["N_section_max_N"] * FV / FV0 / A_S + x["M_max_Nmm"] * IN.tilt_ratio * FV / FV0 / Z_3
+                fpr[LBL[h]] = {"N_section_N": round(x["N_section_max_N"] * FV / FV0, 1), "M_Nmm": round(x["M_max_Nmm"] * IN.tilt_ratio * FV / FV0, 1),
+                               "fibre_MPa": round(f_, 1), "MS_y_fibre_info": ms(rp, f_)}
+                if R.src_of(h, st)[0] == "patch_b1":
+                    fx = x["N_section_max_N"] * FV / FV0 / A_S + x["M_max_Nmm"] * M_INFO["PRELOAD"] * IN.tilt_ratio * FV / FV0 / Z_3
+                    fpr[LBL[h]]["info_M_x_ratio"] = {"factor": M_INFO["PRELOAD"], "fibre_MPa": round(fx, 1), "MS_y_fibre_info": ms(rp, fx)}
+            hw = min(fpr, key=lambda k: fpr[k]["MS_y_fibre_info"])
+            r["screw_fibre_preload_info"] = {"per_history": fpr, "MS_y_fibre_info": fpr[hw]["MS_y_fibre_info"], "from": hw, "Fty_IN718_MPa": round(rp, 1), "T_C": Ts,
+                                             "MS_y_fibre_info_M_x_ratio": min(v["info_M_x_ratio"]["MS_y_fibre_info"] for v in fpr.values() if "info_M_x_ratio" in v),
+                                             "class": "INFORMATION (R5): fibre = N_section / A_s + M x tilt_ratio / Z_3 at the preload; no criterion row"}
         rows[tag] = r
     out["rows"] = rows
     return out
@@ -877,8 +933,12 @@ def membrane_minwall():
 
 
 if __name__ == "__main__":
-    res = {"id": "jfwd_in718_rows_v352", "version": "v7", "date": "2026-10-20", "owner": "mechanical", "basis": __doc__.strip(),
-           "inputs": {"relax_v7_module": {"path": str(J / "jfwd_relax_v352.py"), "sha256_16": sha(J / "jfwd_relax_v352.py")},
+    res = {"id": "jfwd_in718_rows_v352", "version": "v8", "date": "2026-10-21", "owner": "mechanical", "basis": __doc__.strip(),
+           "inputs": {"relax_v8_module": {"path": str(J / "jfwd_relax_v352.py"), "sha256_16": sha(J / "jfwd_relax_v352.py")},
+                      "relax_v8_json": {"path": str(_RXJ), "sha256_16": sha(_RXJ)},
+                      "fea3d_v7inputs_cD_record": {"path": str(R.F_V7IN), "sha256_16": sha(R.F_V7IN)},
+                      "fea3d_b1_meshcorr": {"path": str(R.F_MC), "sha256_16": sha(R.F_MC)},
+                      "fea3d_js5b_rows": {"path": str(JS5B), "sha256_16": sha(JS5B)},
                       "js5_cells": {"path": str(R.F_CELLS), "sha256_16": sha(R.F_CELLS)},
                       "fea3d_soak_envelope": {"path": str(R.F_ENV), "sha256_16": sha(R.F_ENV)},
                       "patch_compare": {LBL[h]: {"path": str(R.PATCHES[h] / "compare.json"), "sha256_16": sha(R.PATCHES[h] / "compare.json")} for h in R.PATCHES},
@@ -894,9 +954,44 @@ if __name__ == "__main__":
     res["states"] = st_rows
     # FA1S screw cell: 5020A Eq. 22 (preload omitted governing, included at the max preload reported), from jfwd_fix_v352_v2
     sc = fix2["options"]["IN718 M5 x10"]["screw_FA1S_5020A"]
-    res["FA1S_screw_5020A_eq22"] = {"governing_omitted": sc["governing"], "included": sc["included_at_governing_row"], "gauge_omitted": sc["gauge_governing"],
-                                    "arm_+0.4_sens": {k: sc["rows"]["CALC_abs_3888.1|arm_+0.4_sens"][k] for k in ("MS_omitted_governing", "MS_included_info")},
-                                    "direct_shear_minor_CALC": sc["direct_shear_minor_231ii"]["CALC_abs_3888.1"], "src": "jfwd_fix_v352_v2.json (published)"}
+    PSA, PTA, FTU, Z3F, NINC = sc["Psu_allow_N"], sc["Ptu_allow_N"], sc["Ftu_45.6C_MPa"], sc["Z_3_mm3"], sc["N_included_N"]
+
+    def eq22_ms(V, M, N):
+        """5020A Eq. 22, MS = lambda - 1 with V and M scaled together, N fixed (jfwd_fix_v352.py eq22, plastic=None)."""
+        f = lambda l: (l * V / PSA) ** 1.2 + (N / PTA + l * M / Z3F / FTU) ** 2     # noqa: E731
+        lo, hi = 0.0, 5.0
+        for _ in range(200):
+            mid = 0.5 * (lo + hi)
+            lo, hi = (mid, hi) if f(mid) < 1.0 else (lo, mid)
+        return round(f(1.0), 3), round(0.5 * (lo + hi) - 1.0, 3)
+    g0 = sc["rows"]["CALC_abs_3888.1|arm_+0.2_governing"]
+    assert eq22_ms(g0["V_N"], g0["M_Nmm"], 0.0) == (g0["interaction_omitted"], g0["MS_omitted_governing"]), eq22_ms(g0["V_N"], g0["M_Nmm"], 0.0)
+    assert eq22_ms(g0["V_N"], g0["M_Nmm"], NINC) == (g0["interaction_included"], g0["MS_included_info"])
+    V_FE = {LBL[h]: (R._sfj if h == "js5" else R._SF[R.src_of(h, "FA1S")[0]])["steps"]["FA1S"]["screw"]["V_plane_N"] for h in R.H_at("FA1S")}
+    hV = max(V_FE, key=V_FE.get)
+    M_FE, M_FE_from = R.ENV["FA1S"]["M_max_Nmm"], LBL[R.ENV["FA1S"]["M_from"]]
+    assert (hV, V_FE[hV]) == ("(b1)", 4079.2) and (M_FE_from, M_FE) == ("(b1)", 4269.8), (hV, V_FE[hV], M_FE_from, M_FE)
+    V6, M6 = max(g0["V_N"], V_FE[hV]), max(g0["M_Nmm"], M_FE)
+    i6, ms6 = eq22_ms(V6, M6, 0.0)
+    i6i, ms6i = eq22_ms(V6, M6, NINC)
+    iL, msL = eq22_ms(V6, 3888.1 * 1.120, 0.0)
+    ifu, msfu = eq22_ms(V_FE[hV], M_FE, 0.0)
+    tau6 = V6 / sc["A_m_mm2"]
+    ds = sc["direct_shear_minor_231ii"]["CALC_abs_3888.1"]
+    res["FA1S_screw_5020A_eq22"] = {
+        "governing_omitted": ms6, "included": ms6i, "gauge_omitted": sc["gauge_governing"],
+        "R6_basis": {"rule": "lead 2026-10-21T05:50:45Z R6: HW-101 Eq. 22 at max(CALC, FE) per resultant",
+                     "V_N": V6, "V_from": f"FE {hV} FA1S V_plane ({R.PATCHES['patch_b1'].name}/seatforce.json)" if V6 > g0["V_N"] else "CALC",
+                     "M_Nmm": M6, "M_from": "CALC 3888.1 x arm 1.120 (fix v2 row)" if M6 == g0["M_Nmm"] else f"FE {M_FE_from}",
+                     "M_lead_quoted_4354.7_check": {"interaction": iL, "MS": msL}, "FE_values": {"V_N": V_FE, "M_max_Nmm": M_FE, "M_from": M_FE_from},
+                     "interaction_omitted": i6, "interaction_included_info": i6i, "N_included_N": NINC,
+                     "FE_only_info_V_M": {"V_N": V_FE[hV], "M_Nmm": M_FE, "interaction": ifu, "MS": msfu}},
+        "CALC_record_fix_v2": {"governing_omitted": sc["governing"], "included": sc["included_at_governing_row"], "V_N": g0["V_N"], "M_Nmm": g0["M_Nmm"]},
+        "arm_+0.4_sens": {k: sc["rows"]["CALC_abs_3888.1|arm_+0.4_sens"][k] for k in ("MS_omitted_governing", "MS_included_info")},
+        "direct_shear_minor_CALC": ds,
+        "direct_shear_minor_at_R6_V_companion": {"V_N": V6, "tau_MPa": round(tau6, 1), "MS_y": ms(ds["Fsy_MPa"], tau6), "MS_u": ms(ds["Fsu_MPa"], tau6)},
+        "hole_bearing_TC01": "stays on the CALC row (fix v2, +0.005 / +0.239; lead R6)",
+        "src": "allowables and CALC row: jfwd_fix_v352_v2.json (published); FE V: hub jfwd_patches seat_s9L12_mu02A seatforce.json 553a0ed1cbe51548"}
     # FA1S tap bearing at CALC V (screw-independent): FEA3D's tap_bearing_derived re-based from its V to V 3888.1 / gauge 3862.0
     tb = CELLS["FA1S"]["TC-02"]["tap_bearing_derived"]
     vfe = CELLS["FA1S"]["SCREW"]["V_bear_exact_N"]
@@ -926,12 +1021,46 @@ if __name__ == "__main__":
     for st, so in st_rows.items():
         for tag, r in so["rows"].items():
             for k, v in r.items():
-                for mk in ("MS_y", "MS_u", "MS_vs_Fbry", "MS_strain", "MS_PQ_2Fty", "bound_MS", "MS_y_fibre", "MS_shakedown", "MS_PQ_2Fty_info"):
+                for mk in ("MS_y", "MS_u", "MS_vs_Fbry", "MS_strain", "MS_PQ_2Fty", "bound_MS", "MS_y_fibre", "MS_shakedown", "MS_PQ_2Fty_info",
+                           "MS_y_fibre_info", "MS_shakedown_info", "MS_y_fibre_info_M_x_ratio"):
                     if isinstance(v, dict) and mk in v and v[mk] is not None and v[mk] < FLAG:
                         rec = {"state": st, "preload_N": tag, "row": k, "metric": mk, "MS": v[mk], "flag": flag(v[mk])}
                         if k == "TC01_under_head_band_neuber" and mk == "MS_strain":
                             rec["tag"] = "ASSUMED (mean-pressure scaling on the spring footprint, full float)"
                         (fl_info if (mk.endswith("_info") or tag == "4096") else fl).append(rec)
+    # v8 (R7): LC2 / FA1U / FA1D parts rows (FEA3D-2 js5b) with the lead's slot rules
+    jb = json.loads(JS5B.read_text())["states"]
+    t1 = lambda s_: {"MS_y": jb[s_]["TC-01"]["cell"]["MS_y_primary_bearing"], "MS_u": jb[s_]["TC-01"]["cell"]["MS_u_primary_bearing"]}   # noqa: E731
+    t2 = lambda s_: {k: jb[s_]["TC-02"]["cell_231_1"][k] for k in ("MS_y", "MS_u")}                                                  # noqa: E731
+    sw = lambda s_: {k: jb[s_]["SCREW"][k] for k in ("MS_y", "MS_u")}                                                                 # noqa: E731
+    lc2 = {"TC-01_LC2": {"MS_y": t1("LC2Y")["MS_y"], "MS_u": t1("LC2U")["MS_u"], "yield_slot": "LC2Y", "ultimate_slot": "LC2U"},
+           "TC-02_LC2": {"MS_y": t2("LC2Y")["MS_y"], "MS_u": t2("LC2U")["MS_u"], "yield_slot": "LC2Y", "ultimate_slot": "LC2U"},
+           "SCREW_LC2_criterion_234_1b": {"MS_y": min(sw("LC2N")["MS_y"], sw("LC2M")["MS_y"]), "MS_u": min(sw("LC2N")["MS_u"], sw("LC2M")["MS_u"]),
+                                          "LC2N": sw("LC2N"), "LC2M": sw("LC2M")},
+           "info_beside_hand_form_parts": {"TC-01_LC2N": t1("LC2N"), "TC-01_LC2M": t1("LC2M"), "TC-02_LC2N": t2("LC2N"), "TC-02_LC2M": t2("LC2M"),
+                                           "visible": "TC-01 LC2N ultimate %+.3f stays visible (lead R7)" % t1("LC2N")["MS_u"]},
+           "info_beside_screw_FE_factored": {"LC2Y": sw("LC2Y"), "LC2U": sw("LC2U")},
+           "FA1U_FA1D_criterion_231_1": {s_: {"TC-01_cell": t1(s_), "TC-01_hole_bearing_t2.688": {k: jb[s_]["TC-01"]["hole_bearing_t2.688"][k] for k in ("MS_y", "MS_u")},
+                                              "TC-02_cell": t2(s_), "SCREW": sw(s_)} for s_ in ("FA1U", "FA1D")},
+           "bounded_by_FA1S": "FA1U / FA1D are bounded by FA1S (lead R7; the FA1S cells govern: Eq. 22 above, TC-01 hole bearing CALC +0.005 / +0.239)",
+           "rules": ("lead R7: external load factored, preload not; TC-01 / TC-02 LC2 yield slot = LC2Y, ultimate slot = LC2U (SF 1.0 on the factored "
+                     "state at 3750 N); hand-form LC2N / LC2M parts rows = information beside the cells; screw LC2N / LC2M = criterion (234 (1)(b)); "
+                     "FA1U / FA1D parts rows = criterion (231 (1)), bounded by FA1S"),
+           "src": f"hub 04-fea/assembly3d_v352/results/v352/jfwd_js5b_rows_v352.json {sha(JS5B)} (FEA3D-2)"}
+    res["LC2_FA1U_FA1D_parts_rows_R7"] = lc2
+    for k_, v_ in lc2.items():
+        if isinstance(v_, dict) and "MS_y" in v_:
+            for mk in ("MS_y", "MS_u"):
+                if v_[mk] < FLAG:
+                    fl.append({"state": "LC2", "preload_N": "3750", "row": k_, "metric": mk, "MS": v_[mk], "flag": flag(v_[mk])})
+    for k_, v_ in lc2["info_beside_hand_form_parts"].items():
+        if isinstance(v_, dict):
+            for mk in ("MS_y", "MS_u"):
+                if v_[mk] < FLAG:
+                    fl_info.append({"state": k_.split("_")[1], "preload_N": "3750", "row": k_ + " (hand form, information beside)", "metric": mk, "MS": v_[mk], "flag": flag(v_[mk])})
+    res["seat_line_basis_R3_R4"] = {"rule": R._V7IN["rule"], "MF_note": R.MF_NOTE, "cD_beside": R._V7IN["beside"],
+                                    "anchors_cD_over_s6": {"PRELOAD": 0.927, "SOAK52": 0.947, "SOAK": 0.966, "SOAK70": 0.959, "FA1S": 0.985}}
+    res["cad_basis_R8"] = R.CAD_BASIS
     res["flags_within_0.05_or_negative"] = fl
     res["information_rows_negative_or_within_0.05"] = fl_info
     res["J_F1_columns"] = JF1_TAG

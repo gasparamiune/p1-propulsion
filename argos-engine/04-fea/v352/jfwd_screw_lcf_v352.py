@@ -1,4 +1,9 @@
 """v3.5.2 J-FWD screw LCF row on the IN718 thread-form basis (lead 12:52Z item 2, 13:20Z order; 183 (1)(c) criterion).  Mechanical, 2026-10-20.
+v3 (2026-10-21, lead 05:50:45Z re-map brief R1-R8; v2 099134dde5574c61 / json 6acdaa2febdf3f6c kept as jfwd_screw_lcf_v352_v2.py):
+re-run on rows v8 (jfwd_in718_rows_v352_v8.json, on relax v8 and FEA3D-2's FINAL envelope v6 43a5d78b67c615fc with the input record
+jfwd_v7inputs_cD_v352.json 5a41c8d74897bdda); the history classes add (b1), (b1) rep, (b2') and (cD) (resultants as solved).  R5: the
+cases with (b1)'s moment x the s6 / s9 threaded-length ratio (1.4764 at SOAK, meshcorr resultant_flags) are INFORMATION
+('cases_info_M_x_ratio', 'governing_info_M_x_ratio') and never govern.  Method, allowables and Kf unchanged.
 v2 (lead 15:37Z order item 1, plan ACCEPTED 15:41Z, basis ruling 15:46Z; v1 9c110e7a8e53b820 / json 1b91bb73d9d34a24 kept as
 jfwd_screw_lcf_v352_v1.py): re-run on rows v6 (jfwd_in718_rows_v352_v6.json, on relax v7 and FEA3D's ADOPTED envelope v3
 results/v352/jfwd_soak_envelope_v352_v3.json 0872de4ea7e3601d: "worst of the computed histories and edge forms (sharp, R0.2); the contact
@@ -42,10 +47,10 @@ from pathlib import Path
 import numpy as np
 
 J = Path("/home/claude/work/mechanical/v352/jfwd")
-OUT = J / "jfwd_screw_lcf_v352_v2.json"
-ROWS = J / "jfwd_in718_rows_v352_v6.json"
-RELAXJ = J / "jfwd_relax_v352_v7.json"
-ENV_SHA16 = "0872de4ea7e3601d"
+OUT = J / "jfwd_screw_lcf_v352_v3.json"
+ROWS = J / "jfwd_in718_rows_v352_v8.json"
+RELAXJ = J / "jfwd_relax_v352_v8.json"
+ENV_SHA16 = "43a5d78b67c615fc"
 sys.path.insert(0, "/home/claude/work/mechanical/v352/engine/04-fea/src")
 import engmat
 MAT = engmat.MATERIALS["IN718"]
@@ -170,11 +175,11 @@ def S_at_MS0(E, Su, fty, kf, f):
 
 
 rows = json.loads(ROWS.read_text())
-assert rows["version"] == "v6" and rows["inputs"]["fea3d_soak_envelope"]["sha256_16"] == ENV_SHA16, rows["inputs"]["fea3d_soak_envelope"]
+assert rows["version"] == "v8" and rows["inputs"]["fea3d_soak_envelope"]["sha256_16"] == ENV_SHA16, rows["inputs"]["fea3d_soak_envelope"]
 rel = json.loads(RELAXJ.read_text())
 A_S, Z_3 = rel["inputs"]["constants"]["A_s_mm2"], rel["inputs"]["constants"]["Z_3_mm3"]
-out = {"id": "jfwd_screw_lcf_v352", "version": "v2", "date": "2026-10-20", "owner": "mechanical", "method": __doc__.strip(),
-       "inputs": {"rows_v6_json": {"path": str(ROWS), "sha256_16": sha(ROWS)}, "relax_v7_json": {"path": str(RELAXJ), "sha256_16": sha(RELAXJ)},
+out = {"id": "jfwd_screw_lcf_v352", "version": "v3", "date": "2026-10-21", "owner": "mechanical", "method": __doc__.strip(),
+       "inputs": {"rows_v8_json": {"path": str(ROWS), "sha256_16": sha(ROWS)}, "relax_v8_json": {"path": str(RELAXJ), "sha256_16": sha(RELAXJ)},
                   "fea3d_soak_envelope": rows["inputs"]["fea3d_soak_envelope"],
                   "engmat_IN718_Ftu": MAT["Ftu"]["src"], "engmat_IN718_E": MAT["E"]["src"],
                   "RA": RA, "D_true_fracture_ductility": round(D, 4), "Kf_basis": KF, "Kf_sensitivity": KF_SENS, "n_curve": NS,
@@ -205,6 +210,36 @@ for st in ("SOAK70", "SOAK", "SOAK52"):
                     rec[lab] = n_allow(S, E, Su, fty, kf, FUN[lab])
                 res[f"{st}|{load}|{h}|Kf{kf}"] = rec
 out["cases"] = res
+# v3 (R5): (b1)'s moment x the s6 / s9 ratio, INFORMATION cases (never govern)
+res_i = {}
+for st in ("SOAK70", "SOAK", "SOAK52"):
+    for load in ("3750", "4096"):
+        ph = rows["states"][st]["rows"][load]["screw_fibre_soak"]["per_history"]
+        for h, x in ph.items():
+            xi = x.get("info_M_x_ratio")
+            if not xi:
+                continue
+            fty = x["Fty_IN718_MPa"]
+            T = T_of_Fty(fty)
+            E, Su = tab("E", T), tab("Ftu", T)
+            for kf in KF_SENS:
+                rec = {"factor": xi["factor"], "T_C": round(T, 1), "M_hot_Nmm": xi["M_Nmm"], "fibre_hot_MPa": xi["fibre_MPa"], "fibre_cold_MPa": x["fibre_cold_MPa"],
+                       "range_firing_MPa": round(xi["fibre_MPa"] - x["fibre_cold_MPa"], 1), "Kf": kf}
+                for lab in METHODS:
+                    S = rec["range_firing_MPa"] if lab == "i_firing" else xi["fibre_MPa"]
+                    rec[lab] = n_allow(S, E, Su, fty, kf, FUN[lab])
+                res_i[f"{st}|{load}|{h}|Kf{kf}|info_Mx{xi['factor']}"] = rec
+out["cases_info_M_x_ratio"] = res_i
+gi = {}
+for kf in KF_SENS:
+    for lab in METHODS:
+        for pe in ("3750", "4096"):
+            ks = [k for k in res_i if k.split("|")[1] == pe and k.split("|")[3] == f"Kf{kf}"]
+            if ks:
+                k = min(ks, key=lambda k: res_i[k][lab]["N_allow"])
+                gi[f"{lab}|Kf{kf}|{pe}"] = {"case": k, "N_allow": res_i[k][lab]["N_allow"], "MS_cycles_vs_50": res_i[k][lab]["MS_cycles_vs_50"],
+                                            "nominal_MPa": res_i[k]["range_firing_MPa"] if lab == "i_firing" else res_i[k]["fibre_hot_MPa"]}
+out["governing_info_M_x_ratio"] = gi
 out["history_classes"] = HCLS
 # the universal slopes give the lower life in every row (lead 15:46Z: 'they are the lower life in every row anyway'): recorded, not assumed
 viol = [f"{k}|{lab}" for k, r in res.items() for lab in METHODS if r[lab]["BK_info"]["N_allow"] < r[lab]["N_allow"]]
@@ -305,6 +340,7 @@ for k, v in bend.items():
     print("BEND", k, {a: v[a] for a in ("governing_life_case", "N_allow", "largest_reduction_case", "nominal_MPa", "nominal_at_MS0_MPa",
                                         "axial_part_MPa", "bending_part_MPa", "M_hot_Nmm", "M_hot_at_MS0_Nmm", "M_reduction_needed_pct",
                                         "closes_by_bending_alone")}, len(v["cases_not_closable_by_bending"]))
+print("INFO Mx", {k: (v["N_allow"], v["MS_cycles_vs_50"]) for k, v in gi.items() if "Kf3.0" in k})
 print("US lower in every row", out["US_lower_in_every_row"]["holds"], len(out["US_lower_in_every_row"]["rows_where_BK_lower"]))
 print("allow", out["allowable_universal_slopes"], "range at MS0", out["nominal_firing_range_at_MS0_MPa"])
 print(OUT, hashlib.sha256(s.encode()).hexdigest()[:16])

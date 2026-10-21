@@ -2,6 +2,8 @@
 'Re-state the rows that depend on the minimum at the new minimum: about 2060 N with today's K range scaled by 3750 / 4096, or the J-F1
 lot result.  That covers the cold-after-embedding seating and the K_js5 rows.  If any turns negative, stop and tell me.').  Mechanical,
 2026-10-20, v4 (v3 04f3079e634c77da / json 150900bd77dc5fc9 kept as jfwd_spring_v352_v3.py).  CALC / DERIVED; not physical approval.
+v5 (2026-10-21; v4 541efebba06de6d0 / json a277b996c2d61b83 kept as jfwd_spring_v352_v4.py): re-run on relax v8 / rows v8 (lead 2026-10-21T05:50:45Z re-map brief R1-R8: FEA3D-2's FINAL envelope v6 43a5d78b67c615fc with the input record jfwd_v7inputs_cD_v352.json 5a41c8d74897bdda; instances add (b1), (b1) rep, (b2'), (cD)); method unchanged; the
+harness re-runs relax v8's 24 cases without a spring, and the stop test compares against v4 (the J-F1 band 2057.6 / 3750 N).
 v4: the harness check (no spring) still reproduces relax v7 at its own installation keys (2250 / 4096 N); every spring run after it is at
 the J-F1 band 2057.6 / 3750 N (torque 3750 x 0.1465 x 5 = 2746.9 N mm on today's K window 0.1465-0.267; the J-F1 lot result replaces the
 band when it exists): the R sweep, the lead-16:07Z table, the relaxation threshold and the embedding sensitivity; the cold end is quoted
@@ -58,20 +60,20 @@ from pathlib import Path
 import numpy as np
 
 J = Path("/home/claude/work/mechanical/v352/jfwd")
-OUT = J / "jfwd_spring_v352_v4.json"
-ROWS7J, ROWS7_SHA16 = J / "jfwd_in718_rows_v352_v7.json", "6113d28b64d0dba5"
-V3J, V3J_SHA16 = J / "jfwd_spring_v352_v3.json", "150900bd77dc5fc9"
+OUT = J / "jfwd_spring_v352_v5.json"
+ROWS7J, ROWS7_SHA16 = J / "jfwd_in718_rows_v352_v8.json", "af072cc2e70711ca"
+V3J, V3J_SHA16 = J / "jfwd_spring_v352_v4.json", "a277b996c2d61b83"          # v5: the previous version (v4) for the comparison
 CK5, CK5_SHA16 = Path("/home/claude/work/mechanical/v352/checks/test_rev5_jfwd_v2.json"), "32c41e1e207f9d64"
-_spec = importlib.util.spec_from_file_location("jfwd_relax_v352_v7", str(J / "jfwd_relax_v352.py"))
+_spec = importlib.util.spec_from_file_location("jfwd_relax_v352_v8", str(J / "jfwd_relax_v352.py"))
 R = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(R)
-assert "v7 (v6 9465eaeac9af407f" in R.__doc__
+assert "v8 (v7 82221fdf0035f338" in R.__doc__
 sha = R.sha
 STATE0 = R.state_s
 K_C = R.K_C
 LBF = 4.4482216152605
 IN = R.IN_KEY
-V5J = J / "jfwd_relax_v352_v7.json"
+V5J = J / "jfwd_relax_v352_v8.json"
 
 
 class Spring:
@@ -215,7 +217,7 @@ def geometry_and_bearing():
     W = importlib.util.module_from_spec(_sw)
     _sw.loader.exec_module(W)
     assert W.A_THE_ROW == 67.93 and W.THE_ROW_NS["A_n_gap_bound_mm2"] == 68.13 and W.THE_ROW_B["A_n_gap_bound_mm2"] == 67.93, W.A_THE_ROW
-    assert sha(J / "jfwd_in718_rows_v352.py") == "880ffe58c8af05e6", "rows v7 module"
+    assert sha(J / "jfwd_in718_rows_v352.py") == "62fd8d590ade2875", "rows v8 module"
     T_TOL = (+0.02, -0.06)                                        # DIN EN 16983 / DIN 2093 thickness t 0.20-0.60 (Schnorr brochure 2024-02 p. 10)
     SOAK = ("SOAK70", "SOAK", "SOAK52")
     NS, FSY, HENV = {}, {}, {}
@@ -291,9 +293,9 @@ def LBL_(h):
 
 if __name__ == "__main__":
     t0 = time.time()
-    res = {"id": "jfwd_spring_v352", "version": "v4", "date": "2026-10-20", "owner": "mechanical", "basis": __doc__.strip(),
-           "inputs": {"relax_v7_module": {"path": str(J / "jfwd_relax_v352.py"), "sha256_16": sha(J / "jfwd_relax_v352.py")},
-                      "relax_v7_json": {"path": str(V5J), "sha256_16": sha(V5J)},
+    res = {"id": "jfwd_spring_v352", "version": "v5", "date": "2026-10-21", "owner": "mechanical", "basis": __doc__.strip(),
+           "inputs": {"relax_v8_module": {"path": str(J / "jfwd_relax_v352.py"), "sha256_16": sha(J / "jfwd_relax_v352.py")},
+                      "relax_v8_json": {"path": str(V5J), "sha256_16": sha(V5J)},
                       "fea3d_soak_envelope": {"path": str(R.F_ENV), "sha256_16": sha(R.F_ENV)}},
            "k_b_bracket_N_mm": {k: round(v) for k, v in R.KB.items()},
            "springs": {k: {"part": sp.part, "material": sp.material, "De_Di_t_l0_h0_mm": [sp.De, sp.Di, sp.t, sp.l0, sp.h0],
@@ -311,12 +313,12 @@ if __name__ == "__main__":
             cs, prm = run_cfg(None, 1.0, end, fam)
             v = verdict(cs)
             ref = v5[f"{IN}|{end}|{fam}"]
-            chk[f"{end}|{fam}"] = {"F_S_min_N": v["F_S_min_N"], "n_unseated": v["n_unseated"], "relax_v7_F_S_min_N": ref["F_S_min_N"],
-                                   "relax_v7_n_unseated": ref["n_unseated"], "cold_end_2250_N": v["cold_end_F_S_min_at_J_F1_min_N"],
-                                   "relax_v7_cold_end_2250_N": ref["cold_end_F_S_min_2250_N"], **prm}
+            chk[f"{end}|{fam}"] = {"F_S_min_N": v["F_S_min_N"], "n_unseated": v["n_unseated"], "relax_v8_F_S_min_N": ref["F_S_min_N"],
+                                   "relax_v8_n_unseated": ref["n_unseated"], "cold_end_2250_N": v["cold_end_F_S_min_at_J_F1_min_N"],
+                                   "relax_v8_cold_end_2250_N": ref["cold_end_F_S_min_2250_N"], **prm}
             assert abs(v["F_S_min_N"] - ref["F_S_min_N"]) <= 1.0 and v["n_unseated"] == ref["n_unseated"], (end, fam, v["F_S_min_N"], ref["F_S_min_N"])
             assert abs(v["cold_end_F_S_min_at_J_F1_min_N"] - ref["cold_end_F_S_min_2250_N"]) <= 1.0, (end, fam, v["cold_end_F_S_min_at_J_F1_min_N"])
-    res["harness_check_no_spring_vs_v7"] = chk
+    res["harness_check_no_spring_vs_relax_v8"] = chk
     print("harness ok", {k: (x["F_S_min_N"], x["n_unseated"]) for k, x in chk.items()}, round(time.time() - t0, 1), flush=True)
     # v4: the J-F1 band capped at 3750 N (lead 17:55:55Z F1)
     K_WIN, D_NOM, F_CAP = (0.1465, 0.267), 5.0, 3750.0
@@ -324,7 +326,7 @@ if __name__ == "__main__":
     F_MIN = T_JF1 / (K_WIN[1] * D_NOM)
     assert sha(ROWS7J) == ROWS7_SHA16 and sha(V3J) == V3J_SHA16
     _r7 = json.loads(ROWS7J.read_text())
-    assert abs(F_MIN - _r7["J_F1"]["minimum_N_today_K_window"]) < 0.05 and _r7["J_F1"]["maximum_N"] == F_CAP, "rows v7 J_F1 band"
+    assert abs(F_MIN - _r7["J_F1"]["minimum_N_today_K_window"]) < 0.05 and _r7["J_F1"]["maximum_N"] == F_CAP, "rows v8 J_F1 band"
     INSTALL_V3 = dict(R.INSTALL)
     R.INSTALL = {"J-F1_min_2058": F_MIN, "J-F1_max_3750": F_CAP}
     res["J_F1_band"] = {"cap_N": F_CAP, "min_N": round(F_MIN, 1), "torque_Nmm": round(T_JF1, 1), "K_window": list(K_WIN),
@@ -397,9 +399,9 @@ if __name__ == "__main__":
     cmp3, turned = {}, []
     for k, v in runs.items():
         o = v3["runs"][k]
-        cmp3[k] = {"v4_2058_3750": {"all_seated": v["all_seated"], "F_S_min_N": v["F_S_min_N"], "cold_end_N": v["cold_end_F_S_min_at_J_F1_min_N"],
+        cmp3[k] = {"v5_2058_3750": {"all_seated": v["all_seated"], "F_S_min_N": v["F_S_min_N"], "cold_end_N": v["cold_end_F_S_min_at_J_F1_min_N"],
                                     "lift_max_um": v["lift_max_um"], "hot_F_S_min_N": v["hot_F_S_min_N"], "solid_hot": v["solid_at_every_hot_frame_all_cases"]},
-                   "v3_2250_4096_info": {"all_seated": o["all_seated"], "F_S_min_N": o["F_S_min_N"], "cold_end_N": o["cold_end_F_S_min_2250_N"],
+                   "v4_2058_3750_previous": {"all_seated": o["all_seated"], "F_S_min_N": o["F_S_min_N"], "cold_end_N": o["cold_end_F_S_min_at_J_F1_min_N"],
                                          "lift_max_um": o["lift_max_um"], "hot_F_S_min_N": o["hot_F_S_min_N"], "solid_hot": o["solid_at_every_hot_frame_all_cases"]}}
         if (not v["all_seated"]) or v["F_S_min_N"] <= 0.0 or v["cold_end_F_S_min_at_J_F1_min_N"] <= 0.0:
             turned.append(f"{k}: all_seated {v['all_seated']}, F_S min {v['F_S_min_N']} N, cold end {v['cold_end_F_S_min_at_J_F1_min_N']} N")
@@ -410,7 +412,7 @@ if __name__ == "__main__":
             continue
         if (not v["all_seated"]) or v["F_S_min_N"] <= 0.0 or v["cold_end_F_S_min_at_J_F1_min_N"] <= 0.0:
             turned.append(f"emb {k}: all_seated {v['all_seated']}, F_S min {v['F_S_min_N']} N")
-    res["v4_vs_v3_2250_4096_info"] = cmp3
+    res["v5_vs_v4"] = cmp3
     res["stop_test_lead_F1"] = {"turned_negative": turned, "verdict": "NONE TURNED NEGATIVE" if not turned else "STOP: TELL THE LEAD",
                                 "scope": "every spring run (A and B, R 0-0.80, both k_b ends and families) and the embedding sensitivity at 2057.6 / 3750 N"}
     print("STOP-TEST", res["stop_test_lead_F1"]["verdict"], turned, flush=True)

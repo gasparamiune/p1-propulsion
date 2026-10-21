@@ -1,0 +1,52 @@
+{
+ "id": "jfwd_r6_companions_v352",
+ "version": "v1",
+ "date": "2026-10-21",
+ "owner": "mechanical",
+ "basis": "R6 companions (information): the J-FWD FA1S rows that sit beside the HW-101 Eq. 22 criterion row, restated on the R6 basis\n(lead 2026-10-21T05:50:45Z R6: 'HW-101 Eq. 22 at max(CALC, FE) per resultant: V 4079.2 N (FE, (b1) FA1S) and M 4354.7 N mm (CALC);\nhole bearing stays on the CALC row (+0.005 / +0.239)').  Mechanical, 2026-10-21, v1.  CALC on SIM inputs; information only, no criterion\nrow changes here (the Eq. 22 criterion row is rows v8 FA1S_screw_5020A_eq22.governing_omitted).\n  (1) Eq. 22 at arm +0.4 mm (sensitivity): rows v8 carries fix v2's CALC row (V 3888.1, arm 1.32, M 5132.2: +0.165 / included -0.035);\n      on the R6 basis V = max(3888.1, FE 4079.2), M = max(CALC 5132.2, FE 4269.8).\n  (2) TC-02 tapped-thread bearing (231 (1)(ii)) on FEA3D's d x L_e basis: rows v8 FA1S_tap_bearing at V 3888.1; here at V 4079.2.\n  (3) the R6 criterion row reproduced (rows v8 eq22_ms, the same allowables), as the check of this script.\nUsage: jfwd_r6_companions_v352.py -> v352/jfwd/jfwd_r6_companions_v352_v1.json",
+ "inputs": {
+  "fix_v2": {
+   "path": "/home/claude/work/shared-fallback/engine/04-fea/v352/jfwd_fix_v352_v2.json",
+   "sha256_16": "760d6c6f2d7d46d5"
+  },
+  "rows_v8": {
+   "path": "/home/claude/work/mechanical/v352/jfwd/jfwd_in718_rows_v352_v8.json",
+   "sha256_16": "af072cc2e70711ca"
+  }
+ },
+ "check_R6_criterion_row_reproduced": {
+  "V_N": 4079.2,
+  "M_Nmm": 4354.6,
+  "interaction": 0.678,
+  "MS_omitted": 0.278,
+  "MS_included_info": 0.065
+ },
+ "eq22_arm_+0.4_sens_R6_basis_INFO": {
+  "arm_mm": 1.32,
+  "V_N": 4079.2,
+  "V_from": "FE (b1) FA1S V_plane (seat_s9L12_mu02A/seatforce.json)",
+  "M_Nmm": 5132.2,
+  "M_from": "CALC 3888.1 x arm 1.32 (fix v2 row; above the FE (b1) 4269.8)",
+  "interaction_omitted": 0.798,
+  "MS_omitted": 0.148,
+  "interaction_included_info": 1.073,
+  "MS_included_info": -0.048,
+  "fix_v2_basis_record": {
+   "V_N": 3888.1,
+   "MS_omitted": 0.165,
+   "MS_included_info": -0.035
+  }
+ },
+ "TC02_tap_bearing_at_R6_V_INFO": {
+  "V_N": 4079.2,
+  "sigma_MPa": 120.0,
+  "MS_y": 1.756,
+  "MS_u": 2.397,
+  "basis": "rows v8 FA1S_tap_bearing (FEA3D's d x L_e, allowables back-computed) scaled to V 4079.2",
+  "CALC_3888.1_record": {
+   "MS_y": 1.891,
+   "MS_u": 2.564
+  }
+ },
+ "tag": "CALC on SIM (FE (b1) V) and fix v2 allowables; INFORMATION, not criterion rows"
+}

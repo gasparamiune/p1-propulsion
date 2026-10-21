@@ -1,0 +1,57 @@
+{
+ "id": "margin_matrix_v352 re-run on Mechanical's rows v8 (lead)",
+ "date": "2026-10-21T07:51:43Z",
+ "tag": "CALC / SIM / DERIVED as in the table; a table re-run, not physical approval",
+ "why": "Mechanical's single J-FWD re-map on the FINAL envelope v6 was published under the lead go 2026-10-21T07:37:34Z (CHANGELOG line 254, sha16 c7d52385af9ce594): rows v8 jfwd_in718_rows_v352_v8.json af072cc2e70711ca, with HW-101 5020A Eq. 22 on the R6 basis (V 4079.2 N FE (b1), M 4354.6 N mm CALC).",
+ "script_edit": {
+  "old": "assembly3d_v352/scripts/margin_matrix_v352.py 0b7c0b20648f27ce",
+  "new": "scripts/margin_matrix_v352.py bdf81ef02f87855f",
+  "edits": [
+   "MECH_IN718 reads jfwd_in718_rows_v352_v8.json first",
+   "the HW-101 Eq. 22 criterion row reads rows v8 FA1S_screw_5020A_eq22.governing_omitted (0.278), note included 0.065 (information), basis R6_basis; the fix v2 CALC row (0.301 / 0.082) is the fallback and the superseded record",
+   "JFWD_PENDING = [] (the re-map and the select-fit band, LEAD RULING R2-B 07:37:34Z, are published)"
+  ]
+ },
+ "inputs_sha16": {
+  "04-fea/v352/jfwd_in718_rows_v352_v8.json": "af072cc2e70711ca",
+  "04-fea/v352/jfwd_fix_v352_v2.json": "760d6c6f2d7d46d5",
+  "04-fea/v352/MANIFEST_v352.sha256": "3106a6f3fe43ed90"
+ },
+ "compared_against": {
+  "assembly3d_v352/tables/margin_matrix_v352.json": "e59e35df6759afbb",
+  "assembly3d_v352/tables/margin_matrix_v352.md": "3d274f66c31a18e4",
+  "assembly3d_v352/MANIFEST.sha256 (unchanged)": "a4b920eb96f50053"
+ },
+ "cells_compared": 467,
+ "cell_value_changes": [
+  {
+   "part": "HW-101 (J-FWD)",
+   "column": "J-FWD",
+   "old_MS_y_MS_u": [
+    0.65,
+    0.301
+   ],
+   "new_MS_y_MS_u": [
+    0.65,
+    0.278
+   ]
+  }
+ ],
+ "part_minimum_changes": [
+  {
+   "part": "HW-101 (J-FWD)",
+   "old": [
+    0.301,
+    "J-FWD",
+    "u"
+   ],
+   "new": [
+    0.278,
+    "J-FWD",
+    "u"
+   ]
+  }
+ ],
+ "unchanged_note": "TC-01 J-FWD -0.075 / +0.239 and TC-02 J-FWD +0.045 / +0.162 are unchanged; non-governing rows moved in the third decimal (e.g. HW-101 A_s tension MS_u 0.956 -> 0.955); the J-FWD pending list is now empty.",
+ "reading_rule": "This folder supersedes assembly3d_v352/tables/margin_matrix_v352.{md,json} and scripts/margin_matrix_v352.py; everything else in assembly3d_v352 stands as published."
+}

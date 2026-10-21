@@ -1,6 +1,8 @@
 """J-FWD ENG-HW-101-IN718 head-to-shank undercut fillet: a static row and an LCF row on the FE moment at the head end (lead 17:55:55Z F3
 ADD: 'the screw's own head-to-shank undercut fillet needs a static row and an LCF row on the FE moment at the head end, with a sourced Kt
 cited by page (TO-SOURCE).  Time-box it like the MJ box.  If it governs over the thread root, say so.').  Mechanical, 2026-10-20, v1.
+v2 (2026-10-21; v1 54404487e7c42a74 / json 337883c3f2076a32 kept as jfwd_head_fillet_v352_v1.py): re-run on relax v8 / rows v8 (lead 2026-10-21T05:50:45Z re-map brief R1-R8: FEA3D-2's FINAL envelope v6 43a5d78b67c615fc with the input record jfwd_v7inputs_cD_v352.json 5a41c8d74897bdda; instances add (b1), (b1) rep, (b2'), (cD));
+the head-end moment of every shank.json instance ((b2), (b1), (b2'), (cD), and the repeats) is read from its own shank.json; LCF v3.
 CALC on SIM temperatures and FE section resultants; DERIVED unless tagged; software estimate, not a test; negatives SHOWN AS FOUND.
 
 Geometry (F3 ADOPTED): undercut fillet r 0.2-0.3 into the head, entirely above the bearing face; pilot 5.15 h9 (5.120-5.150) x 0.25-0.30;
@@ -46,19 +48,19 @@ import numpy as np
 
 T0 = time.time()
 J = Path("/home/claude/work/mechanical/v352/jfwd")
-OUT = J / "jfwd_head_fillet_v352_v1.json"
-ROWS_PY, ROWS7J = J / "jfwd_in718_rows_v352.py", J / "jfwd_in718_rows_v352_v7.json"
-LCF_PY, LCFJ = J / "jfwd_screw_lcf_v352.py", J / "jfwd_screw_lcf_v352_v2.json"
-SHA = {"rows_py": "880ffe58c8af05e6", "rows7j": "6113d28b64d0dba5"}
+OUT = J / "jfwd_head_fillet_v352_v2.json"
+ROWS_PY, ROWS7J = J / "jfwd_in718_rows_v352.py", J / "jfwd_in718_rows_v352_v8.json"
+LCF_PY, LCFJ = J / "jfwd_screw_lcf_v352.py", J / "jfwd_screw_lcf_v352_v3.json"
+SHA = {"rows_py": "62fd8d590ade2875", "rows7j": "af072cc2e70711ca"}
 sha = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()[:16]
-assert sha(ROWS_PY) == SHA["rows_py"] and sha(ROWS7J) == SHA["rows7j"], "rows v7"
-_sw = importlib.util.spec_from_file_location("jfwd_in718_rows_v352_v7", str(ROWS_PY))
+assert sha(ROWS_PY) == SHA["rows_py"] and sha(ROWS7J) == SHA["rows7j"], "rows v8"
+_sw = importlib.util.spec_from_file_location("jfwd_in718_rows_v352_v8", str(ROWS_PY))
 W = importlib.util.module_from_spec(_sw)
 _sw.loader.exec_module(W)
 R, IN = W.R, W.IN
 rws = json.loads(ROWS7J.read_text())
 lcf = json.loads(LCFJ.read_text())
-assert rws["version"] == "v7" and lcf["version"] == "v2"
+assert rws["version"] == "v8" and lcf["version"] == "v3"
 FV0, FVMAX = W.FV0, W.FVMAX
 assert FV0 == 3750.0 and FVMAX == 4096.0
 
@@ -180,9 +182,9 @@ assert _r2["N_allow"] == _c["ii_assembly_from_zero"]["N_allow"], (_r2, _c["ii_as
 
 # ---- FE head-end section resultants
 def head_end(h, st):
-    if h in R.B2:
+    if R.src_of(h, st)[0] in R.SHANK_MOMENTS:          # v2: every shank.json instance (relax v8 SHANK_MOMENTS)
         hp, step = R.src_of(h, st)
-        secs = R._SH["patch_b2"]["steps"][step]["sections"]
+        secs = R._SH[hp]["steps"][step]["sections"]
         cand = [(abs(q["M"]), q["x"], q["N"]) for q in secs if q["x"] >= 30.9]
         src = f"shank.json {step}"
     else:
@@ -282,13 +284,13 @@ def kt_scale_for(target, FVk, lab):
     return 0.5 * (lo + hi)
 
 
-res = {"id": "jfwd_head_fillet_v352", "version": "v1", "date": "2026-10-20", "owner": "mechanical", "basis": __doc__.strip(),
+res = {"id": "jfwd_head_fillet_v352", "version": "v2", "date": "2026-10-21", "owner": "mechanical", "basis": __doc__.strip(),
        "status": "CALC; Kt basis WEB-SOURCED, BOOK PAGE TO-SOURCE; bolt-head (T-head) loading NOT SOURCED; negatives SHOWN AS FOUND",
-       "inputs": {"rows_v7_module": {"path": str(ROWS_PY), "sha256_16": sha(ROWS_PY)}, "rows_v7_json": {"path": str(ROWS7J), "sha256_16": sha(ROWS7J)},
-                  "relax_v7_module": {"path": str(J / "jfwd_relax_v352.py"), "sha256_16": sha(J / "jfwd_relax_v352.py")},
-                  "screw_lcf_v2": {"path": str(LCF_PY), "sha256_16": sha(LCF_PY), "json": str(LCFJ), "json_sha256_16": sha(LCFJ)},
+       "inputs": {"rows_v8_module": {"path": str(ROWS_PY), "sha256_16": sha(ROWS_PY)}, "rows_v8_json": {"path": str(ROWS7J), "sha256_16": sha(ROWS7J)},
+                  "relax_v8_module": {"path": str(J / "jfwd_relax_v352.py"), "sha256_16": sha(J / "jfwd_relax_v352.py")},
+                  "screw_lcf_v3": {"path": str(LCF_PY), "sha256_16": sha(LCF_PY), "json": str(LCFJ), "json_sha256_16": sha(LCFJ)},
                   "fea3d_soak_envelope": rws["inputs"]["fea3d_soak_envelope"],
-                  "fe_sections": "compare.json screw_sections (x' 28.7-31.0) and (b2) shank.json sections (x' 26.4-31.25); seat x' 31.313"},
+                  "fe_sections": "compare.json screw_sections (x' 28.7-31.0) and the shank.json sections of (b2), (b1), (b2'), (cD) (x' 26.4-31.25); seat x' 31.313"},
        "geometry_F3": {"pilot_d_mm": D_PILOT, "fillet_r_mm": R_FIL, "head_dk_mm": D_HEAD, "d_f_used_mm": D_F,
                        "A_f_mm2": round(A_F, 3), "Z_f_mm3": round(Z_F, 3), "thread_A_s_mm2": A_S, "thread_Z_3_mm3": Z_3,
                        "section_ratio_axial_A_s_over_A_f": round(A_S / A_F, 4), "section_ratio_bending_Z_3_over_Z_f": round(Z_3 / Z_F, 4)},
@@ -325,13 +327,13 @@ for FVk in ("3750", "4096"):
     cmpr[FVk] = {"column": "GOVERNING (J-F1 cap)" if FVk == "3750" else "INFORMATION (superseded maximum)",
                  "static": {"case": ks, "MS_y_net": rq[ks]["static_MS_y_net"], "MS_u_net": rq[ks]["static_MS_u_net"], "S_nominal_MPa": rq[ks]["S_nominal_MPa"],
                             "thread_root_fibre_same_case_MPa": rq[ks]["thread_root_nominal_fibre_MPa"],
-                            "rows_v7_screw_fibre_MS_y_min": min(rws["states"][st]["rows"][FVk]["screw_fibre_soak"]["MS_y_fibre"] for st in STATES_LCF)}}
+                            "rows_v8_screw_fibre_MS_y_min": min(rws["states"][st]["rows"][FVk]["screw_fibre_soak"]["MS_y_fibre"] for st in STATES_LCF)}}
     for lab in METHODS:
         kf, nf = lcf_min(rq, lab)
         kl, nl = lcf_min(ROWS[f"{FVk}|page_literal_r0.2"], lab)
         g = lcf["governing"][f"{lab}|Kf3.0|worst_of_histories|{FVk}"]
         cmpr[FVk][lab] = {"fillet_case": kf, "fillet_N_allow": nf, "fillet_MS": round(nf / N_REQ - 1.0, 3), "fillet_Kt_eff": rq[kf]["Kt_eff"],
-                          "fillet_page_literal_N_allow": nl, "thread_root_case_lcf_v2": g["case"], "thread_root_N_allow": g["N_allow"],
+                          "fillet_page_literal_N_allow": nl, "thread_root_case_lcf_v3": g["case"], "thread_root_N_allow": g["N_allow"],
                           "thread_root_MS": g["MS_cycles_vs_50"], "fillet_governs": bool(nf < g["N_allow"])}
         if lab != "ii_stable_reassembly_info":
             s_be = kt_scale_for(g["N_allow"], FVk, lab)
@@ -346,7 +348,7 @@ gov_any = any(c3[l]["fillet_governs"] for l in ("i_firing", "ii_assembly_from_ze
 res["verdict"] = (f"At the J-F1 cap 3750 N the fillet root (d 5.120, A {A_F:.2f} mm2, Z {Z_F:.2f} mm3; head-end FE moment, IN718-scaled) carries a nominal "
                   f"fibre of {c3['static']['S_nominal_MPa']} MPa at {c3['static']['case']} (thread root of the same case {c3['static']['thread_root_fibre_same_case_MPa']} MPa): "
                   f"static net-section MS_y {c3['static']['MS_y_net']:+.3f}, MS_u {c3['static']['MS_u_net']:+.3f} (the thread-root screw-fibre MS_y is "
-                  f"{c3['static']['rows_v7_screw_fibre_MS_y_min']:+.3f}, rows v7).  LCF on the quoted stepped-bar Kt (r 0.2: Kt_t {KT_Q['tension']:.3f}, Kt_b "
+                  f"{c3['static']['rows_v8_screw_fibre_MS_y_min']:+.3f}, rows v8).  LCF on the quoted stepped-bar Kt (r 0.2: Kt_t {KT_Q['tension']:.3f}, Kt_b "
                   f"{KT_Q['bending']:.3f}; Kf = Kt): (i) per firing N_allow {c3['i_firing']['fillet_N_allow']} (MS {c3['i_firing']['fillet_MS']:+.3f}) against the "
                   f"thread root {c3['i_firing']['thread_root_N_allow']} (MS {c3['i_firing']['thread_root_MS']:+.3f}); (ii) assembly from zero N_allow "
                   f"{c3['ii_assembly_from_zero']['fillet_N_allow']} (MS {c3['ii_assembly_from_zero']['fillet_MS']:+.3f}) against "
