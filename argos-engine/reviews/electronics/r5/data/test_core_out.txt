@@ -1,0 +1,346 @@
+PASS CRC-8/SAE-J1850 check value 0x4B  [got 0x4B]
+PASS CRC-16/CCITT-FALSE check value 0x29B1  [got 0x29B1]
+PASS LogRecord v13 is 185 bytes (v2.12: + seat_comp_hPa, seat_ref_dK, f3_flags; 1 kHz x 185 B = 185 kB/s to SD; v12 180 B, v11 179 B, v10 150 B, v8/v9 137 B, v7 134 B, v6 120 B)
+PASS 2-key state command keys
+PASS CMD_FAST round trip (0.1 N, 1 mdeg quantisation)  [F 123.40 N]
+PASS CMD_FAST repeated sequence rejected (stale buffer)
+PASS CMD_FAST corrupted payload rejected by CRC-8
+PASS CMD_FAST wrong length rejected
+PASS CMD_STATE with wrong key rejected (valid CRC)
+PASS ABORT frame accepted on repeat (no sequence check)
+PASS CMD_AUX roll frame accepted
+PASS CMD_AUX with broken complement copy rejected (valid CRC)
+PASS all 64 single-bit errors detected by CRC-8 (on top of CAN CRC-15)
+PASS all 2016 double-bit errors detected by CRC-8  [undetected 0 of 2016]
+PASS triple-bit errors: informational  [undetected 198 of 41664 (0.4752 %)]
+PASS linkage lift->crank->lift inverse (0-4 mm)  [worst 2.79e-09 m]
+PASS pintle pulse width strictly increasing with lift
+PASS pintle pulse range inside servo travel  [1025.8 .. 2014.2 us]
+PASS closed command lies inside the lost-motion zone (needle seated by spring)
+PASS lift per 1 us at the 12.5 % floor < 5 um  [2.44 um/us]
+PASS crank-slider law matches the generator (0.1-4.2 mm)  [dphi 1.70e-06 rad, dlift 2.33e-09 m]
+PASS closed command = generator contact angle - 5 deg lost motion  [10.000 deg]
+PASS dLift/dCrank analytic = numeric at 2 mm  [2.92205 vs 2.92435 mm/rad]
+PASS pintle command travel (closed .. 4 mm) inside the 99 deg MKS confirmation item  [98.84 deg]
+PASS divider 12.7k/4.02k: 0.24043 unloaded, 0.23822 with the ADS131M04 330 kOhm input (-0.92 %; 300 kOhm: -1.01 %)  [k0 0.240431 k330 0.238226 k300 0.238008]
+PASS ADC code <-> gauge Pa round trip 0-66.5 bar g within 1.5 LSB; 1 LSB ~ 1 Pa  [worst 1.00 Pa, 1.051 Pa/count]
+PASS 0.1 bar at the 3.0 bar abs ignition threshold = > 9000 ADC counts (resolution is not the limit)  [9516 counts per 0.1 bar (code at 3 bar abs 1021723)]
+PASS ADC not saturated inside the fault window (4.75 V) nor at a 5.0 V output  [1.1316 V and 1.1911 V at the ADC vs 1.2 V FS]
+PASS baseline Pc transducer range 070BG = 0-70 bar g (ENG-09 rev 2: range >= 70 bar)  [70.0000 bar g]
+PASS alternate range 01KPG is a calibration value (fs_Pa 68.9476e5): same code reads x 68.95/70  [43.3385 bar g]
+PASS calibration bounds (gain_corr 0.95-1.05) and excitation window 4.75-5.25 V (M3200 supply)
+PASS thrust<->Pc table inverse and monotonic (40-520 N)  [worst 6.10e-05 N]
+PASS thrust table reproduces Combustion's points (Pc within 5 Pa)
+PASS valve map lift non-decreasing in Pc on every tank-pressure row
+PASS valve map inverse within 1 % below the dP/Pc ceiling  [worst 0.000 %]
+PASS no trim drift when measured Pc equals the setpoint  [trim 0.00e+00]
+PASS trim rises on persistent low Pc and stays inside its limit  [trim 0.400]
+PASS setpoint below the floor is raised to the minimum Pc setpoint
+PASS lift never below the trimmed anti-flameout floor  [x 194.7 um, floor 194.7 um, trim 0.000]
+PASS ARM refused without FC heartbeat (CMD_FAST)
+PASS ARM refused without arming plug (inhibit latched)
+PASS ARM refused below the 8.1 V rest permit
+PASS IGNITE ignored in SAFE (nothing energised)
+PASS ARM accepted with plug, battery, closed MV, zero Pc  [state 1 cause 0]
+PASS ARMED: igniter, spark and torch valves off
+PASS ABORT command from ARMED goes to ABORT/SAFE
+PASS after ABORT the ECU settles in SAFE with MV latch and ARM request off
+PASS ARM refused while the abort cause is latched (DISARM acknowledges)
+PASS ARM accepted after DISARM acknowledged the abort
+PASS ARMED + FC heartbeat lost > 100 ms -> abort to SAFE  [state 8 cause 10]
+PASS VENT works in SAFE (vent valve is not ARM-gated)
+PASS TVC lever-eye displacement matches the linear map at 0.1 deg (< 1 % of r_e*angle)  [worst 0.0005]
+PASS exact TVC solve: pushrod length kept to < 1 um at all poses up to the 8 deg stop (independent double check)  [max error 6.81e-09 m]
+PASS servo-angle extremes on the 7 deg cone equal the generated values (mechanical.json v2: -32.37 / +37.39 deg)  [-32.369 / 37.388 deg]
+PASS evidence: the v2.1-v2.5 vertical-rod map would be off by > 1.5 deg of servo angle on this linkage  [2.14 deg]
+PASS neutral mixing d psi / d(alpha, beta) equals mechanical.json (3.394 deg/deg)  [max diff 0.0001]
+PASS horn clamp per sense lies between the 7 deg need and the 8 deg stop  [clamp -34.60 / 40.70 deg (need -32.37 / 37.39, stop -36.82 / 44.21)]
+PASS command (11.5, 11.5) deg is clamped to the 7 deg vector norm  [norm 7.0000 deg]
+PASS TVC pulses stay inside 1000-2000 us for any over-range command  [1176.3 .. 1873.9 us]
+PASS levers at 135/225 deg: +alpha lifts horn A and lowers horn B, +beta lifts both  [alpha: A 1598.8 B 1407.1 us, beta: A 1599.0 B 1599.0 us]
+PASS Pc setpoint ceiling within the lead cap of 25 bar  [25.000 bar abs]
+PASS Pc transducer in range at the 63 bar blocked-nozzle bound  [4.042 V]
+PASS test rig reaches RUN at Pc 25 bar (500 N)
+PASS Pc 29 bar abs for 200 ms: no abort (below the 30 bar limit)
+PASS Pc 31 bar abs in RUN -> PC_OVERPRESSURE abort (v2.10 RE-20: filtered, 5 ms)  [cause 17 after 10 ms]
+PASS PC_OVERPRESSURE: MV latch released, ARM bus kept to drive the pintle shut
+PASS PC_OVERPRESSURE: pintle commanded fully closed at the close rate  [cmd 0.000 mm]
+PASS ABORT with the pintle reading closed at 45 ms: ARM bus still requested
+PASS v2.6 ABORT, needle stuck at 2 mm: no closing progress for 0.1 s -> ARM bus released, one jam event (STALL_TIME), MAINT pending  [cmd at abort 1.84 mm, episode from 1 ms, released after 100 ms]
+PASS ABORT with Pc still above 30 bar at 60 ms: ARM bus released  [released after 60 ms]
+PASS Pc reading saturated high (4.9 V) aborts: OVP not gated by sensor validity  [cause 17]
+PASS Pc 40 bar during ignition -> over-pressure abort within 12 ms (v2.10 RE-20 filtered 5 ms; the persistence now runs on across E2: cause HARD_START in the start phase)  [cause 2 after 12 ms]
+PASS OVP_OK low in SAFE is ignored (latch state undefined before ARM)
+PASS ARMED with OVP_OK high (latch set by the ARM_REQ edge)
+PASS OVP_OK low in ARMED -> HW_OVERPRESSURE abort, ARM request dropped  [cause 18 after 2 ms]
+PASS priming test rig stays out of IGNITION without a primed feed
+PASS empty line: pintle at the 0.10 mm bleed lift before the main valve starts to open  [bleed 1 ms, opener moves 64 ms]
+PASS empty line: main-valve opener ramp lasts >= 0.3 s (COMB v2)  [346 ms]
+PASS bleed lift not confirmed by the encoder -> PREPRESS_FAIL before the valve moves  [abort after 60 ms, opener max 1500 us]
+PASS v2.6: unconfirmed bleed lift recorded as a suspected jam (kind 4), MAINT pending  [kind 4]
+PASS v2.6 primed line: no bleed lift, opener ramp >= 0.3 s on this opening too (LEAD rule b)  [pintle max 0.000 mm, opener moves 4.0 ms, cock at 350 ms]
+PASS both torch solenoids open on the first IGNITION tick (COMB t 0, 1 ms tick)
+PASS v2.7 RC-01: both torch valves close on the light-confirmation tick (RUN entry), never N2O-only (COMB v2.3 0.40/0.60 s retired)  [light step 200 ms, RUN 213 ms, propane 213 ms, N2O 213 ms, torch confirmed at 4 ms, N2O-alone ticks 0]
+PASS v2.7 spark train 50 Hz from 0.02 s, stopped with the torch valves  [10 sparks (expected 10)]
+PASS v2.7 torch flame confirmed kTorchConfirmN ticks after the torch chamber reads lit (ideal rig torch)  [confirmed at 4 ms]
+PASS v2.7 propane backstop at Pc 4.2 bar abs (before 5 bar): BOTH torch valves closed (v2.6 left the N2O torch valve open); v2.10 RE-18: on the kPropaneBackstopN-th consecutive raw sample, open before  [RUN 13 ms after the step]
+PASS v2.9 unlit plateau P0 + 0.70 bar (1.71 bar abs): NO_IGNITION abort at the lift command + W (R1 0.40 s) (v2.8.3: 2.9 bar abs vs the 3.0 bar rule)  [cause 3 after 405 ms, lift at 4 ms]
+PASS Pc 3.1 bar abs at 0.25 s: lit -> RUN (v2.9 relative rule: rise >= 0.8 bar, 10 ms)  [RUN 14 ms after the step (filter)]
+PASS v2.6 OI-6: a single 20 bar spike does not confirm light (the filtered Pc alone would have: v2.5 rule)  [filtered peak 3.85 bar abs, state 3]
+PASS v2.6 OI-6: 50 Hz train of 2 ms, 20 bar spikes on an unlit chamber -> no light, NO_IGNITION (v2.8: lift + 0.40 s)  [cause 3]
+PASS v2.9 light confirmed kIgnConfirmRelN-1 ticks after filtered AND raw first show the 0.8 bar rise over P0 and the 1.8 bar abs floor (v2.6 OI-6 rule, LEAD-adopted values)  [rise+floor first at 5 ms, RUN at 14 ms]
+PASS v2.6 OI-6: ARM accepted with a 1 bar single-frame spike; refused (PC_SENSOR) with a steady 0.6 bar reading  [spike case state 1, steady case cause 12]
+PASS v2.6 OI-6 / v2.11 203 (1)(a): over-range HIGH (4.9 V) in IGNITION -> HARD_START on the same tick; flight PC_OVERP + over-range bit (no PC_SENSOR latch), stand PC_SENSOR + PC_OVERP (as built)  [flight cause 2 faults got 0x0001, stand cause 2 faults got 0x0401]
+PASS v2.6 OI-6: over-range LOW (0.05 V, open/short) in IGNITION -> PC_SENSOR  [cause 12]
+PASS start ramp follows <= 2500 N/s after ignition (COMB v2.1)  [2500 N/s from 62 N]
+PASS start ramp ends at the command (500 N)
+PASS pre-MECO throttle-down to 75 % followed at the RUN setpoint slew  [375.0 N after 60 ms]
+PASS SHUTDOWN (MECO): pintle command closed at the full close rate (servo-limited)  [from 1.24 mm in 6 ms]
+PASS IGNITE ignored with Pc 0.15 bar g (chamber not vented, OI-12)  [state 1 refused 1]
+PASS IGNITE accepted with Pc 0.05 bar g  [state 2]
+PASS v2.10 ground no-light safing rule (LEAD 172 (1), 5 s retry withdrawn): NO_IGNITION on the pad first start -> lockout + safing hold; ARM refused at +6 s; keyed CLEAR_LOCKOUT refused (SAFING_HOLD) before 960 s, accepted after; then ARM + IGNITE accepted  [CLEAR refused at 959.9 s, accepted at 960.003 s (hold 960 s)]
+PASS v2.8 RC-01 gate: no torch flame -> TORCH_FAULT at 0.161 s (gate 0.16 s), pintle never lifted (the lift waits for E1); MV, torch and spark off on the abort tick  [abort after 161 ms, pintle command max 0.000 mm]
+PASS v2.8 RC-01 gate: P_torch reading invalid -> treated as no flame (TORCH_FAULT at 0.161 s, fail-safe)  [abort after 161 ms, pintle command max 0.000 mm]
+PASS v2.8.1 ground timing-only start (stand strap + key, first start): gate bypassed, pintle to the table minimum at 0.12 s, NO_IGNITION at 0.12 + 0.35 s (stand R1)  [lift 0.1928 mm (table max 0.2520 mm), abort after 471 ms]
+PASS v2.7 timing-only key refused in flight (NaN load cell -> TORCH_FAULT), wrong key ignored, DISARM in SAFE clears it
+PASS v2.7 timing-only applies to the first start of the arming session only: a relight with no torch flame -> TORCH_FAULT
+PASS v2.7 relight no-light after a lit burn: NO_IGNITION, MV dropped on the abort tick, relight lockout set (one-tick event for the NV copy)  [abort at 654 ms after IGNITION entry]
+PASS v2.7 lockout: ARM refused (RELIGHT_LOCKOUT) after DISARM + 6 s (no retry); wrong key refused; keyed CLEAR_LOCKOUT in SAFE clears (one-tick pulse)
+PASS v2.7 non-volatile lockout at boot (an ECU reset in flight cannot clear it): ARM refused until CLEAR_LOCKOUT and the HAL clears the flag
+PASS v2.7 flameout in a lit burn -> FLAMEOUT abort and relight lockout
+PASS v2.7 RELIGHT refused in COAST while a lockout is pending
+PASS v2.8 flight relight, no light: NO_IGNITION at the lift + 0.65 s, torch open until the abort, spark train capped at 25 sparks  [abort after 654 ms (expected 654), sparks 25, torch-open ticks 653]
+PASS v2.8 flight relight: a vapour-delayed light 0.60 s after E0 -> RUN inside the 0.65 s window; state TCs invalid -> still 0.65 s (telemetry only, no R4 in flight)
+PASS v2.7 RC-01 normal shutdown: NC valve held at SHUTDOWN, unlatched kSeatConfirmN ticks after the encoder reads seated, state exits after  [from 0.93 mm: seated (encoder) +5 ms, valve unlatched +9 ms, COAST +51 ms]
+PASS v2.7 seat not confirmed (needle creeping, monitor not tripped): NC valve unlatched on the 0.25 s timeout regardless, flagged (fault PINTLE), no abort  [unlatched 300 ms after SHUTDOWN, encoder 0.300 mm]
+PASS v2.7 pintle rail lost in RUN (OV disconnect): PINTLE_FAULT after 2 ms, MV de-energised on the abort tick, prail_lost latched, not a jam  [abort 2 ms after the drop]
+PASS v2.7 rail check ignored for 60 ms after the ARM bus comes on (soft start / LTC4365 delay) and while ADC2 is invalid; a dead rail on the pad aborts
+PASS v2.7 prail_lost cleared by DISARM in SAFE
+PASS v2.7 Pc signal lost in RUN: test stand -> PC_SENSOR abort after 5 ms; flight -> burn continues open loop (fault OPEN_LOOP)  [stand abort after 5 ms]
+PASS v2.7 abort matrix: CMD, rail loss, over-pressure, flameout, link loss -> NC valve unlatched on the abort tick, pintle command closing in parallel  [FC ABORT frame ok (1 ms); rail loss ok (2 ms); Pc 31 bar ok (13 ms); flameout ok (25 ms); link loss ok (101 ms); ]
+PASS v2.8 RELIGHT from COAST: OPEN switch made / CLOSED not made -> PREPRESS; primed segment with the valve shown closed -> direct IGNITION
+PASS v2.7 log fields (log v8): P_torch, rail mV, pintle mA, bore TC, seq_flags b0 torch ok / b1 bypass, window W 0.35 s (stand R1, v2.8.1); invalid markers  [got 0x03]
+PASS v2.7 NvJamRecord flags b1 relight lockout: set/clear independent of the jam flag; CORRUPT = lockout pending (fail-safe)
+PASS v2.7 lockout scope: any abort after a lit burn locks out (here rail loss in COAST; the v2.7 draft covered IGNITION/RUN/SHUTDOWN only); a pad abort before any light does not
+PASS v2.7 lit-session marker: one event at the first light (none at the relight); a commanded DISARM from COAST closes it (one-tick pulse for the NV write); an abort keeps it (lockout set)  [events first start 1, relight 0]
+PASS v2.7 NvJamRecord b2 lit-session marker: a boot with b2 set = lockout pending; the session close clears b2; keyed CLEAR_LOCKOUT clears b1 and b2
+PASS v2.7 P_torch: stuck at the lit level from IGNITION entry -> TORCH_FAULT (no below-threshold reading first); a +1.0 bar g offset is auto-zeroed in ARMED (dead torch -> TORCH_FAULT, working torch -> RUN)  [zero 100000 Pa]
+PASS v2.7 ARM refused (TORCH_FAULT) with an invalid P_torch or a vented reading beyond the 1.05 bar TEB band; accepted on the stand with the timing-only key
+PASS v2.8 lift at E1: pintle seated until the torch confirmation, lift commanded on the confirmation tick (v2.9 CF-3 table at Tsat(P_tank) of E0), rule R1  [torch confirmed 4 ms after E0, pintle moving at 4 ms, lift 0.2049 mm (expected 0.2049 mm at 293.57 K)]
+PASS v2.8 P_tank invalid: flight relight -> PREPRESS slow priming -> IGNITION with the smallest table lift; pad start -> PREPRESS_FAIL; table rows ascending and <= the unlit-lift limit  [relight E0 561 ms after RELIGHT; table max 0.2520 mm, unlit limit 0.2520 mm]
+PASS v2.8 gate 0.16 s: torch confirmed at about 0.15 s (the v2.7 0.100 s gate would have aborted) -> lift at E1, light 0.30 s later -> RUN  [E1 0.148 s after E0]
+PASS v2.8.1 stand R1: first start, no light -> NO_IGNITION at the lift + 0.35 s  [abort 355 ms after E0 (lift at 4 ms)]
+PASS v2.8.1 stand R2: relight with the state TCs at ambient -> W 0.35 s, NO_IGNITION at the lift + 0.35 s  [abort 354 ms after E0 (Tsat(P_feed) 291.82 K, TCs 293.15 K)]
+PASS v2.8.1 stand R3 deleted: MSS-1 AND MSS-2 >= Tsat(P_feed) + 5 K at E0 -> still R2 W 0.35 s (superheat flag logged only)  [abort 354 ms after E0 (Tsat 291.82 K)]
+PASS v2.8 stand R4: MSS-2 invalid or P_feed invalid -> RELIGHT refused (R4_SENSOR, one event, TLM block); all valid -> accepted
+PASS v2.8 direct relight: latch on at E0, opener ramp rest->cock over 0.35 s, hold to 0.50 s, then rest (the latch holds)  [servo3 1725.0 us at 175 ms, 1950.0 at 400 ms, 1500.0 at 501 ms]
+PASS v2.8 flight: lit direct relight with no OPEN switch -> fault MV flag only, burn continues (draft aborted MV_FAULT: retired)  [still RUN 1.201 s after E0, faults got 0x1000]
+PASS v2.8 stand: lit direct relight with no OPEN switch -> MV_FAULT abort at E0 + 0.95 s (switch/latch to be inspected)  [abort 0.951 s after E0]
+PASS v2.8 S1 stand: +2.5 bar over the in-situ zero for 1 s -> S1 fault (one event) and relight lockout; RELIGHT refused (LOCKOUT)  [fault 1006 ms after the step, zero -2.00 bar]
+PASS v2.8 S1 flight: same -> S1 fault flag (fault MV, TLM_RELIGHT S1_FAULT), no lockout; RELIGHT proceeds (direct, opens the MV at E0)  [fault 1006 ms after the step]
+PASS v2.8 S1: +1.5 bar over the zero for 3 s -> no fault (threshold 2.0 bar)  [s1_dp 1.50 bar]
+PASS v2.8 S1: a coast zero of -10 bar (beyond 5.1 bar) rejected, PREPRESS zero kept  [zero -2.00 bar]
+PASS v2.8.1 over-thrust, Pc VALID (in-range wrong Pc coverage): 2 frames at 700 N -> RUN; 3rd frame (20 ms after the 1st) -> OVER_THRUST on that tick, MV latch dropped on the abort tick
+PASS v2.8.1 over-thrust, Pc LOST (open loop): 3 consecutive frames at 700 N -> OVER_THRUST  [lit 1 open-loop 1 abort-on-3rd 1 cause 24 state 8]
+PASS v2.8.1 over-thrust not tripped: 700/700/600 N pattern; 650.0 N (not above); 700 N with the FC valid flag clear; 2 frames + 61 ms gap (stale, count restarts) + 2 frames; then a fresh run of 3 frames trips
+PASS v2.8.1 over-thrust: 2 frames at 700 N in IGNITION + 1 in RUN -> no trip (count restarts at RUN); stand: 30 frames at 700 N with Pc valid -> RUN, Pc lost -> PC_SENSOR (5 ms) first  [i_lit 1 i_ab 0 i_state 4 | stand lit 1 ab 0 state 4 cause 0 | sp lit 1 cause 12]
+PASS v2.8 FC_THRUST decoder: 0.1 N round trip; repeat, length, CRC, undefined flag bit rejected; valid flag carried; negative clamped to 0  [decoded 652.30 N]
+PASS v2.8 mode strap: FLIGHT+NaN and STAND+finite load cell arm; any disagreement or an invalid code -> ARM refused (MODE_MISMATCH)  [1/0:ok 2/1:ok 2/0:ok 1/1:ok 0/0:ok 0/1:ok 3/0:ok ]
+PASS v2.8 mode strap: a change after ARM is a flag only (no abort; the session mode stays latched); logged seq2 b5 stand, b6 mismatch  [got 0x64]
+PASS v2.11 case A - 3 K (420.15 K) in RUN: no abort; A + 2 K (425.15 K) -> OVER_TEMP after 0.2 s, MV dropped (A = 423.15 K, 150 C)  [abort 200 ms after the step]
+PASS v2.11 case in COAST (MV closed): 450 K soak -> no abort, no flag; RELIGHT refused (CASE_HOT) at 450 K and at the start limit + 2 K (405.15 K), accepted at the start limit - 3 K (400.15 K; kCaseRelightMax_K 403.15 K, LEAD A2)
+PASS v2.8 bay: ARM refused (BAY_HOT) at 320 K or with no valid reading, accepted at 318 K; pad IGNITE refused when the bay heats after ARM
+PASS v2.8 bay: a relight in COAST is never refused on the bay temperature (330 K, invalid)
+PASS v2.8 PREPRESS in COAST refused (PREPRESS_IN_COAST, one-tick event), valve stays closed
+PASS v2.8 PREPRESS in ARMED accepted (pad)
+PASS v2.8 N2O Tsat table vs CoolProp at 5 off-grid points (12-64 bar abs); out of range / NaN rejected  [worst 0.0011 K]
+PASS v2.8 final TLM_RELIGHT flight COAST: primed -> PRIMED|VALID|READY, worst 810 ms, ratio 96 %; P_feed 10 bar g -> UNPRIMED, 1370 ms (RELIGHT then takes PREPRESS); P_feed invalid -> VALID|UNKNOWN, ratio 0xFF, 1370 ms; P_tank invalid -> VALID|UNKNOWN, 1370 ms  [worst 810 / 1370 / 1370 ms]
+PASS v2.8.1 TLM_RELIGHT: stand relight -> worst 0.16 + 0.35 = 510 ms (R2, R3 deleted); in RUN -> VALID 0 (state NONE), READY 0, block NOT_COAST  [stand 510 ms]
+PASS v2.8 final TLM_RELIGHT decoder: rejects PRIMED or UNKNOWN without VALID, PRIMED with UNKNOWN or POST_ABORT, a CRC error, a wrong length and a wrong id; accepts VALID|UNKNOWN|POST_ABORT and VALID|POST_ABORT (UNPRIMED)
+PASS v2.8 refusal codes: NOT_VENTED, SAFING_HOLD (v2.10, replaces VENT_WAIT), LOCKOUT; after 4 lit starts SHUTDOWN ends in SAFE (no COAST) and a RELIGHT is ignored  [burns 4]
+PASS v2.8 log v8 (v7 fields): MSS-1/2, bay (dK), FC thrust (dN), rule, lift time, seq2 b0 direct, S1 dp NaN marker with the MV open, refusal; seq3 0 in IGNITION; invalid markers  [lift at 3 ms, rule 5]
+PASS v2.8 final log v8: tank T 0.1 K (Tsat(51.0 bar abs) 293.57 K -> 204), seq3 = PRIMED | b6 MECO closed in COAST; no tank reading -> INT16_MIN, seq3 UNKNOWN | b3 tank hot | b6  [got 0x41 / got 0x4B]
+PASS v2.8 final planned cut-off, healthy: MV unlatched on the seat confirmation, COAST, no abort, no vapour flag -> TLM PRIMED, RELIGHT direct  [MV unlatched 6 ms after SHUTDOWN, COAST at 51 ms]
+PASS v2.8 final planned cut-off, encoder lost at SHUTDOWN: MV unlatched at the 0.30 s timeout (flag), COAST, no abort, fault ENCODER only  [MV unlatched 300 ms after SHUTDOWN, COAST at 300 ms]
+PASS v2.8 final planned cut-off, needle hangs at 0.10 mm: MV unlatched at the 0.30 s timeout, fault PINTLE flag, COAST, no abort  [MV unlatched 300 ms after SHUTDOWN]
+PASS v2.8 final post-abort flag, flight pad: NO_IGNITION abort -> vapour flag (one NV set event), TLM POST_ABORT with VALID 0; retry after the safing hold and CLEAR_LOCKOUT keeps R1 (flight); the light clears it (one NV clear event)  [set events 1, clear events 1]
+PASS v2.8 final post-abort flag, stand: the next start after safing is a vapour-segment start - IGNITE refused with MSS-2 invalid (R4); accepted -> R2 (W 0.50 s, no superheat proof), NO_IGNITION at the lift + 0.50 s  [abort 355 ms after E0 (expected 355)]
+PASS v2.8 final NvJamRecord b3: set/clear independent of b1, CORRUPT = pending, boot input also set by b2 (reset during a lit burn); a pending flag in COAST -> TLM VALID|POST_ABORT, UNPRIMED (never PRIMED), 1370 ms; RELIGHT takes PREPRESS
+PASS v2.8 final tank interlock at ARM: refused (TANK_HOT) with a wall at 297.5 K, with P_tank 56 bar g (Tsat above 297.15 K) and with no valid reading; accepted on Tsat(P_tank) alone (walls invalid) or on the walls alone (P_tank invalid, 296 K)  [Tsat(56 bar g) 298.54 K, Tsat(50 bar g) 293.57 K]
+PASS v2.8 final tank interlock at the start: pad IGNITE refused (TANK_HOT) when a wall reads 298 K after ARM; stand RELIGHT refused (TLM block TANK_HOT); flight RELIGHT accepted with the tank_hot_relight flag (flag only)
+PASS v2.8 final tank cross-check: wall mean 289 K vs Tsat 293.6 K -> flag (latched, cleared by DISARM in SAFE, ARM allowed); P_tank beyond 72.0 bar abs counts as the table's last temperature (hot)  [table last 309.24 K]
+PASS v2.8 final / v2.10: 3 ms, 20 bar spike in the ignition hold then a lit chamber at 3.5 bar abs: no abort (v2.9: below the A5 5 ms), light confirmed, RUN reference starts below the spike (min of measured and map), no FLAMEOUT, the burn continues  [reference 4.37 bar abs one tick after RUN entry]
+PASS v2.10 A5 deleted: a 30 ms, 20 bar abs spike in the ignition hold is confirmed as a light (~11 ms) and the burn continues (v2.9: A5 HARD_START); LIGHT_SPIKE record: raw peak 20 bar abs, time above 8 bar 30 ms, none above 30 bar, peak at the light estimate, closed once at E2 + 0.45 s with the event  [E2 11 ms after the step; raw peak 20.00 filt peak 20.84 bar abs, t8 raw 30.0 filt 34.0 ms, light est. 258.0 ms after E1, peak -1.0 ms from it, event at E2 + 450.0 ms]
+PASS v2.10: a 3 ms raw excursion to 40 bar abs in the hold does not trip the 30 bar abort (filtered channel, 5 ms persistence, RE-20); LIGHT_SPIKE shows 3 ms above 30 bar raw, 0 ms filtered  [filtered peak 18.17 bar abs, raw above 30 bar 3.0 ms, filtered above 30 bar 0.0 ms]
+PASS v2.8 final TLM VALID with the CLOSED switch failed: NONE through SHUTDOWN; VALID only once the closure is overdue (0.5 s after the unlatch) and then UNPRIMED (no closed-valve proof), fault MV  [VALID 501 ms after the unlatch]
+PASS v2.8 final TLM VALID with healthy switches: one tick after the COAST entry (CLOSED seen in this coast) -> PRIMED; NONE again once the RELIGHT leaves COAST  [COAST at 51 ms, VALID at 52 ms after SHUTDOWN]
+PASS v2.8.1 stand no-light (LEAD request): first start (R1) and relight (R2) not confirmed within 0.35 s -> NO_IGNITION at E1 + 351 ms; MV latch dropped on the abort tick (latched before), pintle command closing on that tick and at 0 within 5 ms, torch valves and spark off  [abort at E1 + 351 / 351 ms; pintle command 0 after 1 ms (first start)]
+PASS v2.8.1 windows keyed off the strap: FLIGHT 0.40 / 0.65 s; STAND 0.35 / 0.35 s; strap changed after ARM -> window unchanged (0.65 s), MODE_MISMATCH flag; STAND strap without load cell or FLIGHT strap with load cell -> ARM refused (MODE_MISMATCH)  [flight 0.40 / 0.65 s, stand 0.35 s]
+PASS v2.8.1 ABORT exit: Pc channel invalid -> ABORT held with the ARM bus requested until 0.5 s (pintle driven closed under power), then SAFE; Pc valid at 1 bar abs -> SAFE after ~50 ms (unchanged)  [invalid Pc: SAFE after 501 ms; valid Pc: SAFE after 51 ms]
+PASS v2.8.2 RG-08 (a): pintle encoder invalid for one COAST tick -> TLM UNKNOWN on that tick and latched after the encoder returns (ratio 96 %, worst 1370 ms, READY); RELIGHT -> prep path; the light (RUN entry) clears the latch; next coast PRIMED  [RELIGHT -> IGNITION 501 ms (prep path)]
+PASS v2.8.2 RG-08 (b): encoder lift 0.12 mm in COAST (stall monitor quiet below 0.15 mm) -> PRIMED for 19 ticks, UNPRIMED from the 20th, latched after the needle reads seated (P_feed ratio still 96 %); log v9 seq3 b7; RELIGHT -> prep path  [UNPRIMED after 20 ticks; RELIGHT -> IGNITION 501 ms]
+PASS v2.8.2 RG-08 (c, d): a 15 ms excursion to 0.30 mm (shock bounce) does not latch (direct relight); 0.20 mm (above the 0.15 mm stall error) -> UNPRIMED at 20 ms, then the stall monitor aborts PINTLE_FAULT at ~0.10 s  [0.20 mm: UNPRIMED at 20 ms, abort at 101 ms]
+PASS v2.8.2 RG-08 (e): EVENT COAST_PINTLE one tick per latch; DISARM from COAST keeps the latch, DISARM in SAFE clears it; event argument kind | lift [10 um] << 8 (0xFF invalid, 254 cap)  [events 1]
+PASS v2.8.2 RG-15: Pc channel valid -> TLM_FAST Pc kPa and TLM_GIMBAL thrust 0.1 N carry values; channel failed low in RUN (flight, open loop) -> pc_valid false, both fields 0xFFFF (invalid marker for the FC freeze), PC_SENSOR fault bit set, burn continues  [valid: 2028 kPa, 400.0 N]
+PASS v2.8.3 tracker 5 deg step: rate <= 100 deg/s, acceleration <= 2000 deg/s2, trajectory, overshoot and settling = sim6 law (double), exact final value; b1 (shaping active) set during the move and clear after  [settled 116 ms (sim6 116, continuous optimum 100.0), overshoot 0.0497 deg, peak rate 100.00 deg/s, peak accel 2000.4 deg/s2]
+PASS v2.8.3 tracker 0.5 deg step: acceleration-limited triangle (peak rate about sqrt(a d) = 31.6 deg/s) = sim6 law  [settled 40 ms (sim6 40, continuous optimum 31.6), overshoot 0.0152 deg, peak rate 32.00 deg/s]
+PASS v2.8.3 tracker -6 -> +6 deg: cruises at exactly 100 deg/s (trapezoid); +2 -> -3 deg (negative sense) same limits; both = sim6 law  [settled 186 ms (sim6 186, continuous optimum 170.0), overshoot 0.0497 deg, cruise 100.000 deg/s]
+PASS v2.8.3 trace match (RG-13 conformance, ECU float vs double-precision sim6 transcription), 3 s two-axis vector: tracker alone and tracker + low-pass agree within 1e-5 rad (no hard-limit clipping in the vector)  [tracker 3.93e-08 rad, chain 2.54e-08 rad]
+PASS v2.8.3 B-TVC-1 bypass mode: output = plain 100 deg/s limiter (a 0.3 deg 40 Hz sine passes unchanged); the tracker would pass it at reduced gain (needs 18950 deg/s2)  [bypass max error 6.16e-17 rad, tracker gain 0.133]
+PASS v2.8.3 acceleration limit 0 reproduces the v2.8.2 plain limiter exactly (SIL capability tests); the flight build uses the generated gnc.json v3 value (engine_params.h, gen_tables v3.3) in the ECU's shaper  [difference 0.0e+00 rad, a_max 34.9066 rad/s2 (2000.0 deg/s2)]
+PASS v2.8.3 tracker describing function (informational for GNC / B-TVC-1): chain gain with the tracker / without, 35 Hz at 0.02 / 0.05 / 0.2 deg  [0.999 / 1.064 / 0.260; 8 Hz at 0.5 / 2 deg: 0.968 / 0.504]
+PASS v2.9 light rule: P0 = mean of [E1 - 20 ms, E1] (0.5 bar g pre-lift chamber); rise 0.75 bar for 100 ms -> no light; 0.85 bar -> E2 after the 10-tick confirmation  [P0 0.500 bar g, E2 15 ms after the 0.85 bar step (filter crossing 10 ms)]
+PASS v2.10 light rule baseline (LEAD RE-02) + v2.11 LEAD 216 (4): pad P0 +0.8 bar g -> BASE_HIGH, lift refused PC_SENSOR, no pintle command; P0 -0.8 bar g -> BASE_AMB, lift refused PC_SENSOR, no pintle command; P0 -0.6 bar g kept, lift commanded  [check 0.76 bar, floor 1.80 bar abs; pad refusal at E0 + 44 ms (high) / E0 + 44 ms (low)]
+PASS v2.9 light rule floor: rise 0.9 bar over P0 at 1.61 bar abs (below the 1.8 bar abs floor) -> no light -> NO_IGNITION  [floor 1.80 bar abs]
+PASS v2.9 light rule persistence: a 3.0 bar abs pulse lights only when RISE and FLOOR hold for 10 consecutive ticks (filtered AND raw)  [longest unlit run 9 ticks; first lighting pulse 14 ms (run 10)]
+PASS v2.10 light rule (LEAD RE-02): chamber 0.95 bar g from E0 is no light before E1; pad -> lift refused PC_SENSOR (BASE_HIGH); A1 relight -> lift on the measured P0 (BASE_HIGH flag), +0.75 bar over P0 no light, +1.6 bar over P0 -> RUN  [pad refusal at E0 + 34 ms; A1 P0 0.949 bar g, E2 - E1 72 ms]
+PASS v2.9: kIgnitionPcAbs 3.0 bar WITHDRAWN (LEAD): a 2.6 bar abs lit chamber confirms under the relative rule; the legacy absolute rule (comparison only, ign_detect_relative false) would not
+PASS v2.9 A3 relative flame-out (LEAD): (Pc - P0)/(Pc_map - P0) 0.35 -> FLAMEOUT 20 ms after the filtered ratio crosses 0.40; 0.45 -> no FLAMEOUT (flight: A7 flag once, fault PC_SENSOR, burn continues)  [FLAMEOUT 29 ms after the drop; ratio min 0.415 at 0.45]
+PASS v2.9 A7 lit-map band on the stand: Pc below 0.7 x map for 50 ms (after the filtered crossing) -> PC_SENSOR abort  [abort 56 ms after the drop]
+PASS v2.9 A7 hold phase: Pc 0.35 bar below P0 after E1 -> PC_SENSOR abort after 50 ms (flight IGNITION)  [abort 59 ms]
+PASS v2.10 A7 high side: 7.6 bar abs for 0.40 s from E2 -> no A7 event (blank E2..E2 + 0.45 s, RE-12); after the blank 1.5 x setpoint -> flight flag after 50 ms (burn continues), stand PC_SENSOR abort; start-band top 6.9 bar abs < 8.0 bar LIGHT_SPIKE level  [A7 events flight 1; flag 56 ms / stand abort 56 ms after the excursion]
+PASS v2.9 E3 at the end of the start ramp (Pc within 90 % of the setpoint above P0), A7 lit-map band after it; throttle steps 500 -> 62.5 -> 400 -> 100 -> 300 N (instant-follow chamber) raise no A7 flag and no FLAMEOUT  [E3 95 ms after E2]
+PASS v2.9 CF-3 ignition-lift table (37.4 g/s rows, LEAD): rows, linear interpolation, clamping, smallest lift with T_tank invalid; A1 relight state row above the v2.8 flat 0.2039 mm  [A1 row 0.2178 mm (flat 0.2039 mm), table 0.1928-0.2520 mm]
+PASS v2.10 coast re-zero: +0.2 bar g accepted (EVENT REZERO) and the RELIGHT accepted; +0.4 bar g rejected (> 0.3 bar): flight RELIGHT proceeds with NOT_VENTED + REZERO2_REJ flags (LEAD RE-07), stand RELIGHT refused NOT_VENTED; 0.08 bar square wave rejected  [accepted shift 0.200 bar; rejected shift 0.400 bar]
+PASS v2.9 head-end bleed pad BIT (S0-S4) passes on a healthy provision before IGNITION; not fitted: no BIT  [PREPRESS 1502 ms fitted vs 501 ms not fitted]
+PASS v2.9 head-end bleed pad BIT failures -> BLEED_FAULT at the expected step, both valves closed  [V1 stuck open ok; V2 stuck open ok; V1 failed closed ok; V2 failed closed ok; comparator dead ok; ladder invalid ok; ]
+PASS v2.10 pre-scheduled PURGE on flow time, P_mid flowing level 0.95 P_feed (v2.9 basis): fill step proves the path, V2 at 0.32 s, V1 close at 2.77 s, PURGE_FLOW 2500 ms, both-open <= cap, RELIGHT at T_fire -> IGNITION, CONFIRMED, lift after the closure step and the 2oo2 torch, no valve open at the lift, RUN  [V2 390 ms, V1 close 2770 ms, both open 2380 ms, flow 2430 ms; closure done E0+49 ms, lift E0+50 ms]
+PASS v2.10 pre-scheduled PURGE on flow time, P_mid flowing level 0.06 P_feed (decided path, liquid bound): fill step proves the path, V2 at 0.32 s, V1 close at 2.77 s, PURGE_FLOW 2500 ms, both-open <= cap, RELIGHT at T_fire -> IGNITION, CONFIRMED, lift after the closure step and the 2oo2 torch, no valve open at the lift, RUN  [V2 390 ms, V1 close 2770 ms, both open 2380 ms, flow 2430 ms; closure done E0+49 ms, lift E0+50 ms]
+PASS v2.11 LEAD 203 (7) unpurged RELIGHT guard: flight + bleed fitted -> RELIGHT from COAST refused UNPURGED (no valve, TLM block UNPURGED, worst = 2.90 s + gate + W), PURGE accepted; UNKNOWN line -> RELIGHT UNPURGED and PURGE PURGE_PATH (no flight path); stand unpurged start kept; no bleed fitted -> v2.10 direct relight  [block 16 worst 3710 ms (expected 3710); unknown-line state 3, PURGE_PATH, stand IGNITION, unfitted IGNITION]
+PASS v2.10 PURGE timing: RELIGHT at 1.0 s -> IGNITION at 2.90 s; SHUTDOWN at 1.0 s -> COAST with the closure (CONFIRMED), achieved flow reported; no RELIGHT -> hold with the bleed CLOSED ends at the scheduled E0 + hold limit (F_HOLD_TIMEOUT, EVENT); both-open <= cap  [IGNITION 2900 ms after PURGE entry; SHUTDOWN flow 661 ms (exp 661); hold end 3401 ms]
+PASS v2.10 bleed path not proven (P_mid chain dead): flight flag + EVENT, purge runs, closure NOT CONFIRMED (chain) -> BLEED_FAULT flag, relight proceeds (lift, RUN); stand BLEED_FAULT abort at the path deadline  [flight lift E0+51 ms; stand abort 490 ms after PURGE (exp 490)]
+PASS v2.10 closure not confirmed (V1 stuck open at both P_mid flowing levels; V2 failed closed) -> flight: BLEED_FAULT flag, V2 closed, relight proceeds to RUN (lift <= torch gate); stand: BLEED_FAULT abort before any lift  [case 0 flight ok lift E0+4 ms; case 0 stand ok; case 1 flight ok lift E0+4 ms; case 1 stand ok; case 2 flight ok lift E0+4 ms; case 2 stand ok; ]
+PASS v2.9 PURGE checks: needle off the seat -> PINTLE_FAULT; encoder invalid -> flight flag, stand PINTLE_FAULT; OPEN switch never -> PREPRESS_FAIL (fault MV); feed never fills -> PREPRESS_FAIL  [needle 20 ms, OPEN 951 ms, fill 1551 ms]
+PASS v2.9 link loss in PURGE -> LINK_LOST abort, both bleed valves closed
+PASS v2.9 PURGE refusals: outside COAST -> NOT_COAST; not fitted -> NO_HBLEED; prep path (segment not primed) -> PURGE_PATH
+PASS v2.9 stuck-open bleed in the burn: P_mid high with both closed for 0.2 s -> flight F_LEAK + EVENT, fault MV, burn continues; stand BLEED_FAULT; V1 alone passing flagged; V2 alone open invisible (latent)  [flag 200 ms after the valves stuck open]
+PASS v2.9 log v10: bleed valve outputs and flags in PURGE; flame ratio (%), map Pc (hPa) and detection flags in RUN  [flame ratio 100 %, map 15541 hPa]
+PASS v2.9 drogue support: rise bit before E2 in the confirmation window; E2 + rise + held at E2; held-to-0.10 s latched at E2 + 0.10 s; TLM_FAST d1 = state | tlmf bits; log v10 tlm_flags  [E2 flags 112 (expected 112), held-T at E2 + 100.0 ms, d1 244 (expected 244)]
+PASS v2.10 drogue support (filtered-only hold): a 3 ms reading dip after E2 drops RISE_NOW but keeps RISE_HELD, RISE_HELD_T latches at E2 + 0.10 s; a 12 ms dip (filtered below P0 + 0.8 bar, no A3 trip) clears RISE_HELD for the start (held-to-0.10 s never set: the release then waits for Pc >= 3.0 bar abs at the FC); unlit start: no bits  [3 ms: dip 80 (expected 80) after 240 (expected 240); 12 ms: dip 16 (expected 16) after 48 (expected 48) state 4; unlit 0]
+PASS v2.10 ladder decode (RE-19): 6 valid codes; OPEN+CLOSED codes invalid (both_sw -> MV_FAULT); soft short 1.1-4.3 kOhm to GND invalid; harness-open / short / open-node codes invalid  [0 bad codes of 10; soft-short readings decoded valid 0]
+PASS v2.10 pad-BIT harness step + ladder conflict (RE-19): ratio -0.017 (122 kOhm leak) -> BIT FAIL / BLEED_FAULT, +0.003 passes; OPEN+CLOSED at ARM -> MV_FAULT; in RUN stand MV_FAULT abort, flight fault MV flag only  [BIT 16 / 15; tolerance 0.006]
+PASS v2.10 LIGHT_SPIKE: unlit start closes the record at the NO_IGNITION exit (not lit, one event); EVENT 0x20 arg = raw peak [0.5 bar] | t8 [2 ms] << 8 with saturation; log v11 ls_* fields  [raw peak 1.500 bar abs, events 1, arg(20 bar, 30 ms) 3880 (= 40 | 15 << 8), log ls_flags 18 (= done + exit 18)]
+PASS v2.11 LEAD 216 (8) condition 4 (v210-2 extended on TLM_RELIGHT d6 b7): b7 = 1 on every tick of the 7.6 bar excursion inside the E2..E2 + 0.45 s A7 high-side blank (blind window: no A7 high flag, b7 untouched); b7 = 0 from the A7 flag tick after the blank and stays 0 (latched by fault::PC_SENSOR) with Pc back in band  [b7 bad in blank 0, b7 set after the flag 0, b7 first 0 at tick 516 (A7 flag tick 516), ticks 660]
+PASS v2.10 item 3 + RE-12: flight A7 high side quiet for a 7.6 bar excursion inside E2..E2 + 0.45 s; after the blank 1.5 x setpoint flags (fault bit PC_SENSOR, EVENT PC_IMPLAUS) with the Pc loop closed (no OPEN_LOOP) and the telemetered Pc valid (no 0xFFFF; RUN + b4 kept)  [A7 flag 56 ms after the excursion, OPEN_LOOP ticks 0, Pc-invalid ticks 0, bad TLM frames 0]
+PASS v2.10 item 5: Pc invalid at E2 + 20 ms in flight -> RUN open loop for 300 ms, A3/A7 suspended, every TLM_FAST frame state RUN + b4 with d2-d3 = 0xFFFF and b5-b7 clear (FC interim rule: release at E2 + 0.10 s); stand -> PC_SENSOR abort in 5 ms  [flight: 300 ms RUN, OPEN_LOOP 300, A7 phase on 0, frames OK 300, b5-b7 0; stand abort after 5 ms]
+PASS v2.10 FA-1 (a): E1 only on P_torch AND photodiode (2oo2, same 3 ticks): photodiode invalid -> TORCH_FAULT at the gate, no lift; photodiode 20 ms late -> E1 20 ms later; photodiode stuck lit (never seen dark) -> TORCH_FAULT  [lift nominal E0+4 ms, photodiode +20 ms -> E0+24 ms]
+PASS v2.10 FA-1 (b): both flame sensors dark >= 5 ms between E1 and E2 -> TORCH_LOST (NC valve unlatched, fault NO_IGNITION); 4 ms -> continues; one sensor dark -> continues  [TORCH_LOST 5 ms after the torch went out]
+PASS v2.10 REV-GNC-2 (2) FLAMEOUT_OPT: RUN with Pc invalid, view proven -> photodiode dark 20 ms -> FLAMEOUT; lit -> burn continues open loop; torch-only view never arms (no optical check, FMEA)  [FLAMEOUT 20 ms after the main flame went dark]
+PASS v2.10 drogue predicate (CHANGELOG 168): Pc invalid before E2 -> no RUN, no release; at E2 + 20 ms (inside [E2, E2+0.10]) -> RUN open loop, b7 never set, release at E2 + 0.10 s (0xFFFF branch); at E2 + 150 ms (normal burn) -> released before by Pc or b7, b7 stays latched, RUN continues; EVENT STATE(RUN) t_ms = E2, copy index in arg b13-15  [(b) release E2+100 ms branch 3, (c) E2+4 ms branch 1; EVENT t_ms 1152 arg 8196 (decimal)]
+PASS v2.10 hard cap (v2.11 value kHbleedCap_s 2.55 s, command span, LEAD 203 (3) / 216 (5)): both bleed valves commanded open longer than the cap -> both close at once (EV_CAP), NOT CONFIRMED  [both open 2391 ms (cap 2390 ms)]
+PASS v2.10 second re-zero (LEAD RE-07), 20.6 s coast: +0.25 bar drift after the first re-zero -> REZERO2 at the RELIGHT, no NOT_VENTED; +0.35 bar -> REZERO2_REJ, flight NOT_VENTED flag + relight, stand refused; purge path re-zeroes at the PURGE command (E0 - 2.90 s)  [A: shift 0.250 bar; B flags 0x68]
+PASS v2.10 case TCs (LEAD RE-08): ARM needs both valid; one lost -> CASE_TC_DEGRADED, the other still aborts when hot; both lost -> flight burn continues and the relight is refused CASE_HOT, stand OVER_TEMP abort  [arm 1 one 1 hot 1 cont 1 ref 1 st 1 (flight refusal code 2, stand state 8)]
+PASS v2.10 tank lower bound (RE-17): 14 C refused at ARM (TANK_COLD), 16 C arms, no valid tank temperature refused
+PASS v2.10 interlock guard band (LEAD 172 (4)): uncalibrated P_tank threshold 50.34 bar abs (51.01 refused, 50.01 arms); after B-PT-1 54.30 bar abs (51.01 arms, 54.51 refused); wall threshold 23.44 C (23.50 refused, 23.40 arms)  [u51 0 u50 1 c51 1 c545 0 w235 0 w234 1]
+PASS v2.10 safing hold scope (LEAD 172 (1)): stand NO_IGNITION and a stand abort in IGNITION (other cause) open the hold; a boot with NV b4 restarts it (CLEAR_LOCKOUT refused, accepted 960 s after the boot); NvJamRecord b4 set with b1, cleared by nvLockoutClear  [stand 1 other 1 (cause 1) boot 1/1/1 nv 1]
+PASS v2.10 LEAD 175 (1): Pc invalid in flight RUN -> TLM_FAST state RUN + E2 kept with d2-d3 0xFFFF (b7 clear); FC ABORT frame acts on the next tick: ABORT/CMD, MV magnet released that tick, EVENT STATE, logged; pintle command 0 within 10 ms  [bad TLM ticks 0, pintle command at 0 after 4 ms, t_E2 1151 ms]
+PASS v2.10 LEAD 175 (4)/(3): pad launch-commit bit TLM_RELIGHT d6 b7 (valid; one invalid tick clears it until SAFE; decoder masks the reason) and TLM_FAST d4-d5 = encoder lift [um], 0xFFFF with the encoder invalid  [bits 1001; lift 432 um, invalid 65535]
+PASS v2.10 lift clamp (LEAD RE-04): pintle lagging the command at 8 mm/s on a lagged map plant -> command <= trimmed map lift at (setpoint + margin) while travelling, LIFT_CLAMP flagged, trim held, plant Pc <= 28 bar abs, settles on the setpoint  [clamp 118 ms, plant max 25.33 bar abs, final 25.02 bar abs; command - limit max 0.0000 mm, pintle lag max 1.111 mm]
+PASS v2.10 LEAD 181 (4): Pc lost at E2 + 5/10 ms in flight RUN, R2 not met -> FC ABORT at t_E2 + pcf_tmax (0.5 s adopted, 0.8 s checked): ECU stays RUN with E2 published and Pc 0xFFFF until the frame, PC_VALID clear; ABORT/CMD on that tick, MV magnet released, pintle command 0 within 10 ms  [4 of 4 cases; non-RUN ticks 0, bad TLM ticks 0, worst pintle-0 4 ms, abort time error 0.00 ms]
+PASS v2.10 LEAD 186 (2) R2 command hold: flight RUN at 200 N, drogue attached, Pc invalid -> command held at 62.5 N at once (setpoint slew only, faster than the start ramp) on every tick, RUN kept, TLM_RELIGHT d6 b6 and log b0/b1 set, TLM_FAST state nibble clean; DROGUE 0 -> hold off on that tick, command back to 200 N at <= 2.5 N/ms  [hold level reached after 26 ms (slew bound 28, ramp 55 ms), held 62.50 N; release max step 2.500 N/ms, 200 N after 55 ms]
+PASS v2.10 LEAD 186 (2) R2 hold boundaries: Pc valid again -> hold off on that tick, ramp <= 2.5 N/ms; no drogue report -> no hold (open loop at 200 N); stand -> no hold, PC_SENSOR abort; Pc valid -> no hold; DROGUE accepted in SAFE, args other than 0/1 ignored, ARM resets, CMD_STATE round trip  [B 1 (ramp max 2.500 N/ms, 200 N after 55 ms); C 1 S 1 D 1; E 11111]
+PASS v2.11 LEAD 203 (1)(a) above-FS flag: one sample >= 4.56 V after E1 -> ovr ABOVE_FS on that tick only (PC_VALID 1, not OVERRANGE), LIGHT_SPIKE abovefs + log v12 ls_flags b7 + ovr_flags; no action (RUN); control start: flag and b7 clear  [tick 1 next 1 run 1 record 1 control 1 (ls_flags 0xA6 / 0x26)]
+PASS v2.11 LEAD 203 (1)(a) non-sticky over-range: flight RUN 4.90 V for one sample -> PC_VALID 0 / OPEN_LOOP / over-range bit on that tick only, no PC_SENSOR latch, commit bit back, RUN kept; stand as built (PC_SENSOR latched); flight LOW still latches  [flight on 1 off 1 run 1; stand 1; low 1]
+PASS v2.11 LEAD 203 (1)(b) ride-through (flight relight): FA-1-like 35 bar x 14 ms tolerated (as built HARD_START), window E1..E2+15 ms (fixed RC: no long-RC request); 50 bar x 10 ms -> T45 HARD_START <= 7 ms; sustained 35 bar -> HARD_START 10 ms later than as built; late episode trips at the window end (E2 + 15 ms)  [A asb k42 ride none(tol 4, E2 k40, win last k54); B ride k36 T45 1 asb k39; C asb k42 ride k52; D asb k54 ride k58 (E2 k43)]
+PASS v2.11 ride-through never applies to the stand relight nor the flight pad first start (as-built 5 ms trip, no window)  [stand abort k42 (flight as built k42), pad abort k42]
+PASS v2.11 ride-through is a build option, default OFF (ECU_RIDE_THROUGH=0); LEAD 216 (3): comparator RC FIXED in the BOM variant (12.83 ms nominal, >= 10 ms minimum), persistence >= 13 ms + margin, window >= E2 + 8 ms + margin, over-range N >= 2  [tau 12.83 / 12.10 ms, persistence 15 ms, window E2 + 15 ms, N 2]
+PASS v2.11 LEAD 216 (3) over-range N = 2 in the ride window (flight relight, after E1): one HIGH over-range tick tolerated (RIDE_TOL, no light decision that tick) and the start lights (RUN); two consecutive -> HARD_START on the second; as built, stand relight and pad first start: HARD_START on the first  [ride 1 tick: abort k-1 tol 1 (1) RUN 1; ride 3 ticks: abort k1 (HARD_START); as built k0; stand k0; pad k0]
+PASS v2.12 LEAD 256 (2) / 257 (2) purge FINAL: flow 2.43 s, cap 2.39 s; scheduled both-open command span 2.38 s, never capped (EV_CAP 0), >= 8 ms command margin (2 ticks + rounding)  [both open 2380 ms (expected 2380), cap 2390 ms]
+PASS v2.11 LEAD 205 C1 scaling: gauge-equivalent round trip 0.2-137 bar abs within 1.5 LSB (~2.1 Pa/count); 4.75 V = 146.5 bar abs, 4.56 V = 139.96 bar abs, LC-TB70 70 bar abs = 2.53 V; INA rail 4.95 V inside the ADC range; abs_ref bound 0-1.2 bar  [worst 1.00 Pa, 2.070 Pa/count, 4.75 V = 146.51 bar abs, 4.56 V = 139.96 bar abs, 70 bar = 2.531 V, rail 1.1792 V at the ADC]
+PASS v2.11 LEAD 21:46:49Z items 3/5: stand ARM refused CASE_WARM_STAND with TC1 or TC2 > 297.15 K (24 C), accepted 0.5 K below; flight has no T0 rule (300 K ARMED); TC1/TC2 > start limit 403.15 K -> OVER_TEMP (both modes); TC3 > 523.15 K -> OVER_TEMP, TC3 450 K ARMED  [stand CASE_WARM_STAND/CASE_WARM_STAND/ARMED, flight 300 K ARMED, TC1 404 K OVER_TEMP, TC3 524 K OVER_TEMP, TC3 450 K ARMED]
+PASS v2.11 LEAD 216 (2)(b)/(c) lost DROGUE 0: hold ends at E2 + 0.85 s (0.8 s window + 2 x 20 ms FC frames + 10 ms latency) by the ECU backstop, one R2_BACKSTOP event (arg = hold ticks), tlm_flags b2, no hold after it, command back to 200 N at <= 2.5 N/ms, RUN kept; with the FC's DROGUE 0 at E2 + 0.40 s the hold ends then and no backstop fires  [backstop at E2 + 0.8500 s (bound 0.850), events 1, hold ticks 699 / 699, after 0, max step 2.500 N/ms, 200 N after 54 ms; control release E2 + 0.4010 s, events 0]
+PASS v2.11 R2 backstop is per burn: with Pc valid and DROGUE 0 lost it still fires at E2 + 0.85 s (one event, no hold ticks); cleared at the next RUN entry (relight)  [first burn backstop 1 (events 1), coast 1, relight RUN with backstop clear 1]
+PASS v2.11 LEAD 216 (9) lift-commanded R2 hold: pintle command = kR2HoldLift_m 0.21776 mm during the hold (rate-limited approach); R2-23: one HIGH over-range tick after E2 with the drogue attached engages the hold on that tick only (no PC_SENSOR latch), the FC command returns at the start ramp  [hold lift reached after 7 ms (0.21776 mm); over-range tick: hold 1 -> 0, ticks 1, 200 N again after 55 ms]
+PASS v2.11 LEAD 216 (7) cold ARM margin: coldest tank estimate 15 C + 0.20 K -> ARM refused TANK_COLD (wall or Tsat(P_tank)); 15 C + margin + 0.05 K -> ARMED  [margin 0.42 K: wall +0.20 TANK_COLD, wall +0.47 ARMED, Tsat +0.20 TANK_COLD, Tsat +0.47 ARMED]
+PASS v2.11 LEAD 216 (7) PREPRESS safe exit: IGNITE refused in PREPRESS (TANK_COLD; CASE_HOT) -> ARMED on the refusal tick, MV unlatched, pintle seated, CLOSED switch within kMvCloseConfirm_s 0.5 s, no MV fault (never a wait with the MV open)  [TANK_COLD: refuse 14, latch dropped 1, CLOSED after 1 ms; CASE_HOT: refuse 2, latch dropped 1, CLOSED after 1 ms]
+PASS v2.11 hardware both-open timer (DESIGN): T_hw,min after the firmware cap + 1 tick (the firmware acts first, the 2.45 s scheduled span is never cut); hardware residual below the PURGE_WIN 96-104 g bound; 230 (3) basis 76.05 g at the cap  [T_hw 2.659 s (min 2.577, max 2.741), cap 2.390 s, span 2.380 s; at the cap 71.37 g (basis) / 75.79 g (warm); at T_hw,max 81.6 g / 86.7 g]
+PASS v2.11 LEAD 216 (4) BASE_AMB per location: pad and stand P0 -0.8 bar g -> lift refused PC_SENSOR (BASE_AMB, no pintle command, MV closed); stand +0.8 bar g -> BASE_HIGH refusal; stand -0.6 bar g -> lift; A1 relight -0.8 bar g -> P0 := 0, lift, A7 HOLD PC_SENSOR before any light, MV closed  [refusal at E0 + 44 ms (pad low) / 44 ms (stand low) / 44 ms (stand high); A1: lift at E0 + 43 ms, PC_SENSOR 50.0 ms after the lift]
+PASS v2.12 R3-01 option (b): seat compensation 0.0248 bar/K x 12.5 K removes a 0.31 bar thermal shift (re-zero accepted, ~0 shift, vented); coefficient 0 = v2.11 fallback (rejected, flag clear); TC lost or implausible after ARM -> held (SEAT_FROZEN); no TC at ARM -> OFF (SEAT_NOREF); coefficient SAFE-only and bounded; log v13 seat_comp_hPa / seat_ref_dK / f3_flags  [comp 0.310 bar, re-zero shift 0.0000 bar (comp) / rejected 1 (no comp), held 0.248 bar, log comp 310 hPa ref 200 dK]
+PASS v2.12 TB-state: stand HIGH over-range -> PC_SENSOR abort + TB_STATE + TB_PCS_HIGH (log v13 f3 b0/b1); LOW side -> PC_SENSOR abort without TB_STATE; flight HIGH tick -> TB_STATE latched, burn continues; case OVER_TEMP abort -> TB_STATE  [stand HIGH abort after 5 ms, LOW abort after 5 ms, OVER_TEMP abort after 200 ms]
+PASS v2.12 purge FINAL: defaults 2.43 s flow / 2.39 s cap (flow start PURGE + 0.42 s); re-set accepted in SAFE only, never above 2.43 / 2.39 s, span + 2 ticks inside the cap; a 2.0 / 2.0 s re-set flows 2.0 s (V2 at PURGE + 0.82 s), EV_CAP 0  [re-set flow 2000 ms, both-open 1950 ms, V2 open at PURGE + 0.820 s]
+PASS v2.12 torch re-zero limit 0.60 bar (070BG basis): 0.45 bar accepted on the torch while the Pc block (0.30 bar limit) is rejected; 0.65 bar rejected (f3 PT_RZ_REJ)  [torch zero 0.000 -> 0.450 bar (accepted); 0.000 bar kept (rejected)]
+PASS v2.12 ARM sanity static term: 0 C soak, 3 x 0.0248 bar/K, -1.488 bar uncompensated zero -> ARM accepted with option (b) (gauge - coef x (T_seat - T_cal)); coefficient 0 or TC invalid -> refused (v2.11 check); wrong T_cal -> refused; T_cal SAFE-only, 10-35 C  [ARM on 1 / off 0 / no TC 0 / T_cal 30 C 0 (1 = ARMED, 0 = refused)]
+PASS v2.12 J-FWD indication: LIGHT_SPIKE raw >= 47.5 bar abs (C1 chain on the FA-1 grid, 0 / 298 misses) sets f3 JFWD_LS; 47.0 does not  [48.0 -> 0x20, 47.0 -> 0x00]
+PASS v2.13 UT-1 (REV-ELEC-4 Q2) light-window hold: TC4 errors -3/-5/-8/-15/-20/-55/+90/+140 K from E1-25/-10/+5/+100/+300/+600 ms for 100 ms / 250 ms / persistent, coef 0.0248e5 and 0.0744e5 Pa/K both signs, relight (probe B rig) and pad / stand first start, torch delay 0 and 45 ms: 0 E2 unlit (all NO_IGNITION); every lit control E2 at the same tick and RUN with no abort 0.7 s after E1; compensation constant in the hold  [unlit 4608: false E2 0, NO_IGNITION 4608; lit 4608: same E2 tick 4608, RUN no abort 4608; max comp change in the hold 0.000 Pa; torch delay 0 relight flight: E1 = entry + 3 ms, lit E2 = E1 + 44 ms; torch delay 0 relight stand: E1 = entry + 3 ms, lit E2 = E1 + 43 ms; torch delay 0 first flight: E1 = entry + 4 ms, lit E2 = E1 + 44 ms; torch delay 0 first stand: E1 = entry + 4 ms, lit E2 = E1 + 44 ms; torch delay 45 relight flight: E1 = entry + 48 ms, lit E2 = E1 + 44 ms; torch delay 45 relight stand: E1 = entry + 48 ms, lit E2 = E1 + 43 ms; torch delay 45 first flight: E1 = entry + 49 ms, lit E2 = E1 + 44 ms; torch delay 45 first stand: E1 = entry + 49 ms, lit E2 = E1 + 44 ms; ]
+PASS v2.13 UT-2 (REV-ELEC-4 Q2) TC4 step / rate checks: a 2 K one-conversion step inside or outside the light window holds the compensation (+/- 1 Pa) and sets SEAT_STEP (f3 b7, log v13); a 14 K/s ramp error sets SEAT_STEP within 0.5 s after moving the compensation <= 2 K x coef; a 2.42 K/s true ramp for 60 s sets neither and the compensation follows within 0.1 K  [(a) 12/12 (b) 4/4 ARMED conv 0: trip 0.333 s, comp moved 0.1236 bar (1.66 K), held after 0.0 Pa; COAST conv 0: trip 0.309 s, comp moved 0.1147 bar (1.54 K), held after 0.0 Pa; ARMED conv 100: trip 0.351 s, comp moved 0.1117 bar (1.50 K), held after 0.0 Pa; COAST conv 100: trip 0.351 s, comp moved 0.1117 bar (1.50 K), held after 0.0 Pa; (c) 2/2 conv 0 ms: step 0 frozen 0, |reading - T_c| max 0.0000 K (settled 0.0000 K), |true - T_c| max 0.0000 K, seat +144.7 K; conv 100 ms: step 0 frozen 0, |reading - T_c| max 0.2361 K (settled 0.0000 K), |true - T_c| max 0.2387 K, seat +144.7 K; ]
+PASS v2.13 UT-3 (REV-ELEC-4 Q2): a +90 K TC4 step in RUN at k = 3 (inside the hold E2 + 40 / 200 ms and after it E2 + 600 ms, first start and relight, both signs) moves pc_f_ by <= 0.02 bar against the no-error run (100 ms after the step), no abort, SEAT_STEP set; the later difference is the held-compensation residual (coef x seat rate x time since the freeze)  [12/12; first s +1 at E2+40 ms: pc_f change 0.00000 bar in 0.1 s, 0.0000 bar in 0.6 s (residual bound 0.0020), abort 0, SEAT_STEP 1; first s +1 at E2+200 ms: pc_f change 0.00000 bar in 0.1 s, 0.0000 bar in 0.6 s (residual bound 0.0020), abort 0, SEAT_STEP 1; first s +1 at E2+600 ms: pc_f change 0.00000 bar in 0.1 s, 0.0000 bar in 0.6 s (residual bound 0.0020), abort 0, SEAT_STEP 1; first s -1 at E2+40 ms: pc_f change 0.00000 bar in 0.1 s, 0.0000 bar in 0.6 s (residual bound 0.0020), abort 0, SEAT_STEP 1; first s -1 at E2+200 ms: pc_f change 0.00000 bar in 0.1 s, 0.0000 bar in 0.6 s (residual bound 0.0020), abort 0, SEAT_STEP 1; first s -1 at E2+600 ms: pc_f change 0.00000 bar in 0.1 s, 0.0000 bar in 0.6 s (residual bound 0.0020), abort 0, SEAT_STEP 1; relight s +1 at E2+40 ms: pc_f change 0.00000 bar in 0.1 s, 0.0357 bar in 0.6 s (residual bound 0.0378), abort 0, SEAT_STEP 1; relight s +1 at E2+200 ms: pc_f change 0.00000 bar in 0.1 s, 0.0440 bar in 0.6 s (residual bound 0.0461), abort 0, SEAT_STEP 1; relight s +1 at E2+600 ms: pc_f change 0.00502 bar in 0.1 s, 0.0312 bar in 0.6 s (residual bound 0.0332), abort 0, SEAT_STEP 1; relight s -1 at E2+40 ms: pc_f change 0.00000 bar in 0.1 s, 0.0357 bar in 0.6 s (residual bound 0.0378), abort 0, SEAT_STEP 1; relight s -1 at E2+200 ms: pc_f change 0.00000 bar in 0.1 s, 0.0441 bar in 0.6 s (residual bound 0.0461), abort 0, SEAT_STEP 1; relight s -1 at E2+600 ms: pc_f change 0.00506 bar in 0.1 s, 0.0312 bar in 0.6 s (residual bound 0.0332), abort 0, SEAT_STEP 1; ]
+PASS v2.13 UT-4 (REV-ELEC-4 Q2, E4-03): the 8 probe B Q1 re-ARM cases decide as a fresh ECU (SAFE clears the seat reference and compensation; the ARM check adds the applied compensation back)  [0 of 8 differ; k 1 dT 5 off +0.0: fresh ARMED re-ARM ARMED (comp in SAFE 0.000 bar); k 1 dT 25 off +0.0: fresh ARMED re-ARM ARMED (comp in SAFE 0.000 bar); k 3 dT 10 off +0.0: fresh ARMED re-ARM ARMED (comp in SAFE 0.000 bar); k 3 dT 10 off +0.6: fresh PC_SENSOR re-ARM PC_SENSOR (comp in SAFE 0.000 bar); k 3 dT 20 off +0.0: fresh ARMED re-ARM ARMED (comp in SAFE 0.000 bar); k 3 dT 20 off +1.3: fresh PC_SENSOR re-ARM PC_SENSOR (comp in SAFE 0.000 bar); k 3 dT 20 off -1.3: fresh PC_SENSOR re-ARM PC_SENSOR (comp in SAFE 0.000 bar); k 1 dT 25 off +0.9: fresh PC_SENSOR re-ARM PC_SENSOR (comp in SAFE 0.000 bar); ]
+PASS v2.13 UT-5 bumpless resume: after E2 + 0.45 s the compensation temperature slews to the reading at <= 5 K/s (comp step <= 5 K/s x coef per tick), the hold-end gap stays below the 3 K rate trip, no SEAT_STEP, RUN continues  [4/4; A1 s +1: hold-end gap 0.344 K (record 0.349 K), max comp step 37.24 Pa/tick (limit 37.74), caught up 1; A1 s -1: hold-end gap 0.344 K (record 0.349 K), max comp step 37.24 Pa/tick (limit 37.74), caught up 1; stand s +1: hold-end gap 0.691 K (record 0.696 K), max comp step 37.25 Pa/tick (limit 37.74), caught up 1; stand s -1: hold-end gap 0.691 K (record 0.696 K), max comp step 37.25 Pa/tick (limit 37.74), caught up 1; ]
+PASS v2.13 E4-N01: kPcSeatArmDevMax_K 40 K - T0 0 C with T_cal 35 C (35 K, k = 3, -2.60 bar thermal zero) ARMS (v2.12 30 K refused it: cold-day NO-GO); a +0.6 bar sensor offset there is still refused; 40.5 K drops the static term (refused, fail-safe); T0 40 C / T_cal 10 C arms  [35 K 1, 35 K + 0.6 bar 0, 40.5 K 0, 30 K hot 1 (1 ARMED, 0 PC_SENSOR)]
+PASS v2.13 LEAD 264 (2) A1 pad rule (EngineEcu::seat_arm_rule, A1 build value true): flight ARM refused SEAT_TC with coefficient 0, TC4 invalid or out of range; accepted with both; stand and rule-off builds unchanged; pad IGNITE refused SEAT_TC with no seat reference (SEAT_NOREF) or SEAT_STEP set  [ARM: coef 0 SEAT_TC, TC invalid SEAT_TC, 480 K SEAT_TC, ok ARMED, stand ARMED, rule off ARMED; IGNITE: normal 0/PREPRESS, NOREF 18/ARMED, SEAT_STEP 18/ARMED]
+PASS v2.13 LEAD 264 (7) PROVISIONAL: flight relight after a flagged first light (f3 JFWD_LS, LIGHT_SPIKE raw 48 bar abs) refused JFWD_USED (TLM relight_block too); no flag, stand, or the inhibit off -> accepted; A5 option: SEAT_STEP latched -> refused SEAT_STEP only with seat_step_relight_inhibit (build value false: the relight proceeds on the held compensation)  [refused/block/state/JFWD: spike 17/17/COAST/1, none 0/0/IGNITION/0, stand 0/0/IGNITION/1, inhibit off 0/0/IGNITION/1; SEAT_STEP inhibit 19/19/COAST/0, default 0/0/IGNITION/0]
+PASS v2.13 UT-6 (LEAD ITEM 2) catch-up after the hold: g0 just under 5 K/s x hold -> catch-up, no trip, resume, converged; just over -> SEAT_STEP at the hold-end tick; gap growth 1.5 K above the lowest gap -> trip; gap still above 3 K at 2 x hold after the hold end -> trip; the step check stays on in the catch-up; after the resume the NORMAL rate check trips at 3 K  [under: D 0.812 s g0 3.979 K (bound 4.060) catch 1 step 0 caught up 0.196 s after the end, final gap 0.0000 K; over: g0 4.141 K (bound 4.060) trip at the end 1 (dt 0.0000 s) catch seen 0; growth 7 K/s: trip 0.752 s after the end, gap 5.479 K (limit g0 + 1.5 = 5.479); cap 5.05 K/s: trip 1.6250 s after the end (2 x D = 1.6240), gap 4.052 K; 2 K step in the catch-up: trip 0.1000 s after the end; resume: catch-up ended 0.196 s after the end, 14 K/s ramp trip at gap 3.000 K, 1.132 s after the catch-up end]
+PASS v2.13 LEAD RULING 1 (b) option (2): EVENT BUILD 0x25 (arg b0 seat_arm_rule, b1 hbleed_fitted) at boot and at every ARM command, for both values of each; log v13 ovr_flags b7 = seat_arm_rule (185 B unchanged)  [4/4; rule 0 hbleed 0: boot 1 bits 0x00 frame 25..0000 log b7 1 quiet 0 ARM 1 next 1 ARM2 1 (ARMED); rule 0 hbleed 1: boot 1 bits 0x02 frame 25..0002 log b7 1 quiet 0 ARM 1 next 1 ARM2 1 (ARMED); rule 1 hbleed 0: boot 1 bits 0x01 frame 25..0001 log b7 1 quiet 0 ARM 1 next 1 ARM2 1 (SAFE); rule 1 hbleed 1: boot 1 bits 0x03 frame 25..0003 log b7 1 quiet 0 ARM 1 next 1 ARM2 1 (SAFE); ]
+PASS v2.13 (LEAD 16:27Z) Abort::SEAT_TC (32) is ARM-refusal only: no STATE event on the refusal (state stays SAFE), log abort_cause 32; the STATE encoder never masks a cause above 31 into the 5-bit field (32 would read NONE): saturated to 31 and counted  [refused 1, STATE events 0, log cause 32, overflow +1 / +0, cause field 31 / 31, copy 2]
+PASS supply: in-situ source resistance recovered (25 mOhm, 6 mV / 30 mA noise)  [estimate 24.92 mOhm, accepted 3974]
+PASS supply: predicted both-stall plug voltage uses the measured resistance  [7.616 V vs 7.614 V]
+PASS supply: no excitation -> no estimate, bench calibration used
+PASS supply: 8.1 V rest with the LEAD basis (15/20 mOhm) predicts 7.61 V (calc/tvc_supply_budget_v1)  [7.613 V]
+PASS supply: 8 mOhm measured < 15 mOhm calibration -> calibration kept (conservative)  [estimate 8.00 mOhm]
+PASS FM-PWR-01: 100 mOhm source found in the TVC sweep -> predicted < 6.6 V (V_val) -> ARM refused, cause 19 TVC_SUPPLY  [rest 8.26 V, R used 100.0 mOhm, predicted 6.12 V]
+PASS FM-PWR-01: TLM_GIMBAL flags show the estimate and the degraded supply
+PASS FM-PWR-01: cold 45 mOhm source predicts 7.2 V >= 6.6 V -> ARM accepted (v2.3 7.6 V basis refused it)  [R used 45.0 mOhm, predicted 7.22 V]
+PASS FM-PWR-01: 15 mOhm source at 8.3 V -> ARM accepted  [predicted 7.81 V]
+PASS FM-PWR-01 in flight: degraded flag set, burn continues (no abort)  [state 4, predicted 6.42 V, log vplug 6417 mV]
+PASS log v12 (v10 fields unchanged) carries the battery current (0.01 A)  [ibat_cA 300]
+PASS FM-PWR-01: flag holds 0.5 s after recovery, then clears (min + 0.1 V hysteresis)  [predicted 7.81 V]
+PASS pad (ARMED, no start): pack collapse to 6.4 V aborts (TVC_SUPPLY trips at 100 ms, before BATT_LOW at 200 ms; both recorded)  [cause 19]
+PASS relight PREPRESS in flight: BATT_LOW flags, no abort  [prepress 1, state 2]
+PASS relight PREPRESS, tank > 65 bar: still aborts while the relief device is unconfirmed (LEAD condition a)
+PASS same with tank_overp_pad_only (after condition a): flag only
+PASS e-fuse: 25 A for 1.1 s in ARMED aborts (cause 20 OVERCURRENT)
+PASS e-fuse: in SAFE the TVC test power is dropped and an inhibit recorded
+PASS e-fuse: no action in flight (TVC power is kept)
+PASS heater permit: SAFE only, cut above 58 bar g, with the ARM plug, and when ARMED  [1 0 0]
+PASS GNC command low-pass (50 rad/s, zeta 0.5, sim6 difference equations): overshoot 16.3 %, peak 72.6 ms, unity DC  [peak 1.1581 at 71.0 ms, final 1.00000]
+PASS shaping chain small-signal gain at 35 Hz (rocking band) matches the continuous low-pass  [0.0546 (-25.3 dB) vs 0.0530]
+PASS shaping chain small-signal response (informational, notch off): gain / phase  [2 Hz 1.029 / -14.3 deg, 8 Hz 0.995 / -86.3 deg]
+PASS ENG-07d notch (35 Hz, Q 1, -12 dB) adds its depth at f0 in the shaping chain  [-12.00 dB]
+PASS ENG-07d notch cost/benefit (informational): extra attenuation at the GNC band edges and phase lag at 2/8 Hz  [26.4 Hz -8.7 dB, 45.7 Hz -8.9 dB, phase change 2 Hz -4.9 deg, 8 Hz -18.7 deg, gain 2 Hz 0.994, 8 Hz 0.908]
+PASS notch setter: 300 Hz request ignored (35 Hz kept), disable works, default build constant is OFF
+PASS 10/10 deg command: shaped vector norm never exceeds 7 deg (limit after the low-pass), b0/b1 flagged  [max norm 7.0000 deg, max rate 111.6 deg/s]
+PASS 100 deg/s command ramp, acceleration limit 0 (v2.8.2 plain limiter): chain lag about 2 zeta / w x rate = 2.0 deg  [lag 1.86 deg at 100 ms]
+PASS v2.8.3 100 deg/s command ramp through the flight chain (gnc.json v3 tracker 2000 deg/s2 + low-pass): lag = tracker v^2/2a 2.5 deg + low-pass 2.0 deg + transient, matches the double-precision sim6 transcription (informational for GNC/B-TVC-1)  [lag 4.605 deg at 100 ms, reference 4.605 deg]
+PASS healthy actuator (15 ms lag) on +/-5 deg steps through the shaping: no episode > 0.1 s  [longest 0 ms, episodes 0]
+PASS actuator lag 9 and 22 ms (10-25 Hz class): no false episode > 0.1 s  [longest 0 / 0 ms]
+PASS speed-limited actuator (40 deg/s < 100 deg/s shaping): episodes > 0.1 s counted, SAT_LONG set  [longest 167 ms, long 5, episodes 7]
+PASS jammed actuator (torque saturation proxy): episode passes 0.1 s, SAT_LONG, log v5 sat_ms/sat_flags b2 (v2.8.3: within 0.30 s of the jam)  [SAT_LONG 176 ms after the jam, sat_ms 110, flags 20]
+PASS 60 ms encoder excursion of 1 deg: one short episode (60 ms), not long  [max 60.0 ms, count 1]
+PASS ENG-07b statistics are per burn: the bench episode is cleared at IGNITION entry  [state 3]
+PASS SET_GIMBAL_NOTCH: 35.2 Hz set in SAFE (log b4), ignored when ARMED, 250 Hz rejected, arg 0 disables  [1 1 1]
+PASS per-axis notch: alpha (22.0 Hz, Q 1.0, -12 dB) and beta (25.3 Hz, Q 1.4, -15 dB) each act with their own section  [alpha: -12.00 dB at 22.0 / -10.89 dB at 25.3 Hz; beta: -12.40 dB at 22.0 / -15.00 dB at 25.3 Hz; worst vs section response 0.004 dB]
+PASS per-axis setter: Q 20 on beta refused (beta kept), alpha disabled alone (beta stays on, alpha values kept)
+PASS setGimbalNotchCal: one axis out of range refuses both, refused when ARMED, accepted in SAFE
+PASS SAFE commands per axis: beta f0 only, alpha Q/depth only, bad Q refused, v2.4 both-axis form keeps per-axis Q/depth, change flagged one tick  [1 1 1]
+PASS per-axis notch commands ignored when ARMED
+PASS IGNITE refused without a notch on both axes (blank, alpha only), accepted once beta is set  [1 1 1]
+PASS NvGimbalCal 32 B: round trip within 0.01 Hz / 0.001 / 0.01 dB; blank = no notch; corrupt or out of range = no notch + GIMBAL_CAL_BAD
+PASS boot path: the decoded record is applied in SAFE (both axes, beta 25.3 Hz)
+PASS TVC_TEST_ENABLE 2 (B-TVC-1 FRF): filters bypassed in SAFE (1 deg reached in 20 ms, slew-limited only), restored when ARMED  [raw 1.000 deg, flight shaping 0.022 deg at 20 ms]
+PASS v2.6 monitor: 25 mm/s follower through ignition, steps 62.5-500 N, MECO, coast and a relight: no jam event, no PINTLE fault  [longest no-progress interval 7 ms (time path 100 ms, current path needs 20 + 50 ms)]
+PASS v2.6 jam closed in IGNITION: no progress for 0.10 s -> PINTLE_FAULT abort (MV unlatched), back-off, one jam event, before the ignition window ends (v2.8: lift + 0.40 s)  [episode at 7 ms after IGNITION entry, event 99 ms later, recorded cmd 0.205 mm, lift 0.000 mm]
+PASS v2.6 jam event record: state IGNITION, 0.10 s without progress, no current sense (-1)  [noprog 0.1000 s]
+PASS v2.6 jam closed with current sense: STALL_CURRENT 70 ms after the episode starts (20 ms no progress + 50 ms > 1.0 A)  [event 69 ms after the episode start, I 1.50 A]
+PASS v2.6 slow needle (8 mm/s) on a 100 -> 500 N step: progress marks every 2.5 ms, no trip  [longest no-progress 7 ms]
+PASS v2.6 creeping needle (1.5 mm/s, a mark every 13 ms): TRACK_TIMEOUT after 0.6 s of tracking error -> PINTLE_FAULT  [abort 614 ms after the step, longest no-progress 18 ms]
+PASS v2.6 jam open at MECO: SHUTDOWN, no closing progress 0.10 s -> PINTLE_FAULT, ARM bus released on the next tick, one event  [needle 1.32 mm, abort 100 ms after SHUTDOWN, bus released 1 ms later]
+PASS v2.6 log v5/v6: sat_flags b6 no progress >= 20 ms (before the trip), b5 back-off, b7 jam record pending  [got 0xF0]
+PASS v2.6 MAINT_JAM: ARM refused (cause 21) after a jam; CLEAR_JAM with a wrong key refused; keyed CLEAR_JAM in SAFE -> one-tick clear pulse; v2.7: the MECO abort also set the relight lockout (cause 23) -> CLEAR_LOCKOUT, ARM accepted  [1 1 1 1]
+PASS v2.6 CLEAR_JAM outside SAFE is ignored (counted)
+PASS v2.6 non-volatile jam flag at boot: ARM refused (MAINT_JAM) until CLEAR_JAM and the HAL clears the record
+PASS v2.6 runaway in COAST (needle driven open at 20 mm/s): kind RUNAWAY, PINTLE_FAULT, ARM bus released  [abort 108 ms after the runaway start, lift 2.18 mm]
+PASS v2.6 abort over before the 0.1 s trip, needle stuck at 0.8 mm: SAFE check records NOT_CLOSED 1.0 s after power removal  [SAFE 51 ms after the abort]
+PASS v2.6 rule (a): learned trim +0.40 -> relight IGNITION lift capped at the ignition lift (v2.8: table, 0.2520 mm; v2.5 would command (1+trim) x)  [max 0.2049 mm vs v2.5 0.2869 mm]
+PASS v2.6 rule (a): no light (Pc stays at ambient) -> NO_IGNITION abort (v2.8 flight relight: lift + 0.65 s) and the pintle closes  [cmd 0.000 mm]
+PASS v2.6 rule (b) / v2.8 Finding A: MV unlatched in SHUTDOWN once seated, closed through a 2 s coast; primed RELIGHT -> IGNITION at E0 with the opener ramp >= 0.3 s running, OPEN switch before kMvOpenBy_s, lift at the torch confirmation, RUN  [ramp 346 ms, OPEN switch 235 ms, lift 3 ms after E0]
+PASS v2.8 RELIGHT with gas in the segment (P_feed 10 bar g < 0.5 P_tank): PREPRESS bleed 60 ms, opener ramp >= 0.3 s, hold, then IGNITION  [ramp 346 ms from 64 ms, IGNITION at 560 ms]
+PASS v2.6 ARM refused (PINTLE_FAULT) without a valid pintle encoder, and with the needle not seated (0.3 mm)
+PASS v2.6 pintle encoder lost in RUN: fault ENCODER flagged, burn continues (monitor blind; Pc loop and PC_BAND still active)
+PASS v2.6 NvJamRecord (32 B, CRC-16): blank = not pending, event round trip, one flipped bit = CORRUPT = pending (fail-safe), clear keeps the total  [EVENT arg got 0x0102]
+PASS v2.6 PintleCal: accepted in SAFE (centre 1520 -> 1500 us shifts the closed pulse by -20 us); bad scale, stroke-cutting clamp and non-SAFE refused  [closed 1025.8 -> 1005.8 us, 4 mm at the default 2014.2 us]
+PASS v2.6 stall thresholds vs calc/pintle_dynamics_v2.py (informational)  [time path 100 ms = 4.1 x the 24 ms normal maximum; tracking 0.60 s = 1.57 x the slowest full stroke]
+PASS Pc low-pass: -3 dB at 50 Hz, <= 0.13 at the 144-188 Hz sense-line band  [g50 0.707, g144 0.106, g188 0.056]
+PASS Pc low-pass phase (informational: COMB asked < 1 deg at 20 Hz, not achievable with a 50 Hz low-pass)  [phase 6 Hz -9.7 deg, 20 Hz -33.7 deg, gain 20 Hz 0.988]
+
+343 passed, 0 failed
+exit 0

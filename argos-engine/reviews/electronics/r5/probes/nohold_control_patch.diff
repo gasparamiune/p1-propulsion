@@ -1,0 +1,14 @@
+--- /dev/shm/rev_elec5/fw/src/core/engine_ecu.cpp	2026-10-21 16:37:25.005450462 +0000
++++ /dev/shm/rev_elec5/fw_nohold/src/core/engine_ecu.cpp	2026-10-21 18:15:32.271325268 +0000
+@@ -1396,7 +1396,11 @@
+     }
+   }
+   if (!plaus) seat_frozen_ = true;                                  // v2.12 range / kPcSeatDevMax_K: T_c held this tick
++#ifdef REV5_NO_HOLD
++  else if (!seat_step_) {   // REV-ELEC-5 reviewer variant: no hold for T_c
++#else
+   else if (!hold && !seat_step_) {
++#endif
+     // v2.13 (Q2 (2)) RATE CHECK outside the hold, then the slew of T_c toward the reading (bumpless resume after the hold)
+     const float gap = in.tc_bore_K - seat_Tc_K_, ag = std::fabs(gap);
+     if (seat_catch_) {                                              // v2.13 ITEM 2 catch-up (the step check above stays on)
