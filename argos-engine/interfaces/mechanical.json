@@ -1,10 +1,10 @@
 {
  "id": "mechanical",
- "version": "v2.3",
+ "version": "v2.4",
  "date": "2026-10-21",
  "owner": "Mechanical (03-cad / 04-fea)",
- "supersedes": "v2.2 (2026-10-20, sha256/16 f790d31b5ca7d954; archived by rename as 03-cad/v3.5.2/history/mechanical.json.f790d31b5ca7d954); v2.1 (2026-10-13, e4d3e7c9df529171) archived as 03-cad/v3.5.2/history/mechanical.json.e4d3e7c9df529171",
- "status": "v3.5.2 J-FWD re-map issue (lead 2026-10-21T05:50:45Z R1-R12) on the FINAL 03-cad v3.5.2 set (no CAD change in the re-map): SIM + CALC + DERIVED + DESIGN as tagged; physical validation pending (bench and founder test lists); margins are model results, not test results; negatives are shown as found",
+ "supersedes": "v2.3 (2026-10-21, sha256/16 55397a9b8ddb59be; archived by rename as 03-cad/v3.5.2/history/mechanical.json.55397a9b8ddb59be); v2.2 (2026-10-20, f790d31b5ca7d954) and v2.1 (2026-10-13, e4d3e7c9df529171) archived as 03-cad/v3.5.2/history/mechanical.json.<sha256/16>",
+ "status": "v3.5.2 J-FWD follow-ups issue (lead brief 2026-10-21T08:05:00Z F1-F6; REV-COMB-4 R4-01 / R4-02 / R4-10 relayed 08:39:41Z) on the FINAL 03-cad v3.5.2 set (no CAD change): SIM + CALC + DERIVED + DESIGN as tagged; physical validation pending (bench and founder test lists); margins are model results, not test results; negatives are shown as found",
  "units": "SI (m, kg, s, N, Pa, rad) unless the key says _mm/_deg/_Hz/_g/_dps",
  "written_to": "/home/claude/work/shared-fallback/engine/interfaces",
  "scripts": {
@@ -8051,20 +8051,52 @@
   "recommendation": "keep J1 with the v3.5 IN718 TC-09; J2 does not improve the lip; NZ-03 service temperature and NZ-04 seal class against the soak peaks are OPEN (material data TO-VERIFY)"
  },
  "cad_version": "v3.5.2",
- "reading_rule_v352": "Sections whose key ends in _v352 (and the header) govern for v3.5.2. The v2.1 sections are kept unchanged as the record of CAD v3.3 / v3.5 / v3.5.1; where a v2.1 value conflicts with a _v352 section, the _v352 section governs; superseded_v2p1_entries lists the v2.1 entries not to be used for v3.5.2. v2.3: the _v352 sections hold the J-FWD re-map values (relax v8, rows v8 and companions on FEA3D-2's FINAL envelope v6); every v2.2 value they replace is kept in superseded_v2p2_values and named leaf by leaf in superseded_v2p2_entries (not to be used for v3.5.2).",
+ "reading_rule_v352": "Sections whose key ends in _v352 (and the header) govern for v3.5.2. The v2.1 sections are kept unchanged as the record of CAD v3.3 / v3.5 / v3.5.1; where a v2.1 value conflicts with a _v352 section, the _v352 section governs; superseded_v2p1_entries lists the v2.1 entries not to be used for v3.5.2. v2.3: the _v352 sections hold the J-FWD re-map values (relax v8, rows v8 and companions on FEA3D-2's FINAL envelope v6); every v2.2 value they replace is kept in superseded_v2p2_values and named leaf by leaf in superseded_v2p2_entries (not to be used for v3.5.2). v2.4: a patch on v2.3 (the J-FWD follow-ups): only the leaves named in superseded_v2p3_entries change (each v2.3 value kept whole in superseded_v2p3_values, not to be used for v3.5.2); lc_tb70_envelope_v352, c1_seat_v352, torch_port_bl08_v352 and followups_basis_v352 are new; lc_tb70_envelope_v352 supersedes 04-fea/v352/lc_tb70_envelope_v1.json for v3.5.2.",
  "scripts_v352": {
-  "writer": "03-cad/v3.5.2/src/calcs/write_mechanical_json_v352.py (v2.3)",
-  "writer_sha256_16": "50c29f6b90057742",
+  "writer": "03-cad/v3.5.2/src/calcs/write_mechanical_json_v352.py (v2.4)",
+  "writer_sha256_16": "7768af1098c7ad08",
   "mass": "03-cad/v3.5.2/src/make_all.py stage_mass (MAKE_ALL_CAD=v352) + src/calcs/mass_delta_v352.py",
   "hardware": "03-cad/v3.5.2/src/calcs/hardware_v352.py -> data/hardware_v352.json",
-  "jfwd": "04-fea/v352/jfwd_*_v352.py (relax v8, rows v8, K_js5 v3, spring v5, head fillet v2, screw LCF v3, P+Q band v1, R6 companions v1, J-F1b / LOCTITE v1; tap wall v1 stays, R11)",
-  "texts": "04-fea/v352/texts/item_c_tf1_texts_v352.py (v4; also writes the drawing-text set) and tf1_exposure_v352.py (v2)",
-  "drawing_texts": "03-cad/v3.5.2/texts/jfwd_drawing_texts_v352_v1.json"
+  "jfwd": "04-fea/v352/jfwd_*_v352.py (relax v8, rows v8, K_js5 v3, spring v5, head fillet v2, screw LCF v3, P+Q band v1, R6 companions v1, J-F1b / LOCTITE v1, tap wall v3 (R4-01))",
+  "texts": "04-fea/v352/texts/item_c_tf1_texts_v352.py (v5; also writes the drawing-text set v2) and tf1_exposure_v352.py (v2)",
+  "drawing_texts": "03-cad/v3.5.2/texts/jfwd_drawing_texts_v352_v2.json",
+  "lc_tb70_envelope": "04-fea/v352/lc_tb70_envelope.py (v2; inside_v2() is the post-run classifier)",
+  "c1seat": "04-fea/v352/c1seat/c1_seat_v352.py (F1), c1_seat_xcheck_v352.py (F1 cross-check), torch_port_bl08_v352.py (F2)",
+  "scripts_sha256_16_v2p4": {
+   "lc_tb70_envelope": {
+    "path": "04-fea/v352/lc_tb70_envelope.py",
+    "sha256_16": "d14489808338006b"
+   },
+   "jfwd_tapwall": {
+    "path": "04-fea/v352/jfwd_tapwall_v352.py",
+    "sha256_16": "0de59c74ff531b30"
+   },
+   "jfwd_tapwall_v2_reviewed": {
+    "path": "04-fea/v352/history/jfwd_tapwall_v352.py.b7d7aad6eacef440",
+    "sha256_16": "b7d7aad6eacef440"
+   },
+   "texts": {
+    "path": "04-fea/v352/texts/item_c_tf1_texts_v352.py",
+    "sha256_16": "b75b3a541576474b"
+   },
+   "c1_seat": {
+    "path": "04-fea/v352/c1seat/c1_seat_v352.py",
+    "sha256_16": "fe1f41a73f25a0bc"
+   },
+   "c1_seat_xcheck": {
+    "path": "04-fea/v352/c1seat/c1_seat_xcheck_v352.py",
+    "sha256_16": "bba820fabd895ff6"
+   },
+   "torch_port_bl08": {
+    "path": "04-fea/v352/c1seat/torch_port_bl08_v352.py",
+    "sha256_16": "72c853aebfe96fd3"
+   }
+  }
  },
  "inputs_read_v352": {
   "combustion.json": {
-   "version": "v2.4b",
-   "sha256": "fd3a7da6d27c7c669c5a4ffac5c6ffde19d89f21288a2a7f245372282416b7b7"
+   "version": "v2.4c",
+   "sha256": "661db0a593462382ea1979dfacf5a37877be6e3722e59d509033b68dd1721ee2"
   },
   "electronics.json": {
    "version": "v4",
@@ -8171,6 +8203,54 @@
   "fea3d_js5b_rows": {
    "path": "04-fea/assembly3d_v352/results/v352/jfwd_js5b_rows_v352.json",
    "sha256_16": "91278d6b039c5b27"
+  },
+  "tap_wall_v3": {
+   "path": "04-fea/v352/jfwd_tapwall_v352_v3.json",
+   "sha256_16": "ef70572ec92b05b0"
+  },
+  "tap_wall_v2_reviewed": {
+   "path": "04-fea/v352/jfwd_tapwall_v352_v2.json",
+   "sha256_16": "9f8849412d4419d7"
+  },
+  "lc_tb70_envelope_v2": {
+   "path": "04-fea/v352/lc_tb70_envelope_v2.json",
+   "sha256_16": "7ebd2fd63dc878ef"
+  },
+  "lc_tb70_envelope_v1": {
+   "path": "04-fea/v352/lc_tb70_envelope_v1.json",
+   "sha256_16": "6f710726e4787134"
+  },
+  "texts_v5": {
+   "path": "04-fea/v352/texts/item_c_tf1_texts_v352_v5.json",
+   "sha256_16": "c4ea791b7aa68e2e"
+  },
+  "drawing_texts_v2": {
+   "path": "03-cad/v3.5.2/texts/jfwd_drawing_texts_v352_v2.json",
+   "sha256_16": "58683aa9a66a65dd"
+  },
+  "c1_seat_v1": {
+   "path": "04-fea/v352/c1seat/c1_seat_v352_v1.json",
+   "sha256_16": "435f5d71f6213160"
+  },
+  "c1_seat_xcheck_v1": {
+   "path": "04-fea/v352/c1seat/c1_seat_xcheck_v352_v1.json",
+   "sha256_16": "02a9f27c7965f223"
+  },
+  "torch_port_bl08_v1": {
+   "path": "04-fea/v352/c1seat/torch_port_bl08_v352_v1.json",
+   "sha256_16": "20220647d32cbbbc"
+  },
+  "combustion_v2p4c": {
+   "path": "interfaces/combustion.json",
+   "sha256_16": "661db0a593462382"
+  },
+  "REVIEW-COMBUSTION-R4": {
+   "path": "reviews/REVIEW-COMBUSTION-R4.md",
+   "sha256_16": "2908321d7f75d439"
+  },
+  "margin_matrix_v352_rows_v8": {
+   "path": "04-fea/assembly3d_v352_rows_v8/tables/margin_matrix_v352.json",
+   "sha256_16": "6c694fa7147fb511"
   }
  },
  "gimballed_mass_properties_v352": {
@@ -10893,7 +10973,7 @@
     "optional_J-F1b": "5 of the J-F1 joints (with the spring) with the load washer kept in: 10 oven cycles 20 -> 120 C, residual preload and breakaway torque recorded, as data for the preload-retention audit (16:53Z R2: the check on the relaxation model); its v1.4 purpose (the 10-firing replacement interval) is superseded by the single-use rule; the cycle temperature against the about 160 C spring relaxation basis is TO-RULE",
     "superseded": "v1.4-v1.6 J-F1 (A4-80 M5 x 10, 3.0 N m, acceptance 2250-4096 N, 2.5 N m fallback): hardware_v352 v1.6 0ed3f31d3e166f85"
    },
-   "texts_superseding_hardware_strings": "03-cad/v3.5.2/texts/jfwd_drawing_texts_v352_v1.json: HW-170 orientation DEFINED (C9 (1)) and SINGLE-USE (C9 (2), 248 (7)); the hardware v1.7 strings 'orientation TO-DEFINE' and 'reuse of a removed spring TO-RULE' are superseded by these texts (data/hardware_v352.json is not edited; the lead rules any data update)"
+   "texts_superseding_hardware_strings": "03-cad/v3.5.2/texts/jfwd_drawing_texts_v352_v2.json: HW-170 orientation DEFINED (C9 (1)) and SINGLE-USE (C9 (2), 248 (7)); the hardware v1.7 strings 'orientation TO-DEFINE' and 'reuse of a removed spring TO-RULE' are superseded by these texts; ENG-HW-101-IN718.jfwd_replace_rule_note_LC-TB70_v2: the hardware v1.7 HW-101 action string 'after any Pc above 60 bar abs the line-231 J-FWD inspection (C6 (2) list)' is superseded by the LC-TB70 v2 J-FWD replace rule (C9 (4); lc_tb70_envelope_v352.jfwd_replace_rule_v2); ENG-HW-101-IN718.tap_wall_note_v3: the hardware v1.7 HW-101 tap-wall v1 strings (oxygen_service 'tap-wall v1 MS_y +0.814' and the note sentence on the tap wall, P_torch 102 bar abs TO-CONFIRM) are superseded by tap wall v3 (P_torch FA1S 151.04 bar abs uniform over the passage, REV-COMB-4 R4-01; jfwd_v352.tap_wall) (data/hardware_v352.json is not edited; the lead rules any data update)"
   },
   "J_F1": {
    "maximum_N": 3750.0,
@@ -11833,16 +11913,87 @@
    "tags": "Kt LITERATURE (secondary, via AMESweb citing Pilkey 2005); the Pilkey page and the T-head Kt TO-SOURCE; head-end resultants carried over ASSUMED (lead 18:36:37Z); from zero = FOUND NEGATIVE, not governing"
   },
   "tap_wall": {
-   "governing_case": "SOAK52|FA-1_rule_102bar_abs_0.25-1ms_parts|ruled_+/-0.25deg_net_GOVERNING",
-   "MS_y": 0.814,
+   "source": {
+    "path": "04-fea/v352/jfwd_tapwall_v352_v3.json",
+    "sha256_16": "ef70572ec92b05b0",
+    "script": {
+     "path": "04-fea/v352/jfwd_tapwall_v352.py",
+     "sha256_16": "0de59c74ff531b30"
+    },
+    "records": {
+     "v2_the_row_REV-COMB-4_read": {
+      "path": "04-fea/v352/jfwd_tapwall_v352_v2.json",
+      "sha256_16": "9f8849412d4419d7",
+      "script": {
+       "path": "04-fea/v352/history/jfwd_tapwall_v352.py.b7d7aad6eacef440",
+       "sha256_16": "b7d7aad6eacef440"
+      }
+     },
+     "v1": {
+      "path": "04-fea/v352/jfwd_tapwall_v352_v1.json",
+      "sha256_16": "bcb21243d57af998",
+      "MS_y_at_P_torch_102bar_abs_rows_v7": 0.814,
+      "status": "SUPERSEDED for the passage (102 bar abs does not cover it, REV-COMB-4 R4-01)"
+     }
+    }
+   },
+   "P_torch_R4-01": "P_torch during FA-1: design case FA1S 151.04 bar abs uniform over the passage (REV-COMB-4 R4-01); linear lossless passage peaks <= 129.9 bar abs at the J-FWD tap and <= 148.7 at the torch seat for c 150-1200 m/s; the band values 94 / 121 / 147 / 94 do not bound gas-filled passages.",
+   "governing_case": "SOAK52|P_torch_FA1S_151.04bar_abs_uniform|ruled_+/-0.25deg_net_GOVERNING",
+   "MS_y": 0.67,
+   "MS_u": 0.785,
+   "T_C_TC02_thread": 94.9,
+   "screw_T_sensitivity_worst": {
+    "case": "SOAK70|P_torch_FA1S_151.04bar_abs_uniform|ruled_+/-0.25deg_net_GOVERNING",
+    "T_C": 158.6,
+    "Fty_MPa": 169.2,
+    "Ftu_MPa": 181.2,
+    "MS_y": 0.275,
+    "MS_u": 0.365
+   },
+   "information_4096N_column": {
+    "case": "SOAK52|P_torch_FA1S_151.04bar_abs_uniform|ruled_+/-0.25deg_net_GOVERNING",
+    "TC02_thread_T": {
+     "T_C": 94.9,
+     "Fty_MPa": 228.6,
+     "Ftu_MPa": 244.3,
+     "MS_y": 0.62,
+     "MS_u": 0.732
+    }
+   },
+   "flags_within_0.05_or_negative": {
+    "3750_N_column": [],
+    "4096_N_information_column": []
+   },
    "walls_mm": {
     "ruled_+/-0.25deg_net_GOVERNING": 1.6355,
     "+/-0.5deg_net_info": 1.5415,
     "nominal_CAD_info": 1.906
    },
-   "verdict": "Tap wall to the torch passage (az 18 / 342), wall 1.6355 mm net at +/-0.25 deg, CALC at the 3750 N J-F1 cap: governing SOAK52|FA-1_rule_102bar_abs_0.25-1ms_parts (N 8572.2 N from (b2) rep, p_thread 48.21 MPa, passage 10.099 MPa gauge): sigma 126.1 MPa, MS_y +0.814 / MS_u +0.938 at the TC-02 thread temperature 94.9 C; with the screw temperature as a sensitivity MS_y +0.389 (SOAK70|FA-1_rule_102bar_abs_0.25-1ms_parts).  Closest approach 1.8989 mm (paper, axes) at tap r 21.535 (7.065 mm below the plug OD), 0.229-0.63 mm above the screw tip.",
-   "to_confirm": "P_torch and its distribution along the torch passage (REV-COMB-4)",
-   "R11": "stays v1 until REV-COMB-4; if its bounding P_torch is above 102 bar abs, Mechanical re-runs the tap-wall check when the lead relays it"
+   "ligament_lowest_local_natural_frequency_R4-01": {
+    "value": "lowest local natural frequency >= 26 kHz (period <= 0.038 ms) on the extreme bounding idealisation (hottest_screw_T_of_all_states, +/-0.5deg_net_info, 10.4_twice_the_passage_bore_EXTREME, simply_supported); 116-262 kHz for the governing wall spanning the 5.2 mm passage bore (simply supported / clamped) at the SOAK52 thread temperature",
+    "tag": "CALC (Euler-Bernoulli beam strip, edge conditions and span ASSUMED, -15 % shear / rotary-inertia allowance ASSUMED; E engmat LITERATURE-approx, rho LITERATURE); the web is 1.54-1.91 mm thick and thickens to about +0.4 mm within +/-2.5 mm of the closest approach (two near-perpendicular bores), so the strip spans bound it from below; not an FE modal",
+    "lowest_case_kHz": 26.5,
+    "against_the_passage": {
+     "shortest_passage_period_ms": 0.29,
+     "passage_frequency_max_Hz": 3448.0,
+     "ratio_passage_over_ligament_lowest": 0.1301,
+     "harmonic_DLF_1_over_1_minus_r2": 1.0172,
+     "verdict": "the ligament is quasi-static under the passage pressure: DLF 1.0 on the passage peak (as the row); the FA1S design case is >= 16 % above the linear tap peak (REV-COMB-4 R4-01)"
+    }
+   },
+   "NOT_MODELLED_R4-01": [
+    "wave steepening and shock reflection",
+    "losses",
+    "torch-chamber compliance",
+    "N2O decomposition",
+    "a blocked-outlet deflagration"
+   ],
+   "NOT_MODELLED_note": "REV-COMB-4 R4-01 'Residual, not modelled' (REVIEW-COMBUSTION-R4.md 2908321d7f75d439); these are outside the row's basis, not covered by it",
+   "verdict": "Tap wall to the torch passage (az 18 / 342), wall 1.6355 mm net at +/-0.25 deg, CALC on SIM at the 3750 N J-F1 cap, P_torch = FA1S 151.04 bar abs uniform over the passage at every state: governing SOAK52 (N 8572.4 N from (b2) rep, p_thread 48.21 MPa, passage 15.003 MPa gauge): sigma 136.9 MPa, MS_y +0.670 / MS_u +0.785 at the TC-02 thread temperature 94.9 C; with the screw temperature as a sensitivity MS_y +0.275 (SOAK70, 158.6 C).  v1 (P_torch 102 bar abs, rows v7): MS_y +0.814 / screw T +0.389.  Flags within 0.05 or negative (3750 column, all walls): 0; 4096 information column: 0.  R4-01: ligament lowest local natural frequency >= 26 kHz on the extreme bounding strip (CALC, ASSUMED edges), far above the passage (<= 3.45 kHz): DLF 1.0 on the passage peak; NOT MODELLED: wave steepening and shock reflection, losses, torch-chamber compliance, N2O decomposition, a blocked-outlet deflagration.",
+   "to_confirm": "none for P_torch: the REV-COMB-4 R4-01 design case (combustion v2.4c fa1_p_torch_v2p4c); the NOT MODELLED items are outside the row's basis, not covered by it",
+   "R11": "CLOSED: REV-COMB-4's bounding P_torch (FA1S 151.04 bar abs uniform over the passage) is above 102 bar abs; Mechanical re-ran the row on the lead's relay (F5: v2 at 2026-10-21T08:14:51Z, read by REV-COMB-4; v3 adds the R4-01 items); R4-01 closes with this publication (lead CHANGELOG 256 (5))",
+   "tags": "CALC on FEA3D SIM screw forces (rows v8) and SIM temperatures; SF 1.0 on Fty / Ftu; not physical approval",
+   "hardware_strings_superseded": "the hardware v1.7 HW-101 strings 'tap-wall v1 MS_y +0.814' (oxygen_service) and the note's tap-wall sentence (P_torch 102 bar abs, TO-CONFIRM) are superseded by 03-cad/v3.5.2/texts/jfwd_drawing_texts_v352_v2.json ENG-HW-101-IN718.tap_wall_note_v3 and texts v5 C8 open_items[-1]; data/hardware_v352.json is not edited (no CAD change; the lead rules any data update)"
   },
   "spring_v5": {
    "verdict": "NONE TURNED NEGATIVE (every spring run, A and B, R 0-0.80, both k_b ends and families)",
@@ -11902,10 +12053,10 @@
     "derivation": "DERIVED; the DIN EN 16983 / DIN 2093 installation convention (load through the upper inner edge and the lower outer edge) is AS RECALLED, TO-VERIFY on the maker's sheet (Schnorr 001 500 A / Lesjofors 7909). The rows take the spring flat (solid) at every J-F1 preload (derated F_flat 360 N spring A / 206.5 N spring B against the 2057.6 N minimum, jfwd_spring_v352_v5.json); in the cool frames after embedding the spring force falls below F_flat (spring A F_S min 335.2 / 333.1 N at k_b lo / hi, R 0, the spring active in those frames), where the spring carries the load at its edges. Standard orientation: the outer edge (r 4.925-5.00) bears on the flat (the d11.2 spot face, with the disclosed tangential overhang, P(i)-2) and the head meets the crown at its bearing-face inner corner (da 5.55-5.80, r 2.775-2.90; F3); the T-head Kt at that corner is NOT SOURCED (disclosed with the head-fillet rows). Inverted: the inner edge (r 2.60-2.66) would sit inside the 5.82 hole-plus-break edge (r 2.91) with no support, and the outer edge (r 4.925 min) lies outside the ISO 7380-1 head (dk 9.5 max, r 4.75), so the head would ride on the spring's bowl: the load path the rows assume would not exist."
    },
    "J-F1b": "J-F1b (the optional J-F1 extension of hardware v1.7 HW-101; rule lead 19:53:27Z, PEAK 175 C ACCEPTED 21:17:03Z, dwell CORRECTED, CHANGELOG 248 (7); work-tree record jf1b_loctite_v352_v1.json 2ba9d10745f3f651, read-only [SIM]): 5 of the J-F1 joints (with the spring, the load washer kept in; J-F1 coupons, never flight hardware), the cycle 20 -> 175 C -> 20 C, at least 10 min at the peak from when the spring flat reaches the peak, 10 cycles as in hardware v1.7, residual preload and breakaway torque recorded after each cycle as data for the preload-retention audit (the check on the relaxation model). Peak 175 C = max(160 C, the governing SOAK70 zone maximum 160.29 C + 10 C) rounded up to 5 C (the js5 screw set alone gives 170 C, information); the 10 min is more than ten times the governing state's 53.0 s above (zone maximum - 10 C). METHOD: a uniform oven cycle puts the tap LOCTITE 243 at 175 C against 97.7 C in service, so it is allowed only once Henkel's service range for 243 is verified to cover 175 C (AS RECALLED -55 to +180 C, TO-VERIFY); otherwise the spring and head zone are heated locally and the tap temperature is recorded; TO-DEFINE by the test owner (founder). The post-abort soak is not a J-F1b state (C9 (4)).",
-   "post_abort_joint_replacement": "(4) POST-ABORT RULE (founder rule, lead 248 (7)): after any case-TC or TB-state abort the J-FWD joint counts as used: the ten ENG-HW-101-IN718 screws and their HW-170 springs are replaced (new, single-use) and the TC-01 holes (pins GO 5.50 / NO-GO 5.62) and the TC-02 taps (M5-6H GO / NO-GO) are gauged before the next run; this stands beside the 60 bar abs rule of the LC-TB70 envelope (lc_tb70_envelope_v1.json, unchanged: 'any head excursion above 60.0 bar abs: replace all J-FWD screws (HW-101) and gauge the TC-01 holes / TC-02 taps before the next run', the line-231 inspect-or-replace rule in head-trace form). Reason: the post-abort soak (ASSUMED shifted history, J-FWD band up to 201.4 C GVLO / 164.0 C GVHI, jf1b_loctite_v352_v1.json) is not a rows or J-F1b state. OPEN (lead CHANGELOG 253 (8), (10); Mechanical's next round, not this re-map): the TB-state aborts are HW_OVERPRESSURE, PC_OVERPRESSURE and HARD_START by the lead's PROVISIONAL definition (the case-TC OVER_TEMP abort is in F-14), Mechanical to confirm; the 60 bar abs rule is a head-trace threshold, not an abort type, so as written a normal light whose head peak exceeds 60 bar abs also triggers it (above 58.1 bar abs the LC-TB70 envelope has only the abnormal bases: Z2 SF 1.0 / 1.5, Z3 FA-1 SF 1.0); 185 of 896 FA-1 grid head peaks exceed 60 bar abs [SIM grid fraction, not a probability]; whether the rule stands for normal lights stays OPEN until REV-COMB-4 says whether those peaks are physical; Electronics states the logged quantity and threshold that detect it.",
+   "post_abort_joint_replacement": "(4) POST-ABORT RULE (founder rule, lead 248 (7)): after any case-TC or TB-state abort the J-FWD joint counts as used: the ten ENG-HW-101-IN718 screws and their HW-170 springs are replaced (new, single-use) and the TC-01 holes (pins GO 5.50 / NO-GO 5.62) and the TC-02 taps (M5-6H GO / NO-GO) are gauged before the next run. TB-state aborts (CONFIRMED by Mechanical on the lead's provisional set of 253 (8), lc_tb70_envelope_v2.json F4_abort_set): HW_OVERPRESSURE, PC_OVERPRESSURE, HARD_START and PC_SENSOR on the HIGH side (transducer output >= 4.75 V = 146.5 bar abs), with the case-TC OVER_TEMP abort of F-14. Reason: the post-abort soak (ASSUMED shifted history, J-FWD band up to 201.4 C GVLO / 164.0 C GVHI, jf1b_loctite_v352_v1.json) is not a rows or J-F1b state. BESIDE IT, for every run whatever its end (ridden-through FA-1 pulses included), the J-FWD REPLACE RULE of the LC-TB70 envelope v2 (lc_tb70_envelope_v2.json 7ebd2fd63dc878ef; it supersedes v1's 'any head excursion above 60.0 bar abs'): when Q_JFWD exceeds 60.0 bar abs at any time in a run (Q_JFWD = the larger of the head-end peak and the head-end undamped SDOF ESP at the J-FWD periods 0.2-0.5 ms, on the light window and on each excursion window; no minimum duration) the joint counts as used: before the next run the line-231 J-FWD inspection (C6 (2) list) and the TC-02 taps gauged (M5-6H GO / NO-GO). Basis: at 60.0 bar abs every J-FWD row meets the nominal factors at the LC2 state 78.6 C (minimum MS_y +0.328 TC-01 ligament (LC2U), MS_u +0.312 TC-01 ligament trend 78.6 C) [SIM / DERIVED]; above it the J-FWD has only the SF 1.0 FA-1 rows (line 231). Logged signal: SIL, the plant head pressure (exact); stand, B-DPC-1 DC-restored with C1 (after a no-event noise check, TO-VERIFY); flight, the C1 LIGHT_SPIKE raw peak, a lower bound, against Electronics' chain-model threshold (TO-VERIFY). NOT meant for normal-light transients (R4-10): a normal light stays at or below MEOP 45 bar abs and reaches Q_JFWD 60 only with a 10-90 % rise below 0.288 ms [DERIVED]; 298 of the 896 FA-1 hard-start bracket cases exceed it, 185 by the head peak alone [SIM grid counts on an ASSUMED construct, not rates of normal lights]. OPEN (lead): in flight a flagged first light leaves the relight on a used joint, and the line-231 one-off basis covers one Z3 event per J-FWD assembly.",
    "stand_T0_cross_reference": "STAND T0 RULE (founder action, lead CHANGELOG 249 (2); cross-reference only, not a Mechanical rule): B1-length stand burns only with the engine soaked at a stand ambient <= 24 C (facility thermometer) [DERIVED]; in stand mode v2.11 refuses ARM if TC1 or TC2 reads > 24 C (backstop); the founder pre-fire checklist row is the control; re-derive after B-TC-1 as T0_max = 20 + (12.26 - e_hi,cal) / 0.96; the A1 flight has no T0 rule. The J-FWD rows use the B1 thermal fields as solved (T0 20 C; no hot-day FE run). INFORMATION (jfwd_pq_band_v352_v1.json, ASSUMED uniform +4 K on the seat-line temperature, FE P+Q unchanged): at T0 24 C the band edge 0.0686 mm would read MS -0.041 (SOAK) and MS 0 would need g <= 0.0638 mm; at the ruled R2-B edge g 0.0631 mm it would read MS +0.007 (SOAK, k_b hi, 3750 N) [CALC, ASSUMED +4 K]; not a criterion.",
    "C4_procedure": "J-FWD build and every re-assembly (v3: route (i), lead 16:53Z R2 / R3, 17:55:55Z F1 / F2, 18:36:37Z; v4: the 248 (7) rulings and the lead 2026-10-21T05:50:45Z re-map R2 / R10): 0. GATE: J-F1 complete on the flight lots (ENG-HW-101-IN718 screws, HW-170 springs, LOCTITE 243): it sets the lot torque T_lot and carries the spring items (K with the spring under the head, the spring flattening, the crack-on torque) and the Fuji Prescale footprint item (TO-VERIFY) (hardware_v352 v1.7 HW-101 test). 1. inspect the hole edges and the bore per C1 (e); gauge the ten TC-01 holes with the pins GO 5.50 / NO-GO 5.62 and record each hole's size (ENG-TC-13 is selected to it; a hole that takes the 5.62 pin is rejected, C1 (g)); gauge the ten TC-02 taps M5-6H GO / NO-GO (cured locker removed by a thread chaser only, no re-tap); check the TC-02 plug OD against its select-fit pairing record to this TC-01 bore (C9 (6): bore and OD at 20 +/- 1 C, D_meas - 0.1262 <= OD <= D_meas - 0.080, less 2U); clean. 2. fit the ten ENG-TC-12 plugs in their numbered holes from outside, contour aligned, band on. 3. lubricate S01 and S02 with the selected lubricant (FKM- and N2O-compatible, TO-SELECT with a datasheet; oxygen-clean per the wetted-part rule); fit them into the TC-02 grooves with an even stretch over a cone, no twist (check the mould line). 4. clock TC-02 to the match marks BEFORE the rings enter the lead-in, then push it in axially without rotation until the head shoulder stands 2.00 +/-0.02 from the TC-01 forward end face on the gap gauge (rev-5 TC-02 tap note, TO-CONFIRM; TC-02 does not seat axially on TC-01, lead 16:53Z R4; v2 read 'until seated'). 5. remove the band and the plugs; look through each hole (10x loupe or borescope) for rubber debris or a cut ring; ANY debris: withdraw TC-02, replace both rings and repeat from step 1. 6. REGISTRATION (lead 17:55:55Z F2): fit the two GSE shoulder screws ENG-TC-13 (not flight), selected to the pin-gauged sizes of their holes, into two opposite holes before any flight screw. 7. fit the flight screws ONE AT A TIME into the other eight holes: a NEW ENG-HW-101-IN718 (M5 x 10.7 with spring A; M5 x 10.6 with spring B; never mixed in one joint) with a NEW HW-170 disc spring under the head, ORIENTED per C9 (1): concave (hollow) side DOWN on the TC-01 flat (outer edge on the flat), convex side UP to the head (inner edge toward the head), centred on the 5.15 h9 pilot, NEVER inverted; LOCTITE 243 (flight lot) on the screw thread only, never on the spring or the flat; tighten to the J-F1 LOT TORQUE by method M-T1J (T_lot = 3750 N x K_min(lot) x 5 mm, so that the lot's K_min gives a maximum preload of 3750 N or less, lead 17:55:55Z F1; today's K window 0.1465-0.267: 2.747 N m, minimum 2057.6 N); record per hole: hole number and its pin size, screw and spring lot, torque, wrench (ID and calibration date). 8. remove the two shoulder screws LAST and replace each with a flight screw per step 7, recorded. 9. never re-torque a fitted screw; a screw removed for any reason is replaced by a new screw and a new spring (single-use, C6 (3)); removed springs are scrapped (HW-170 SINGLE-USE, C9 (2)); after any case-TC or TB-state abort the whole joint counts as used (C6 (4)); removed screws are bagged and labelled with their hole number for the C6 (3) inspection; then the proof / leak test.",
-   "C6": "(1) S01 and S02 are replaced after any FA-1-class event, together with the line-231 J-FWD inspection (lead 10:10Z rule). (2) Line-231 post-FA-1 inspection list: the ten J-FWD screws and their HW-170 disc springs replaced (new, single-use, (3)); the ten holes gauged for elongation and bearing set with the HW-101 pins GO 5.50 / NO-GO 5.62 (C1 (g)); a hole that takes the 5.62 pin is rejected; hole edges and the bore within 3 mm of a hole at 10x for nicks or raised metal; S01 / S02 replaced; the removed screws inspected per (3). (3) J-FWD screw life: SINGLE-USE founder rule until C6 closes (lead 16:53Z R3): the J-FWD screws are new at every assembly, never reused or re-torqued; removed screws are kept per hole and inspected at 10x plus dye penetrant at the thread root AND the head-to-shank fillet (LEAD ADDITION 18:36:37Z), as data. C6 is OPEN: the screw LCF at the thread root is a FOUND NEGATIVE (183 (1)(c); jfwd_screw_lcf_v352_v3.json on rows v8, SOAK (b1) as solved, Kf 3.0: per firing N_allow 5.6 (MS -0.888), assembly from zero N_allow 0.6 (MS -0.988); the Kf 2.2 sensitivity row per firing N_allow 26.9 (MS -0.462; v2 +0.360: SIGN CHANGE in v3); with (b1)'s moment x 1.4764 (R5, information) per firing N_allow 1.3 (MS -0.974)); the head-to-shank fillet from zero is a FOUND NEGATIVE that does not govern (jfwd_head_fillet_v352_v2.json: N_allow 29.3 (MS -0.414); per firing 1092.0 (MS +20.840); Kt LITERATURE, secondary via AMESweb citing Pilkey 2005, the Pilkey page and the T-head Kt TO-SOURCE; the no-spring head-end resultants carried over ASSUMED); the thread root governs. Both are quoted as negative, never as passing. Closure paths 2 (FE levers: (b1) is solved and entered, rows v8 under C1 / R5, and the row stays negative; the P+Q select-fit band, C9 (6), is sized for the seat line and takes no screw credit) and 3 (qualification test, TO-DEFINE, founder) remain; path 1 (MJ thread) closed NOT SOURCED. HW-170 disc spring SINGLE-USE (lead 19:53:27Z, CHANGELOG 248 (7)): a new spring with each new screw at every J-FWD assembly; removed springs are scrapped (C9 (2)). (4) POST-ABORT RULE (founder rule, lead 248 (7)): after any case-TC or TB-state abort the J-FWD joint counts as used: the ten ENG-HW-101-IN718 screws and their HW-170 springs are replaced (new, single-use) and the TC-01 holes (pins GO 5.50 / NO-GO 5.62) and the TC-02 taps (M5-6H GO / NO-GO) are gauged before the next run; this stands beside the 60 bar abs rule of the LC-TB70 envelope (lc_tb70_envelope_v1.json, unchanged: 'any head excursion above 60.0 bar abs: replace all J-FWD screws (HW-101) and gauge the TC-01 holes / TC-02 taps before the next run', the line-231 inspect-or-replace rule in head-trace form). Reason: the post-abort soak (ASSUMED shifted history, J-FWD band up to 201.4 C GVLO / 164.0 C GVHI, jf1b_loctite_v352_v1.json) is not a rows or J-F1b state. OPEN (lead CHANGELOG 253 (8), (10); Mechanical's next round, not this re-map): the TB-state aborts are HW_OVERPRESSURE, PC_OVERPRESSURE and HARD_START by the lead's PROVISIONAL definition (the case-TC OVER_TEMP abort is in F-14), Mechanical to confirm; the 60 bar abs rule is a head-trace threshold, not an abort type, so as written a normal light whose head peak exceeds 60 bar abs also triggers it (above 58.1 bar abs the LC-TB70 envelope has only the abnormal bases: Z2 SF 1.0 / 1.5, Z3 FA-1 SF 1.0); 185 of 896 FA-1 grid head peaks exceed 60 bar abs [SIM grid fraction, not a probability]; whether the rule stands for normal lights stays OPEN until REV-COMB-4 says whether those peaks are physical; Electronics states the logged quantity and threshold that detect it."
+   "C6": "(1) S01 and S02 are replaced after any FA-1-class event, together with the line-231 J-FWD inspection (lead 10:10Z rule). (2) Line-231 post-FA-1 inspection list: the ten J-FWD screws and their HW-170 disc springs replaced (new, single-use, (3)); the ten holes gauged for elongation and bearing set with the HW-101 pins GO 5.50 / NO-GO 5.62 (C1 (g)); a hole that takes the 5.62 pin is rejected; hole edges and the bore within 3 mm of a hole at 10x for nicks or raised metal; S01 / S02 replaced; the removed screws inspected per (3). (3) J-FWD screw life: SINGLE-USE founder rule until C6 closes (lead 16:53Z R3): the J-FWD screws are new at every assembly, never reused or re-torqued; removed screws are kept per hole and inspected at 10x plus dye penetrant at the thread root AND the head-to-shank fillet (LEAD ADDITION 18:36:37Z), as data. C6 is OPEN: the screw LCF at the thread root is a FOUND NEGATIVE (183 (1)(c); jfwd_screw_lcf_v352_v3.json on rows v8, SOAK (b1) as solved, Kf 3.0: per firing N_allow 5.6 (MS -0.888), assembly from zero N_allow 0.6 (MS -0.988); the Kf 2.2 sensitivity row per firing N_allow 26.9 (MS -0.462; v2 +0.360: SIGN CHANGE in v3); with (b1)'s moment x 1.4764 (R5, information) per firing N_allow 1.3 (MS -0.974)); the head-to-shank fillet from zero is a FOUND NEGATIVE that does not govern (jfwd_head_fillet_v352_v2.json: N_allow 29.3 (MS -0.414); per firing 1092.0 (MS +20.840); Kt LITERATURE, secondary via AMESweb citing Pilkey 2005, the Pilkey page and the T-head Kt TO-SOURCE; the no-spring head-end resultants carried over ASSUMED); the thread root governs. Both are quoted as negative, never as passing. Closure paths 2 (FE levers: (b1) is solved and entered, rows v8 under C1 / R5, and the row stays negative; the P+Q select-fit band, C9 (6), is sized for the seat line and takes no screw credit) and 3 (qualification test, TO-DEFINE, founder) remain; path 1 (MJ thread) closed NOT SOURCED. HW-170 disc spring SINGLE-USE (lead 19:53:27Z, CHANGELOG 248 (7)): a new spring with each new screw at every J-FWD assembly; removed springs are scrapped (C9 (2)). (4) POST-ABORT RULE (founder rule, lead 248 (7)): after any case-TC or TB-state abort the J-FWD joint counts as used: the ten ENG-HW-101-IN718 screws and their HW-170 springs are replaced (new, single-use) and the TC-01 holes (pins GO 5.50 / NO-GO 5.62) and the TC-02 taps (M5-6H GO / NO-GO) are gauged before the next run. TB-state aborts (CONFIRMED by Mechanical on the lead's provisional set of 253 (8), lc_tb70_envelope_v2.json F4_abort_set): HW_OVERPRESSURE, PC_OVERPRESSURE, HARD_START and PC_SENSOR on the HIGH side (transducer output >= 4.75 V = 146.5 bar abs), with the case-TC OVER_TEMP abort of F-14. Reason: the post-abort soak (ASSUMED shifted history, J-FWD band up to 201.4 C GVLO / 164.0 C GVHI, jf1b_loctite_v352_v1.json) is not a rows or J-F1b state. BESIDE IT, for every run whatever its end (ridden-through FA-1 pulses included), the J-FWD REPLACE RULE of the LC-TB70 envelope v2 (lc_tb70_envelope_v2.json 7ebd2fd63dc878ef; it supersedes v1's 'any head excursion above 60.0 bar abs'): when Q_JFWD exceeds 60.0 bar abs at any time in a run (Q_JFWD = the larger of the head-end peak and the head-end undamped SDOF ESP at the J-FWD periods 0.2-0.5 ms, on the light window and on each excursion window; no minimum duration) the joint counts as used: before the next run the line-231 J-FWD inspection (C6 (2) list) and the TC-02 taps gauged (M5-6H GO / NO-GO). Basis: at 60.0 bar abs every J-FWD row meets the nominal factors at the LC2 state 78.6 C (minimum MS_y +0.328 TC-01 ligament (LC2U), MS_u +0.312 TC-01 ligament trend 78.6 C) [SIM / DERIVED]; above it the J-FWD has only the SF 1.0 FA-1 rows (line 231). Logged signal: SIL, the plant head pressure (exact); stand, B-DPC-1 DC-restored with C1 (after a no-event noise check, TO-VERIFY); flight, the C1 LIGHT_SPIKE raw peak, a lower bound, against Electronics' chain-model threshold (TO-VERIFY). NOT meant for normal-light transients (R4-10): a normal light stays at or below MEOP 45 bar abs and reaches Q_JFWD 60 only with a 10-90 % rise below 0.288 ms [DERIVED]; 298 of the 896 FA-1 hard-start bracket cases exceed it, 185 by the head peak alone [SIM grid counts on an ASSUMED construct, not rates of normal lights]. OPEN (lead): in flight a flagged first light leaves the relight on a used joint, and the line-231 one-off basis covers one Z3 event per J-FWD assembly."
   },
   "T-F1_R9": {
    "text": "T-F1. Short-time exposure allowables for the 6061-T6 parts TC-01 (case tube) and TC-02 (injector head / forward closure). GATE: before the first static fire. WHY: criterion 183 (1)(d) / 188 (5) needs each part's temperature within a SOURCED time-at-temperature limit. The usable limit on file for 6061-T6 is 150 C (long time). The strength cells use the engmat 10,000 h allowables (conservative for strength), so (d) is reported OPEN, never as passed, for TC-01 and TC-02; it gates nominal operation as well as the abort value. PREDICTED EXPOSURE [SIM, v3.5.2 rev-4 thermal, B1 p99 tg711, gap-conductance bounds GVLO | GVHI]: TC-02 part maximum 188.4 | 181.9 C at the end of burn, above 150 C for 12.3 | 9.9 s per firing. TC-01 part maximum 191.7 | 187.0 C at the chamber bore about 14 mm aft of the injector face, in the soak (51.65 | 43.65 s), above 150 C for 488.8 | 479.5 s per firing; at the J-FWD screw row 159.3 | 129.6 C, 48.5 | 0.0 s above 150 C; while pressurised (burn) TC-01 stays at or below 109.6 | 118.6 C. Over the 50-cycle design life (183 (1)(c)) the cumulative time above 150 C is TC-02 10.2 | 8.2 min and TC-01 6.8 | 6.7 h (part maxima). EXPOSURE BASIS, TB STATE (RESTATED, lead 2026-10-21T05:50:45Z R9; CHANGELOG 249 (3)) [ASSUMED surrogate, sax.py: the end-of-burn field shifted uniformly so that the TC-01 maximum equals A; the shifted-history times apply the same shift to the whole B1 history and are for sizing only]: the basis is the A 175 rows (TB; FEA3D's tb352g GVLO / tb352h GVHI; both gap-conductance bounds; they cover a TC-01 rise rate r <= about 22.8 K/s): A 175 C: TC-02 248.4 | 233.0 C, shifted-history time above 150 C TC-02 1192.0 | 929.7 s, TC-01 1435.8 | 1266.0 s (TC-01 shifted-history maximum 257.1 | 243.4 C), margin to the nominal end-of-burn case maximum +65.4 | +56.4 K; BESIDE them the reading-equals-truth case at the adopted abort value (A stays 150 C, 249 (1)): A 150 C: TC-02 223.4 | 208.0 C, shifted-history time above 150 C TC-02 35.6 | 29.7 s, TC-01 999.2 | 866.4 s (TC-01 shifted-history maximum 232.1 | 218.4 C), margin to the nominal end-of-burn case maximum +40.4 | +31.4 K. On the A 175 rows criteria (a)-(c) PASS on both bounds (lowest TC-02 TBS +0.409 / +0.745, lead 249 (3)); (d) is OPEN (this action). Re-basing T-F1 to the A 165 rows is possible only after B-TC-1 calibrates the channel (tol_lo 10.28 K, TC-01 maximum 161.82 C), by the lead, before T-F1 is run; the A 165 / 135 / 120 / 105 rows stay in the json table (T-F1_TB_table) as the record of the closed abort search. ROUTE (i), sourced allowables, no test: obtain short-time exposure data for 6061-T6 from a public, citable document (for example MIL-HDBK-5J chapter 3, the 6061 elevated-temperature strength curves with exposure time, or EN 1999-1-2 Table 1a, the 6061-T6 strength ratios for short exposure) and record document, edition, figure or table, page, URL and access date. Read, at each part maximum (nominal as above; TB on the A 175 basis rows, both bounds) and for an exposure no shorter than the cumulative time above 150 C of the planned firings, (1) the strength at temperature and (2) the room-temperature strength after the exposure. PASS when (1) is at least the value the cells used (engmat 10,000 h, e.g. Fty / Ftu 116.9 / 134.4 MPa at 188.4 C and 111.2 / 129.2 MPa at 191.7 C; the full table is in this json) and (2) meets the T6 minimums of the stock's own specification (engmat basis ASTM B221 / B241: Fty 240 / Ftu 260 MPa); otherwise T-F3 (the line-212 design change). ROUTE (ii), coupon test on the same stock (the heat / lot of the TC-01 tube and of the TC-02 bar): expose coupons in a calibrated oven (+/-3 K) at the TB part maximum of the A 175 basis rows and no lower than the nominal part maximum (GVLO, the hotter bound: TC-02 at 248.4 C, its A 175 TB state; TC-01 at 191.7 C, its nominal soak maximum, above its 175 C TB state), for the cumulative hot time of the planned firings (at least the 50-cycle values above, plus every planned TB / abort test event at its A 175 shifted-history time above 150 C, TC-02 1192.0 s and TC-01 1435.8 s GVLO); then room-temperature tensile tests (EN ISO 6892-1 or ASTM B557) on at least 3 exposed and 3 unexposed control coupons per stock, same orientation, and hardness (plus eddy-current conductivity if available) on every coupon. PASS when every exposed coupon meets the T6 minimums of the stock specification (Rp0.2, Rm and elongation); hardness and conductivity are recorded as the screening trend, not the pass rule. Optional: one hot tensile at the part maximum after the exposure, at least the engmat value at that temperature. If any exposed coupon fails, (d) stays OPEN and the design goes to T-F3. No recalled or estimated value may replace either route. Until one closes, every quoted TC-01 / TC-02 row carries (d) OPEN; (d) is reported OPEN on the A 175 basis rows, with the A 150 rows beside them.",
@@ -11967,7 +12118,7 @@
     }
    ]
   },
-  "drawing_texts": "03-cad/v3.5.2/texts/jfwd_drawing_texts_v352_v1.json (TC-02 plug OD band, HW-170 orientation and single-use, the assembly and founder rules); 04-fea/v352/texts/item_c_tf1_texts_v352_v4.json item_C C8 (rev-5 texts) and C9 (re-map texts)"
+  "drawing_texts": "03-cad/v3.5.2/texts/jfwd_drawing_texts_v352_v2.json (TC-02 plug OD band, HW-170 orientation and single-use, the J-FWD replace rule note and the tap-wall note on ENG-HW-101-IN718, the assembly and founder rules); 04-fea/v352/texts/item_c_tf1_texts_v352_v5.json item_C C8 (rev-5 texts) and C9 (re-map texts; C9 (4) / C6 (4) restated to the LC-TB70 v2 J-FWD replace rule and the F4 abort set)"
  },
  "lead_rulings_quoted_v352": {
   "abort_value_A150_243_3": {
@@ -12053,20 +12204,69 @@
    "R10": "founder texts: the orientation note, HW-170 single-use, J-F1b (175 C, >= 10 min), the post-abort joint replacement rule, the stand T0 rule as a cross-reference",
    "R11": "the tap wall stays v1 until REV-COMB-4; re-run if its bounding P_torch is above 102 bar abs, when the lead relays it",
    "R12": "Electronics v2.11 items go to REV-COMB-4 first; act only on the lead's relay; lc_tb70_envelope_v1.json not changed"
+  },
+  "Z3_restated_condition_256_3": {
+   "changelog_line": 256,
+   "line_sha256_16": "a829ff14bb30f623",
+   "text": "(3) 253 (7)(i) ride-through stays ADOPTED with an added condition: Z3 is restated (R4-02; Mechanical F6; the lead rules at Mechanical's go)."
+  },
+  "R4-10_wording_256_4": {
+   "changelog_line": 256,
+   "line_sha256_16": "a829ff14bb30f623",
+   "text": "(4) 253 (8) CORRECTED (R4-10): 'would mark the joint used after about a fifth of normal lights' is replaced by 'would mark the joint used in 185 of the 896 FA-1 hard-start bracket cases (a SIM grid count on an ASSUMED construct, not a rate of normal lights)'."
+  },
+  "routing_mechanical_256_5": {
+   "changelog_line": 256,
+   "line_sha256_16": "a829ff14bb30f623",
+   "text": "(5) ROUTING. Mechanical successor (relayed 08:39:41Z): R4-01 (its tap-wall v2 row closes it at publication, adding the ligament's lowest local natural frequency and the not-modelled list); R4-02, the restated Z3 (REV-COMB-4 proposes Z3' = head peak <= 88.1 bar abs AND undamped SDOF ESP of the head history <= 151.04 bar abs at every period 0.02-50 ms; every FA-1 grid case meets it, max 146.88 at 3.5 ms); the 60 bar replace-all rule."
+  },
+  "F1_and_F5_record_256_6": {
+   "changelog_line": 256,
+   "line_sha256_16": "a829ff14bb30f623",
+   "text": "(6) MECHANICAL: the re-map agent sent F1 at 08:02:01Z (the C1 seat is the diaphragm point r 25.0, z = zt - 9.5; re-zero2 to light +2.188 K in A1 and +3.766 / +4.358 K on the stand [SIM]; extraction +/-0.6 K TO-VERIFY) and ended at its 300k budget (HANDOVER-MECH.md b86b4ab562d2b791); its successor started 08:05Z (F5, F6 + F3, F4, F2, the F1 cross-check; one pre-publication post, then a lead go). F5 at 08:14:51Z: tap wall v2 at 151.04 bar abs uniform, 0 flags, worst MS_y +0.275 (SOAK70, screw temperature) [CALC on SIM]; REV-COMB-4 agrees within 0.002. Work tree only until the go."
+  },
+  "combustion_v2p4c_257_1": {
+   "changelog_line": 257,
+   "line_sha256_16": "82dcdf562443aec8",
+   "text": "(1) COMBUSTION v2.4c PUBLISHED by the lead at 09:38:09Z (text only; no model re-run): the REV-COMB-4 corrections (R4-01 to R4-08, R4-12, R4-14 to R4-18, the section 6 texts) with the decisions of 227 (5), 230, 243 (3), 249 (4), 253 (7), 256 and (2) below. Files: interfaces/combustion.json v2.4c 661db0a593462382; 02-combustion/REPORT.md 7a9acd3df5937303 (new section 17; lines 1-3161 keep their numbers); CF-4-SPEC.md v2.2 4e36be703a9e7d44; T1-T4-REGRESSION-SPEC.md v3.1 b00b2d852ed3475c; REVISION-RESPONSE-R3.md 370875c3645eb49c (annotated only); DATASHEET-INPUTS-COMBUSTION.md v2.4c 29ed6d45c55ff234; writer 02-combustion/src/apply_v2p4c_rev_comb_4.py 063195b1b3a12bed (run 09:35:44Z). The v2.4b set is archived in 02-combustion/superseded/v2p4b/ with HASHES.txt (json fd3a7da6d27c7c66). 29 JSON leaves were replaced, each kept in superseded_v2p4c with its finding; all v2.4b keys kept. The reviewer's r4_stale_scan.py on the published set leaves only history leaves and the annotated v2.4b answers. Lead consistency fold found while applying: the case-TC in-burn abort 423.15 K (243 (3), 249 (1)) and the RELIGHT refusal 403.15 K (249 (4)) replace the stale 448.15 K and 433.15 K in the combustion texts."
+  },
+  "followups_brief_2026-10-21T08:05:00Z": {
+   "source": "the lead's brief to the Mechanical successor (message 2026-10-21T08:05:00Z; not a CHANGELOG line, CHANGELOG 256 (6) records it): PARAPHRASED here",
+   "F1": "cross-check the F1 frd monitor-node values against monitors.csv and the .dat NODE PRINT times (the F1 +/-0.6 K caveat)",
+   "F2": "the torch-port dT and the BL-08 temperature (253 (10), MISSING in the re-map)",
+   "F3": "restate the 60 bar abs joint-replacement rule: quantity, level, duration, basis and the logged signal (REV-COMB-4 interim (f)(ii))",
+   "F4": "confirm the TB-state abort set (253 (8), lead PROVISIONAL)",
+   "F5": "the tap-wall row at the REV-COMB-4 P_torch (FA1S 151.04 bar abs uniform over the passage; R11)",
+   "F6": "restate Z3 in the LC-TB70 envelope (REV-COMB-4 R4-02)",
+   "order_and_rules": "F5 first; work tree only until the lead's go after ONE pre-publication post; paper / Python only, no FE, no ccx"
+  },
+  "relay_2026-10-21T08:39:41Z": {
+   "source": "the lead's relay of the REV-COMB-4 final review (message 2026-10-21T08:39:41Z): PARAPHRASED, the quoted sentences VERBATIM",
+   "R4-01": "add the ligament's lowest local natural frequency (with its tag) and the NOT MODELLED list to the tap-wall row; reviewer text verbatim: 'P_torch during FA-1: design case FA1S 151.04 bar abs uniform over the passage (REV-COMB-4 R4-01); linear lossless passage peaks <= 129.9 bar abs at the J-FWD tap and <= 148.7 at the torch seat for c 150-1200 m/s; the band values 94 / 121 / 147 / 94 do not bound gas-filled passages.'",
+   "R4-02": "reviewer Z3' verbatim: 'Z3': head peak <= 88.1 bar abs AND undamped SDOF ESP of the head history <= 151.04 bar abs at every period 0.02-50 ms (every FA-1 grid case meets it: max 146.88 at 3.5 ms)'; 'Choose the domain a post-run check on the logged signal can actually evaluate, and say why.' 'Say whether you adopt Z3' as written. If you propose something else, give its numbers against the grid.' Electronics re-classifies the 10 S6R runs and the 29-33 N-04 burn-on cases: give the exact criterion and logged signal",
+   "R4-10": "section 5 (f)(ii): state whether the 60 bar rule is meant for normal-light transients; the logged quantity and threshold",
+   "rest": "'Nothing else in the review is yours. Keep the task order and the rest of your brief as they are.'"
+  },
+  "Z3_and_jfwd_rule_ruling_at_the_go": {
+   "changelog_line": 258,
+   "line_sha256_16": "b254707692a9a345",
+   "text": "Z3 RULING: Z3 v2 ADOPTED as proposed: REV-COMB-4 Z3' as written (head peak <= 88.1 bar abs AND undamped SDOF ESP <= 151.04 bar abs at each of the 406 published periods 0.02-50 ms, S from rest at the record start) plus the v1 FA-1 class conditions kept (first-to-last crossing of 63.1 bar abs <= 3.0 ms; 10-90 % first rise >= 0.8 ms), Z3 allowed only inside the light window (record start to 150 ms after the first 8 bar abs crossing): 896 / 896 grid cases inside, ESP max 146.881 bar abs at 3.5 ms, margin 4.159 bar [DERIVED on SIM; grid counts on an ASSUMED construct]; Z3 v2 is NOT EVALUATED in flight (1 kHz record; the LIGHT_SPIKE raw peak is a lower bound); shape limits (option 2), a raised FA1S (option 3) and the damped variant are not adopted. Q_JFWD RULING: the J-FWD replace rule uses Q_JFWD = max(head peak over the record, max of S(T) over T 0.2-0.5 ms on the light window and each excursion window), not the peak alone: Q_JFWD > 60.0 bar abs at any time in a run, no minimum duration, means the line-231 J-FWD inspection (C6 (2) list) and the TC-02 taps gauged (M5-6H GO / NO-GO) before the next run; grid 298 / 896 against 185 for the peak alone [SIM grid counts, not rates]. Why: Q_JFWD >= the peak by construction, so it keeps every flag of the 256 (4) peak rule and adds the 113 cases whose J-FWD band load exceeds 60 bar abs below a 60 bar peak (Q / peak up to 1.2989); a false trigger costs an inspection, a missed one is an unanalysed joint load. On measured stand traces a noise-driven trigger still means the inspection until a noise-floor rule is derived from a no-event B-DPC-1 record and reviewed (TO-VERIFY). Not for normal lights (R4-10): a light to MEOP 45 bar abs trips it only below a 0.288 ms 10-90 % rise [DERIVED]. OPEN (lead, before flight acceptance): the flight consequence of a flagged first light (relight on a used joint; line 231 covers one Z3 event per assembly); the damped ESP variant (structural damping MISSING); the 0.2-0.5 ms J-FWD band (ASSUMED, TO-VERIFY on a v3.5.2 modal); a shutdown from a case hotter than the rows' soak basis (F4 observation; Mechanical, no limit derived). No hardware-data, BOM or CAD geometry edit: the HW-101 '60 bar' action and tap-wall v1 strings are superseded by drawing texts v2 and texts v5 C8 [10] / [11]."
   }
  },
  "requests_v352": [
-  "REQUEST Combustion (REV-COMB-4): P_torch and its distribution along the torch passage at the J-FWD taps (az 18 / 342), for the TC-02 tap-wall row (04-fea/v352/jfwd_tapwall_v352_v1.json, MS_y +0.814 on a uniform passage pressure: TO-CONFIRM); R11: if the bounding P_torch is above 102 bar abs, Mechanical re-runs the tap-wall check when the lead relays it.",
+  "CLOSED (REV-COMB-4 R4-01; combustion v2.4c fa1_p_torch_v2p4c): P_torch during FA-1 = FA1S 151.04 bar abs uniform over the passage; the TC-02 tap-wall row re-run at it (04-fea/v352/jfwd_tapwall_v352_v3.json): MS_y +0.670 / MS_u +0.785 (SOAK52, TC-02 thread temperature 94.9 C), screw-temperature sensitivity MS_y +0.275 (SOAK70, 158.6 C), 0 flags [CALC on SIM]; ligament lowest local natural frequency 26.5 kHz on the extreme bounding strip [CALC, edges and span ASSUMED].",
   "INFORMATION GNC: the re-map changes no CAD and no mass; gimballed_mass_properties_v352 is unchanged.",
   "INFORMATION Electronics: the stand T0 rule (249 (2)) is cross-referenced in the founder texts (C9 (5)); the J-FWD rows are at T0 20 C; at T0 24 C the ruled R2-B edge g 0.0631 mm reads MS +0.007 (the R2 band edge 0.0686 mm: -0.041) (information, ASSUMED +4 K).",
-  "REQUEST Founder (test list): J-F1 on the flight lots with the spring items, the spring ORIENTED per C9 (1), and the Prescale footprint item (TO-VERIFY) before the first J-FWD assembly; J-F1b at 175 C with >= 10 min at the peak (method TO-DEFINE: a uniform oven only if the LOCTITE 243 range covers 175 C); the post-abort joint replacement rule; the LOCTITE 243 range and hot-strength fractions TO-VERIFY; C6 path 3 qualification test TO-DEFINE; T-F1 gate before the first static fire on the A 175 basis rows."
+  "REQUEST Founder (test list): J-F1 on the flight lots with the spring items, the spring ORIENTED per C9 (1), and the Prescale footprint item (TO-VERIFY) before the first J-FWD assembly; J-F1b at 175 C with >= 10 min at the peak (method TO-DEFINE: a uniform oven only if the LOCTITE 243 range covers 175 C); the post-abort joint replacement rule; the LOCTITE 243 range and hot-strength fractions TO-VERIFY; C6 path 3 qualification test TO-DEFINE; T-F1 gate before the first static fire on the A 175 basis rows.",
+  "REQUEST Electronics (v2.12; lead 256 (5)): re-classify the 10 S6R runs and the 29-33 N-04 burn-on cases against Z3 v2 once the lead has ruled (lc_tb70_envelope_v352.Z3_v2.criterion: the SIL plant head pressure at the 25 us step from before the light, the light window, the published 406-period grid; inside_v2() in 04-fea/v352/lc_tb70_envelope.py); log Q_JFWD per run (lc_tb70_envelope_v352.jfwd_replace_rule_v2.signal: stand B-DPC-1 DC-restored with C1 after the no-event noise check, TO-VERIFY); state the flight LIGHT_SPIKE threshold from the C1 chain model on the 896 grid (TO-VERIFY; ideal sampler 40.381 bar abs, information).",
+  "INFORMATION Founder / test owner: the J-FWD replace rule (C9 (4) / C6 (4); the ENG-HW-101-IN718 drawing note) replaces the v1 'any head excursion above 60.0 bar abs' rule; the TB-state abort set is CONFIRMED with PC_SENSOR on the HIGH side (F4); the stand use of the Z3 v2 / Q_JFWD post-run checks needs a no-event B-DPC-1 record first (TO-VERIFY)."
  ],
  "open_items_v352": [
   "C6 OPEN: J-FWD screw LCF at the thread root FOUND NEGATIVE, deeper on rows v8 (Kf 3.0 per firing N_allow 5.6, MS -0.888; from zero 0.6, -0.988; Kf 2.2 now -0.462); paths 2 and 3; single-use founder rule in force",
   "seat-line P+Q FOUND NEGATIVE at the drawn 57.20 f7 (SOAK -0.075 (b2) rep); RULED R2-B (07:37:34Z): select fit, flag-free band [0.040, 0.0631] mm (MS +0.050 / +0.053 at 3750 N, k_b hi / lo) [CALC on SIM]; U (measurement uncertainty) TO-DEFINE (shop); NOT shown mesh-converged (R4)",
   "screw fibre yield FOUND NEGATIVE (SOAK -0.343 (b1); shakedown +0.657)",
   "head-to-shank fillet: Pilkey page and T-head Kt TO-SOURCE; head-end resultants ASSUMED; from zero FOUND NEGATIVE, not governing",
-  "tap wall: stays v1 (R11); P_torch and its distribution TO-CONFIRM (REV-COMB-4)",
+  "tap wall: R4-01 closes with this publication (tap wall v3 at P_torch FA1S 151.04 bar abs uniform: MS_y +0.670 / MS_u +0.785 SOAK52, screw-temperature sensitivity +0.275 SOAK70, 0 flags [CALC on SIM]); NOT MODELLED (R4-01): wave steepening and shock reflection, losses, torch-chamber compliance, N2O decomposition, a blocked-outlet deflagration",
   "under-head row at full float: ASSUMED mean-pressure scaling; THE ROW SOAK52 +0.045 FLAG",
   "J-F1: Prescale footprint TO-VERIFY (film grade TO-SELECT); J-F1b heating method TO-DEFINE (test owner); LOCTITE 243 range and hot strength TO-VERIFY (founder)",
   "ENG-HW-101-IN718 drawing TO-DRAW (pilot coaxiality dia 0.02 TO-CONFIRM with the maker; the C9 (1) orientation note goes on it; the installation convention AS RECALLED, TO-VERIFY); HW-170 TO-QUOTE delivered to Sonderborg DK-6400 (spring A / B, relaxation data at about 160 C), SINGLE-USE ruled",
@@ -12074,8 +12274,12 @@
   "T-F1 / 183 (1)(d) OPEN for TC-01 / TC-02 on the A 175 basis rows (A 150 beside); re-basing to A 165 only after B-TC-1 (lead)",
   "CAD basis R8: the J-FWD FE except cD on the interim TC-01 (d10.5 flats); the effect of the final part ASSUMED small",
   "TC-09 thinning (206 (2a)) conditional on its re-run, as in the interim",
-  "Electronics v2.11 items for Mechanical go to REV-COMB-4 first (R12); lc_tb70_envelope_v1.json unchanged",
-  "ROUTED to Mechanical by lead CHANGELOG 253 (10) (Mechanical's next round on the lead's brief, not this re-map; quoted in lead_rulings_quoted_v352): the node that represents the C1 diaphragm and its ARM-to-light dT history with T0 independence (stand T0 <= 24 C; a flight range to be stated), the torch-port dT and the BL-08 temperature [MISSING]; R3-02 (253 (8)): confirm the TB-state abort list (lead PROVISIONAL: HW_OVERPRESSURE, PC_OVERPRESSURE, HARD_START; the case-TC OVER_TEMP abort in F-14) and state whether the LC-TB70 60 bar abs rule is meant for normal-light transients (185 of 896 FA-1 grid head peaks above 60 bar abs [SIM grid fraction]); the founder text C9 (4) carries both as OPEN"
+  "Z3 v2 (lc_tb70_envelope_v352): REV-COMB-4 Z3' adopted as written with the v1 window / rise kept (896 of 896 grid cases inside, ESP max 146.881 bar abs, margin 4.159 bar [DERIVED on SIM]): CLOSED: ADOPTED by the lead (CHANGELOG 258 (3), go 10:47:17Z); NOT EVALUATED in flight; lc_tb70_envelope_v1.json 6f710726e4787134 superseded (kept on the hub)",
+  "ANSWERED in v2.4 (lead CHANGELOG 253 (8) / (10)): the C1 seat point and its dT history (F1) with the cross-check (neither time shifted; seat values unchanged; the +/-0.6 K caveat WITHDRAWN; the MON proxies re-stated) [c1_seat_v352]; the torch-port dT (the head's contribution only, NOT a bound: the local torch heat and the 070BG temperature MISSING) and the BL-08 temperature (MISSING; what it would take stated) [torch_port_bl08_v352]; R3-02: the TB-state abort set CONFIRMED with PC_SENSOR HIGH (F4); the 60 bar abs rule restated as the J-FWD replace rule, not meant for normal lights (R4-10) [lc_tb70_envelope_v352]. OPEN: a flight T0 range and a T0 0 / 40 C re-run (new FE) for the T0 independence",
+  "J-FWD replace rule quantity: Q_JFWD (298 of 896 grid cases) proposed, or the head peak alone (185): Q_JFWD ADOPTED by the lead, not the peak alone (CHANGELOG 258 (3), go 10:47:17Z); a noise-driven trigger on a measured stand trace still means the inspection until a noise-floor rule from a no-event B-DPC-1 record is derived and reviewed (TO-VERIFY); the flight consequence of a flagged first light (the relight on a used joint) and one Z3 event per J-FWD assembly (line-231 one-off basis): OPEN (lead)",
+  "measured traces: the undamped Z3 v2 / Q_JFWD tests integrate trace noise (lc_tb70_envelope_v352.measured_traces); the stand use follows a no-event B-DPC-1 record through inside_v2 (TO-VERIFY); a damped ESP variant needs the structure's damping (MISSING): NOT ADOPTED, OPEN for the lead",
+  "J-FWD band 0.2-0.5 ms ASSUMED (no v3.5.2 J-FWD modal in this package): TO-VERIFY",
+  "F4 observation: a shutdown of any cause from a case hotter than the rows' soak basis is outside the rows; a case-TC-at-shutdown limit would state it (not derived: OPEN, Mechanical, next round)"
  ],
  "superseded_v2p1_entries": {
   "gimballed_mass_properties": "CAD v3.3 basis: use gimballed_mass_properties_v352",
@@ -13819,5 +14023,632 @@
    "fa1.fmea_wording_proposal.J-FWD 8 x M5": "8 x M5 A4-70 / A4-80: superseded by 10 x ENG-HW-101-IN718 with HW-170 (jfwd_v352)",
    "fa1.joints_table": "J-FWD 8 x M5 A4-70 rows: superseded by jfwd_v352 (rows v7)"
   }
+ },
+ "lc_tb70_envelope_v352": {
+  "source": {
+   "path": "04-fea/v352/lc_tb70_envelope_v2.json",
+   "sha256_16": "7ebd2fd63dc878ef",
+   "script": {
+    "path": "04-fea/v352/lc_tb70_envelope.py",
+    "sha256_16": "d14489808338006b"
+   }
+  },
+  "supersedes": "04-fea/v352/lc_tb70_envelope_v1.json 6f710726e4787134 (kept on the hub as the record); its script 855ebe04dfe5dbd0 is kept as 04-fea/v352/history/lc_tb70_envelope.py.855ebe04dfe5dbd0",
+  "status": "DERIVED from the analysed structural cases and the Combustion v2.4b FA-1 grid (SIM on an ASSUMED construct; grid counts are not probabilities); margins are the published tables, negatives SHOWN AS FOUND; not physical approval",
+  "zones": {
+   "Z0": {
+    "P_bar_abs": [
+     null,
+     45.0
+    ],
+    "tau_s": [
+     0,
+     null
+    ],
+    "case": "LC2 (MEOP)",
+    "SF": "1.5 / 2.0 (188 (9))",
+    "change": "none"
+   },
+   "Z1": {
+    "P_bar_abs": [
+     45.0,
+     58.1
+    ],
+    "tau_s": [
+     0,
+     0.3
+    ],
+    "case": "LC-TB70",
+    "SF": "1.5 / 2.0",
+    "change": "none"
+   },
+   "Z2": {
+    "P_bar_abs": [
+     58.1,
+     63.1
+    ],
+    "tau_s": [
+     0,
+     0.3
+    ],
+    "case": "LC-TB-S",
+    "SF": "1.0 / 1.5 (abnormal)",
+    "change": "none"
+   },
+   "Z3": {
+    "P_bar_abs": [
+     63.1,
+     88.1
+    ],
+    "case": "FA-1 class (structure at FA1S 151.04 bar abs, every period)",
+    "SF": "1.0 (FA-1 rule)",
+    "extra": "ESP <= 151.04 bar abs at 0.02-50 ms; window above 63.1 bar abs <= 3.0 ms; 10-90 % rise >= 0.8 ms",
+    "change": "RESTATED: ceiling 75.519 -> 88.1 with the ESP test added (REV-COMB-4 Z3' adopted); the v1 window and rise kept"
+   }
+  },
+  "Z3_v2": {
+   "status": "ADOPTED by the lead at the go 2026-10-21T10:47:17Z (CHANGELOG 258 (3), quoted in lead_rulings_quoted_v352.Z3_and_jfwd_rule_ruling_at_the_go): REV-COMB-4 Z3' as written plus the v1 window (<= 3.0 ms above 63.1 bar abs) and rise (10-90 % >= 0.8 ms) kept as the FA-1 class, Z3 only inside the light window; NOT EVALUATED in flight; option 2, option 3 and the damped variant not adopted",
+   "REV-COMB-4_Z3_prime_verbatim": "Z3': head peak <= 88.1 bar abs AND undamped SDOF ESP of the head history <= 151.04 bar abs at every period 0.02-50 ms (every FA-1 grid case meets it: max 146.88 at 3.5 ms)",
+   "criterion": {
+    "zone": [
+     63.1,
+     88.1
+    ],
+    "ceiling_bar_abs": 88.1,
+    "ESP_bound_bar_abs": 151.04,
+    "period_domain_ms": [
+     0.02,
+     50.0
+    ],
+    "period_grid": "the published 406 periods (periods_z3_ms(): 0.02-1.0 step 0.005, 1.0-5.0 step 0.025, 5-50 at 40 per decade plus 6 / 7.5 / 10 / 12.5 / 15 / 20 / 25 / 30 / 40 / 50)",
+    "window_above_63p1_max_ms": 3.0,
+    "rise_10_90_min_ms": 0.8,
+    "convention": "S(T) = 1.01325 + max x, undamped SDOF from rest at the record start (before the light), g = P - 1.01325 bar piecewise linear between samples, held at its last value after the record (free vibration added), the larger of g clipped at 0 and g unclipped (Combustion v2.4b 16.2 / REV-COMB-4)",
+    "record": "one light's head-end pressure from before the light (first sample at or below 2.0 bar abs) to the end of that burn; S on the LIGHT WINDOW (record start to 150 ms after the first crossing of 8 bar abs), from rest at the record start, held after the window; Z3 only inside the light window (a head above 63.1 bar abs later in a run is outside the envelope: the FA1S rows are solved at the FA-1 thermal state of a light, 45.6 C); every grid record ends 61-129 ms after the light, so the grid evaluation is the published convention exactly",
+    "trace_requirement": "sample step <= 0.05 ms over the light window: B-DPC-1 (51.2 kS/s, DC-restored with C1) on the stand; the SIL plant head pressure (25 us) for S6R / N-04; the flight 1 kHz record does not qualify (NOT EVALUATED); exact on SIM traces, conservative on measured ones, where the undamped test integrates the trace noise (noise_sensitivity_measured_traces: a no-event stand record is checked first, TO-VERIFY)",
+    "why_a_window": "an undamped SDOF integrates without loss: over a whole burn a sustained oscillation at a structural period (for example a chamber acoustic mode in the 0.2-0.5 ms J-FWD band) grows without bound in the computed response, which a structure with any damping does not do; the window keeps the evaluation to the light transient, the form in which the grid and FA1S were set",
+    "adoption": "REV-COMB-4 Z3' ADOPTED AS WRITTEN (ceiling 88.1, ESP <= 151.04 at 0.02-50 ms) plus the v1 window (<= 3.0 ms above 63.1) and rise (>= 0.8 ms) conditions KEPT as the FA-1 class; every grid case meets both kept conditions, so the grid classification equals Z3' exactly"
+   },
+   "why_the_kept_conditions": {
+    "rise_10_90_ge_0p8ms": "the stand trace (B-DPC-1, flat to >= 10 kHz) does not resolve 0.02-0.1 ms, where the S-AX modal bands sit (TC-01 shell breathing 0.053-0.075 ms, TC-04 bonnet 0.044-0.062 ms; mechanical.json /fa1/periods_and_dlf, v3.5 S-AX modal); for a linear rise of >= 1.0 ms (10-90 % >= 0.8 ms) the dynamic factor there is <= 1 + T / (pi t_r) <= 1.032, so the unresolved band stays near the peak (grid <= 93.641 bar abs at T <= 0.1 ms) [DERIVED]",
+    "window_63p1_le_3p0ms": "keeps a Z3 event a pulse at a light: the FA1S rows (J-FWD included) are solved at the FA-1 thermal state (45.6 C) for a one-off pulse (line 231 (1)); a sustained Z3 level passes the ESP test (e.g. 70 bar abs held: S about 139 bar abs) but is not an analysed thermal / strain state"
+   },
+   "period_domain_why": "Period domain 0.02-50 ms (REV-COMB-4's, ADOPTED; not the brief's 0.005-2000 ms) because it is the domain a post-run check can evaluate and the only one where the bound can bind (numbers in 'grid_reproduction' and 'Z3_v2'): (a) the grid comes within 50 bar of FA1S only inside 0.02-50 ms (periods listed); (b) below 0.02 ms S -> the peak (quasi-static limit; the excess over the 88.02 peak is the unclipped from-rest start below ambient), bounded by the 88.1 ceiling; (c) above 50 ms S tends to 1.01325 + 2 x (the level held) plus the pulse impulse term, which the zone rules bound (grid and plateau / burn-on families in this file, far below FA1S); (d) the signal: B-DPC-1 (stand, 51.2 kS/s, flat to >= 10 kHz incl. the mount, AC coupled -3 dB 0.5 Hz) resolves T >= 0.1 ms and, DC-restored with C1 (the first-order coupling inverted, pre-light level from C1), the long end; 0.02-0.1 ms is beyond its flat band and is evaluated as recorded (piecewise linear), which does not bind (grid well below FA1S there, the >= 0.8 ms 10-90 % rise keeping the dynamic factor there <= 1.032 for a linear rise); SIL plant traces (25 us step) resolve all of it; the flight 1 kHz record cannot (Z3 v2 NOT EVALUATED in flight: the LIGHT_SPIKE raw peak is a lower bound).",
+   "grid": {
+    "n_inside_v2": 896,
+    "n_inside_z3prime": 896,
+    "n_inside_v1": 850,
+    "S_max_bar_abs": 146.881,
+    "margin_to_FA1S_bar": 4.159,
+    "window_above_63p1_max_ms": 1.6693,
+    "rise_10_90_min_ms": 0.8419,
+    "below_0p02ms_max": 88.894,
+    "T_50_2000ms_max": 63.367,
+    "tag": "DERIVED on the SIM grid (ASSUMED construct); counts are grid counts, not probabilities",
+    "worst_case": {
+     "case": "as_written|sharp_Cd0.65|OF4|tf1ms|tres0.06|pool_q2.0",
+     "S_max": 146.881,
+     "T_ms": 3.5,
+     "peak": 88.019
+    },
+    "periods_where_grid_within_50bar_of_FA1S_ms": [
+     0.22,
+     16.7483
+    ],
+    "periods_where_grid_within_25bar_of_FA1S_ms": [
+     1.775,
+     8.8914
+    ],
+    "T_le_0p1ms_max_published_grid": 93.641
+   },
+   "text": "Z3 (LC-TB70 v2): 63.1 < P_head <= 88.1 bar abs inside the light window (record start before the light to 150 ms after the first crossing of 8 bar abs), with the undamped SDOF ESP of the head-end pressure on that window <= 151.04 bar abs (FA1S) at every period 0.02-50 ms (the published 406-period grid; from rest at the record start, g = P - 1.01325 bar piecewise linear and held after the window, the larger of g clipped at 0 and unclipped; sample step <= 0.05 ms), the window above 63.1 bar abs <= 3.0 ms and the 10-90 % rise >= 0.8 ms; REV-COMB-4 Z3' adopted as written with the two v1 shape conditions kept; exact on SIM traces, conservative on measured traces (the undamped test integrates noise: a no-event stand record is checked first, TO-VERIFY); 896 of 896 FA-1 grid cases inside (ESP max 146.881 at 3.5 ms, margin 4.159 bar; peak max 88.02; window max 1.6693 ms; rise min 0.8419 ms) [DERIVED on SIM]"
+  },
+  "Z3_alternatives_not_adopted": {
+   "option_2_shape_limits": {
+    "verdict": "OPTION 2 DOES NOT WORK: the smallest time / rise / ceiling box that admits every grid case (ceiling 88.019, time above 63.1 bar abs <= 1.669 ms, 10-90 % rise >= 0.842 ms) admits the symmetric trapezoid at its corner with ESP 163.71 bar abs (T 3.954 ms) > FA1S 151.04; keeping trapezoids within FA1S needs a time above 63.1 of at most 0.9499 ms at 88.1 / 0.8 ms (the grid needs 1.6693), or a ceiling of 77.465 bar abs at the v1 limits (the grid needs 88.019), or a 10-90 % rise of at least 1.4015 ms at the grid's peak and time above (the grid has 0.842 ms); the grid passes only because its shapes are not trapezoids, which the ESP test states directly [DERIVED; trapezoid family ASSUMED as one admissible shape]",
+    "smallest_shape_limit_box_admitting_the_grid": {
+     "ceiling_bar_abs": 88.019,
+     "time_above_63p1_max_ms": 1.6693,
+     "rise_10_90_min_ms": 0.8419
+    },
+    "corner_trapezoid_ESP_bar_abs": 163.71,
+    "corner_trapezoid_at_T_ms": 3.954,
+    "time_limit_at_88.1_rise0.8_for_FA1S": 0.9499,
+    "ceiling_at_v1_shape_limits_for_FA1S_bar_abs": 77.465,
+    "rise_needed_at_grid_peak_and_time_above_ms": 1.4015
+   },
+   "option_3_higher_FA1S": {
+    "needed_for_the_88.1_v1_shape_trapezoid_bar_abs": 171.49,
+    "status": "NOT IN THIS PACKAGE: a higher FA1S needs a new FE step set (no new FE run in this brief); not proposed"
+   },
+   "damped_ESP_variant": {
+    "information": {
+     "published_v2p4b_head_all_max_bar_abs": {
+      "head|all|zeta0": 146.881,
+      "head|all|zeta0.02": 142.616,
+      "head|all|zeta0.05": 136.697
+     },
+     "published_v2p4b_head_all_band_0p2_0p5ms_max_bar_abs": {
+      "head|all|zeta0": 113.37,
+      "head|all|zeta0.02": 107.098,
+      "head|all|zeta0.05": 100.655
+     },
+     "steady_tone_gain_cap": "1 / (2 zeta): 25 at zeta 0.02, 10 at 0.05 (undamped: unbounded, growing with the window)",
+     "status": "NOT ADOPTED: a damped ESP needs the structure's damping shown (J-FWD / case modal damping not measured: MISSING); OPEN for the lead for the stand use"
+    },
+    "status": "NOT ADOPTED: needs the structure's damping shown (MISSING); OPEN for the lead"
+   }
+  },
+  "jfwd_replace_rule_v2": {
+   "rule": "J-FWD REPLACE RULE (LC-TB70 v2): when Q_JFWD of a run's head-end pressure exceeds 60.0 bar abs at any time, the joint counts as used: before the next run the line-231 J-FWD inspection (C6 (2) list: the ten ENG-HW-101-IN718 screws and their HW-170 springs replaced, new, single-use; the TC-01 holes gauged with the pins GO 5.50 / NO-GO 5.62, a hole that takes the 5.62 pin rejected; hole edges and the bore within 3 mm of a hole at 10x; S01 / S02 replaced; the removed screws inspected per C6 (3)) and the TC-02 taps gauged (M5-6H GO / NO-GO)",
+   "quantity": "Q_JFWD = max(the head peak over the record, max over T in 0.2-0.5 ms of S(T) on the light window (record start before the light to 150 ms after the first crossing of 8 bar abs, from rest, held after it) and on each excursion window (50 ms before to 150 ms after an upward crossing of 45 bar abs later than the light window, from equilibrium at its start)); S(T) the undamped SDOF ESP of Z3 v2; sample step <= 0.05 ms in the windows, else Q_JFWD is a lower bound (the peak)",
+   "level_bar_abs": 60.0,
+   "duration": "none: one exceedance at any time in the run",
+   "signal": {
+    "SIL": "the plant head-end pressure at the 25 us plant step, from before the light (S6R / N-04 re-classification): exact",
+    "stand": "B-DPC-1 (PCB 113B22 head flush at the C1 seat, NI 9234 51.2 kS/s, AC coupled -3 dB 0.5 Hz) DC-restored with the C1 channel (pre-light level and the first-order coupling inverted), the whole run from before the light; Q_JFWD computed post-run; usable once the record-with-no-event noise check of 'noise_sensitivity_measured_traces' passes (TO-VERIFY)",
+    "flight": "the C1 LIGHT_SPIKE raw peak (1 kHz record, a LOWER BOUND of the head event): Electronics states the flight threshold from its C1 chain model on the 896 grid so that every grid case with Q_JFWD > 60 is flagged (TO-VERIFY), and above the normal-light LIGHT_SPIKE raw peak; the ideal sampler without the chain gives 40.381 bar abs, below MEOP, so it can only be a light-window threshold (DERIVED, information)",
+    "flight_consequence": "in flight the joint cannot be replaced before the relight: a flagged first light leaves the relight on a used joint, and the line-231 one-off basis does not cover a second FA-1-class event on one assembly (OPEN, lead)"
+   },
+   "normal_lights": "NOT meant for normal-light transients. A normal light stays in Z0 (head <= MEOP 45 bar abs, the LC2 basis): a linear rise from ambient to 45 bar abs held gives Q_JFWD 50.647 bar abs at a 0.8 ms 10-90 % rise and 54.555 at 0.4 ms, and reaches 60 only with a 10-90 % rise below 0.2879 ms [DERIVED]; the commanded start ramps thrust at <= 2500 N/s after the light (t10-90 0.140 s, kStartRamp_Nps, combustion v2.4c). No FA-1 grid case with a head peak at or below 49.781 bar abs exceeds 60 (113 of the 298 triggering cases peak at or below 60.0) [DERIVED on SIM]. Q_JFWD > 60 therefore marks a light that loaded the J-FWD beyond its 60 bar abs basis (a peak above 60, or a peak near it with fast J-FWD-band content): an abnormal event by the structural basis, whatever its cause (Z2 above 60.0, Z3). On a measured trace noise in the band can also trip it ('noise_sensitivity_measured_traces')",
+   "peak_only_alternative_for_the_lead": "the head peak alone (the v1 quantity and LEAD 256 (4)) flags 185 of the 896 grid cases; Q_JFWD adds 113 cases whose peak is 49.781-60.0 bar abs but whose J-FWD-band ESP exceeds 60 (Q / peak in gauge up to 1.2989); the peak alone does not see the J-FWD's dynamic load and is not adopted; it is robust to trace noise",
+   "jfwd_band": {
+    "band_ms": [
+     0.2,
+     0.5
+    ],
+    "source": "CHANGELOG 176: TC-02 head on its screws 0.27-0.39 ms (v3.5.1, eight A4-70); v3.5.2 ten IN718 M5: stiffness x (10/8) x (E_IN718 / E_A4) about 1.32, period about x 0.87 -> 0.235-0.34 ms; band 0.2-0.5 ms ASSUMED (no v3.5.2 J-FWD modal in this package: TO-VERIFY)"
+   },
+   "action_source": "the published HW-101 action (mechanical.json v2.3 /jfwd_v352/hardware/HW-101/action: 'after any Pc above 60 bar abs the line-231 J-FWD inspection (C6 (2) list)') and the v1 envelope rule (screws replaced, TC-01 holes / TC-02 taps gauged), merged; no new inspection item",
+   "basis_minimum_at_60bar_nominal_factors": {
+    "MS_y": [
+     "TC-01 ligament (LC2U)",
+     0.328
+    ],
+    "MS_u": [
+     "TC-01 ligament trend 78.6 C",
+     0.312
+    ]
+   },
+   "basis_rule_form": "lead R7: external load factored, preload not; yield slot = the FE state at 1.5 x P, ultimate slot = 2.0 x P, SF 1.0 on the factored state (as the rows v8 LC2 criterion cells)",
+   "above_the_level": "no J-FWD row at the nominal factors: FA1D 121 / FA1U 147 / FA1S 151.04 bar abs at SF 1.0 only (rows v8 FA1U / FA1D criterion 231 (1), bounded by FA1S): the line-231 one-off abnormal basis (Neuber local strain, screw yield shear-only on A_3 with the 233 (4) replace rule)",
+   "grid": {
+    "n_Q_JFWD_above_60_of_896": 298,
+    "n_peak_above_60_of_896": 185,
+    "n_Q_above_60_with_peak_le_60": 113,
+    "lowest_peak_with_Q_above_60_bar_abs": 49.781,
+    "Q_over_peak_gauge_ratio_max": 1.2989,
+    "S_band_max_bar_abs": 113.37,
+    "band_sensitivity_0p1_1ms_n_above_60": 315,
+    "band_sensitivity_0p02_0p5ms_n_above_60": 298,
+    "ideal_1kHz_threshold_flagging_every_Q_above_60": 40.381,
+    "n_Q_le_60_flagged_by_that_threshold_best_phase": 373,
+    "normal_light_at_MEOP_linear_rise_Q_JFWD_bar_abs": {
+     "rise_full_0.5ms_10-90_0.40ms": 54.555,
+     "rise_full_1.0ms_10-90_0.80ms": 50.647,
+     "rise_full_2.0ms_10-90_1.60ms": 48.119,
+     "rise_full_5.0ms_10-90_4.00ms": 46.334
+    },
+    "linear_rise_to_MEOP_held_trips_the_rule_below": {
+     "full_rise_ms": 0.3599,
+     "rise_10_90_ms": 0.2879,
+     "commanded_start_for_comparison": "thrust ramp <= 2500 N/s after the light at the start lift: 62.5 -> 500 N t10-90 0.140 s (combustion v2.4c /firmware_constant_sources_v2p4b/v/constants/kStartRamp_Nps = 2500 N/s, DESIGN)",
+     "tag": "DERIVED (linear rise from ambient, held, undamped SDOF at 0.2-0.5 ms)"
+    },
+    "tag": "DERIVED on the SIM grid; ideal sampler = the head history at 1 kHz without the C1 seat passage, INA333 or anti-alias filter (NOT MODELLED: Electronics' fa1_chain)"
+   },
+   "text": "J-FWD replace rule (LC-TB70 v2): Q_JFWD > 60.0 bar abs at any time in a run (Q_JFWD = the larger of the head peak and the head ESP at the J-FWD periods 0.2-0.5 ms; no minimum duration): the joint counts as used; before the next run the line-231 J-FWD inspection (C6 (2) list: the ten ENG-HW-101-IN718 screws and their HW-170 springs replaced, the TC-01 holes pin-gauged GO 5.50 / NO-GO 5.62, hole edges and bore at 10x, S01 / S02 replaced, removed screws per C6 (3)) and the TC-02 taps gauged (M5-6H GO / NO-GO). Basis: at 60.0 bar abs every J-FWD row meets the nominal factors at 78.6 C (yield slot 9.0 MPa = js5b LC2U, minimum MS_y +0.328 TC-01 ligament (LC2U); ultimate slot 12.0 MPa minimum MS_u +0.312 TC-01 ligament trend 78.6 C); above it only the SF 1.0 FA-1 rows (line-231 one-off). Not meant for normal lights (Z0, <= 45 bar abs: a rise to 45 bar abs trips it only below a 0.2879 ms 10-90 % rise); 298 of the 896 FA-1 hard-start bracket cases exceed it (185 by the peak alone) [SIM grid count on an ASSUMED construct, not a rate of normal lights]. Signal: SIL plant head pressure (exact); stand B-DPC-1 DC-restored with C1 (after a no-event noise check, TO-VERIFY); flight C1 LIGHT_SPIKE raw peak (lower bound) against Electronics' chain-model threshold (TO-VERIFY; ideal sampler 40.381 bar abs).",
+   "supersedes": "v1 'any head excursion above 60.0 bar abs: replace all J-FWD screws (HW-101) and gauge the TC-01 holes / TC-02 taps before the next run'",
+   "v1_cases_that_now_trigger_it_Q_JFWD_bar_abs": {
+    "S6 v2.7 throat block 70 % (transducer peak, as LC-TB70)": 61.712,
+    "S6 v2.11 in-window: ramp to 60 bar, abort": 63.849
+   },
+   "v1_cases_note": "S6 squares as v1 (0.5 ms ramps from 45 bar abs) after an ASSUMED in-burn prefix (ambient -> 30 bar abs in 50 ms, held to 0.5 s), resampled at 0.05 ms; the FA-1 pulse cases are in plateau_and_burn_on_families",
+   "status": "ADOPTED by the lead at the go 2026-10-21T10:47:17Z (CHANGELOG 258 (3)): Q_JFWD, not the peak alone; on measured stand traces a noise-driven trigger still means the inspection until a noise-floor rule is derived from a no-event B-DPC-1 record and reviewed (TO-VERIFY); the flight consequence of a flagged first light and one Z3 event per J-FWD assembly OPEN (lead, before flight acceptance)"
+  },
+  "F4_abort_set": {
+   "lead_provisional": "HW_OVERPRESSURE, PC_OVERPRESSURE, HARD_START (253 (8)); the case-TC OVER_TEMP abort in F-14",
+   "verdict": "CONFIRMED, with one addition: PC_SENSOR raised on the HIGH side (transducer output >= 4.75 V = 146.5 bar abs: the stand latches and aborts; in flight the non-sticky over-range bit, log v12 ovr_flags b0)",
+   "reasons": {
+    "HW_OVERPRESSURE": "comparator U330 on the C1 chain (trip 32.59 bar abs): a head over-pressure in any state; KEEP",
+    "PC_OVERPRESSURE": "filtered Pc > 30 bar abs for 5 ms outside the ignition phase: the throat-blocked (TB) over-pressure in RUN; KEEP",
+    "HARD_START": "filtered Pc > 30 bar abs for 5 ms in IGNITION / early RUN, or >= 4.75 V in IGNITION (and the ride-through T45 guard): the FA-1-class light; KEEP (it may also fire on lights below 60 bar abs: conservative)",
+    "PC_SENSOR_HIGH": "a reading at or above 4.75 V (146.5 bar abs) is either a real head pressure far above 60 bar abs or a fault the record cannot tell from it (electronics.json open-wire rows: EXC- open drives the INA333 out of its common-mode range, output undefined, MISSING, B-PC-1): ADD the HIGH side; the LOW side (below 0.25 V: open wire, cable short) is not a pressure state and is not added",
+    "OVER_TEMP": "already in F-14 (case TC > 150 C for 200 ms)",
+    "OVER_THRUST": "flight only (FC_THRUST > 650 N on 3 frames): a pressure observable when Pc is invalid; NOT added as an abort type, because the trace rule covers it when the head trace resolves the event and the flight joint is not re-used before inspection; information for the lead",
+    "others": "CMD, NO_IGNITION, FLAMEOUT, PC_BAND (a RUN band deviation for 150 ms: a high-side excursion above 30 bar abs is caught first by PC_OVERPRESSURE, 5 ms), TANK_OVERPRESSURE (never aborts a burn), GIMBAL_FAULT, PINTLE_FAULT, LINK_LOST, PREPRESS_FAIL, BATT_LOW, MV_FAULT, ARM_LOST, WATCHDOG, TVC_SUPPLY, OVERCURRENT, MAINT_JAM, TORCH_FAULT, RELIGHT_LOCKOUT, MODE_MISMATCH, BAY_HOT, TANK_HOT, BLEED_FAULT, TORCH_LOST, TANK_COLD, CASE_WARM_STAND: no head over-pressure and no TB thermal state by themselves; not added"
+   },
+   "beside_the_abort_set": "the J-FWD replace rule (Q_JFWD > 60 bar abs) applies to every run whatever its end: it covers the ridden-through FA-1 pulses (flight ride-through, no abort) and any Z2 / Z3 excursion without an abort",
+   "observation_for_the_lead": "the founder rule's reason is the post-abort soak from a hot (TB) case; a shutdown of any cause from a case hotter than the rows' soak basis is outside the rows too; a case-TC-at-shutdown limit would state it directly (not derived here: OPEN, Mechanical, next round)",
+   "electronics_source": {
+    "path": "/home/claude/work/shared-fallback/engine/interfaces/electronics.json",
+    "sha256_16": "11f7896ad0d0613b"
+   }
+  },
+  "measured_traces": {
+   "statement": "an undamped oscillator has no loss: on a measured trace S(T) integrates the trace's noise over the window. A coherent tone of amplitude a at the period T adds about a pi N (N = cycles of T in the window; 150 ms: 135 a at 3.5 ms, 942 a at 0.5 ms, 2356 a at 0.2 ms); white noise of rms r over a bandwidth B adds a response of rms (2 pi / T) r sqrt(t_w / B) / 2. The Z3 v2 test and Q_JFWD are exact on SIM traces (the FA-1 grid, the SIL S6R / N-04 plant traces) and conservative on measured ones, where noise alone can trip them",
+   "tone_amplitude_that_trips_the_rule_on_that_light_bar": {
+    "T 0.2 ms": 0.0058,
+    "T 0.405 ms": 0.0118,
+    "T 0.5 ms": 0.0145
+   },
+   "tone_amplitude_that_takes_the_worst_grid_case_past_FA1S_at_3.5ms_bar": 0.0309,
+   "white_noise_example": {
+    "rms_bar": 0.05,
+    "bandwidth_Hz": 10000.0,
+    "seed": 20261021,
+    "band_S_max_increase_bar": 5.118,
+    "formula_rms_at_0.405ms_bar": 1.502,
+    "white_rms_that_puts_4_sigma_at_the_rule_margin_at_0.5ms_bar": 0.1405
+   },
+   "stand_use": "before the first hot run, the B-DPC-1 noise floor over 0.02-50 ms is measured on a record with no event (cold flow or ignition-only, DC-restored as for a hot run) and run through inside_v2: the check is usable on the stand where that record's band ESP stays below the levels above (TO-VERIFY, Electronics B-DPC-1); otherwise the lead chooses between a damped variant and the peak alone for the stand",
+   "tag": "DERIVED (undamped SDOF engine of this file on ASSUMED synthetic traces); no stand noise data in this package (MISSING)"
+  },
+  "rules": [
+   "J-FWD REPLACE RULE (LC-TB70 v2): when Q_JFWD of a run's head-end pressure exceeds 60.0 bar abs at any time, the joint counts as used: before the next run the line-231 J-FWD inspection (C6 (2) list: the ten ENG-HW-101-IN718 screws and their HW-170 springs replaced, new, single-use; the TC-01 holes gauged with the pins GO 5.50 / NO-GO 5.62, a hole that takes the 5.62 pin rejected; hole edges and the bore within 3 mm of a hole at 10x; S01 / S02 replaced; the removed screws inspected per C6 (3)) and the TC-02 taps gauged (M5-6H GO / NO-GO); Q_JFWD = max(head peak, ESP at 0.2-0.5 ms), no minimum duration (jfwd_rule_v2)",
+   "an event that leaves the envelope is outside the structural basis: no margin claim, engine quarantined for inspection (v1, kept)",
+   "one Z3 event per J-FWD assembly: the line-231 basis is a one-off abnormal event; a second Z3 excursion before the replacement is outside the envelope (stated in v2; OPEN for the lead where it bears on the flight relight)"
+  ],
+  "how_to_use": "Electronics: for each light, its head-end pressure record from before the light (first sample at or below 2.0 bar abs) to the end of that burn (S6R / N-04: the SIL plant head pressure at the 25 us plant step, from before the relight; stand: B-DPC-1 DC-restored with C1; sample step <= 0.05 ms at least over the light window, record start to 150 ms after the first crossing of 8 bar abs, and over each excursion window, 50 ms before to 150 ms after a later upward crossing of 45 bar abs) goes to inside_v2(t_s, p_bar_abs) in lc_tb70_envelope.py (import with python3 -B -I; main() does not run on import); it returns inside (None when a Z3 record cannot evaluate the ESP), the zone, the reasons, the ESP maximum and its period, Q_JFWD and the J-FWD rule flag. The 10 S6R runs (fa1rep max_face alone / then 50 bar abs, five builds each) and the 29-33 N-04 burn-on cases are re-classified this way. A record whose step is coarser than 0.05 ms in a window (the flight 1 kHz log) returns the ESP not evaluated and Q_JFWD as a lower bound. On a measured stand trace the undamped ESP integrates the trace noise: run a record with no event (cold flow or ignition-only) through inside_v2 first ('noise_sensitivity_measured_traces').",
+  "plateau_and_burn_on_families": "v1 pulse 75.519 + Z2 plateau 63.1 to tau 300 ms + MEOP 45 held: ESP 130.1 bar abs at 3.609 ms (<= FA1S), 50-2000 ms 125.25, Q_JFWD 84.5; v1 inside, v2 inside | pulse 88.1 + Z2 plateau 63.1 to tau 300 ms + MEOP 45 held: ESP 148.74 bar abs at 3.167 ms (<= FA1S), 50-2000 ms 125.48, Q_JFWD 98.42; v1 outside (peak > 75.519), v2 inside | v1 pulse 75.519 + 48 bar plateau to tau 200 ms + 40 held (v1 S6 family): ESP 129.98 bar abs at 3.436 ms (<= FA1S), 50-2000 ms 95.84, Q_JFWD 84.5; v1 inside, v2 inside | pulse 88.1 + burn-on at MEOP 45 held (N-04 bound): ESP 148.74 bar abs at 3.167 ms (<= FA1S), 50-2000 ms 90.8, Q_JFWD 98.42; v1 outside (peak > 75.519), v2 inside | pulse 88.1 + burn-on at 30 bar abs held (N-04 at the 30 bar abort level): ESP 148.74 bar abs at 3.167 ms (<= FA1S), 50-2000 ms 65.15, Q_JFWD 98.42; v1 outside (peak > 75.519), v2 inside. The long-period ESP is the held level's step factor about 2 plus the pulse; every family stays below FA1S at 0.02-50 ms [ASSUMED shapes, DERIVED response]",
+  "margins": "the per-zone cells are the published v3.5.2 margin matrix (04-fea/assembly3d_v352_rows_v8/tables/margin_matrix_v352.json 6c694fa7147fb511); no cell changes in v2.4",
+  "combustion_input": "interfaces/combustion.json v2.4c 661db0a593462382: fa1_grid_statistics_v2p4c (Z3' proposal, status OPEN) and fa1_p_torch_v2p4c; the FA-1 grid histories are the v2.4b set (unchanged in v2.4c)",
+  "tags": "DERIVED on SIM (ASSUMED construct; grid counts are not probabilities); not physical approval"
+ },
+ "c1_seat_v352": {
+  "source": {
+   "F1": {
+    "path": "04-fea/v352/c1seat/c1_seat_v352_v1.json",
+    "sha256_16": "435f5d71f6213160",
+    "script": {
+     "path": "04-fea/v352/c1seat/c1_seat_v352.py",
+     "sha256_16": "fe1f41a73f25a0bc"
+    }
+   },
+   "cross_check": {
+    "path": "04-fea/v352/c1seat/c1_seat_xcheck_v352_v1.json",
+    "sha256_16": "02a9f27c7965f223",
+    "script": {
+     "path": "04-fea/v352/c1seat/c1_seat_xcheck_v352.py",
+     "sha256_16": "bba820fabd895ff6"
+    }
+   }
+  },
+  "seat_point": "the C1 Pc seat diaphragm point r 25.0, z = zt - 9.5 (A1 zt 176.0575, B1 zt 176.0914 mm) in an M_AL6061_T6 CAX6 element; quadratic shape functions in space, linear in time between frd frames [SIM]",
+  "runs": {
+   "A1_NF2b": {
+    "dir": "DC-A1dispp99_tg711_hi_SS316L_L2.5_v352_NF2b",
+    "bound": "UPPER bound: Bartz x2 in the chamber (recirculating flow, Combustion 0.5-2), x1.3 in the nozzle (0.7-1.3), gas radiation HIGH band",
+    "diaphragm_max": {
+     "T_K": 357.0274442357918,
+     "rise_K": 63.87744423579176,
+     "t_s": 151.781
+    },
+    "seat_drifts_K": {
+     "ARM->E1": 14.5342,
+     "ARM->light": 14.7208,
+     "ARM->rezero1_end": 0.8043,
+     "rezero1_end->E1": 13.7299,
+     "rezero1_end->light": 13.9165,
+     "rezero1_end->rezero2_end": 11.729,
+     "rezero2_end->E1": 2.0009,
+     "rezero2_end->light": 2.1875
+    }
+   },
+   "B1_R4_GVHI": {
+    "dir": "DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_R4_GVHI",
+    "bound": "UPPER bound: Bartz x2 in the chamber (recirculating flow, Combustion 0.5-2), x1.3 in the nozzle (0.7-1.3), gas radiation HIGH band",
+    "diaphragm_max": {
+     "T_K": 387.4788099011011,
+     "rise_K": 94.32880990110112,
+     "t_s": 226.651
+    },
+    "seat_drifts_K": {
+     "ARM->rezero1_end": 22.0453,
+     "ARM->stand_E1": 54.373,
+     "ARM->stand_light": 54.764,
+     "rezero1_end->stand_E1": 32.3277,
+     "rezero1_end->stand_light": 32.7187,
+     "rezero1_end->stand_rezero2_end": 28.3611,
+     "stand_rezero2_end->stand_E1": 3.9667,
+     "stand_rezero2_end->stand_light": 4.3577
+    }
+   },
+   "B1_R4_GVLO": {
+    "dir": "DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_R4_GVLO",
+    "bound": "UPPER bound: Bartz x2 in the chamber (recirculating flow, Combustion 0.5-2), x1.3 in the nozzle (0.7-1.3), gas radiation HIGH band",
+    "diaphragm_max": {
+     "T_K": 380.41735248975215,
+     "rise_K": 87.26735248975217,
+     "t_s": 286.651
+    },
+    "seat_drifts_K": {
+     "ARM->rezero1_end": 23.3835,
+     "ARM->stand_E1": 54.6525,
+     "ARM->stand_light": 54.9827,
+     "rezero1_end->stand_E1": 31.269,
+     "rezero1_end->stand_light": 31.5992,
+     "rezero1_end->stand_rezero2_end": 27.8334,
+     "stand_rezero2_end->stand_E1": 3.4357,
+     "stand_rezero2_end->stand_light": 3.7658
+    }
+   }
+  },
+  "C1_bar_per_K_typ_DATASHEET": 0.0248,
+  "k_ASSUMED": [
+   1.0,
+   1.5,
+   2.0,
+   3.0
+  ],
+  "cross_check_verdict": "NEITHER TIME IS SHIFTED: the frd frames and the .dat NODE PRINT (= monitors.csv) carry the same times, and the frd value at the monitor's own node equals the .dat value at the same time to the print precision. The F1 differences come from node numbering: the run meta lists each monitor one node number below the .inp node at the stated (r, z) (the thermal writer keeps the 0-based mesh index there, ax_thermal.py; the NMON set, the .dat and monitors.csv use the .inp number), so F1 compared a neighbouring node, 2.13-2.45 mm away, with the monitor. F1's seat points use the .inp element connectivity and are unchanged (0 K): the +/-0.6 K extraction caveat is WITHDRAWN for the seat values; F1's MON_ proxy columns were at the neighbouring node and are re-stated here (the published F1 numbers are the seat values) [SIM, DERIVED]",
+  "root_cause": "04-fea/thermal/ax_thermal.py (hub cd00f37a02ddbfd2) writes the NMON set as k + 1 and read_monitors adds 1: the meta 'monitors' node field is the 0-based mesh index; c1_seat_v352.py (fe1f41a73f25a0bc) used it as the 1-based frd node ID for its MON_ columns and the cross-check; its seat points take their nodes from the .inp element connectivity and are not affected",
+  "extraction_caveat": "the +/-0.6 K extraction caveat of the F1 message (08:02:01Z) is WITHDRAWN for the seat values (seat points recomputed: 0.0 K)",
+  "MON_proxies_restated": {
+   "largest_change_at_the_events_K": {
+    "A1_NF2b": [
+     "ARM->rezero1_end|head_bore_N2O",
+     -0.9263
+    ],
+    "B1_R4_GVHI": [
+     "ARM->rezero1_end|head_bore_N2O",
+     -3.2882
+    ],
+    "B1_R4_GVLO": [
+     "ARM->rezero1_end|head_bore_N2O",
+     -3.3942
+    ]
+   },
+   "rise_vs_ARM_max_abs_change_K": {
+    "A1_NF2b": 1.224,
+    "B1_R4_GVHI": 3.2882,
+    "B1_R4_GVLO": 3.3942
+   },
+   "where": "c1_seat_xcheck_v352_v1.json runs.<run>.MON_proxy_drifts (every drift, F1 value at the meta node and the value at the monitor's own node)"
+  },
+  "proxy_recommendation": "T1_head_top_bracket_foot stays the proxy at its own node: within 0.240 K of the seat on the re-zero2-referenced drifts (foot minus seat, K: A1_NF2b rezero2_end->E1 +0.041 / rezero2_end->light +0.048; B1_R4_GVHI stand_rezero2_end->stand_E1 +0.180 / stand_rezero2_end->stand_light +0.198; B1_R4_GVLO stand_rezero2_end->stand_E1 +0.218 / stand_rezero2_end->stand_light +0.240); head_bore_N2O is not representative (up to 3.62 K from the seat on the same drifts) [DERIVED on SIM]",
+  "T0": "T0 independence: not in c1_seat_v352_v1.json (the F1 message of 08:02:01Z gave a first-order estimate); a flight T0 range and a T0 0 / 40 C re-run (new FE) are not done: OPEN",
+  "inputs": "the three NF2b thermal run folders in /home/claude/work/mechanical/runs/thermal (Mechanical work tree; frd / dat / inp / meta / monitors.csv sha256/16 in the cross-check json)",
+  "tags": "SIM (FE nodal results of the UPPER-bound heat-transfer runs), DERIVED comparisons; not physical approval"
+ },
+ "torch_port_bl08_v352": {
+  "source": {
+   "path": "04-fea/v352/c1seat/torch_port_bl08_v352_v1.json",
+   "sha256_16": "20220647d32cbbbc",
+   "script": {
+    "path": "04-fea/v352/c1seat/torch_port_bl08_v352.py",
+    "sha256_16": "72c853aebfe96fd3"
+   }
+  },
+  "torch_port": {
+   "geometry": "ENG-TC-02 head top: torch seat M10x1 x 10 at r 25.0, az 0 (seat zt-10 ... zt, modelled at 9.0 mm), 5.2 mm passage from r 25, zt-9.5 to the 30 deg 3 mm outlet (parts_engine.py); the C1 Pc seat is on the same ring r 25 (az 105)",
+   "points_r25": [
+    "tap_mouth_zt-0.5",
+    "tap_mid_zt-4.75",
+    "zt-8.0",
+    "diaphragm_zt-9.5",
+    "zt-11.0"
+   ],
+   "summary": "Torch seat (r 25, az 0) head-metal rise, the five r 25 points zt-0.5 ... zt-11 [SIM / DERIVED]: A1 re-zero2 end -> E1 +1.987 to +2.041 K, re-zero2 end -> light +2.172 to +2.232 K, re-zero1 end -> light +13.494 to +14.032 K, ARM -> light +14.000 to +14.940 K; B1 stand relight GVLO / GVHI: re-zero2 end -> light +3.687 to +4.016 K / +4.295 to +4.563 K, re-zero1 end -> E1 +30.929 to +32.329 K / +32.065 to +33.147 K. These are the head's contribution only, NOT bounds: the local heat in the seat and passage (relight torch from E0, the earlier light and burn decaying), the ENG-IG-01 conduction, the 3-D boss and the 070BG's own temperature are MISSING.",
+   "MISSING": [
+    "the torch's own heat input to the seat, the 5.2 mm passage and the 3 mm outlet (torch flame / hot gas, E0 -> light and any torch-on time in a burn)",
+    "conduction from the ENG-IG-01 torch body and nose",
+    "the 3-D seat boss (the FE is axisymmetric)",
+    "the temperature of the P_torch transducer itself (TE M3234-000005-070BG on the torch, J901)"
+   ],
+   "what_it_would_take": "Combustion's torch heat input to the passage wall (gas temperature and h, the torch-on schedule) with a 3-D local thermal model of the seat boss and the ENG-IG-01 nose (new FE), or thermocouples at the torch seat and on the ENG-IG-01 body beside the 070BG in B-TC-1 / static fire"
+  },
+  "torch_port_reading": "the r 25 head-metal rises are the head's contribution only, NOT bounds on the torch-port rise (the local heat and its net sign are MISSING); the predecessor's 'lower bound' reading is withdrawn",
+  "BL-08": {
+   "part": "ENG-BL-08 P_mid transducer (Kulite XTL-190SM-2000A, C1 chain, U570 comparator)",
+   "location": {
+    "port_xy_mm": [
+     12.58,
+     32.77
+    ],
+    "z_port_mm": 268.0,
+    "r_az": "r 35.1, az 69",
+    "position": "on the V1-V2 mid passage, chord midpoint (r 35.1, az 69)",
+    "above_head_top_mm": 91.9,
+    "module": "FIXED (parts_bleed.py places BL-05 / BL-07 / BL-08 'fixed'; airframe mount TO-DEFINE, ICD-14)",
+    "links_to_engine": "1/8 x 0.028 in 316L fixed line BL-03F and the -2 PTFE / 316 braid crossing hose BL-04 only: no structural conduction path from the head"
+   },
+   "temperature": "MISSING (no Mechanical model covers it; no number given)",
+   "drivers_not_modelled": [
+    "bay air",
+    "radiation from the engine (TC-01 case, TC-02 head, feed parts)",
+    "the airframe mount (ICD-14 TO-DEFINE)",
+    "the bleed N2O with V1 open"
+   ],
+   "what_it_would_take": "a bay thermal model (view factors from the A1 / B1 SIM engine surface fields to BL-07 / BL-08, bay air, the mount once ICD-14 defines it, the purge N2O), or a thermocouple on the BL-08 body in B-TC-1 / static fire and on the A1 vehicle",
+   "for_U570": "Electronics' thermal-zero term at BL-08 stays MISSING: the low U570 threshold near 2 bar abs is not supported by a Mechanical temperature (lead 253 (7)(v): not credited as detection)"
+  },
+  "tags": "SIM (F1 values), DERIVED (differences), MISSING as stated; not physical approval"
+ },
+ "followups_basis_v352": {
+  "brief": "lead 2026-10-21T08:05:00Z F1-F6 and the 08:39:41Z relay (lead_rulings_quoted_v352.followups_brief_2026-10-21T08:05:00Z, .relay_2026-10-21T08:39:41Z)",
+  "results": {
+   "F5_R4-01": "jfwd_v352.tap_wall",
+   "F6_R4-02_and_F3_R4-10": "lc_tb70_envelope_v352 (Z3_v2, jfwd_replace_rule_v2)",
+   "F4": "lc_tb70_envelope_v352.F4_abort_set",
+   "F2": "torch_port_bl08_v352",
+   "F1_cross_check": "c1_seat_v352",
+   "texts": "jfwd_v352.founder_rules (texts v5 C9 (4) / C6 (4)) and jfwd_v352.hardware.texts_superseding_hardware_strings (drawing texts v2)"
+  },
+  "review": {
+   "path": "reviews/REVIEW-COMBUSTION-R4.md",
+   "sha256_16": "2908321d7f75d439",
+   "combustion": {
+    "path": "interfaces/combustion.json",
+    "sha256_16": "661db0a593462382"
+   }
+  },
+  "no_cad_change": "no CAD, mass, hardware-data or BOM change; the drawing texts are text only",
+  "margin_matrix": "04-fea/assembly3d_v352_rows_v8/tables/margin_matrix_v352.json 6c694fa7147fb511: no cell changes (the tap-wall row is not a matrix row; TC-01 / TC-02 / HW-101 J-FWD cells unchanged)",
+  "evidence": "SIM / CALC / DERIVED as tagged in each source; none of it physical approval; paper and Python only, no FE, no ccx"
+ },
+ "superseded_v2p3_entries": {
+  "rule": "v2.3 leaves changed or removed by the v2.4 patch (not to be used for v3.5.2); each one's whole v2.3 value is in superseded_v2p3_values under its path",
+  "n": 24,
+  "entries": [
+   {
+    "path": "inputs_read_v352.combustion.json.sha256",
+    "v2.3": "fd3a7da6d27c7c669c5a4ffac5c6ffde19d89f21288a2a7f245372282416b7b7",
+    "v2.4": "661db0a593462382ea1979dfacf5a37877be6e3722e59d509033b68dd1721ee2"
+   },
+   {
+    "path": "inputs_read_v352.combustion.json.version",
+    "v2.3": "v2.4b",
+    "v2.4": "v2.4c"
+   },
+   {
+    "path": "jfwd_v352.drawing_texts",
+    "v2.3": "(text; see superseded_v2p3_values)",
+    "v2.4": "(text revised)"
+   },
+   {
+    "path": "jfwd_v352.founder_rules.C6",
+    "v2.3": "(text; see superseded_v2p3_values)",
+    "v2.4": "(text revised)"
+   },
+   {
+    "path": "jfwd_v352.founder_rules.post_abort_joint_replacement",
+    "v2.3": "(text; see superseded_v2p3_values)",
+    "v2.4": "(text revised)"
+   },
+   {
+    "path": "jfwd_v352.hardware.texts_superseding_hardware_strings",
+    "v2.3": "(text; see superseded_v2p3_values)",
+    "v2.4": "(text revised)"
+   },
+   {
+    "path": "jfwd_v352.tap_wall.MS_y",
+    "v2.3": 0.814,
+    "v2.4": 0.67
+   },
+   {
+    "path": "jfwd_v352.tap_wall.R11",
+    "v2.3": "stays v1 until REV-COMB-4; if its bounding P_torch is above 102 bar abs, Mechanical re-runs the tap-wall check when the lead relays it",
+    "v2.4": "(text revised)"
+   },
+   {
+    "path": "jfwd_v352.tap_wall.governing_case",
+    "v2.3": "SOAK52|FA-1_rule_102bar_abs_0.25-1ms_parts|ruled_+/-0.25deg_net_GOVERNING",
+    "v2.4": "SOAK52|P_torch_FA1S_151.04bar_abs_uniform|ruled_+/-0.25deg_net_GOVERNING"
+   },
+   {
+    "path": "jfwd_v352.tap_wall.to_confirm",
+    "v2.3": "P_torch and its distribution along the torch passage (REV-COMB-4)",
+    "v2.4": "none for P_torch: the REV-COMB-4 R4-01 design case (combustion v2.4c fa1_p_torch_v2p4c); the NOT MODELLED items are outside the row's basis, not covered by it"
+   },
+   {
+    "path": "jfwd_v352.tap_wall.verdict",
+    "v2.3": "(text; see superseded_v2p3_values)",
+    "v2.4": "(text revised)"
+   },
+   {
+    "path": "open_items_v352[12]",
+    "v2.3": "Electronics v2.11 items for Mechanical go to REV-COMB-4 first (R12); lc_tb70_envelope_v1.json unchanged",
+    "v2.4": "(text revised)"
+   },
+   {
+    "path": "open_items_v352[13]",
+    "v2.3": "(text; see superseded_v2p3_values)",
+    "v2.4": "(text revised)"
+   },
+   {
+    "path": "open_items_v352[4]",
+    "v2.3": "tap wall: stays v1 (R11); P_torch and its distribution TO-CONFIRM (REV-COMB-4)",
+    "v2.4": "(text revised)"
+   },
+   {
+    "path": "reading_rule_v352",
+    "v2.3": "(text; see superseded_v2p3_values)",
+    "v2.4": "(text revised)"
+   },
+   {
+    "path": "requests_v352[0]",
+    "v2.3": "(text; see superseded_v2p3_values)",
+    "v2.4": "(text revised)"
+   },
+   {
+    "path": "scripts_v352.drawing_texts",
+    "v2.3": "03-cad/v3.5.2/texts/jfwd_drawing_texts_v352_v1.json",
+    "v2.4": "03-cad/v3.5.2/texts/jfwd_drawing_texts_v352_v2.json"
+   },
+   {
+    "path": "scripts_v352.jfwd",
+    "v2.3": "(text; see superseded_v2p3_values)",
+    "v2.4": "(text revised)"
+   },
+   {
+    "path": "scripts_v352.texts",
+    "v2.3": "04-fea/v352/texts/item_c_tf1_texts_v352.py (v4; also writes the drawing-text set) and tf1_exposure_v352.py (v2)",
+    "v2.4": "04-fea/v352/texts/item_c_tf1_texts_v352.py (v5; also writes the drawing-text set v2) and tf1_exposure_v352.py (v2)"
+   },
+   {
+    "path": "scripts_v352.writer",
+    "v2.3": "03-cad/v3.5.2/src/calcs/write_mechanical_json_v352.py (v2.3)",
+    "v2.4": "03-cad/v3.5.2/src/calcs/write_mechanical_json_v352.py (v2.4)"
+   },
+   {
+    "path": "scripts_v352.writer_sha256_16",
+    "v2.3": "50c29f6b90057742",
+    "v2.4": "7768af1098c7ad08"
+   },
+   {
+    "path": "status",
+    "v2.3": "(text; see superseded_v2p3_values)",
+    "v2.4": "(text revised)"
+   },
+   {
+    "path": "supersedes",
+    "v2.3": "(text; see superseded_v2p3_values)",
+    "v2.4": "(text revised)"
+   },
+   {
+    "path": "version",
+    "v2.3": "v2.3",
+    "v2.4": "v2.4"
+   }
+  ],
+  "added_under": [
+   "c1_seat_v352",
+   "followups_basis_v352",
+   "jfwd_v352.tap_wall",
+   "lc_tb70_envelope_v352",
+   "lead_rulings_quoted_v352",
+   "open_items_v352",
+   "requests_v352",
+   "scripts_v352",
+   "sources_v352",
+   "torch_port_bl08_v352"
+  ]
+ },
+ "superseded_v2p3_values": {
+  "inputs_read_v352.combustion.json.sha256": "fd3a7da6d27c7c669c5a4ffac5c6ffde19d89f21288a2a7f245372282416b7b7",
+  "inputs_read_v352.combustion.json.version": "v2.4b",
+  "jfwd_v352.drawing_texts": "03-cad/v3.5.2/texts/jfwd_drawing_texts_v352_v1.json (TC-02 plug OD band, HW-170 orientation and single-use, the assembly and founder rules); 04-fea/v352/texts/item_c_tf1_texts_v352_v4.json item_C C8 (rev-5 texts) and C9 (re-map texts)",
+  "jfwd_v352.founder_rules.C6": "(1) S01 and S02 are replaced after any FA-1-class event, together with the line-231 J-FWD inspection (lead 10:10Z rule). (2) Line-231 post-FA-1 inspection list: the ten J-FWD screws and their HW-170 disc springs replaced (new, single-use, (3)); the ten holes gauged for elongation and bearing set with the HW-101 pins GO 5.50 / NO-GO 5.62 (C1 (g)); a hole that takes the 5.62 pin is rejected; hole edges and the bore within 3 mm of a hole at 10x for nicks or raised metal; S01 / S02 replaced; the removed screws inspected per (3). (3) J-FWD screw life: SINGLE-USE founder rule until C6 closes (lead 16:53Z R3): the J-FWD screws are new at every assembly, never reused or re-torqued; removed screws are kept per hole and inspected at 10x plus dye penetrant at the thread root AND the head-to-shank fillet (LEAD ADDITION 18:36:37Z), as data. C6 is OPEN: the screw LCF at the thread root is a FOUND NEGATIVE (183 (1)(c); jfwd_screw_lcf_v352_v3.json on rows v8, SOAK (b1) as solved, Kf 3.0: per firing N_allow 5.6 (MS -0.888), assembly from zero N_allow 0.6 (MS -0.988); the Kf 2.2 sensitivity row per firing N_allow 26.9 (MS -0.462; v2 +0.360: SIGN CHANGE in v3); with (b1)'s moment x 1.4764 (R5, information) per firing N_allow 1.3 (MS -0.974)); the head-to-shank fillet from zero is a FOUND NEGATIVE that does not govern (jfwd_head_fillet_v352_v2.json: N_allow 29.3 (MS -0.414); per firing 1092.0 (MS +20.840); Kt LITERATURE, secondary via AMESweb citing Pilkey 2005, the Pilkey page and the T-head Kt TO-SOURCE; the no-spring head-end resultants carried over ASSUMED); the thread root governs. Both are quoted as negative, never as passing. Closure paths 2 (FE levers: (b1) is solved and entered, rows v8 under C1 / R5, and the row stays negative; the P+Q select-fit band, C9 (6), is sized for the seat line and takes no screw credit) and 3 (qualification test, TO-DEFINE, founder) remain; path 1 (MJ thread) closed NOT SOURCED. HW-170 disc spring SINGLE-USE (lead 19:53:27Z, CHANGELOG 248 (7)): a new spring with each new screw at every J-FWD assembly; removed springs are scrapped (C9 (2)). (4) POST-ABORT RULE (founder rule, lead 248 (7)): after any case-TC or TB-state abort the J-FWD joint counts as used: the ten ENG-HW-101-IN718 screws and their HW-170 springs are replaced (new, single-use) and the TC-01 holes (pins GO 5.50 / NO-GO 5.62) and the TC-02 taps (M5-6H GO / NO-GO) are gauged before the next run; this stands beside the 60 bar abs rule of the LC-TB70 envelope (lc_tb70_envelope_v1.json, unchanged: 'any head excursion above 60.0 bar abs: replace all J-FWD screws (HW-101) and gauge the TC-01 holes / TC-02 taps before the next run', the line-231 inspect-or-replace rule in head-trace form). Reason: the post-abort soak (ASSUMED shifted history, J-FWD band up to 201.4 C GVLO / 164.0 C GVHI, jf1b_loctite_v352_v1.json) is not a rows or J-F1b state. OPEN (lead CHANGELOG 253 (8), (10); Mechanical's next round, not this re-map): the TB-state aborts are HW_OVERPRESSURE, PC_OVERPRESSURE and HARD_START by the lead's PROVISIONAL definition (the case-TC OVER_TEMP abort is in F-14), Mechanical to confirm; the 60 bar abs rule is a head-trace threshold, not an abort type, so as written a normal light whose head peak exceeds 60 bar abs also triggers it (above 58.1 bar abs the LC-TB70 envelope has only the abnormal bases: Z2 SF 1.0 / 1.5, Z3 FA-1 SF 1.0); 185 of 896 FA-1 grid head peaks exceed 60 bar abs [SIM grid fraction, not a probability]; whether the rule stands for normal lights stays OPEN until REV-COMB-4 says whether those peaks are physical; Electronics states the logged quantity and threshold that detect it.",
+  "jfwd_v352.founder_rules.post_abort_joint_replacement": "(4) POST-ABORT RULE (founder rule, lead 248 (7)): after any case-TC or TB-state abort the J-FWD joint counts as used: the ten ENG-HW-101-IN718 screws and their HW-170 springs are replaced (new, single-use) and the TC-01 holes (pins GO 5.50 / NO-GO 5.62) and the TC-02 taps (M5-6H GO / NO-GO) are gauged before the next run; this stands beside the 60 bar abs rule of the LC-TB70 envelope (lc_tb70_envelope_v1.json, unchanged: 'any head excursion above 60.0 bar abs: replace all J-FWD screws (HW-101) and gauge the TC-01 holes / TC-02 taps before the next run', the line-231 inspect-or-replace rule in head-trace form). Reason: the post-abort soak (ASSUMED shifted history, J-FWD band up to 201.4 C GVLO / 164.0 C GVHI, jf1b_loctite_v352_v1.json) is not a rows or J-F1b state. OPEN (lead CHANGELOG 253 (8), (10); Mechanical's next round, not this re-map): the TB-state aborts are HW_OVERPRESSURE, PC_OVERPRESSURE and HARD_START by the lead's PROVISIONAL definition (the case-TC OVER_TEMP abort is in F-14), Mechanical to confirm; the 60 bar abs rule is a head-trace threshold, not an abort type, so as written a normal light whose head peak exceeds 60 bar abs also triggers it (above 58.1 bar abs the LC-TB70 envelope has only the abnormal bases: Z2 SF 1.0 / 1.5, Z3 FA-1 SF 1.0); 185 of 896 FA-1 grid head peaks exceed 60 bar abs [SIM grid fraction, not a probability]; whether the rule stands for normal lights stays OPEN until REV-COMB-4 says whether those peaks are physical; Electronics states the logged quantity and threshold that detect it.",
+  "jfwd_v352.hardware.texts_superseding_hardware_strings": "03-cad/v3.5.2/texts/jfwd_drawing_texts_v352_v1.json: HW-170 orientation DEFINED (C9 (1)) and SINGLE-USE (C9 (2), 248 (7)); the hardware v1.7 strings 'orientation TO-DEFINE' and 'reuse of a removed spring TO-RULE' are superseded by these texts (data/hardware_v352.json is not edited; the lead rules any data update)",
+  "jfwd_v352.tap_wall.MS_y": 0.814,
+  "jfwd_v352.tap_wall.R11": "stays v1 until REV-COMB-4; if its bounding P_torch is above 102 bar abs, Mechanical re-runs the tap-wall check when the lead relays it",
+  "jfwd_v352.tap_wall.governing_case": "SOAK52|FA-1_rule_102bar_abs_0.25-1ms_parts|ruled_+/-0.25deg_net_GOVERNING",
+  "jfwd_v352.tap_wall.to_confirm": "P_torch and its distribution along the torch passage (REV-COMB-4)",
+  "jfwd_v352.tap_wall.verdict": "Tap wall to the torch passage (az 18 / 342), wall 1.6355 mm net at +/-0.25 deg, CALC at the 3750 N J-F1 cap: governing SOAK52|FA-1_rule_102bar_abs_0.25-1ms_parts (N 8572.2 N from (b2) rep, p_thread 48.21 MPa, passage 10.099 MPa gauge): sigma 126.1 MPa, MS_y +0.814 / MS_u +0.938 at the TC-02 thread temperature 94.9 C; with the screw temperature as a sensitivity MS_y +0.389 (SOAK70|FA-1_rule_102bar_abs_0.25-1ms_parts).  Closest approach 1.8989 mm (paper, axes) at tap r 21.535 (7.065 mm below the plug OD), 0.229-0.63 mm above the screw tip.",
+  "open_items_v352[12]": "Electronics v2.11 items for Mechanical go to REV-COMB-4 first (R12); lc_tb70_envelope_v1.json unchanged",
+  "open_items_v352[13]": "ROUTED to Mechanical by lead CHANGELOG 253 (10) (Mechanical's next round on the lead's brief, not this re-map; quoted in lead_rulings_quoted_v352): the node that represents the C1 diaphragm and its ARM-to-light dT history with T0 independence (stand T0 <= 24 C; a flight range to be stated), the torch-port dT and the BL-08 temperature [MISSING]; R3-02 (253 (8)): confirm the TB-state abort list (lead PROVISIONAL: HW_OVERPRESSURE, PC_OVERPRESSURE, HARD_START; the case-TC OVER_TEMP abort in F-14) and state whether the LC-TB70 60 bar abs rule is meant for normal-light transients (185 of 896 FA-1 grid head peaks above 60 bar abs [SIM grid fraction]); the founder text C9 (4) carries both as OPEN",
+  "open_items_v352[4]": "tap wall: stays v1 (R11); P_torch and its distribution TO-CONFIRM (REV-COMB-4)",
+  "reading_rule_v352": "Sections whose key ends in _v352 (and the header) govern for v3.5.2. The v2.1 sections are kept unchanged as the record of CAD v3.3 / v3.5 / v3.5.1; where a v2.1 value conflicts with a _v352 section, the _v352 section governs; superseded_v2p1_entries lists the v2.1 entries not to be used for v3.5.2. v2.3: the _v352 sections hold the J-FWD re-map values (relax v8, rows v8 and companions on FEA3D-2's FINAL envelope v6); every v2.2 value they replace is kept in superseded_v2p2_values and named leaf by leaf in superseded_v2p2_entries (not to be used for v3.5.2).",
+  "requests_v352[0]": "REQUEST Combustion (REV-COMB-4): P_torch and its distribution along the torch passage at the J-FWD taps (az 18 / 342), for the TC-02 tap-wall row (04-fea/v352/jfwd_tapwall_v352_v1.json, MS_y +0.814 on a uniform passage pressure: TO-CONFIRM); R11: if the bounding P_torch is above 102 bar abs, Mechanical re-runs the tap-wall check when the lead relays it.",
+  "scripts_v352.drawing_texts": "03-cad/v3.5.2/texts/jfwd_drawing_texts_v352_v1.json",
+  "scripts_v352.jfwd": "04-fea/v352/jfwd_*_v352.py (relax v8, rows v8, K_js5 v3, spring v5, head fillet v2, screw LCF v3, P+Q band v1, R6 companions v1, J-F1b / LOCTITE v1; tap wall v1 stays, R11)",
+  "scripts_v352.texts": "04-fea/v352/texts/item_c_tf1_texts_v352.py (v4; also writes the drawing-text set) and tf1_exposure_v352.py (v2)",
+  "scripts_v352.writer": "03-cad/v3.5.2/src/calcs/write_mechanical_json_v352.py (v2.3)",
+  "scripts_v352.writer_sha256_16": "50c29f6b90057742",
+  "status": "v3.5.2 J-FWD re-map issue (lead 2026-10-21T05:50:45Z R1-R12) on the FINAL 03-cad v3.5.2 set (no CAD change in the re-map): SIM + CALC + DERIVED + DESIGN as tagged; physical validation pending (bench and founder test lists); margins are model results, not test results; negatives are shown as found",
+  "supersedes": "v2.2 (2026-10-20, sha256/16 f790d31b5ca7d954; archived by rename as 03-cad/v3.5.2/history/mechanical.json.f790d31b5ca7d954); v2.1 (2026-10-13, e4d3e7c9df529171) archived as 03-cad/v3.5.2/history/mechanical.json.e4d3e7c9df529171",
+  "version": "v2.3"
  }
 }

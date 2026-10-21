@@ -1,0 +1,737 @@
+{
+ "id": "torch_port_bl08_v352",
+ "version": "v1",
+ "date": "2026-10-21",
+ "owner": "mechanical",
+ "basis": "F2 (lead brief 2026-10-21T08:05:00Z; CHANGELOG 253 (10) 'the torch-port dT and the BL-08 temperature [MISSING]'): the torch-port\ntemperature rise over the F1 event times (ARM, re-zero1, re-zero2, E1, light) for A1 and the B1 stand relight, and the BL-08 (P_mid)\ntemperature for the U570 comparator band.  Mechanical, 2026-10-21.  Paper / Python only: reads the published-to-work-tree F1 result\nc1_seat_v352_v1.json (435f5d71f6213160; script c1_seat_v352.py fe1f41a73f25a0bc) and the CAD v3.5.2 geometry; no new FE.\n\nTORCH PORT.  The torch seat (ENG-TC-02 head top, M10x1 x 10 at r 25, az 0; parts_engine.py: seat zt-10 ... zt, then the 5.2 mm passage\nfrom r 25, zt-9.5 inward to the 30 deg 3 mm outlet) lies on the same ring r 25 as the C1 Pc seat (az 105 in parts_engine.py).  The thermal\nFE is axisymmetric, so its metal history at the torch seat IS the F1 history at r 25 (tap mouth zt-0.5, mid zt-4.75, zt-8, zt-9.5, zt-11):\nthe event-to-event rises below are those F1 values [SIM, the A1 / B1 UPPER-bound heat-transfer runs as F1].  They are the HEAD's\ncontribution only.  NOT in any model (MISSING): the local heat in the seat and the passage (the torch flame and hot gas from E0 to the\nlight and in any torch-on time; the chamber gas that fills the 5.2 mm passage and the 3 mm outlet during each burn), conduction from the\nENG-IG-01 body, and the 3-D seat boss.  Sign: the relight torch adds heat inside re-zero2 -> E1 / light, while the local heat of the\nearlier light and burn decays over the same coast interval; both are MISSING and the net sign is not shown, so NO interval below is a\nbound on the torch-port rise (the predecessor's 'lower bound' reading is withdrawn).  The P_torch transducer (TE M3234-000005-070BG, J901, electronics.json)\nis on the torch, not in the head: its own temperature is MISSING, and its zero coefficient is Electronics' (not restated here).\nWhat it would take: Combustion's torch heat input to the passage wall (torch gas temperature and h, the torch-on schedule E0 -> light and\nin the burns) with a 3-D local thermal model of the seat boss and the ENG-IG-01 nose (new FE), or a thermocouple at the torch seat and on\nthe ENG-IG-01 body beside the 070BG in B-TC-1 / static fire.\n\nBL-08.  ENG-BL-08 (P_mid, Kulite XTL-190SM-2000A on the C1 chain, U570 comparator) sits on the bleed manifold ENG-BL-07 boss at\n(12.58, 32.77) mm, z 268.0 (r 35.1, az 69; checks/bleed_topology_v3.5.2.json d4e0639e319e3581), about 92 mm above the head top, on the\nFIXED module (parts_bleed.py places BL-05 / BL-07 / BL-08 'fixed'; airframe mount TO-DEFINE, ICD-14).  Its only links to the engine are\nthe 1/8 x 0.028 in 316L fixed line BL-03F and the -2 PTFE / 316 braid crossing hose BL-04: no structural conduction path from the head.\nIts temperature is set by the bay air, radiation from the engine (TC-01 case, TC-02 head, feed parts), the airframe mount and, with V1\nopen, the bleed N2O; none is in a Mechanical model: MISSING (no number is given).  What it would take: a bay thermal model (view factors\nfrom the A1 / B1 SIM engine surface fields to BL-07 / BL-08, bay air, the mount once ICD-14 defines it, the purge N2O) or a thermocouple\non the BL-08 body in B-TC-1 / static fire and on the A1 vehicle.\nTags: SIM (F1 values), DERIVED (differences), MISSING as stated.  Not physical approval.\nusage: python3 -B -I torch_port_bl08_v352.py",
+ "inputs": {
+  "c1_seat_v352_v1_json": {
+   "path": "/home/claude/work/mechanical/v352/c1seat/c1_seat_v352_v1.json",
+   "sha256_16": "435f5d71f6213160"
+  },
+  "c1_seat_v352_py": {
+   "path": "/home/claude/work/mechanical/v352/c1seat/c1_seat_v352.py",
+   "sha256_16": "fe1f41a73f25a0bc"
+  },
+  "bleed_topology_v3.5.2_json": {
+   "path": "/home/claude/work/shared-fallback/engine/03-cad/v3.5.2/checks/bleed_topology_v3.5.2.json",
+   "sha256_16": "d4e0639e319e3581"
+  },
+  "parts_engine_py": {
+   "path": "/home/claude/work/shared-fallback/engine/03-cad/v3.5.2/src/parts_engine.py",
+   "sha256_16": "8e3df6841d149c88"
+  },
+  "parts_bleed_py": {
+   "path": "/home/claude/work/shared-fallback/engine/03-cad/v3.5.2/src/parts_bleed.py",
+   "sha256_16": "c1d6b20859038456"
+  },
+  "electronics_json": {
+   "path": "/home/claude/work/shared-fallback/engine/interfaces/electronics.json",
+   "sha256_16": "11f7896ad0d0613b"
+  }
+ },
+ "torch_port": {
+  "geometry": "ENG-TC-02 head top: torch seat M10x1 x 10 at r 25.0, az 0 (seat zt-10 ... zt, modelled at 9.0 mm), 5.2 mm passage from r 25, zt-9.5 to the 30 deg 3 mm outlet (parts_engine.py); the C1 Pc seat is on the same ring r 25 (az 105)",
+  "points_r25": [
+   "tap_mouth_zt-0.5",
+   "tap_mid_zt-4.75",
+   "zt-8.0",
+   "diaphragm_zt-9.5",
+   "zt-11.0"
+  ],
+  "runs": {
+   "A1_NF2b": {
+    "dir": "DC-A1dispp99_tg711_hi_SS316L_L2.5_v352_NF2b",
+    "zt_mm": 176.0574505664048,
+    "event_times_s": {
+     "ARM": 0.001,
+     "rezero1_end": 4.941,
+     "rezero2_end": 19.261,
+     "E0": 22.211,
+     "E1": 22.256,
+     "light": 22.571
+    },
+    "rises": {
+     "ARM->rezero1_end": {
+      "t_s": [
+       0.001,
+       4.941
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 0.506,
+       "tap_mid_zt-4.75": 0.582,
+       "zt-8.0": 0.718,
+       "diaphragm_zt-9.5": 0.804,
+       "zt-11.0": 0.908
+      },
+      "dT_K_min_max": [
+       0.506,
+       0.908
+      ],
+      "reading": "head contribution only; NOT a bound: the local heat of the earlier light and burn in the seat and passage (MISSING) decays over the interval",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "ARM->rezero1_end"
+     },
+     "ARM->E1": {
+      "t_s": [
+       0.001,
+       22.256
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 13.81,
+       "tap_mid_zt-4.75": 14.009,
+       "zt-8.0": 14.339,
+       "diaphragm_zt-9.5": 14.534,
+       "zt-11.0": 14.755
+      },
+      "dT_K_min_max": [
+       13.81,
+       14.755
+      ],
+      "reading": "head contribution only; NOT a bound: the local heat of the earlier light and burn in the seat and passage (MISSING) decays over the interval",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "ARM->E1"
+     },
+     "ARM->light": {
+      "t_s": [
+       0.001,
+       22.571
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 14.0,
+       "tap_mid_zt-4.75": 14.199,
+       "zt-8.0": 14.527,
+       "diaphragm_zt-9.5": 14.721,
+       "zt-11.0": 14.94
+      },
+      "dT_K_min_max": [
+       14.0,
+       14.94
+      ],
+      "reading": "head contribution only; NOT a bound: the local heat of the earlier light and burn in the seat and passage (MISSING) decays over the interval",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "ARM->light"
+     },
+     "rezero1_end->rezero2_end": {
+      "t_s": [
+       4.941,
+       19.261
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 11.263,
+       "tap_mid_zt-4.75": 11.395,
+       "zt-8.0": 11.608,
+       "diaphragm_zt-9.5": 11.729,
+       "zt-11.0": 11.861
+      },
+      "dT_K_min_max": [
+       11.263,
+       11.861
+      ],
+      "reading": "head contribution only; NOT a bound: the local heat of the earlier light and burn in the seat and passage (MISSING) decays over the interval",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "rezero1_end->rezero2_end"
+     },
+     "rezero1_end->E1": {
+      "t_s": [
+       4.941,
+       22.256
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 13.304,
+       "tap_mid_zt-4.75": 13.427,
+       "zt-8.0": 13.621,
+       "diaphragm_zt-9.5": 13.73,
+       "zt-11.0": 13.847
+      },
+      "dT_K_min_max": [
+       13.304,
+       13.847
+      ],
+      "reading": "head contribution only; NOT a bound: the local heat of the earlier light and burn in the seat and passage (MISSING) decays over the interval",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "rezero1_end->E1"
+     },
+     "rezero1_end->light": {
+      "t_s": [
+       4.941,
+       22.571
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 13.494,
+       "tap_mid_zt-4.75": 13.617,
+       "zt-8.0": 13.809,
+       "diaphragm_zt-9.5": 13.916,
+       "zt-11.0": 14.032
+      },
+      "dT_K_min_max": [
+       13.494,
+       14.032
+      ],
+      "reading": "head contribution only; NOT a bound: the local heat of the earlier light and burn in the seat and passage (MISSING) decays over the interval",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "rezero1_end->light"
+     },
+     "rezero2_end->E1": {
+      "t_s": [
+       19.261,
+       22.256
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 2.041,
+       "tap_mid_zt-4.75": 2.032,
+       "zt-8.0": 2.013,
+       "diaphragm_zt-9.5": 2.001,
+       "zt-11.0": 1.987
+      },
+      "dT_K_min_max": [
+       1.987,
+       2.041
+      ],
+      "reading": "head contribution only; NOT a bound: the relight torch heat from E0 (adds) and the decay of the earlier light's local heat (subtracts) are both MISSING",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "rezero2_end->E1"
+     },
+     "rezero2_end->light": {
+      "t_s": [
+       19.261,
+       22.571
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 2.232,
+       "tap_mid_zt-4.75": 2.222,
+       "zt-8.0": 2.201,
+       "diaphragm_zt-9.5": 2.187,
+       "zt-11.0": 2.172
+      },
+      "dT_K_min_max": [
+       2.172,
+       2.232
+      ],
+      "reading": "head contribution only; NOT a bound: the relight torch heat from E0 (adds) and the decay of the earlier light's local heat (subtracts) are both MISSING",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "rezero2_end->light"
+     }
+    },
+    "T_K_at_events_seat_points": {
+     "ARM": {
+      "tap_mouth_zt-0.5": 293.15,
+      "tap_mid_zt-4.75": 293.15,
+      "zt-8.0": 293.15,
+      "diaphragm_zt-9.5": 293.15,
+      "zt-11.0": 293.15
+     },
+     "rezero1_end": {
+      "tap_mouth_zt-0.5": 293.656,
+      "tap_mid_zt-4.75": 293.732,
+      "zt-8.0": 293.868,
+      "diaphragm_zt-9.5": 293.954,
+      "zt-11.0": 294.058
+     },
+     "rezero2_end": {
+      "tap_mouth_zt-0.5": 304.919,
+      "tap_mid_zt-4.75": 305.127,
+      "zt-8.0": 305.476,
+      "diaphragm_zt-9.5": 305.683,
+      "zt-11.0": 305.918
+     },
+     "E0": {
+      "tap_mouth_zt-0.5": 306.933,
+      "tap_mid_zt-4.75": 307.132,
+      "zt-8.0": 307.462,
+      "diaphragm_zt-9.5": 307.658,
+      "zt-11.0": 307.879
+     },
+     "E1": {
+      "tap_mouth_zt-0.5": 306.96,
+      "tap_mid_zt-4.75": 307.159,
+      "zt-8.0": 307.489,
+      "diaphragm_zt-9.5": 307.684,
+      "zt-11.0": 307.905
+     },
+     "light": {
+      "tap_mouth_zt-0.5": 307.15,
+      "tap_mid_zt-4.75": 307.349,
+      "zt-8.0": 307.677,
+      "diaphragm_zt-9.5": 307.871,
+      "zt-11.0": 308.09
+     }
+    }
+   },
+   "B1_R4_GVLO": {
+    "dir": "DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_R4_GVLO",
+    "zt_mm": 176.09143095590457,
+    "event_times_s": {
+     "ARM": 0.001,
+     "rezero1_end": 23.051,
+     "rezero2_end": 37.370999999999995,
+     "E0": 40.321,
+     "E1": 40.366,
+     "light": 40.681
+    },
+    "rises": {
+     "ARM->rezero1_end": {
+      "t_s": [
+       0.001,
+       23.051
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 20.965,
+       "tap_mid_zt-4.75": 21.627,
+       "zt-8.0": 22.728,
+       "diaphragm_zt-9.5": 23.383,
+       "zt-11.0": 24.127
+      },
+      "dT_K_min_max": [
+       20.965,
+       24.127
+      ],
+      "reading": "head contribution only; NOT a bound: the local heat of the earlier light and burn in the seat and passage (MISSING) decays over the interval",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "ARM->rezero1_end"
+     },
+     "ARM->E1": {
+      "t_s": [
+       0.001,
+       40.366
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 53.294,
+       "tap_mid_zt-4.75": 53.676,
+       "zt-8.0": 54.292,
+       "diaphragm_zt-9.5": 54.653,
+       "zt-11.0": 55.056
+      },
+      "dT_K_min_max": [
+       53.294,
+       55.056
+      ],
+      "reading": "head contribution only; NOT a bound: the local heat of the earlier light and burn in the seat and passage (MISSING) decays over the interval",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "ARM->stand_E1"
+     },
+     "ARM->light": {
+      "t_s": [
+       0.001,
+       40.681
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 53.647,
+       "tap_mid_zt-4.75": 54.022,
+       "zt-8.0": 54.628,
+       "diaphragm_zt-9.5": 54.983,
+       "zt-11.0": 55.379
+      },
+      "dT_K_min_max": [
+       53.647,
+       55.379
+      ],
+      "reading": "head contribution only; NOT a bound: the local heat of the earlier light and burn in the seat and passage (MISSING) decays over the interval",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "ARM->stand_light"
+     },
+     "rezero1_end->rezero2_end": {
+      "t_s": [
+       23.051,
+       37.370999999999995
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 28.666,
+       "tap_mid_zt-4.75": 28.447,
+       "zt-8.0": 28.066,
+       "diaphragm_zt-9.5": 27.833,
+       "zt-11.0": 27.565
+      },
+      "dT_K_min_max": [
+       27.565,
+       28.666
+      ],
+      "reading": "head contribution only; NOT a bound: the local heat of the earlier light and burn in the seat and passage (MISSING) decays over the interval",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "rezero1_end->stand_rezero2_end"
+     },
+     "rezero1_end->E1": {
+      "t_s": [
+       23.051,
+       40.366
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 32.329,
+       "tap_mid_zt-4.75": 32.049,
+       "zt-8.0": 31.564,
+       "diaphragm_zt-9.5": 31.269,
+       "zt-11.0": 30.929
+      },
+      "dT_K_min_max": [
+       30.929,
+       32.329
+      ],
+      "reading": "head contribution only; NOT a bound: the local heat of the earlier light and burn in the seat and passage (MISSING) decays over the interval",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "rezero1_end->stand_E1"
+     },
+     "rezero1_end->light": {
+      "t_s": [
+       23.051,
+       40.681
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 32.681,
+       "tap_mid_zt-4.75": 32.395,
+       "zt-8.0": 31.9,
+       "diaphragm_zt-9.5": 31.599,
+       "zt-11.0": 31.252
+      },
+      "dT_K_min_max": [
+       31.252,
+       32.681
+      ],
+      "reading": "head contribution only; NOT a bound: the local heat of the earlier light and burn in the seat and passage (MISSING) decays over the interval",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "rezero1_end->stand_light"
+     },
+     "rezero2_end->E1": {
+      "t_s": [
+       37.370999999999995,
+       40.366
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 3.663,
+       "tap_mid_zt-4.75": 3.602,
+       "zt-8.0": 3.498,
+       "diaphragm_zt-9.5": 3.436,
+       "zt-11.0": 3.364
+      },
+      "dT_K_min_max": [
+       3.364,
+       3.663
+      ],
+      "reading": "head contribution only; NOT a bound: the relight torch heat from E0 (adds) and the decay of the earlier light's local heat (subtracts) are both MISSING",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "stand_rezero2_end->stand_E1"
+     },
+     "rezero2_end->light": {
+      "t_s": [
+       37.370999999999995,
+       40.681
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 4.016,
+       "tap_mid_zt-4.75": 3.949,
+       "zt-8.0": 3.834,
+       "diaphragm_zt-9.5": 3.766,
+       "zt-11.0": 3.687
+      },
+      "dT_K_min_max": [
+       3.687,
+       4.016
+      ],
+      "reading": "head contribution only; NOT a bound: the relight torch heat from E0 (adds) and the decay of the earlier light's local heat (subtracts) are both MISSING",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "stand_rezero2_end->stand_light"
+     }
+    },
+    "T_K_at_events_seat_points": {
+     "ARM": {
+      "tap_mouth_zt-0.5": 293.15,
+      "tap_mid_zt-4.75": 293.15,
+      "zt-8.0": 293.15,
+      "diaphragm_zt-9.5": 293.15,
+      "zt-11.0": 293.15
+     },
+     "rezero1_end": {
+      "tap_mouth_zt-0.5": 314.115,
+      "tap_mid_zt-4.75": 314.777,
+      "zt-8.0": 315.878,
+      "diaphragm_zt-9.5": 316.533,
+      "zt-11.0": 317.277
+     },
+     "rezero2_end": {
+      "tap_mouth_zt-0.5": 342.781,
+      "tap_mid_zt-4.75": 343.224,
+      "zt-8.0": 343.944,
+      "diaphragm_zt-9.5": 344.367,
+      "zt-11.0": 344.842
+     },
+     "E0": {
+      "tap_mouth_zt-0.5": 346.394,
+      "tap_mid_zt-4.75": 346.776,
+      "zt-8.0": 347.394,
+      "diaphragm_zt-9.5": 347.755,
+      "zt-11.0": 348.16
+     },
+     "E1": {
+      "tap_mouth_zt-0.5": 346.444,
+      "tap_mid_zt-4.75": 346.826,
+      "zt-8.0": 347.442,
+      "diaphragm_zt-9.5": 347.803,
+      "zt-11.0": 348.206
+     },
+     "light": {
+      "tap_mouth_zt-0.5": 346.797,
+      "tap_mid_zt-4.75": 347.172,
+      "zt-8.0": 347.778,
+      "diaphragm_zt-9.5": 348.133,
+      "zt-11.0": 348.529
+     }
+    }
+   },
+   "B1_R4_GVHI": {
+    "dir": "DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_R4_GVHI",
+    "zt_mm": 176.09143095590457,
+    "event_times_s": {
+     "ARM": 0.001,
+     "rezero1_end": 23.051,
+     "rezero2_end": 37.370999999999995,
+     "E0": 40.321,
+     "E1": 40.366,
+     "light": 40.681
+    },
+    "rises": {
+     "ARM->rezero1_end": {
+      "t_s": [
+       0.001,
+       23.051
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 19.713,
+       "tap_mid_zt-4.75": 20.35,
+       "zt-8.0": 21.413,
+       "diaphragm_zt-9.5": 22.045,
+       "zt-11.0": 22.763
+      },
+      "dT_K_min_max": [
+       19.713,
+       22.763
+      ],
+      "reading": "head contribution only; NOT a bound: the local heat of the earlier light and burn in the seat and passage (MISSING) decays over the interval",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "ARM->rezero1_end"
+     },
+     "ARM->E1": {
+      "t_s": [
+       0.001,
+       40.366
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 52.86,
+       "tap_mid_zt-4.75": 53.282,
+       "zt-8.0": 53.969,
+       "diaphragm_zt-9.5": 54.373,
+       "zt-11.0": 54.828
+      },
+      "dT_K_min_max": [
+       52.86,
+       54.828
+      ],
+      "reading": "head contribution only; NOT a bound: the local heat of the earlier light and burn in the seat and passage (MISSING) decays over the interval",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "ARM->stand_E1"
+     },
+     "ARM->light": {
+      "t_s": [
+       0.001,
+       40.681
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 53.269,
+       "tap_mid_zt-4.75": 53.687,
+       "zt-8.0": 54.365,
+       "diaphragm_zt-9.5": 54.764,
+       "zt-11.0": 55.213
+      },
+      "dT_K_min_max": [
+       53.269,
+       55.213
+      ],
+      "reading": "head contribution only; NOT a bound: the local heat of the earlier light and burn in the seat and passage (MISSING) decays over the interval",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "ARM->stand_light"
+     },
+     "rezero1_end->rezero2_end": {
+      "t_s": [
+       23.051,
+       37.370999999999995
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 28.994,
+       "tap_mid_zt-4.75": 28.828,
+       "zt-8.0": 28.538,
+       "diaphragm_zt-9.5": 28.361,
+       "zt-11.0": 28.156
+      },
+      "dT_K_min_max": [
+       28.156,
+       28.994
+      ],
+      "reading": "head contribution only; NOT a bound: the local heat of the earlier light and burn in the seat and passage (MISSING) decays over the interval",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "rezero1_end->stand_rezero2_end"
+     },
+     "rezero1_end->E1": {
+      "t_s": [
+       23.051,
+       40.366
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 33.147,
+       "tap_mid_zt-4.75": 32.932,
+       "zt-8.0": 32.556,
+       "diaphragm_zt-9.5": 32.328,
+       "zt-11.0": 32.065
+      },
+      "dT_K_min_max": [
+       32.065,
+       33.147
+      ],
+      "reading": "head contribution only; NOT a bound: the local heat of the earlier light and burn in the seat and passage (MISSING) decays over the interval",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "rezero1_end->stand_E1"
+     },
+     "rezero1_end->light": {
+      "t_s": [
+       23.051,
+       40.681
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 33.557,
+       "tap_mid_zt-4.75": 33.336,
+       "zt-8.0": 32.952,
+       "diaphragm_zt-9.5": 32.719,
+       "zt-11.0": 32.45
+      },
+      "dT_K_min_max": [
+       32.45,
+       33.557
+      ],
+      "reading": "head contribution only; NOT a bound: the local heat of the earlier light and burn in the seat and passage (MISSING) decays over the interval",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "rezero1_end->stand_light"
+     },
+     "rezero2_end->E1": {
+      "t_s": [
+       37.370999999999995,
+       40.366
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 4.153,
+       "tap_mid_zt-4.75": 4.104,
+       "zt-8.0": 4.018,
+       "diaphragm_zt-9.5": 3.967,
+       "zt-11.0": 3.909
+      },
+      "dT_K_min_max": [
+       3.909,
+       4.153
+      ],
+      "reading": "head contribution only; NOT a bound: the relight torch heat from E0 (adds) and the decay of the earlier light's local heat (subtracts) are both MISSING",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "stand_rezero2_end->stand_E1"
+     },
+     "rezero2_end->light": {
+      "t_s": [
+       37.370999999999995,
+       40.681
+      ],
+      "dT_K_by_depth": {
+       "tap_mouth_zt-0.5": 4.563,
+       "tap_mid_zt-4.75": 4.508,
+       "zt-8.0": 4.414,
+       "diaphragm_zt-9.5": 4.358,
+       "zt-11.0": 4.295
+      },
+      "dT_K_min_max": [
+       4.295,
+       4.563
+      ],
+      "reading": "head contribution only; NOT a bound: the relight torch heat from E0 (adds) and the decay of the earlier light's local heat (subtracts) are both MISSING",
+      "tag": "SIM (F1 point values, A1 / B1 upper-bound runs) / DERIVED",
+      "F1_drift_table_key_checked": "stand_rezero2_end->stand_light"
+     }
+    },
+    "T_K_at_events_seat_points": {
+     "ARM": {
+      "tap_mouth_zt-0.5": 293.15,
+      "tap_mid_zt-4.75": 293.15,
+      "zt-8.0": 293.15,
+      "diaphragm_zt-9.5": 293.15,
+      "zt-11.0": 293.15
+     },
+     "rezero1_end": {
+      "tap_mouth_zt-0.5": 312.863,
+      "tap_mid_zt-4.75": 313.5,
+      "zt-8.0": 314.563,
+      "diaphragm_zt-9.5": 315.195,
+      "zt-11.0": 315.913
+     },
+     "rezero2_end": {
+      "tap_mouth_zt-0.5": 341.857,
+      "tap_mid_zt-4.75": 342.328,
+      "zt-8.0": 343.1,
+      "diaphragm_zt-9.5": 343.556,
+      "zt-11.0": 344.069
+     },
+     "E0": {
+      "tap_mouth_zt-0.5": 345.951,
+      "tap_mid_zt-4.75": 346.374,
+      "zt-8.0": 347.062,
+      "diaphragm_zt-9.5": 347.467,
+      "zt-11.0": 347.922
+     },
+     "E1": {
+      "tap_mouth_zt-0.5": 346.01,
+      "tap_mid_zt-4.75": 346.432,
+      "zt-8.0": 347.119,
+      "diaphragm_zt-9.5": 347.523,
+      "zt-11.0": 347.978
+     },
+     "light": {
+      "tap_mouth_zt-0.5": 346.419,
+      "tap_mid_zt-4.75": 346.837,
+      "zt-8.0": 347.515,
+      "diaphragm_zt-9.5": 347.914,
+      "zt-11.0": 348.363
+     }
+    }
+   }
+  },
+  "MISSING": [
+   "the torch's own heat input to the seat, the 5.2 mm passage and the 3 mm outlet (torch flame / hot gas, E0 -> light and any torch-on time in a burn)",
+   "conduction from the ENG-IG-01 torch body and nose",
+   "the 3-D seat boss (the FE is axisymmetric)",
+   "the temperature of the P_torch transducer itself (TE M3234-000005-070BG on the torch, J901)"
+  ],
+  "what_it_would_take": "Combustion's torch heat input to the passage wall (gas temperature and h, the torch-on schedule) with a 3-D local thermal model of the seat boss and the ENG-IG-01 nose (new FE), or thermocouples at the torch seat and on the ENG-IG-01 body beside the 070BG in B-TC-1 / static fire",
+  "summary": "Torch seat (r 25, az 0) head-metal rise, the five r 25 points zt-0.5 ... zt-11 [SIM / DERIVED]: A1 re-zero2 end -> E1 +1.987 to +2.041 K, re-zero2 end -> light +2.172 to +2.232 K, re-zero1 end -> light +13.494 to +14.032 K, ARM -> light +14.000 to +14.940 K; B1 stand relight GVLO / GVHI: re-zero2 end -> light +3.687 to +4.016 K / +4.295 to +4.563 K, re-zero1 end -> E1 +30.929 to +32.329 K / +32.065 to +33.147 K. These are the head's contribution only, NOT bounds: the local heat in the seat and passage (relight torch from E0, the earlier light and burn decaying), the ENG-IG-01 conduction, the 3-D boss and the 070BG's own temperature are MISSING."
+ },
+ "BL-08": {
+  "part": "ENG-BL-08 P_mid transducer (Kulite XTL-190SM-2000A, C1 chain, U570 comparator)",
+  "location": {
+   "port_xy_mm": [
+    12.58,
+    32.77
+   ],
+   "z_port_mm": 268.0,
+   "r_az": "r 35.1, az 69",
+   "position": "on the V1-V2 mid passage, chord midpoint (r 35.1, az 69)",
+   "above_head_top_mm": 91.9,
+   "module": "FIXED (parts_bleed.py places BL-05 / BL-07 / BL-08 'fixed'; airframe mount TO-DEFINE, ICD-14)",
+   "links_to_engine": "1/8 x 0.028 in 316L fixed line BL-03F and the -2 PTFE / 316 braid crossing hose BL-04 only: no structural conduction path from the head"
+  },
+  "temperature": "MISSING (no Mechanical model covers it; no number given)",
+  "drivers_not_modelled": [
+   "bay air",
+   "radiation from the engine (TC-01 case, TC-02 head, feed parts)",
+   "the airframe mount (ICD-14 TO-DEFINE)",
+   "the bleed N2O with V1 open"
+  ],
+  "what_it_would_take": "a bay thermal model (view factors from the A1 / B1 SIM engine surface fields to BL-07 / BL-08, bay air, the mount once ICD-14 defines it, the purge N2O), or a thermocouple on the BL-08 body in B-TC-1 / static fire and on the A1 vehicle",
+  "for_U570": {
+   "electronics_pmid_comparator_read": {
+    "band_note": "DERIVED comparator Vio only; the transducer zero (after trim) adds the thermal term of section E at the BL-08 temperature (MISSING)",
+    "low_threshold_option": "a threshold near 2.0 bar abs would separate a both-stuck-open bleed (P_mid 3-4 bar abs, Mechanical ESTIMATE) from a vented mid passage (~1 bar abs). With the 140 bar span: Vio band +/- 0.31 bar plus the thermal zero 0.025 bar/C typ (DATASHEET) x the MISSING BL-08 temperature excursion: for a 60 C excursion +/- 1.5 bar. NOT adopted: the separation is not shown; candidate only (see the v2.11 OI-BLEED-DETECT entry)"
+   },
+   "note": "Electronics' thermal-zero term at BL-08 stays MISSING: the low U570 threshold near 2 bar abs is not supported by a Mechanical temperature (lead 253 (7)(v): not credited as detection)"
+  }
+ }
+}

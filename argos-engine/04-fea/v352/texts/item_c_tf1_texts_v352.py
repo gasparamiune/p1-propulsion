@@ -30,15 +30,27 @@ until the lead rules a data update).  C9 (6) and its drawing-text twin are RESTA
 quoted verbatim, ASCII as written: SELECT FIT to the measured TC-01 bore, flag-free band [0.040, 0.0631] mm; the data strings stay
 unedited in v3.5.2, superseded by the drawing note); C4 step 1, C8 open_items[8] and C9 (5) follow it.  Writes
 v352/texts/item_c_tf1_texts_v352_v4.json and the drawing-text set
-v352/texts/jfwd_drawing_texts_v352_v1.json (for 03-cad/v3.5.2/texts/)."""
+v352/texts/jfwd_drawing_texts_v352_v1.json (for 03-cad/v3.5.2/texts/).
+v5 (2026-10-21, lead brief 2026-10-21T08:05:00Z F3 / F4 and the 08:39:41Z relay of REV-COMB-4 R4-02 / R4-10; v4 6b665a03824623dc / json
+13ca091930716950 kept as item_c_tf1_texts_v352_v4.py): C6 (4) and its C9 (4) copy carry the LC-TB70 envelope v2 J-FWD replace rule
+(lc_tb70_envelope_v2.json: Q_JFWD > 60.0 bar abs, the larger of the head peak and the head ESP at the J-FWD periods 0.2-0.5 ms; quantity,
+level, duration, basis and logged signal; not meant for normal lights, R4-10) in place of the v1 'any head excursion above 60.0 bar abs',
+and the TB-state abort set as CONFIRMED (F4: the lead's provisional set plus PC_SENSOR on the HIGH side); C8 open_items gain two items: the
+hardware v1.7 HW-101 action string 'after any Pc above 60 bar abs' is superseded by that rule, and the HW-101 tap-wall strings
+(oxygen_service 'tap-wall v1 MS_y +0.814' and the note's tap-wall sentence, P_torch 102 bar abs TO-CONFIRM) are superseded by tap wall
+v3 (jfwd_tapwall_v352_v3.json: P_torch FA1S 151.04 bar abs uniform, REV-COMB-4 R4-01) (the data strings are not edited; the drawing
+texts supersede them).  Everything else is asserted equal to v4.  Writes v352/texts/item_c_tf1_texts_v352_v5.json and the
+drawing-text set v352/texts/jfwd_drawing_texts_v352_v2.json (v1 872b9637bfcdc6c0 superseded; ENG-HW-101-IN718 gains the replace-rule
+note and the tap-wall note)."""
 import json, hashlib, math, sys
 from pathlib import Path
 import numpy as np
 
 T = Path("/home/claude/work/mechanical/v352/texts")
 EXP = T / "tf1_exposure_v352_v2.json"
-OUT = T / "item_c_tf1_texts_v352_v4.json"
-OUT_DT = T / "jfwd_drawing_texts_v352_v1.json"
+OUT = T / "item_c_tf1_texts_v352_v5.json"
+OUT_DT = T / "jfwd_drawing_texts_v352_v2.json"
+TB7 = Path("/home/claude/work/mechanical/v352/tb70")
 sys.path.insert(0, "/home/claude/work/mechanical/v352/engine/04-fea/src")
 import engmat
 AL = engmat.MATERIALS["AL6061-T6"]
@@ -53,11 +65,15 @@ D3 = Path("/home/claude/work/mechanical/v352/engine/03-cad")
 INP = {"tf1_exposure": (EXP, "d60f5da3ce3e5cb7"), "tf1_exposure_v1": (T / "tf1_exposure_v352_v1.json", "d23e72f089cca33a"),
        "rows_v8": (J / "jfwd_in718_rows_v352_v8.json", "af072cc2e70711ca"), "spring_v5": (J / "jfwd_spring_v352_v5.json", "7d2e27d74f202418"),
        "head_fillet_v2": (J / "jfwd_head_fillet_v352_v2.json", "704f55ecb7a18dea"), "tap_wall_v1": (J / "jfwd_tapwall_v352_v1.json", "bcb21243d57af998"),
+       "tap_wall_v3": (J / "jfwd_tapwall_v352_v3.json", "ef70572ec92b05b0"),
        "K_js5_v3": (J / "jfwd_embed_fit_js5_v352_v3.json", "6ab5d369ef8594ce"), "screw_lcf_v3": (J / "jfwd_screw_lcf_v352_v3.json", "b6ff0ea0f731c7dc"),
        "pq_band_v1": (J / "jfwd_pq_band_v352_v1.json", "1ba3147b42edfeed"), "jf1b_loctite_v1": (J / "jf1b_loctite_v352_v1.json", "2ba9d10745f3f651"),
        "hardware_v1.7": (D3 / "src/data/hardware_v352.json", "c2c7b13d3a0086e3"),
        "rev5_drawing_texts_v1": (T / "rev5_drawing_texts_v352_v1.json", "3eed41f8c4f8a64f"),
-       "item_c_tf1_texts_v3": (T / "item_c_tf1_texts_v352_v3.json", "7d857240da06f4eb")}
+       "item_c_tf1_texts_v3": (T / "item_c_tf1_texts_v352_v3.json", "7d857240da06f4eb"),
+       "item_c_tf1_texts_v4": (T / "item_c_tf1_texts_v352_v4.json", "13ca091930716950"),
+       "jfwd_drawing_texts_v1": (T / "jfwd_drawing_texts_v352_v1.json", "872b9637bfcdc6c0"),
+       "lc_tb70_envelope_v2": (TB7 / "lc_tb70_envelope_v2.json", "7ebd2fd63dc878ef")}
 X = {}
 for k, (p, s16) in INP.items():
     assert sha(p) == s16, (k, p, sha(p))
@@ -65,6 +81,8 @@ for k, (p, s16) in INP.items():
 R8, SP5, HF2, TW1, JS3, LC3, HW, DT = (X[k] for k in ("rows_v8", "spring_v5", "head_fillet_v2", "tap_wall_v1", "K_js5_v3", "screw_lcf_v3",
                                                       "hardware_v1.7", "rev5_drawing_texts_v1"))
 BD, JL, V3 = X["pq_band_v1"], X["jf1b_loctite_v1"], X["item_c_tf1_texts_v3"]
+V4, DT1, EV2 = X["item_c_tf1_texts_v4"], X["jfwd_drawing_texts_v1"], X["lc_tb70_envelope_v2"]
+assert (V4["version"], DT1["version"], EV2["version"]) == ("v4", "v1", "v2")
 assert (R8["version"], SP5["version"], HF2["version"], JS3["version"], LC3["version"], BD["version"]) == ("v8", "v5", "v2", "v3", "v3", "v1")
 assert HW["version"] == "v1.7"
 
@@ -188,6 +206,13 @@ MT1J = HW["rules"]["tightening_methods"]["M-T1J"]
 GSE = {L["pn"]: L for L in DT["gse_tool_lines"]}
 assert set(GSE) == {"ENG-TC-12", "ENG-TC-13"}
 
+JR = EV2["jfwd_rule_v2"]
+JG, JMIN = JR["grid"], JR["basis_in_the_jfwd_rows"]["minimum_at_60bar_nominal_factors"]
+assert JR["level_bar_abs"] == 60.0 and (JG["n_Q_JFWD_above_60_of_896"], JG["n_peak_above_60_of_896"]) == (298, 185)
+assert JMIN == {"MS_y": ["TC-01 ligament (LC2U)", 0.328], "MS_u": ["TC-01 ligament trend 78.6 C", 0.312]}
+assert "transducer output >= 4.75 V = 146.5 bar abs" in EV2["F4_abort_set"]["verdict"] and EV2["F4_abort_set"]["verdict"].startswith("CONFIRMED")
+assert EV2["jfwd_rule_v2_text"].startswith("J-FWD replace rule (LC-TB70 v2): Q_JFWD > 60.0 bar abs at any time in a run")
+
 C = {}
 C["C1_TC01_drawing_callout_rev5"] = (
     "TC-01 drawing, 10x d5.5 J-FWD holes (rev 5): "
@@ -294,16 +319,24 @@ C["C6_founder_action_list_related"] = (
     "19:53:27Z, CHANGELOG 248 (7)): a new spring with each new screw at every J-FWD assembly; removed springs are scrapped (C9 (2)). "
     "(4) POST-ABORT RULE (founder rule, lead 248 (7)): after any case-TC or TB-state abort the J-FWD joint counts as used: the ten "
     "ENG-HW-101-IN718 screws and their HW-170 springs are replaced (new, single-use) and the TC-01 holes (pins GO 5.50 / NO-GO 5.62) and "
-    "the TC-02 taps (M5-6H GO / NO-GO) are gauged before the next run; this stands beside the 60 bar abs rule of the LC-TB70 envelope "
-    "(lc_tb70_envelope_v1.json, unchanged: 'any head excursion above 60.0 bar abs: replace all J-FWD screws (HW-101) and gauge the TC-01 "
-    "holes / TC-02 taps before the next run', the line-231 inspect-or-replace rule in head-trace form). Reason: the post-abort soak "
+    "the TC-02 taps (M5-6H GO / NO-GO) are gauged before the next run. TB-state aborts (CONFIRMED by Mechanical on the lead's provisional "
+    "set of 253 (8), lc_tb70_envelope_v2.json F4_abort_set): HW_OVERPRESSURE, PC_OVERPRESSURE, HARD_START and PC_SENSOR on the HIGH side "
+    "(transducer output >= 4.75 V = 146.5 bar abs), with the case-TC OVER_TEMP abort of F-14. Reason: the post-abort soak "
     f"(ASSUMED shifted history, J-FWD band up to {PA[0]} C GVLO / {PA[1]} C GVHI, jf1b_loctite_v352_v1.json) is not a rows or J-F1b "
-    "state. OPEN (lead CHANGELOG 253 (8), (10); Mechanical's next round, not this re-map): the TB-state aborts are HW_OVERPRESSURE, "
-    "PC_OVERPRESSURE and HARD_START by the lead's PROVISIONAL definition (the case-TC OVER_TEMP abort is in F-14), Mechanical to confirm; "
-    "the 60 bar abs rule is a head-trace threshold, not an abort type, so as written a normal light whose head peak exceeds 60 bar abs "
-    "also triggers it (above 58.1 bar abs the LC-TB70 envelope has only the abnormal bases: Z2 SF 1.0 / 1.5, Z3 FA-1 SF 1.0); 185 of "
-    "896 FA-1 grid head peaks exceed 60 bar abs [SIM grid fraction, not a probability]; whether the rule stands for normal lights stays "
-    "OPEN until REV-COMB-4 says whether those peaks are physical; Electronics states the logged quantity and threshold that detect it.")
+    "state. BESIDE IT, for every run whatever its end (ridden-through FA-1 pulses included), the J-FWD REPLACE RULE of the LC-TB70 envelope "
+    f"v2 (lc_tb70_envelope_v2.json {INP['lc_tb70_envelope_v2'][1]}; it supersedes v1's 'any head excursion above 60.0 bar abs'): when "
+    f"Q_JFWD exceeds {JR['level_bar_abs']} bar abs at any time in a run (Q_JFWD = the larger of the head-end peak and the head-end undamped "
+    "SDOF ESP at the J-FWD periods 0.2-0.5 ms, on the light window and on each excursion window; no minimum duration) the joint counts as "
+    "used: before the next run the line-231 J-FWD inspection (C6 (2) list) and the TC-02 taps gauged (M5-6H GO / NO-GO). Basis: at "
+    f"{JR['level_bar_abs']} bar abs every J-FWD row meets the nominal factors at the LC2 state 78.6 C (minimum MS_y {JMIN['MS_y'][1]:+.3f} "
+    f"{JMIN['MS_y'][0]}, MS_u {JMIN['MS_u'][1]:+.3f} {JMIN['MS_u'][0]}) [SIM / DERIVED]; above it the J-FWD has only the SF 1.0 FA-1 rows "
+    "(line 231). Logged signal: SIL, the plant head pressure (exact); stand, B-DPC-1 DC-restored with C1 (after a no-event noise check, "
+    "TO-VERIFY); flight, the C1 LIGHT_SPIKE raw peak, a lower bound, against Electronics' chain-model threshold (TO-VERIFY). NOT meant for "
+    "normal-light transients (R4-10): a normal light stays at or below MEOP 45 bar abs and reaches Q_JFWD 60 only with a 10-90 % rise "
+    f"below {JG['linear_rise_to_MEOP_held_trips_the_rule_below']['rise_10_90_ms']:.3f} ms [DERIVED]; {JG['n_Q_JFWD_above_60_of_896']} of "
+    f"the 896 FA-1 hard-start bracket cases exceed it, {JG['n_peak_above_60_of_896']} by the head peak alone [SIM grid counts on an "
+    "ASSUMED construct, not rates of normal lights]. OPEN (lead): in flight a flagged first light leaves the relight on a used joint, and "
+    "the line-231 one-off basis covers one Z3 event per J-FWD assembly.")
 C["C7_datasheet_residuals_gland1"] = (
     "Gland-1 FA1S closes at MS +0.082 on FNST's one-side extrusion limit 0.30 mm (1500 psi row, no interpolation), with the full 0.2772 mm "
     "diametral gap taken as one side (nothing centres the plug), entered at the FA-1 fluid bound 93.64 bar abs = 1343 psig (the chart's "
@@ -367,6 +400,44 @@ C8["open_items"] = ["ENG-HW-101-IN718 drawing TO-DRAW (F3 head form; pilot coaxi
                     "TC-02 plug OD band (C9 (6)) RULED (R2-B, 07:37:34Z): select fit to the measured TC-01 bore, flag-free band [0.040, 0.0631] mm; "
                     "the parts / BOM string 'plug 57.20 f7' is not edited, superseded by C9 (6)",
                     "C9 (5) stand T0 rule: the J-FWD rows are at T0 20 C (no hot-day FE run, 249 (2)); the band edge at T0 24 C is information only"]
+HW101_OLD = "after any Pc above 60 bar abs the line-231 J-FWD inspection (C6 (2) list)"
+assert HW101_OLD in H101["action"]
+C8["open_items"].append(f"ENG-HW-101-IN718 action (hardware v1.7, quoted above): '{HW101_OLD}' is SUPERSEDED by the LC-TB70 v2 J-FWD replace "
+                        "rule (C6 (4) / C9 (4): Q_JFWD > 60.0 bar abs, the TC-02 taps gauged as well); the data string is not edited (no CAD "
+                        "change), the drawing text jfwd_drawing_texts_v352_v2 supersedes it")
+# ---- v5 (tap wall v3, REV-COMB-4 R4-01): the hardware v1.7 HW-101 tap-wall strings quote tap wall v1 (P_torch 102 bar abs, TO-CONFIRM)
+TW3 = X["tap_wall_v3"]
+assert TW3["version"] == "v3" and TW3["walls_mm"]["ruled_+/-0.25deg_net_GOVERNING"] == TWW["ruled_+/-0.25deg_net_GOVERNING"]
+TW1g, TW1c, TW3r = TW1["rows"]["3750"]["governing"], TW1["rows"]["3750"]["cases"], TW3["rows"]["3750"]
+TW3g = TW3r["governing"]
+TW3w = TW3g["worst_with_screw_T_sensitivity"]
+assert TW3r["v1_governing_record"]["TC02_thread_T"]["MS_y"] == TW1g["TC02_thread_T"]["MS_y"]
+P_T = round(TW3["inputs"]["P_torch_v2"]["abs_MPa"] * 10, 2)
+assert P_T == 151.04 and TW3r["flags_within_0.05_or_negative"] == [] and TW3["rows"]["4096"]["flags_within_0.05_or_negative"] == []
+F_LIG = min(c["f_kHz"] for c in TW3["R4-01_additions"]["(a)_ligament_lowest_local_natural_frequency"]["cases"].values())
+assert F_LIG == 26.5 and ">= 26 kHz" in TW3["R4-01_additions"]["(a)_ligament_lowest_local_natural_frequency"]["value"]
+assert (TW3g["case"].split("|")[0], TW3g["TC02_thread_T"]["MS_y"], TW3g["TC02_thread_T"]["MS_u"], TW3g["TC02_thread_T"]["T_C"]) == ("SOAK52", 0.67, 0.785, 94.9)
+assert (TW3w["case"].split("|")[0], TW3w["MS_y"], TW3w["T_C"]) == ("SOAK70", 0.275, 158.6)
+H101_OX_OLD = f"tap-wall v1 MS_y {TW1g['TC02_thread_T']['MS_y']:+.3f}"
+H101_NOTE_OLD = (f"Tap wall to the torch passage (jfwd_tapwall_v352_v1.json {INP['tap_wall_v1'][1]}, CALC, wall "
+                 f"{TWW['ruled_+/-0.25deg_net_GOVERNING']} net at +/-0.25 deg): governing {TW1g['case'].split('|')[0]} with 102 bar abs MS_y "
+                 f"{TW1g['TC02_thread_T']['MS_y']:+.3f}, the 75.5 bar FA-1 pulse "
+                 f"{TW1c['SOAK52|FA-1_pulse_75.5bar_abs|ruled_+/-0.25deg_net_GOVERNING']['TC02_thread_T']['MS_y']:+.3f}; P_torch and its "
+                 "distribution TO-CONFIRM (REV-COMB-4).")
+assert H101_OX_OLD in H101["oxygen_service"] and H101_NOTE_OLD in H101["note"] and H101_OX_OLD in C8["ENG-HW-101-IN718"]["oxygen_service"]
+TW3_TXT = (f"P_torch = FA1S {P_T:.2f} bar abs uniform over the passage (REV-COMB-4 R4-01): MS_y {TW3g['TC02_thread_T']['MS_y']:+.3f} / "
+           f"MS_u {TW3g['TC02_thread_T']['MS_u']:+.3f} ({TW3g['case'].split('|')[0]}, TC-02 thread temperature {TW3g['TC02_thread_T']['T_C']} C), "
+           f"MS_y {TW3w['MS_y']:+.3f} with the screw temperature as a sensitivity ({TW3w['case'].split('|')[0]}, {TW3w['T_C']} C), 0 flags")
+TAP_NOTE = (f"TAP WALL TO THE TORCH PASSAGE (tap wall v3, jfwd_tapwall_v352_v3.json {INP['tap_wall_v3'][1]}): the TC-02 wall from the M5 "
+            f"tap to the torch passage (az 18 / 342) is {TWW['ruled_+/-0.25deg_net_GOVERNING']} mm net at the +/-0.25 deg clocking; at "
+            f"{TW3_TXT} [CALC on SIM]; the ligament's lowest local natural frequency is >= {int(F_LIG)} kHz, quasi-static under the "
+            "passage pressure [CALC, ligament edges and span ASSUMED]. SUPERSEDES the hardware v1.7 HW-101 strings "
+            f"'{H101_OX_OLD}' (oxygen_service) and '{H101_NOTE_OLD}' (note).")
+C8["open_items"].append(f"ENG-HW-101-IN718 tap-wall strings (hardware v1.7): oxygen_service (quoted above) '{H101_OX_OLD}' and the note "
+                        f"sentence '{H101_NOTE_OLD}' quote tap wall v1 (P_torch 102 bar abs, TO-CONFIRM) and are SUPERSEDED by tap wall v3 "
+                        f"({TW3_TXT}); the data strings are not edited (no CAD change), the drawing text jfwd_drawing_texts_v352_v2 "
+                        "supersedes them")
+assert TAP_NOTE.isascii() and C8["open_items"][-1].isascii()
 C["C8_jfwd_drawing_texts_rev5"] = C8
 
 # ------------------------------------------------------------------------------------------------ C9: founder texts of the re-map (R2, R8, R10)
@@ -542,7 +613,7 @@ TF1 = (
     "No recalled or estimated value may replace either route. Until one closes, every quoted TC-01 / TC-02 row carries (d) OPEN; (d) "
     "is reported OPEN on the A 175 basis rows, with the A 150 rows beside them.")
 
-out = {"id": "item_c_tf1_texts_v352", "version": "v4", "date": "2026-10-21", "owner": "mechanical", "basis": __doc__.strip(),
+out = {"id": "item_c_tf1_texts_v352", "version": "v5", "date": "2026-10-21", "owner": "mechanical", "basis": __doc__.strip(),
        "inputs": {**{k: {"path": str(p), "sha256_16": s16} for k, (p, s16) in INP.items()},
                   "engmat_AL6061-T6_Fty": AL["Fty"]["src"], "engmat_AL6061-T6_Ftu": AL["Ftu"]["src"]},
        "tags": {"head_fillet_Kt": ("LITERATURE (secondary, via AMESweb citing Pilkey 2005); the Pilkey page and the T-head Kt TO-SOURCE (lead "
@@ -553,7 +624,18 @@ out = {"id": "item_c_tf1_texts_v352", "version": "v4", "date": "2026-10-21", "ow
                 "band": "CALC / DERIVED on relax v8 (the model's scaling of the g 0.078 FE); MF note R4",
                 "T0_24C_band_edge": "INFORMATION, ASSUMED uniform +4 K",
                 "TB_rows": "SIM thermal / ASSUMED sax.py surrogate (tf1_exposure v1 numbers, restated v2)"},
-       "changes_vs_v3": {"inputs": "rows v8, spring v5, head fillet v2, K_js5 v3, screw LCF v3 (tap wall v1 stays, R11); band v1; jf1b_loctite v1; tf1_exposure v2",
+       "changes_vs_v4": {"inputs": ("lc_tb70_envelope_v2.json added (the J-FWD replace rule and the F4 abort set); jfwd_tapwall_v352_v3.json added "
+                                    "(the tap-wall note); v4 json and drawing texts v1 read for the unchanged asserts"),
+                         "C6 (4) / C9 (4)": ("the v1 60 bar abs head-excursion rule replaced by the LC-TB70 v2 J-FWD replace rule (quantity Q_JFWD, level 60.0 bar abs, "
+                                             "no duration, basis, logged signal; not meant for normal lights, R4-10); the TB-state abort set CONFIRMED with PC_SENSOR HIGH (F4); "
+                                             "the OPEN paragraph of v4 closed except the flight consequence (lead)"),
+                         "C8": ("open_items: two items added (the hardware v1.7 HW-101 action string 'after any Pc above 60 bar abs' superseded by the v2 rule; "
+                                "the HW-101 oxygen_service 'tap-wall v1 MS_y +0.814' and the note's tap-wall sentence (P_torch 102 bar abs, TO-CONFIRM) "
+                                "superseded by tap wall v3, P_torch FA1S 151.04 bar abs, REV-COMB-4 R4-01)"),
+                         "drawing_texts_v2": ("ENG-HW-101-IN718 gains jfwd_replace_rule_note_LC-TB70_v2 and tap_wall_note_v3; "
+                                              "assembly_and_founder_rules.post_abort_joint_replacement = C9 (4) v5"),
+                         "unchanged": "every other text and table of v4 (asserted)"},
+       "changes_v3_to_v4_record": {"inputs": "rows v8, spring v5, head fillet v2, K_js5 v3, screw LCF v3 (tap wall v1 stays, R11); band v1; jf1b_loctite v1; tf1_exposure v2",
                          "C1 (g) / (h)": "cite rows v8 (route_i_spring_footprint unchanged from rows v7)",
                          "C4": "step 1 checks the plug OD against the C9 (6) band; step 7 the spring ORIENTED per C9 (1); step 9 springs scrapped, the post-abort rule",
                          "C6": "(3) LCF v3 / head fillet v2 numbers, the Kf 2.2 sign change, the R5 information, path 2 status, HW-170 SINGLE-USE; new (4) post-abort rule",
@@ -588,23 +670,56 @@ for a, b in zip(V3["T-F1_TB_table"], tb_rows):
     assert {k: b[k] for k in a} == a
 cut3, cut4 = V3["T-F1"].index("TB STATE per trial case-abort value A"), TF1.index("EXPOSURE BASIS, TB STATE (RESTATED")
 assert V3["T-F1"][:cut3] == TF1[:cut4], "T-F1 text before the TB paragraph changed"
+# v5 against v4: only C6 (4), C9 (4) and two appended C8 open items change
+for k in C:
+    if k not in ("C6_founder_action_list_related", "C8_jfwd_drawing_texts_rev5", "C9_founder_texts_remap_v352"):
+        assert V4["item_C"][k] == C[k], k
+c6a, c6b = V4["item_C"]["C6_founder_action_list_related"], C["C6_founder_action_list_related"]
+assert c6a[:c6a.index("(4) POST-ABORT RULE")] == c6b[:c6b.index("(4) POST-ABORT RULE")], "C6 (1)-(3) changed"
+c8a = V4["item_C"]["C8_jfwd_drawing_texts_rev5"]
+assert {k: v for k, v in C8.items() if k != "open_items"} == {k: v for k, v in c8a.items() if k != "open_items"} and C8["open_items"][:-2] == c8a["open_items"]
+assert len(C8["open_items"]) == len(c8a["open_items"]) + 2
+c9a = V4["item_C"]["C9_founder_texts_remap_v352"]
+assert set(c9a) == set(C9) and all(c9a[k] == C9[k] for k in C9 if k != "(4)_post_abort_joint_replacement")
+assert C9["(4)_post_abort_joint_replacement"] == c6b[c6b.index("(4) POST-ABORT RULE"):]
+assert (V4["item_C_geometry_checks"], V4["T-F1"], V4["T-F1_TB_table"], V4["T-F1_engmat_10000h_values_used_by_the_cells"], V4["T-F1_exposure_basis_R9"]) == (
+    geo, TF1, tb_rows, eng, {k: R9[k] for k in ("rule", "criteria_status", "abort_value", "closed_abort_search_record")})
+assert "60.0 bar abs: replace all J-FWD screws" not in json.dumps(C) and "185 of 896 FA-1 grid head peaks" not in json.dumps(C)
 # ---- the drawing-text set for 03-cad/v3.5.2/texts/ (subset of C9; nothing in the 03-cad data is edited)
-DTX = {"id": "jfwd_drawing_texts_v352", "version": "v1", "date": "2026-10-21", "owner": "mechanical",
+DTX = {"id": "jfwd_drawing_texts_v352", "version": "v2", "date": "2026-10-21", "owner": "mechanical",
        "basis": ("J-FWD drawing texts of the v3.5.2 re-map (lead 2026-10-21T05:50:45Z R2 / R8 / R10, the TC-02 band restated to the lead "
-                 "ruling R2-B 2026-10-21T07:37:34Z; CHANGELOG 248 (7)), produced by "
-                 "04-fea/v352/texts/item_c_tf1_texts_v352.py v4 from its C9 block; DERIVED / CALC on SIM inputs as tagged there, none of it "
+                 "ruling R2-B 2026-10-21T07:37:34Z; CHANGELOG 248 (7)); v2: the post-abort text carries the LC-TB70 envelope v2 J-FWD "
+                 "replace rule and the confirmed TB-state abort set, and the ENG-HW-101-IN718 entry gains the replace-rule note that "
+                 "supersedes the hardware v1.7 action string 'after any Pc above 60 bar abs' and the tap-wall note (tap wall v3, P_torch "
+                 "FA1S 151.04 bar abs, REV-COMB-4 R4-01) that supersedes the hardware v1.7 tap-wall v1 strings (P_torch 102 bar abs) "
+                 "(v1 872b9637bfcdc6c0 superseded); produced by "
+                 "04-fea/v352/texts/item_c_tf1_texts_v352.py v5 from its C9 block (the two ENG-HW-101-IN718 supersession notes from its "
+                 "C8 block); DERIVED / CALC on SIM inputs as tagged there, none of it "
                  "physical approval.  These texts SUPERSEDE, where they differ, the strings still carried by src/parts_engine.py, "
                  "BOM_v3.5.2.csv / .json and data/hardware_v352.json ('plug 57.20 f7 (-0.030/-0.060)', 'orientation TO-DEFINE', 'reuse of a "
-                 "removed spring TO-RULE'); those files are not edited by this publication (no CAD change; the lead rules any data update)."),
-       "source": {"script": "04-fea/v352/texts/item_c_tf1_texts_v352.py (v4)", "json": "04-fea/v352/texts/item_c_tf1_texts_v352_v4.json"},
+                 "removed spring TO-RULE', the HW-101 'after any Pc above 60 bar abs' and the HW-101 tap-wall v1 strings); those files are "
+                 "not edited by this publication (no CAD change; the lead rules any data update)."),
+       "source": {"script": "04-fea/v352/texts/item_c_tf1_texts_v352.py (v5)", "json": "04-fea/v352/texts/item_c_tf1_texts_v352_v5.json"},
        "ENG-TC-02": {"plug_OD_seat_line_band_R2": C9["(6)_TC-02_select_fit_band_R2"]},
-       "ENG-HW-101-IN718": {"HW-170_orientation_note": C9["(1)_HW-170_orientation"]["drawing_note_ENG-HW-101-IN718_and_HW-170"]},
+       "ENG-HW-101-IN718": {"HW-170_orientation_note": C9["(1)_HW-170_orientation"]["drawing_note_ENG-HW-101-IN718_and_HW-170"],
+                            "jfwd_replace_rule_note_LC-TB70_v2": (
+                                f"J-FWD REPLACE RULE (LC-TB70 envelope v2, lc_tb70_envelope_v2.json {INP['lc_tb70_envelope_v2'][1]}): after any run in which "
+                                "Q_JFWD (the larger of the head-end peak and the head-end undamped SDOF ESP at the J-FWD periods 0.2-0.5 ms) exceeds "
+                                "60.0 bar abs, the line-231 J-FWD inspection (C6 (2) list) and the TC-02 taps gauged (M5-6H GO / NO-GO) before the next "
+                                f"run. SUPERSEDES the hardware v1.7 HW-101 action string '{HW101_OLD}'."),
+                            "tap_wall_note_v3": TAP_NOTE},
        "HW-170": {"orientation_note": C9["(1)_HW-170_orientation"]["drawing_note_ENG-HW-101-IN718_and_HW-170"],
                   "single_use_note": C9["(2)_HW-170_single_use"]},
        "assembly_and_founder_rules": {"C4_step_7_orientation": C9["(1)_HW-170_orientation"]["assembly_step"],
                                       "post_abort_joint_replacement": C9["(4)_post_abort_joint_replacement"],
                                       "J-F1b": C9["(3)_J-F1b"], "stand_T0_cross_reference": C9["(5)_stand_T0_cross_reference"]},
        "analysis_basis_note_R8": C9["(7)_CAD_basis_R8"]}
+for k in ("ENG-TC-02", "HW-170", "analysis_basis_note_R8", "id", "date", "owner"):
+    assert DTX[k] == DT1[k], k
+assert {k: v for k, v in DTX["assembly_and_founder_rules"].items() if k != "post_abort_joint_replacement"} == {
+    k: v for k, v in DT1["assembly_and_founder_rules"].items() if k != "post_abort_joint_replacement"}
+assert DTX["ENG-HW-101-IN718"]["HW-170_orientation_note"] == DT1["ENG-HW-101-IN718"]["HW-170_orientation_note"] and set(DTX) == set(DT1)
+assert set(DTX["ENG-HW-101-IN718"]) == set(DT1["ENG-HW-101-IN718"]) | {"jfwd_replace_rule_note_LC-TB70_v2", "tap_wall_note_v3"}
 s_dt = json.dumps(DTX, indent=1)
 OUT_DT.write_text(s_dt)
 print(OUT_DT, hashlib.sha256(s_dt.encode()).hexdigest()[:16])

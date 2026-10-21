@@ -1,0 +1,4628 @@
+{
+ "id": "jfwd_tapwall_v352",
+ "version": "v3",
+ "date": "2026-10-21",
+ "owner": "mechanical",
+ "basis": "TC-02 J-FWD tap wall to the torch passage: CALC row, v3 (lead 2026-10-21T08:05:00Z F5 and 08:39:41Z item 1; REV-COMB-4 R4-01, MAJOR,\ncloses on this row's publication).  Mechanical, 2026-10-21.  CALC on FEA3D SIM screw forces (rows v8) and SIM temperatures; DERIVED unless\ntagged; SF 1.0 on Fty / Ftu (as the J-FWD rows and the FA-1 rule of CHANGELOG 176).  Not physical approval.  v1 6687d52e4c66f332 / json\nbcb21243d57af998 kept as jfwd_tapwall_v352_v1.py; v2 b7d7aad6eacef440 / json 9f8849412d4419d7 (the file REV-COMB-4 read) kept as\njfwd_tapwall_v352_v2.py.\n\nv3 (what changes; every number of v2 is reproduced and asserted equal to the v2 json):\n - R4-01 (a): the tap ligament's lowest local natural frequency, CALC on bounding beam-strip idealisations of the thin web between the M5\n   tap bore and the d5.2 passage bore (web thickness = the three walls; spans 5.2 mm = the passage bore and 10.4 mm = twice it as the\n   extreme; clamped and simply supported edges ASSUMED; Euler-Bernoulli with a -15 % shear / rotary-inertia allowance ASSUMED; AL6061-T6\n   E(T) engmat LITERATURE-approx, rho 2700 LITERATURE) at the SOAK52 thread and the SOAK70 screw temperatures.\n - R4-01 (b): the passage effects NOT MODELLED, as the reviewer lists them.\n - R4-01 (c): the reviewer's correction text, verbatim, as the published P_torch statement.\n - The reviewer's final numbers (REVIEW-COMBUSTION-R4.md 2908321d7f75d439, r4_torch_passage.json 8cb4b0c80173b88d) are recorded beside\n   the interim basis; the row is unchanged.\n\nv2 (what changed against v1):\n - P_torch: the torch-passage pressure is the FA1S step 151.04 bar abs (15.104 MPa abs = FEA3D's FA1S = DLF 2.0 x the 75.519 FA-1 head\n   peak; gauge 15.002675 MPa) applied UNIFORMLY over the passage at EVERY state of v1 (PRELOAD, SOAK70, SOAK, SOAK52, FA1S), both J-F1\n   columns (3750 N governing, 4096 N information) and the three walls.  Basis [DERIVED by the reviewer on SIM inputs, REV-COMB-4 interim\n   (e)]: a two-segment lossless duct (3 mm x 9.24 mm outlet + 5.2 mm x 48.6 mm passage, closed at the torch seat) driven by the 896 v2.4b\n   head histories, c 150-1200 m/s: tap station max 129.9 bar abs (c 150), torch seat max 148.7, 0 of 896 above 151.04 at any station or\n   c; the pressure rises monotonically from the face to the seat.  The uniform 151.04 therefore bounds every station of that model.  The\n   102 bar abs rule value does NOT cover the passage (up to 48 of 896 above 102 at the tap station): the v1 rows at 75.5 / 90 / 102 bar abs\n   are SUPERSEDED for the passage and are re-run on rows v8 as INFORMATION only.  The ligament (1.5-1.9 mm of AL6061-T6) is ASSUMED\n   quasi-static under the passage pressure (its own period is far below the 0.842 ms minimum 10-90 % rise of the grid), so the peak\n   passage pressure enters as a static load (DLF 1.0 on it, as v1).\n - Screw forces: rows v8 (af072cc2e70711ca, module 62fd8d590ade2875, the published basis: relax v8 on FEA3D-2 envelope v6 + the cD record;\n   resultant-type inputs take every instance including cD, worst-of); v1 was on rows v7 (6113d28b64d0dba5); the governing forces move by\n   <= 0.2 N (tabled).  Temperatures as v1 (js5 cells, TC-02 thread and screw per state).\n - The v1 json is read: every v1 case is reproduced from its own N, T and pressure with this script's formula (exact check) and the v1\n   governing values are quoted beside.\n - The reviewer's own estimate (from the v1 linear terms sigma = sigma_thread + 2.208 x p_g: SOAK52 MS_y +0.67 at the thread T / +0.30 at\n   the screw T; SOAK70 +0.275 at the screw T) is quoted as the REVIEWER'S, beside the row; the row is this run.\n\nAs v1 (unchanged):\nGeometry (rev 5, config.V352_R5 stations: head top z 169.513, injector face z 103.513, J-FWD row z 127.513; parts_engine.py TC-02):\n  M5-6H tap at az 18 (and 342), radial, from the plug OD r 28.6 to r 19.6 (drill 4.2 x 9.0, full thread 8.0); torch passage d 5.2 from\n  (r 25, az 0, z 160.013) to (r 21.5, az 0, z 111.513) (+2.0 run-out).  The closest approach is recomputed here from the two axes and\n  checked against the CAD check v2 (f) wall (1.906-1.922 from the M5 major, probe step 0.016).\n  Wall t (lead F5 of 2026-10-20): 1.64 net at the ruled clocking +/-0.25 deg (index pin in the drill fixture): 1.906 - 0.376 x 0.25 (CAD\n  (f): 0.188 per 0.5 deg) - 0.1765 (hole position 0.05 + tap-to-hole 0.0485 + registration 0.078); 1.54 at +/-0.5 deg (information);\n  1.906 nominal (information).\nLoads:\n  thread radial (wedging) load of the 60 deg ISO thread: F_r = N tan 30 deg (frictionless upper bound), spread uniformly over the engaged\n  length on the pitch cylinder: p_t = F_r / (pi D2_min L_e), D2_min 4.480 (M5-6H), L_e 7.294 (THE ROW, route (i)) (ASSUMED uniform: the\n  closest approach sits about 0.2-0.6 mm above the screw tip, in the last engaged thread, which in tension carries less than the average:\n  TO-VERIFY); N = the IN718 screw force at the 3750 N J-F1 cap (GOVERNING; 4096 N information) per state and instance (the largest).\n  The tap hole is at ambient (dry side of the TC-01 / TC-02 seals: ASSUMED).\n  Combination (bounding, not simultaneous by the timeline): each state's screw force with the passage pressure (a relight pulse on a warm\n  joint for the soak states).\nModel (CALC, ASSUMED conservative): the ligament as the thin side of each hole, Lame hoop at the bore with the outer radius = bore + t:\n  sigma = p_t L(2.5, t) + p_g L(2.6, t), L(a, t) = ((a + t)^2 + a^2) / ((a + t)^2 - a^2); the two hoop stresses are near-perpendicular at the\n  crossing of a radial tap and a near-axial passage, and adding them bounds the von Mises of the biaxial state.  The FA-1 shear V on the\n  screw bears on the tap in the engine-axial direction, perpendicular to the ligament: not added (the bearing row is rows v8 FA1S_tap_bearing).\nMaterial: AL6061-T6 Fty / Ftu (engmat) at FEA3D's TC-02 thread temperature per state; sensitivity at the screw temperature (hotter).",
+ "status": "CALC on SIM; ASSUMED conservative ligament model; negatives SHOWN AS FOUND; not physical approval",
+ "inputs": {
+  "rows_v8_module": {
+   "path": "/home/claude/work/mechanical/v352/jfwd/jfwd_in718_rows_v352.py",
+   "sha256_16": "62fd8d590ade2875",
+   "hub_copy_identical": true
+  },
+  "rows_v8_json": {
+   "path": "/home/claude/work/mechanical/v352/jfwd/jfwd_in718_rows_v352_v8.json",
+   "sha256_16": "af072cc2e70711ca",
+   "hub_copy_identical": true
+  },
+  "tapwall_v1_json": {
+   "path": "/home/claude/work/mechanical/v352/jfwd/jfwd_tapwall_v352_v1.json",
+   "sha256_16": "bcb21243d57af998"
+  },
+  "cad_check_v2": {
+   "path": "/home/claude/work/mechanical/v352/checks/test_rev5_jfwd_v2.json",
+   "sha256_16": "32c41e1e207f9d64"
+  },
+  "D2_min_mm": 4.48,
+  "L_e_mm": 7.294,
+  "pressures_gauge_MPa": {
+   "none": 0.0,
+   "MEOP_45bar_abs": 4.398675,
+   "FA-1_pulse_75.5bar_abs": 7.448675,
+   "FA-1_rule_90bar_abs_QS": 8.898675,
+   "FA-1_rule_102bar_abs_0.25-1ms_parts": 10.098675,
+   "FE_FA1S_15.104MPa_info": 15.002675,
+   "P_torch_FA1S_151.04bar_abs_uniform": 15.002675
+  },
+  "P_torch_v2": {
+   "abs_MPa": 15.104,
+   "gauge_MPa": 15.002675,
+   "basis": "FA1S = DLF 2.0 x 75.519 bar abs (FEA3D FA1S step 15.104 MPa), uniform over the passage (lead F5)"
+  },
+  "reviewer_basis": {
+   "source": "REV-COMB-4 interim 2026-10-21T07:52:49Z item (e), handback text sha256/16 d88da047a6652181 (DERIVED by the reviewer on SIM inputs)",
+   "duct_model": "two-segment lossless duct (3 mm x 9.24 mm outlet + 5.2 mm x 48.6 mm passage, closed at the torch seat), 896 v2.4b head histories, c 150-1200 m/s",
+   "tap_station_max_bar_abs": {
+    "c150": 129.9,
+    "c181": 122.0,
+    "c222": 108.0,
+    "c250-1200": [
+     89.5,
+     118.5
+    ]
+   },
+   "tap_station_cases_above_102_of_896_max": 48,
+   "torch_seat_max_bar_abs": {
+    "c150": 148.7,
+    "c181": 129.8
+   },
+   "cases_above_151.04_of_896": 0,
+   "MEOP_case": "passage dead-ended: uniform at Pc, at most 45 bar abs",
+   "torch_run": "about 3 bar abs in the torch body",
+   "estimate_from_v1_linear_terms": {
+    "formula": "sigma = sigma_thread + 2.208 x p_g",
+    "SOAK52_MS_y_thread_T": 0.67,
+    "SOAK52_MS_y_screw_T": 0.3,
+    "SOAK70_MS_y_screw_T": 0.275,
+    "tag": "the REVIEWER'S estimate (DERIVED by the reviewer), not this row"
+   }
+  },
+  "tapwall_v2_json_reviewed": {
+   "path": "/home/claude/work/mechanical/v352/jfwd/jfwd_tapwall_v352_v2.json",
+   "sha256_16": "9f8849412d4419d7",
+   "script": "/home/claude/work/mechanical/v352/jfwd/jfwd_tapwall_v352_v2.py",
+   "script_sha256_16": "b7d7aad6eacef440",
+   "note": "REV-COMB-4 read this file (R4-01); v3 reproduces its blocks exactly (asserted) and adds R4-01 (a)-(c)"
+  },
+  "REV-COMB-4_final": {
+   "review": {
+    "path": "/home/claude/work/shared-fallback/engine/reviews/REVIEW-COMBUSTION-R4.md",
+    "sha256_16": "2908321d7f75d439"
+   },
+   "torch_passage": {
+    "path": "/home/claude/work/shared-fallback/engine/reviews/combustion/r4/r4_torch_passage.json",
+    "sha256_16": "8cb4b0c80173b88d"
+   },
+   "numbers_DERIVED_by_the_reviewer": {
+    "tap_station_peak_bar_abs": {
+     "c150": 129.85,
+     "c181": 121.96,
+     "c202": 116.61,
+     "c222": 108.0
+    },
+    "tap_station_cases_above_102_of_896": {
+     "c150": 48,
+     "c181": 42,
+     "c202": 36,
+     "c222": 12,
+     "c400-450": 22
+    },
+    "closed_seat_peak_bar_abs_max": 148.72,
+    "cases_above_151.04_any_c_150-1200": 0
+   },
+   "R4-01_on_this_row": "the reviewer's linear-term estimate +0.671 / +0.787 / +0.295 / +0.275 against the row +0.670 / +0.785 / +0.294 / +0.275 (within 0.002); DLF 1.0 accepted without a separate finding (FA1S >= 16 % above the 129.85 linear tap peak, 24 % at c >= 181)"
+  }
+ },
+ "geometry": {
+  "az18": {
+   "axis_distance_mm": 6.9989,
+   "wall_from_M5_major_to_d5.2_mm": 1.8989,
+   "at_tap_r_mm": 21.535,
+   "depth_below_plug_OD_mm": 7.065,
+   "passage_z_mm": 127.357
+  },
+  "az342": {
+   "axis_distance_mm": 6.9989,
+   "wall_from_M5_major_to_d5.2_mm": 1.8989,
+   "at_tap_r_mm": 21.535,
+   "depth_below_plug_OD_mm": 7.065,
+   "passage_z_mm": 127.357
+  },
+  "screw_tip_r_mm": {
+   "deepest (L max, t min, wall min, gap 0)": 20.905,
+   "shallowest (L min, t max, wall max, gap 0.078)": 21.306
+  },
+  "closest_approach_above_tip_mm": {
+   "deepest (L max, t min, wall min, gap 0)": 0.63,
+   "shallowest (L min, t max, wall max, gap 0.078)": 0.229
+  }
+ },
+ "walls_mm": {
+  "ruled_+/-0.25deg_net_GOVERNING": 1.6355,
+  "+/-0.5deg_net_info": 1.5415,
+  "nominal_CAD_info": 1.906
+ },
+ "v1_reproduction": {
+  "cases_reproduced_exactly": 126,
+  "from": "each v1 case's own N, T, pressure and wall"
+ },
+ "rows": {
+  "3750": {
+   "column": "GOVERNING (J-F1 cap)",
+   "screw_forces_rows_v8": {
+    "PRELOAD": {
+     "N_IN718_N": 3750.0,
+     "from": "js5",
+     "T_TC02_thread_C": 20.0,
+     "T_screw_C": 20.0,
+     "instances": {
+      "js5": 3750.0,
+      "(a)": 3750.0,
+      "(a')": 3750.0,
+      "(a'')": 3750.0,
+      "(b2)": 3750.0,
+      "(b1)": 3750.0,
+      "(b2')": 3750.0,
+      "(cD)": 3750.0
+     }
+    },
+    "SOAK70": {
+     "N_IN718_N": 8227.4,
+     "from": "(b2)",
+     "T_TC02_thread_C": 97.7,
+     "T_screw_C": 158.6,
+     "instances": {
+      "js5": 6089.5,
+      "(a)": 6924.9,
+      "(a')": 6008.4,
+      "(a'')": 6004.0,
+      "(b2)": 8227.4,
+      "(b1)": 5992.2,
+      "(b2')": 7888.5,
+      "(cD)": 8219.1
+     }
+    },
+    "SOAK": {
+     "N_IN718_N": 8110.3,
+     "from": "js5",
+     "T_TC02_thread_C": 96.0,
+     "T_screw_C": 127.0,
+     "instances": {
+      "js5": 8110.3,
+      "(a)": 6463.0,
+      "(a')": 6186.7,
+      "(a'')": 5921.0,
+      "(b2)": 5553.4,
+      "(b2) rep": 6854.7,
+      "(b1)": 7116.3,
+      "(b1) rep": 7069.0,
+      "(b2')": 5597.3,
+      "(cD)": 5567.7
+     }
+    },
+    "SOAK52": {
+     "N_IN718_N": 8572.4,
+     "from": "(b2) rep",
+     "T_TC02_thread_C": 94.9,
+     "T_screw_C": 154.1,
+     "instances": {
+      "js5": 7125.6,
+      "(a)": 6244.2,
+      "(a')": 7344.4,
+      "(a'')": 7317.4,
+      "(b2)": 6727.4,
+      "(b2) rep": 8572.4,
+      "(b1)": 5013.8,
+      "(b1) rep": 5973.2,
+      "(b2')": 6409.9,
+      "(cD)": 6727.0
+     }
+    },
+    "FA1S": {
+     "N_IN718_N": 3302.3,
+     "from": "js5",
+     "T_TC02_thread_C": 45.6,
+     "T_screw_C": 45.6,
+     "instances": {
+      "js5": 3302.3,
+      "(a)": 3288.6,
+      "(a')": 3260.1,
+      "(a'')": 3252.1,
+      "(b2)": 2887.2,
+      "(b1)": 3229.8,
+      "(b2')": 3025.1,
+      "(cD)": 2881.3
+     }
+    }
+   },
+   "dN_rows_v8_minus_v1_rows_v7_N": {
+    "PRELOAD": 0.0,
+    "SOAK70": 0.2,
+    "SOAK": 0.1,
+    "SOAK52": 0.2,
+    "FA1S": 0.0
+   },
+   "row_P_torch_FA1S": {
+    "PRELOAD|P_torch_FA1S_151.04bar_abs_uniform|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 3750.0,
+     "from": "js5",
+     "p_thread_MPa": 21.09,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 45.4,
+     "sigma_passage_MPa": 33.1,
+     "sigma_MPa": 78.5,
+     "TC02_thread_T": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 2.056,
+      "MS_u": 2.311
+     },
+     "screw_T_sensitivity": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 2.056,
+      "MS_u": 2.311
+     }
+    },
+    "PRELOAD|P_torch_FA1S_151.04bar_abs_uniform|+/-0.5deg_net_info": {
+     "N_N": 3750.0,
+     "from": "js5",
+     "p_thread_MPa": 21.09,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 47.2,
+     "sigma_passage_MPa": 34.5,
+     "sigma_MPa": 81.8,
+     "TC02_thread_T": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 1.936,
+      "MS_u": 2.18
+     },
+     "screw_T_sensitivity": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 1.936,
+      "MS_u": 2.18
+     }
+    },
+    "PRELOAD|P_torch_FA1S_151.04bar_abs_uniform|nominal_CAD_info": {
+     "N_N": 3750.0,
+     "from": "js5",
+     "p_thread_MPa": 21.09,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 41.1,
+     "sigma_passage_MPa": 30.0,
+     "sigma_MPa": 71.1,
+     "TC02_thread_T": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 2.376,
+      "MS_u": 2.657
+     },
+     "screw_T_sensitivity": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 2.376,
+      "MS_u": 2.657
+     }
+    },
+    "SOAK70|P_torch_FA1S_151.04bar_abs_uniform|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8227.4,
+     "from": "(b2)",
+     "p_thread_MPa": 46.27,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 99.6,
+     "sigma_passage_MPa": 33.1,
+     "sigma_MPa": 132.7,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 0.719,
+      "MS_u": 0.836
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.275,
+      "MS_u": 0.365
+     }
+    },
+    "SOAK70|P_torch_FA1S_151.04bar_abs_uniform|+/-0.5deg_net_info": {
+     "N_N": 8227.4,
+     "from": "(b2)",
+     "p_thread_MPa": 46.27,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 103.6,
+     "sigma_passage_MPa": 34.5,
+     "sigma_MPa": 138.2,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 0.652,
+      "MS_u": 0.764
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.225,
+      "MS_u": 0.311
+     }
+    },
+    "SOAK70|P_torch_FA1S_151.04bar_abs_uniform|nominal_CAD_info": {
+     "N_N": 8227.4,
+     "from": "(b2)",
+     "p_thread_MPa": 46.27,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 90.2,
+     "sigma_passage_MPa": 30.0,
+     "sigma_MPa": 120.2,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 0.898,
+      "MS_u": 1.028
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.408,
+      "MS_u": 0.507
+     }
+    },
+    "SOAK|P_torch_FA1S_151.04bar_abs_uniform|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8110.3,
+     "from": "js5",
+     "p_thread_MPa": 45.61,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 98.1,
+     "sigma_passage_MPa": 33.1,
+     "sigma_MPa": 131.3,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 0.74,
+      "MS_u": 0.859
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.56,
+      "MS_u": 0.655
+     }
+    },
+    "SOAK|P_torch_FA1S_151.04bar_abs_uniform|+/-0.5deg_net_info": {
+     "N_N": 8110.3,
+     "from": "js5",
+     "p_thread_MPa": 45.61,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 102.2,
+     "sigma_passage_MPa": 34.5,
+     "sigma_MPa": 136.7,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 0.671,
+      "MS_u": 0.786
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.499,
+      "MS_u": 0.59
+     }
+    },
+    "SOAK|P_torch_FA1S_151.04bar_abs_uniform|nominal_CAD_info": {
+     "N_N": 8110.3,
+     "from": "js5",
+     "p_thread_MPa": 45.61,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 88.9,
+     "sigma_passage_MPa": 30.0,
+     "sigma_MPa": 118.9,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 0.921,
+      "MS_u": 1.053
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.723,
+      "MS_u": 0.828
+     }
+    },
+    "SOAK52|P_torch_FA1S_151.04bar_abs_uniform|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8572.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 48.21,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 103.7,
+     "sigma_passage_MPa": 33.1,
+     "sigma_MPa": 136.9,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.67,
+      "MS_u": 0.785
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.294,
+      "MS_u": 0.375
+     }
+    },
+    "SOAK52|P_torch_FA1S_151.04bar_abs_uniform|+/-0.5deg_net_info": {
+     "N_N": 8572.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 48.21,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 108.0,
+     "sigma_passage_MPa": 34.5,
+     "sigma_MPa": 142.5,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.604,
+      "MS_u": 0.714
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.243,
+      "MS_u": 0.321
+     }
+    },
+    "SOAK52|P_torch_FA1S_151.04bar_abs_uniform|nominal_CAD_info": {
+     "N_N": 8572.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 48.21,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 94.0,
+     "sigma_passage_MPa": 30.0,
+     "sigma_MPa": 124.0,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.844,
+      "MS_u": 0.971
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.429,
+      "MS_u": 0.518
+     }
+    },
+    "FA1S|P_torch_FA1S_151.04bar_abs_uniform|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 3302.3,
+     "from": "js5",
+     "p_thread_MPa": 18.57,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 40.0,
+     "sigma_passage_MPa": 33.1,
+     "sigma_MPa": 73.1,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.229,
+      "MS_u": 2.483
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.229,
+      "MS_u": 2.483
+     }
+    },
+    "FA1S|P_torch_FA1S_151.04bar_abs_uniform|+/-0.5deg_net_info": {
+     "N_N": 3302.3,
+     "from": "js5",
+     "p_thread_MPa": 18.57,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 41.6,
+     "sigma_passage_MPa": 34.5,
+     "sigma_MPa": 76.1,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.102,
+      "MS_u": 2.345
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.102,
+      "MS_u": 2.345
+     }
+    },
+    "FA1S|P_torch_FA1S_151.04bar_abs_uniform|nominal_CAD_info": {
+     "N_N": 3302.3,
+     "from": "js5",
+     "p_thread_MPa": 18.57,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 36.2,
+     "sigma_passage_MPa": 30.0,
+     "sigma_MPa": 66.2,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.567,
+      "MS_u": 2.847
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.567,
+      "MS_u": 2.847
+     }
+    }
+   },
+   "v1_pressure_set_on_rows_v8_info": {
+    "PRELOAD|none|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 3750.0,
+     "from": "js5",
+     "p_thread_MPa": 21.09,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 45.4,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 45.4,
+     "TC02_thread_T": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 4.288,
+      "MS_u": 4.729
+     },
+     "screw_T_sensitivity": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 4.288,
+      "MS_u": 4.729
+     }
+    },
+    "PRELOAD|none|+/-0.5deg_net_info": {
+     "N_N": 3750.0,
+     "from": "js5",
+     "p_thread_MPa": 21.09,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 47.2,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 47.2,
+     "TC02_thread_T": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 4.081,
+      "MS_u": 4.505
+     },
+     "screw_T_sensitivity": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 4.081,
+      "MS_u": 4.505
+     }
+    },
+    "PRELOAD|none|nominal_CAD_info": {
+     "N_N": 3750.0,
+     "from": "js5",
+     "p_thread_MPa": 21.09,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 41.1,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 41.1,
+     "TC02_thread_T": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 4.837,
+      "MS_u": 5.323
+     },
+     "screw_T_sensitivity": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 4.837,
+      "MS_u": 5.323
+     }
+    },
+    "PRELOAD|MEOP_45bar_abs|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 3750.0,
+     "from": "js5",
+     "p_thread_MPa": 21.09,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 45.4,
+     "sigma_passage_MPa": 9.7,
+     "sigma_MPa": 55.1,
+     "TC02_thread_T": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 3.356,
+      "MS_u": 3.719
+     },
+     "screw_T_sensitivity": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 3.356,
+      "MS_u": 3.719
+     }
+    },
+    "PRELOAD|MEOP_45bar_abs|+/-0.5deg_net_info": {
+     "N_N": 3750.0,
+     "from": "js5",
+     "p_thread_MPa": 21.09,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 47.2,
+     "sigma_passage_MPa": 10.1,
+     "sigma_MPa": 57.4,
+     "TC02_thread_T": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 3.184,
+      "MS_u": 3.533
+     },
+     "screw_T_sensitivity": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 3.184,
+      "MS_u": 3.533
+     }
+    },
+    "PRELOAD|MEOP_45bar_abs|nominal_CAD_info": {
+     "N_N": 3750.0,
+     "from": "js5",
+     "p_thread_MPa": 21.09,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 41.1,
+     "sigma_passage_MPa": 8.8,
+     "sigma_MPa": 49.9,
+     "TC02_thread_T": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 3.809,
+      "MS_u": 4.21
+     },
+     "screw_T_sensitivity": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 3.809,
+      "MS_u": 4.21
+     }
+    },
+    "SOAK70|none|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8227.4,
+     "from": "(b2)",
+     "p_thread_MPa": 46.27,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 99.6,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 99.6,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 1.292,
+      "MS_u": 1.448
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.7,
+      "MS_u": 0.82
+     }
+    },
+    "SOAK70|none|+/-0.5deg_net_info": {
+     "N_N": 8227.4,
+     "from": "(b2)",
+     "p_thread_MPa": 46.27,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 103.6,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 103.6,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 1.202,
+      "MS_u": 1.352
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.633,
+      "MS_u": 0.748
+     }
+    },
+    "SOAK70|none|nominal_CAD_info": {
+     "N_N": 8227.4,
+     "from": "(b2)",
+     "p_thread_MPa": 46.27,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 90.2,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 90.2,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 1.529,
+      "MS_u": 1.702
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.876,
+      "MS_u": 1.008
+     }
+    },
+    "SOAK70|MEOP_45bar_abs|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8227.4,
+     "from": "(b2)",
+     "p_thread_MPa": 46.27,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 99.6,
+     "sigma_passage_MPa": 9.7,
+     "sigma_MPa": 109.3,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 1.088,
+      "MS_u": 1.23
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.549,
+      "MS_u": 0.658
+     }
+    },
+    "SOAK70|MEOP_45bar_abs|+/-0.5deg_net_info": {
+     "N_N": 8227.4,
+     "from": "(b2)",
+     "p_thread_MPa": 46.27,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 103.6,
+     "sigma_passage_MPa": 10.1,
+     "sigma_MPa": 113.8,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 1.006,
+      "MS_u": 1.142
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.488,
+      "MS_u": 0.593
+     }
+    },
+    "SOAK70|MEOP_45bar_abs|nominal_CAD_info": {
+     "N_N": 8227.4,
+     "from": "(b2)",
+     "p_thread_MPa": 46.27,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 90.2,
+     "sigma_passage_MPa": 8.8,
+     "sigma_MPa": 99.0,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 1.305,
+      "MS_u": 1.462
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.709,
+      "MS_u": 0.83
+     }
+    },
+    "SOAK70|FA-1_pulse_75.5bar_abs|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8227.4,
+     "from": "(b2)",
+     "p_thread_MPa": 46.27,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 99.6,
+     "sigma_passage_MPa": 16.5,
+     "sigma_MPa": 116.0,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 0.967,
+      "MS_u": 1.101
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.459,
+      "MS_u": 0.562
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK70|FA-1_pulse_75.5bar_abs|+/-0.5deg_net_info": {
+     "N_N": 8227.4,
+     "from": "(b2)",
+     "p_thread_MPa": 46.27,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 103.6,
+     "sigma_passage_MPa": 17.1,
+     "sigma_MPa": 120.8,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 0.889,
+      "MS_u": 1.018
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.401,
+      "MS_u": 0.5
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK70|FA-1_pulse_75.5bar_abs|nominal_CAD_info": {
+     "N_N": 8227.4,
+     "from": "(b2)",
+     "p_thread_MPa": 46.27,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 90.2,
+     "sigma_passage_MPa": 14.9,
+     "sigma_MPa": 105.1,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 1.171,
+      "MS_u": 1.319
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.61,
+      "MS_u": 0.724
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK70|FA-1_rule_90bar_abs_QS|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8227.4,
+     "from": "(b2)",
+     "p_thread_MPa": 46.27,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 99.6,
+     "sigma_passage_MPa": 19.7,
+     "sigma_MPa": 119.2,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 0.914,
+      "MS_u": 1.044
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.419,
+      "MS_u": 0.52
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK70|FA-1_rule_90bar_abs_QS|+/-0.5deg_net_info": {
+     "N_N": 8227.4,
+     "from": "(b2)",
+     "p_thread_MPa": 46.27,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 103.6,
+     "sigma_passage_MPa": 20.5,
+     "sigma_MPa": 124.1,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 0.839,
+      "MS_u": 0.964
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.364,
+      "MS_u": 0.46
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK70|FA-1_rule_90bar_abs_QS|nominal_CAD_info": {
+     "N_N": 8227.4,
+     "from": "(b2)",
+     "p_thread_MPa": 46.27,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 90.2,
+     "sigma_passage_MPa": 17.8,
+     "sigma_MPa": 108.0,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 1.113,
+      "MS_u": 1.257
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.567,
+      "MS_u": 0.678
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK70|FA-1_rule_102bar_abs_0.25-1ms_parts|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8227.4,
+     "from": "(b2)",
+     "p_thread_MPa": 46.27,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 99.6,
+     "sigma_passage_MPa": 22.3,
+     "sigma_MPa": 121.9,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 0.872,
+      "MS_u": 1.0
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.389,
+      "MS_u": 0.487
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK70|FA-1_rule_102bar_abs_0.25-1ms_parts|+/-0.5deg_net_info": {
+     "N_N": 8227.4,
+     "from": "(b2)",
+     "p_thread_MPa": 46.27,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 103.6,
+     "sigma_passage_MPa": 23.2,
+     "sigma_MPa": 126.9,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 0.799,
+      "MS_u": 0.921
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.334,
+      "MS_u": 0.428
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK70|FA-1_rule_102bar_abs_0.25-1ms_parts|nominal_CAD_info": {
+     "N_N": 8227.4,
+     "from": "(b2)",
+     "p_thread_MPa": 46.27,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 90.2,
+     "sigma_passage_MPa": 20.2,
+     "sigma_MPa": 110.4,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 1.067,
+      "MS_u": 1.208
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.533,
+      "MS_u": 0.641
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK|none|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8110.3,
+     "from": "js5",
+     "p_thread_MPa": 45.61,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 98.1,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 98.1,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 1.327,
+      "MS_u": 1.487
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 1.087,
+      "MS_u": 1.214
+     }
+    },
+    "SOAK|none|+/-0.5deg_net_info": {
+     "N_N": 8110.3,
+     "from": "js5",
+     "p_thread_MPa": 45.61,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 102.2,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 102.2,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 1.236,
+      "MS_u": 1.389
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 1.005,
+      "MS_u": 1.128
+     }
+    },
+    "SOAK|none|nominal_CAD_info": {
+     "N_N": 8110.3,
+     "from": "js5",
+     "p_thread_MPa": 45.61,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 88.9,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 88.9,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 1.569,
+      "MS_u": 1.745
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 1.303,
+      "MS_u": 1.444
+     }
+    },
+    "SOAK|MEOP_45bar_abs|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8110.3,
+     "from": "js5",
+     "p_thread_MPa": 45.61,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 98.1,
+     "sigma_passage_MPa": 9.7,
+     "sigma_MPa": 107.9,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 1.118,
+      "MS_u": 1.263
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.899,
+      "MS_u": 1.015
+     }
+    },
+    "SOAK|MEOP_45bar_abs|+/-0.5deg_net_info": {
+     "N_N": 8110.3,
+     "from": "js5",
+     "p_thread_MPa": 45.61,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 102.2,
+     "sigma_passage_MPa": 10.1,
+     "sigma_MPa": 112.3,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 1.035,
+      "MS_u": 1.174
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.824,
+      "MS_u": 0.936
+     }
+    },
+    "SOAK|MEOP_45bar_abs|nominal_CAD_info": {
+     "N_N": 8110.3,
+     "from": "js5",
+     "p_thread_MPa": 45.61,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 88.9,
+     "sigma_passage_MPa": 8.8,
+     "sigma_MPa": 97.7,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 1.338,
+      "MS_u": 1.498
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 1.096,
+      "MS_u": 1.224
+     }
+    },
+    "SOAK|FA-1_pulse_75.5bar_abs|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8110.3,
+     "from": "js5",
+     "p_thread_MPa": 45.61,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 98.1,
+     "sigma_passage_MPa": 16.5,
+     "sigma_MPa": 114.6,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 0.993,
+      "MS_u": 1.13
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.787,
+      "MS_u": 0.896
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK|FA-1_pulse_75.5bar_abs|+/-0.5deg_net_info": {
+     "N_N": 8110.3,
+     "from": "js5",
+     "p_thread_MPa": 45.61,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 102.2,
+     "sigma_passage_MPa": 17.1,
+     "sigma_MPa": 119.3,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 0.915,
+      "MS_u": 1.046
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.717,
+      "MS_u": 0.822
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK|FA-1_pulse_75.5bar_abs|nominal_CAD_info": {
+     "N_N": 8110.3,
+     "from": "js5",
+     "p_thread_MPa": 45.61,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 88.9,
+     "sigma_passage_MPa": 14.9,
+     "sigma_MPa": 103.8,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 1.2,
+      "MS_u": 1.351
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.973,
+      "MS_u": 1.094
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK|FA-1_rule_90bar_abs_QS|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8110.3,
+     "from": "js5",
+     "p_thread_MPa": 45.61,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 98.1,
+     "sigma_passage_MPa": 19.7,
+     "sigma_MPa": 117.8,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 0.939,
+      "MS_u": 1.072
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.739,
+      "MS_u": 0.845
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK|FA-1_rule_90bar_abs_QS|+/-0.5deg_net_info": {
+     "N_N": 8110.3,
+     "from": "js5",
+     "p_thread_MPa": 45.61,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 102.2,
+     "sigma_passage_MPa": 20.5,
+     "sigma_MPa": 122.6,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 0.863,
+      "MS_u": 0.99
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.67,
+      "MS_u": 0.772
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK|FA-1_rule_90bar_abs_QS|nominal_CAD_info": {
+     "N_N": 8110.3,
+     "from": "js5",
+     "p_thread_MPa": 45.61,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 88.9,
+     "sigma_passage_MPa": 17.8,
+     "sigma_MPa": 106.7,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 1.141,
+      "MS_u": 1.287
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.919,
+      "MS_u": 1.037
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK|FA-1_rule_102bar_abs_0.25-1ms_parts|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8110.3,
+     "from": "js5",
+     "p_thread_MPa": 45.61,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 98.1,
+     "sigma_passage_MPa": 22.3,
+     "sigma_MPa": 120.5,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 0.896,
+      "MS_u": 1.026
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.7,
+      "MS_u": 0.804
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK|FA-1_rule_102bar_abs_0.25-1ms_parts|+/-0.5deg_net_info": {
+     "N_N": 8110.3,
+     "from": "js5",
+     "p_thread_MPa": 45.61,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 102.2,
+     "sigma_passage_MPa": 23.2,
+     "sigma_MPa": 125.4,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 0.822,
+      "MS_u": 0.946
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.633,
+      "MS_u": 0.733
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK|FA-1_rule_102bar_abs_0.25-1ms_parts|nominal_CAD_info": {
+     "N_N": 8110.3,
+     "from": "js5",
+     "p_thread_MPa": 45.61,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 88.9,
+     "sigma_passage_MPa": 20.2,
+     "sigma_MPa": 109.1,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 1.094,
+      "MS_u": 1.237
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.877,
+      "MS_u": 0.992
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK52|none|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8572.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 48.21,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 103.7,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 103.7,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 1.204,
+      "MS_u": 1.355
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.707,
+      "MS_u": 0.815
+     }
+    },
+    "SOAK52|none|+/-0.5deg_net_info": {
+     "N_N": 8572.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 48.21,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 108.0,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 108.0,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 1.117,
+      "MS_u": 1.263
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.641,
+      "MS_u": 0.743
+     }
+    },
+    "SOAK52|none|nominal_CAD_info": {
+     "N_N": 8572.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 48.21,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 94.0,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 94.0,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 1.432,
+      "MS_u": 1.599
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.885,
+      "MS_u": 1.003
+     }
+    },
+    "SOAK52|MEOP_45bar_abs|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8572.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 48.21,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 103.7,
+     "sigma_passage_MPa": 9.7,
+     "sigma_MPa": 113.5,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 1.015,
+      "MS_u": 1.153
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.561,
+      "MS_u": 0.659
+     }
+    },
+    "SOAK52|MEOP_45bar_abs|+/-0.5deg_net_info": {
+     "N_N": 8572.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 48.21,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 108.0,
+     "sigma_passage_MPa": 10.1,
+     "sigma_MPa": 118.1,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.936,
+      "MS_u": 1.069
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.5,
+      "MS_u": 0.594
+     }
+    },
+    "SOAK52|MEOP_45bar_abs|nominal_CAD_info": {
+     "N_N": 8572.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 48.21,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 94.0,
+     "sigma_passage_MPa": 8.8,
+     "sigma_MPa": 102.8,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 1.224,
+      "MS_u": 1.377
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.723,
+      "MS_u": 0.831
+     }
+    },
+    "SOAK52|FA-1_pulse_75.5bar_abs|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8572.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 48.21,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 103.7,
+     "sigma_passage_MPa": 16.5,
+     "sigma_MPa": 120.2,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.902,
+      "MS_u": 1.032
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.474,
+      "MS_u": 0.566
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK52|FA-1_pulse_75.5bar_abs|+/-0.5deg_net_info": {
+     "N_N": 8572.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 48.21,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 108.0,
+     "sigma_passage_MPa": 17.1,
+     "sigma_MPa": 125.1,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.827,
+      "MS_u": 0.953
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.416,
+      "MS_u": 0.505
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK52|FA-1_pulse_75.5bar_abs|nominal_CAD_info": {
+     "N_N": 8572.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 48.21,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 94.0,
+     "sigma_passage_MPa": 14.9,
+     "sigma_MPa": 108.9,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 1.1,
+      "MS_u": 1.244
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.627,
+      "MS_u": 0.729
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK52|FA-1_rule_90bar_abs_QS|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8572.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 48.21,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 103.7,
+     "sigma_passage_MPa": 19.7,
+     "sigma_MPa": 123.4,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.852,
+      "MS_u": 0.98
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.435,
+      "MS_u": 0.525
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK52|FA-1_rule_90bar_abs_QS|+/-0.5deg_net_info": {
+     "N_N": 8572.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 48.21,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 108.0,
+     "sigma_passage_MPa": 20.5,
+     "sigma_MPa": 128.5,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.78,
+      "MS_u": 0.902
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.379,
+      "MS_u": 0.466
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK52|FA-1_rule_90bar_abs_QS|nominal_CAD_info": {
+     "N_N": 8572.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 48.21,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 94.0,
+     "sigma_passage_MPa": 17.8,
+     "sigma_MPa": 111.8,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 1.045,
+      "MS_u": 1.186
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.585,
+      "MS_u": 0.684
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK52|FA-1_rule_102bar_abs_0.25-1ms_parts|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8572.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 48.21,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 103.7,
+     "sigma_passage_MPa": 22.3,
+     "sigma_MPa": 126.1,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.814,
+      "MS_u": 0.938
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.405,
+      "MS_u": 0.493
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK52|FA-1_rule_102bar_abs_0.25-1ms_parts|+/-0.5deg_net_info": {
+     "N_N": 8572.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 48.21,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 108.0,
+     "sigma_passage_MPa": 23.2,
+     "sigma_MPa": 131.2,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.742,
+      "MS_u": 0.862
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.35,
+      "MS_u": 0.435
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK52|FA-1_rule_102bar_abs_0.25-1ms_parts|nominal_CAD_info": {
+     "N_N": 8572.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 48.21,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 94.0,
+     "sigma_passage_MPa": 20.2,
+     "sigma_MPa": 114.2,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 1.002,
+      "MS_u": 1.14
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.551,
+      "MS_u": 0.649
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "FA1S|FA-1_pulse_75.5bar_abs|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 3302.3,
+     "from": "js5",
+     "p_thread_MPa": 18.57,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 40.0,
+     "sigma_passage_MPa": 16.5,
+     "sigma_MPa": 56.4,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 3.185,
+      "MS_u": 3.513
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 3.185,
+      "MS_u": 3.513
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "FA1S|FA-1_pulse_75.5bar_abs|+/-0.5deg_net_info": {
+     "N_N": 3302.3,
+     "from": "js5",
+     "p_thread_MPa": 18.57,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 41.6,
+     "sigma_passage_MPa": 17.1,
+     "sigma_MPa": 58.7,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 3.02,
+      "MS_u": 3.335
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 3.02,
+      "MS_u": 3.335
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "FA1S|FA-1_pulse_75.5bar_abs|nominal_CAD_info": {
+     "N_N": 3302.3,
+     "from": "js5",
+     "p_thread_MPa": 18.57,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 36.2,
+     "sigma_passage_MPa": 14.9,
+     "sigma_MPa": 51.1,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 3.621,
+      "MS_u": 3.984
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 3.621,
+      "MS_u": 3.984
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "FA1S|FA-1_rule_90bar_abs_QS|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 3302.3,
+     "from": "js5",
+     "p_thread_MPa": 18.57,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 40.0,
+     "sigma_passage_MPa": 19.7,
+     "sigma_MPa": 59.6,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.96,
+      "MS_u": 3.271
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.96,
+      "MS_u": 3.271
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "FA1S|FA-1_rule_90bar_abs_QS|+/-0.5deg_net_info": {
+     "N_N": 3302.3,
+     "from": "js5",
+     "p_thread_MPa": 18.57,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 41.6,
+     "sigma_passage_MPa": 20.5,
+     "sigma_MPa": 62.1,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.804,
+      "MS_u": 3.102
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.804,
+      "MS_u": 3.102
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "FA1S|FA-1_rule_90bar_abs_QS|nominal_CAD_info": {
+     "N_N": 3302.3,
+     "from": "js5",
+     "p_thread_MPa": 18.57,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 36.2,
+     "sigma_passage_MPa": 17.8,
+     "sigma_MPa": 54.0,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 3.373,
+      "MS_u": 3.716
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 3.373,
+      "MS_u": 3.716
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "FA1S|FA-1_rule_102bar_abs_0.25-1ms_parts|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 3302.3,
+     "from": "js5",
+     "p_thread_MPa": 18.57,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 40.0,
+     "sigma_passage_MPa": 22.3,
+     "sigma_MPa": 62.3,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.791,
+      "MS_u": 3.089
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.791,
+      "MS_u": 3.089
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "FA1S|FA-1_rule_102bar_abs_0.25-1ms_parts|+/-0.5deg_net_info": {
+     "N_N": 3302.3,
+     "from": "js5",
+     "p_thread_MPa": 18.57,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 41.6,
+     "sigma_passage_MPa": 23.2,
+     "sigma_MPa": 64.8,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.642,
+      "MS_u": 2.928
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.642,
+      "MS_u": 2.928
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "FA1S|FA-1_rule_102bar_abs_0.25-1ms_parts|nominal_CAD_info": {
+     "N_N": 3302.3,
+     "from": "js5",
+     "p_thread_MPa": 18.57,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 36.2,
+     "sigma_passage_MPa": 20.2,
+     "sigma_MPa": 56.4,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 3.187,
+      "MS_u": 3.516
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 3.187,
+      "MS_u": 3.516
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "FA1S|FE_FA1S_15.104MPa_info|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 3302.3,
+     "from": "js5",
+     "p_thread_MPa": 18.57,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 40.0,
+     "sigma_passage_MPa": 33.1,
+     "sigma_MPa": 73.1,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.229,
+      "MS_u": 2.483
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.229,
+      "MS_u": 2.483
+     }
+    },
+    "FA1S|FE_FA1S_15.104MPa_info|+/-0.5deg_net_info": {
+     "N_N": 3302.3,
+     "from": "js5",
+     "p_thread_MPa": 18.57,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 41.6,
+     "sigma_passage_MPa": 34.5,
+     "sigma_MPa": 76.1,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.102,
+      "MS_u": 2.345
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.102,
+      "MS_u": 2.345
+     }
+    },
+    "FA1S|FE_FA1S_15.104MPa_info|nominal_CAD_info": {
+     "N_N": 3302.3,
+     "from": "js5",
+     "p_thread_MPa": 18.57,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 36.2,
+     "sigma_passage_MPa": 30.0,
+     "sigma_MPa": 66.2,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.567,
+      "MS_u": 2.847
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.567,
+      "MS_u": 2.847
+     }
+    }
+   },
+   "governing": {
+    "case": "SOAK52|P_torch_FA1S_151.04bar_abs_uniform|ruled_+/-0.25deg_net_GOVERNING",
+    "N_N": 8572.4,
+    "from": "(b2) rep",
+    "p_thread_MPa": 48.21,
+    "p_passage_gauge_MPa": 15.003,
+    "wall_mm": 1.6355,
+    "sigma_thread_MPa": 103.7,
+    "sigma_passage_MPa": 33.1,
+    "sigma_MPa": 136.9,
+    "TC02_thread_T": {
+     "T_C": 94.9,
+     "Fty_MPa": 228.6,
+     "Ftu_MPa": 244.3,
+     "MS_y": 0.67,
+     "MS_u": 0.785
+    },
+    "screw_T_sensitivity": {
+     "T_C": 154.1,
+     "Fty_MPa": 177.1,
+     "Ftu_MPa": 188.2,
+     "MS_y": 0.294,
+     "MS_u": 0.375
+    },
+    "worst_with_screw_T_sensitivity": {
+     "case": "SOAK70|P_torch_FA1S_151.04bar_abs_uniform|ruled_+/-0.25deg_net_GOVERNING",
+     "T_C": 158.6,
+     "Fty_MPa": 169.2,
+     "Ftu_MPa": 181.2,
+     "MS_y": 0.275,
+     "MS_u": 0.365
+    },
+    "lowest_MS_u_thread_T": {
+     "case": "SOAK52|P_torch_FA1S_151.04bar_abs_uniform|ruled_+/-0.25deg_net_GOVERNING",
+     "T_C": 94.9,
+     "Fty_MPa": 228.6,
+     "Ftu_MPa": 244.3,
+     "MS_y": 0.67,
+     "MS_u": 0.785
+    }
+   },
+   "per_state_GOVERNING_wall": {
+    "PRELOAD": {
+     "N_N": 3750.0,
+     "sigma_MPa": 78.5,
+     "MS_y_thread_T": 2.056,
+     "MS_u_thread_T": 2.311,
+     "MS_y_screw_T": 2.056,
+     "MS_u_screw_T": 2.311
+    },
+    "SOAK70": {
+     "N_N": 8227.4,
+     "sigma_MPa": 132.7,
+     "MS_y_thread_T": 0.719,
+     "MS_u_thread_T": 0.836,
+     "MS_y_screw_T": 0.275,
+     "MS_u_screw_T": 0.365
+    },
+    "SOAK": {
+     "N_N": 8110.3,
+     "sigma_MPa": 131.3,
+     "MS_y_thread_T": 0.74,
+     "MS_u_thread_T": 0.859,
+     "MS_y_screw_T": 0.56,
+     "MS_u_screw_T": 0.655
+    },
+    "SOAK52": {
+     "N_N": 8572.4,
+     "sigma_MPa": 136.9,
+     "MS_y_thread_T": 0.67,
+     "MS_u_thread_T": 0.785,
+     "MS_y_screw_T": 0.294,
+     "MS_u_screw_T": 0.375
+    },
+    "FA1S": {
+     "N_N": 3302.3,
+     "sigma_MPa": 73.1,
+     "MS_y_thread_T": 2.229,
+     "MS_u_thread_T": 2.483,
+     "MS_y_screw_T": 2.229,
+     "MS_u_screw_T": 2.483
+    }
+   },
+   "v1_governing_record": {
+    "case": "SOAK52|FA-1_rule_102bar_abs_0.25-1ms_parts|ruled_+/-0.25deg_net_GOVERNING",
+    "N_N": 8572.2,
+    "from": "(b2) rep",
+    "p_thread_MPa": 48.21,
+    "p_passage_gauge_MPa": 10.099,
+    "wall_mm": 1.6355,
+    "sigma_thread_MPa": 103.7,
+    "sigma_passage_MPa": 22.3,
+    "sigma_MPa": 126.1,
+    "TC02_thread_T": {
+     "T_C": 94.9,
+     "Fty_MPa": 228.6,
+     "Ftu_MPa": 244.3,
+     "MS_y": 0.814,
+     "MS_u": 0.938
+    },
+    "screw_T_sensitivity": {
+     "T_C": 154.1,
+     "Fty_MPa": 177.1,
+     "Ftu_MPa": 188.2,
+     "MS_y": 0.405,
+     "MS_u": 0.493
+    },
+    "worst_with_screw_T_sensitivity": {
+     "case": "SOAK70|FA-1_rule_102bar_abs_0.25-1ms_parts|ruled_+/-0.25deg_net_GOVERNING",
+     "T_C": 158.6,
+     "Fty_MPa": 169.2,
+     "Ftu_MPa": 181.2,
+     "MS_y": 0.389,
+     "MS_u": 0.487
+    }
+   },
+   "flags_within_0.05_or_negative": []
+  },
+  "4096": {
+   "column": "INFORMATION (superseded maximum)",
+   "screw_forces_rows_v8": {
+    "PRELOAD": {
+     "N_IN718_N": 4096.0,
+     "from": "js5",
+     "T_TC02_thread_C": 20.0,
+     "T_screw_C": 20.0,
+     "instances": {
+      "js5": 4096.0,
+      "(a)": 4096.0,
+      "(a')": 4096.0,
+      "(a'')": 4096.0,
+      "(b2)": 4096.0,
+      "(b1)": 4096.0,
+      "(b2')": 4096.0,
+      "(cD)": 4096.0
+     }
+    },
+    "SOAK70": {
+     "N_IN718_N": 8573.4,
+     "from": "(b2)",
+     "T_TC02_thread_C": 97.7,
+     "T_screw_C": 158.6,
+     "instances": {
+      "js5": 6435.5,
+      "(a)": 7270.9,
+      "(a')": 6354.4,
+      "(a'')": 6350.0,
+      "(b2)": 8573.4,
+      "(b1)": 6338.2,
+      "(b2')": 8234.5,
+      "(cD)": 8565.1
+     }
+    },
+    "SOAK": {
+     "N_IN718_N": 8456.3,
+     "from": "js5",
+     "T_TC02_thread_C": 96.0,
+     "T_screw_C": 127.0,
+     "instances": {
+      "js5": 8456.3,
+      "(a)": 6809.0,
+      "(a')": 6532.7,
+      "(a'')": 6267.0,
+      "(b2)": 5899.4,
+      "(b2) rep": 7200.7,
+      "(b1)": 7462.3,
+      "(b1) rep": 7415.0,
+      "(b2')": 5943.3,
+      "(cD)": 5913.7
+     }
+    },
+    "SOAK52": {
+     "N_IN718_N": 8918.4,
+     "from": "(b2) rep",
+     "T_TC02_thread_C": 94.9,
+     "T_screw_C": 154.1,
+     "instances": {
+      "js5": 7471.6,
+      "(a)": 6590.2,
+      "(a')": 7690.4,
+      "(a'')": 7663.4,
+      "(b2)": 7073.4,
+      "(b2) rep": 8918.4,
+      "(b1)": 5359.8,
+      "(b1) rep": 6319.2,
+      "(b2')": 6755.9,
+      "(cD)": 7073.0
+     }
+    },
+    "FA1S": {
+     "N_IN718_N": 3648.3,
+     "from": "js5",
+     "T_TC02_thread_C": 45.6,
+     "T_screw_C": 45.6,
+     "instances": {
+      "js5": 3648.3,
+      "(a)": 3634.6,
+      "(a')": 3606.1,
+      "(a'')": 3598.1,
+      "(b2)": 3233.2,
+      "(b1)": 3575.8,
+      "(b2')": 3371.1,
+      "(cD)": 3227.3
+     }
+    }
+   },
+   "dN_rows_v8_minus_v1_rows_v7_N": {
+    "PRELOAD": 0.0,
+    "SOAK70": 0.2,
+    "SOAK": 0.1,
+    "SOAK52": 0.2,
+    "FA1S": 0.0
+   },
+   "row_P_torch_FA1S": {
+    "PRELOAD|P_torch_FA1S_151.04bar_abs_uniform|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 4096.0,
+     "from": "js5",
+     "p_thread_MPa": 23.04,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 49.6,
+     "sigma_passage_MPa": 33.1,
+     "sigma_MPa": 82.7,
+     "TC02_thread_T": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 1.902,
+      "MS_u": 2.143
+     },
+     "screw_T_sensitivity": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 1.902,
+      "MS_u": 2.143
+     }
+    },
+    "PRELOAD|P_torch_FA1S_151.04bar_abs_uniform|+/-0.5deg_net_info": {
+     "N_N": 4096.0,
+     "from": "js5",
+     "p_thread_MPa": 23.04,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 51.6,
+     "sigma_passage_MPa": 34.5,
+     "sigma_MPa": 86.1,
+     "TC02_thread_T": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 1.787,
+      "MS_u": 2.019
+     },
+     "screw_T_sensitivity": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 1.787,
+      "MS_u": 2.019
+     }
+    },
+    "PRELOAD|P_torch_FA1S_151.04bar_abs_uniform|nominal_CAD_info": {
+     "N_N": 4096.0,
+     "from": "js5",
+     "p_thread_MPa": 23.04,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 44.9,
+     "sigma_passage_MPa": 30.0,
+     "sigma_MPa": 74.9,
+     "TC02_thread_T": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 2.205,
+      "MS_u": 2.472
+     },
+     "screw_T_sensitivity": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 2.205,
+      "MS_u": 2.472
+     }
+    },
+    "SOAK70|P_torch_FA1S_151.04bar_abs_uniform|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8573.4,
+     "from": "(b2)",
+     "p_thread_MPa": 48.22,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 103.8,
+     "sigma_passage_MPa": 33.1,
+     "sigma_MPa": 136.9,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 0.667,
+      "MS_u": 0.78
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.236,
+      "MS_u": 0.323
+     }
+    },
+    "SOAK70|P_torch_FA1S_151.04bar_abs_uniform|+/-0.5deg_net_info": {
+     "N_N": 8573.4,
+     "from": "(b2)",
+     "p_thread_MPa": 48.22,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 108.0,
+     "sigma_passage_MPa": 34.5,
+     "sigma_MPa": 142.5,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 0.601,
+      "MS_u": 0.71
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.188,
+      "MS_u": 0.271
+     }
+    },
+    "SOAK70|P_torch_FA1S_151.04bar_abs_uniform|nominal_CAD_info": {
+     "N_N": 8573.4,
+     "from": "(b2)",
+     "p_thread_MPa": 48.22,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 94.0,
+     "sigma_passage_MPa": 30.0,
+     "sigma_MPa": 124.0,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 0.84,
+      "MS_u": 0.966
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.365,
+      "MS_u": 0.461
+     }
+    },
+    "SOAK|P_torch_FA1S_151.04bar_abs_uniform|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8456.3,
+     "from": "js5",
+     "p_thread_MPa": 47.56,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 102.3,
+     "sigma_passage_MPa": 33.1,
+     "sigma_MPa": 135.5,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 0.686,
+      "MS_u": 0.801
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.512,
+      "MS_u": 0.604
+     }
+    },
+    "SOAK|P_torch_FA1S_151.04bar_abs_uniform|+/-0.5deg_net_info": {
+     "N_N": 8456.3,
+     "from": "js5",
+     "p_thread_MPa": 47.56,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 106.5,
+     "sigma_passage_MPa": 34.5,
+     "sigma_MPa": 141.0,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 0.62,
+      "MS_u": 0.731
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.452,
+      "MS_u": 0.541
+     }
+    },
+    "SOAK|P_torch_FA1S_151.04bar_abs_uniform|nominal_CAD_info": {
+     "N_N": 8456.3,
+     "from": "js5",
+     "p_thread_MPa": 47.56,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 92.7,
+     "sigma_passage_MPa": 30.0,
+     "sigma_MPa": 122.7,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 0.862,
+      "MS_u": 0.989
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.669,
+      "MS_u": 0.771
+     }
+    },
+    "SOAK52|P_torch_FA1S_151.04bar_abs_uniform|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8918.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 50.16,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 107.9,
+     "sigma_passage_MPa": 33.1,
+     "sigma_MPa": 141.1,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.62,
+      "MS_u": 0.732
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.256,
+      "MS_u": 0.334
+     }
+    },
+    "SOAK52|P_torch_FA1S_151.04bar_abs_uniform|+/-0.5deg_net_info": {
+     "N_N": 8918.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 50.16,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 112.3,
+     "sigma_passage_MPa": 34.5,
+     "sigma_MPa": 146.9,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.557,
+      "MS_u": 0.664
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.206,
+      "MS_u": 0.282
+     }
+    },
+    "SOAK52|P_torch_FA1S_151.04bar_abs_uniform|nominal_CAD_info": {
+     "N_N": 8918.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 50.16,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 97.8,
+     "sigma_passage_MPa": 30.0,
+     "sigma_MPa": 127.8,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.789,
+      "MS_u": 0.912
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.386,
+      "MS_u": 0.473
+     }
+    },
+    "FA1S|P_torch_FA1S_151.04bar_abs_uniform|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 3648.3,
+     "from": "js5",
+     "p_thread_MPa": 20.52,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 44.2,
+     "sigma_passage_MPa": 33.1,
+     "sigma_MPa": 77.3,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.054,
+      "MS_u": 2.294
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.054,
+      "MS_u": 2.294
+     }
+    },
+    "FA1S|P_torch_FA1S_151.04bar_abs_uniform|+/-0.5deg_net_info": {
+     "N_N": 3648.3,
+     "from": "js5",
+     "p_thread_MPa": 20.52,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 46.0,
+     "sigma_passage_MPa": 34.5,
+     "sigma_MPa": 80.5,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 1.934,
+      "MS_u": 2.164
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 1.934,
+      "MS_u": 2.164
+     }
+    },
+    "FA1S|P_torch_FA1S_151.04bar_abs_uniform|nominal_CAD_info": {
+     "N_N": 3648.3,
+     "from": "js5",
+     "p_thread_MPa": 20.52,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 40.0,
+     "sigma_passage_MPa": 30.0,
+     "sigma_MPa": 70.0,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.374,
+      "MS_u": 2.639
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.374,
+      "MS_u": 2.639
+     }
+    }
+   },
+   "v1_pressure_set_on_rows_v8_info": {
+    "PRELOAD|none|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 4096.0,
+     "from": "js5",
+     "p_thread_MPa": 23.04,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 49.6,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 49.6,
+     "TC02_thread_T": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 3.842,
+      "MS_u": 4.245
+     },
+     "screw_T_sensitivity": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 3.842,
+      "MS_u": 4.245
+     }
+    },
+    "PRELOAD|none|+/-0.5deg_net_info": {
+     "N_N": 4096.0,
+     "from": "js5",
+     "p_thread_MPa": 23.04,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 51.6,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 51.6,
+     "TC02_thread_T": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 3.652,
+      "MS_u": 4.04
+     },
+     "screw_T_sensitivity": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 3.652,
+      "MS_u": 4.04
+     }
+    },
+    "PRELOAD|none|nominal_CAD_info": {
+     "N_N": 4096.0,
+     "from": "js5",
+     "p_thread_MPa": 23.04,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 44.9,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 44.9,
+     "TC02_thread_T": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 4.344,
+      "MS_u": 4.789
+     },
+     "screw_T_sensitivity": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 4.344,
+      "MS_u": 4.789
+     }
+    },
+    "PRELOAD|MEOP_45bar_abs|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 4096.0,
+     "from": "js5",
+     "p_thread_MPa": 23.04,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 49.6,
+     "sigma_passage_MPa": 9.7,
+     "sigma_MPa": 59.3,
+     "TC02_thread_T": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 3.048,
+      "MS_u": 3.385
+     },
+     "screw_T_sensitivity": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 3.048,
+      "MS_u": 3.385
+     }
+    },
+    "PRELOAD|MEOP_45bar_abs|+/-0.5deg_net_info": {
+     "N_N": 4096.0,
+     "from": "js5",
+     "p_thread_MPa": 23.04,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 51.6,
+     "sigma_passage_MPa": 10.1,
+     "sigma_MPa": 61.7,
+     "TC02_thread_T": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 2.889,
+      "MS_u": 3.213
+     },
+     "screw_T_sensitivity": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 2.889,
+      "MS_u": 3.213
+     }
+    },
+    "PRELOAD|MEOP_45bar_abs|nominal_CAD_info": {
+     "N_N": 4096.0,
+     "from": "js5",
+     "p_thread_MPa": 23.04,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 44.9,
+     "sigma_passage_MPa": 8.8,
+     "sigma_MPa": 53.7,
+     "TC02_thread_T": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 3.469,
+      "MS_u": 3.842
+     },
+     "screw_T_sensitivity": {
+      "T_C": 20.0,
+      "Fty_MPa": 240.0,
+      "Ftu_MPa": 260.0,
+      "MS_y": 3.469,
+      "MS_u": 3.842
+     }
+    },
+    "SOAK70|none|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8573.4,
+     "from": "(b2)",
+     "p_thread_MPa": 48.22,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 103.8,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 103.8,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 1.199,
+      "MS_u": 1.349
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.631,
+      "MS_u": 0.746
+     }
+    },
+    "SOAK70|none|+/-0.5deg_net_info": {
+     "N_N": 8573.4,
+     "from": "(b2)",
+     "p_thread_MPa": 48.22,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 108.0,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 108.0,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 1.113,
+      "MS_u": 1.257
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.567,
+      "MS_u": 0.678
+     }
+    },
+    "SOAK70|none|nominal_CAD_info": {
+     "N_N": 8573.4,
+     "from": "(b2)",
+     "p_thread_MPa": 48.22,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 94.0,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 94.0,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 1.427,
+      "MS_u": 1.592
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.8,
+      "MS_u": 0.927
+     }
+    },
+    "SOAK70|MEOP_45bar_abs|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8573.4,
+     "from": "(b2)",
+     "p_thread_MPa": 48.22,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 103.8,
+     "sigma_passage_MPa": 9.7,
+     "sigma_MPa": 113.5,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 1.011,
+      "MS_u": 1.148
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.491,
+      "MS_u": 0.597
+     }
+    },
+    "SOAK70|MEOP_45bar_abs|+/-0.5deg_net_info": {
+     "N_N": 8573.4,
+     "from": "(b2)",
+     "p_thread_MPa": 48.22,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 108.0,
+     "sigma_passage_MPa": 10.1,
+     "sigma_MPa": 118.1,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 0.932,
+      "MS_u": 1.063
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.433,
+      "MS_u": 0.534
+     }
+    },
+    "SOAK70|MEOP_45bar_abs|nominal_CAD_info": {
+     "N_N": 8573.4,
+     "from": "(b2)",
+     "p_thread_MPa": 48.22,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 94.0,
+     "sigma_passage_MPa": 8.8,
+     "sigma_MPa": 102.8,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 1.22,
+      "MS_u": 1.371
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.646,
+      "MS_u": 0.763
+     }
+    },
+    "SOAK70|FA-1_pulse_75.5bar_abs|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8573.4,
+     "from": "(b2)",
+     "p_thread_MPa": 48.22,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 103.8,
+     "sigma_passage_MPa": 16.5,
+     "sigma_MPa": 120.2,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 0.898,
+      "MS_u": 1.027
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.408,
+      "MS_u": 0.507
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK70|FA-1_pulse_75.5bar_abs|+/-0.5deg_net_info": {
+     "N_N": 8573.4,
+     "from": "(b2)",
+     "p_thread_MPa": 48.22,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 108.0,
+     "sigma_passage_MPa": 17.1,
+     "sigma_MPa": 125.1,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 0.824,
+      "MS_u": 0.948
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.353,
+      "MS_u": 0.448
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK70|FA-1_pulse_75.5bar_abs|nominal_CAD_info": {
+     "N_N": 8573.4,
+     "from": "(b2)",
+     "p_thread_MPa": 48.22,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 94.0,
+     "sigma_passage_MPa": 14.9,
+     "sigma_MPa": 108.9,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 1.095,
+      "MS_u": 1.238
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.554,
+      "MS_u": 0.664
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK70|FA-1_rule_90bar_abs_QS|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8573.4,
+     "from": "(b2)",
+     "p_thread_MPa": 48.22,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 103.8,
+     "sigma_passage_MPa": 19.7,
+     "sigma_MPa": 123.4,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 0.849,
+      "MS_u": 0.975
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.371,
+      "MS_u": 0.468
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK70|FA-1_rule_90bar_abs_QS|+/-0.5deg_net_info": {
+     "N_N": 8573.4,
+     "from": "(b2)",
+     "p_thread_MPa": 48.22,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 108.0,
+     "sigma_passage_MPa": 20.5,
+     "sigma_MPa": 128.5,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 0.776,
+      "MS_u": 0.897
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.317,
+      "MS_u": 0.41
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK70|FA-1_rule_90bar_abs_QS|nominal_CAD_info": {
+     "N_N": 8573.4,
+     "from": "(b2)",
+     "p_thread_MPa": 48.22,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 94.0,
+     "sigma_passage_MPa": 17.8,
+     "sigma_MPa": 111.8,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 1.041,
+      "MS_u": 1.18
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.514,
+      "MS_u": 0.621
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK70|FA-1_rule_102bar_abs_0.25-1ms_parts|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8573.4,
+     "from": "(b2)",
+     "p_thread_MPa": 48.22,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 103.8,
+     "sigma_passage_MPa": 22.3,
+     "sigma_MPa": 126.1,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 0.81,
+      "MS_u": 0.933
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.342,
+      "MS_u": 0.437
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK70|FA-1_rule_102bar_abs_0.25-1ms_parts|+/-0.5deg_net_info": {
+     "N_N": 8573.4,
+     "from": "(b2)",
+     "p_thread_MPa": 48.22,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 108.0,
+     "sigma_passage_MPa": 23.2,
+     "sigma_MPa": 131.2,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 0.739,
+      "MS_u": 0.857
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.29,
+      "MS_u": 0.381
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK70|FA-1_rule_102bar_abs_0.25-1ms_parts|nominal_CAD_info": {
+     "N_N": 8573.4,
+     "from": "(b2)",
+     "p_thread_MPa": 48.22,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 94.0,
+     "sigma_passage_MPa": 20.2,
+     "sigma_MPa": 114.2,
+     "TC02_thread_T": {
+      "T_C": 97.7,
+      "Fty_MPa": 228.2,
+      "Ftu_MPa": 243.7,
+      "MS_y": 0.998,
+      "MS_u": 1.134
+     },
+     "screw_T_sensitivity": {
+      "T_C": 158.6,
+      "Fty_MPa": 169.2,
+      "Ftu_MPa": 181.2,
+      "MS_y": 0.482,
+      "MS_u": 0.587
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK|none|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8456.3,
+     "from": "js5",
+     "p_thread_MPa": 47.56,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 102.3,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 102.3,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 1.232,
+      "MS_u": 1.385
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 1.001,
+      "MS_u": 1.124
+     }
+    },
+    "SOAK|none|+/-0.5deg_net_info": {
+     "N_N": 8456.3,
+     "from": "js5",
+     "p_thread_MPa": 47.56,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 106.5,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 106.5,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 1.145,
+      "MS_u": 1.291
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.923,
+      "MS_u": 1.041
+     }
+    },
+    "SOAK|none|nominal_CAD_info": {
+     "N_N": 8456.3,
+     "from": "js5",
+     "p_thread_MPa": 47.56,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 92.7,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 92.7,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 1.464,
+      "MS_u": 1.632
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 1.209,
+      "MS_u": 1.344
+     }
+    },
+    "SOAK|MEOP_45bar_abs|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8456.3,
+     "from": "js5",
+     "p_thread_MPa": 47.56,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 102.3,
+     "sigma_passage_MPa": 9.7,
+     "sigma_MPa": 112.1,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 1.039,
+      "MS_u": 1.178
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.828,
+      "MS_u": 0.94
+     }
+    },
+    "SOAK|MEOP_45bar_abs|+/-0.5deg_net_info": {
+     "N_N": 8456.3,
+     "from": "js5",
+     "p_thread_MPa": 47.56,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 106.5,
+     "sigma_passage_MPa": 10.1,
+     "sigma_MPa": 116.6,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 0.959,
+      "MS_u": 1.093
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.756,
+      "MS_u": 0.863
+     }
+    },
+    "SOAK|MEOP_45bar_abs|nominal_CAD_info": {
+     "N_N": 8456.3,
+     "from": "js5",
+     "p_thread_MPa": 47.56,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 92.7,
+     "sigma_passage_MPa": 8.8,
+     "sigma_MPa": 101.5,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 1.25,
+      "MS_u": 1.404
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 1.018,
+      "MS_u": 1.141
+     }
+    },
+    "SOAK|FA-1_pulse_75.5bar_abs|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8456.3,
+     "from": "js5",
+     "p_thread_MPa": 47.56,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 102.3,
+     "sigma_passage_MPa": 16.5,
+     "sigma_MPa": 118.8,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 0.923,
+      "MS_u": 1.055
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.724,
+      "MS_u": 0.83
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK|FA-1_pulse_75.5bar_abs|+/-0.5deg_net_info": {
+     "N_N": 8456.3,
+     "from": "js5",
+     "p_thread_MPa": 47.56,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 106.5,
+     "sigma_passage_MPa": 17.1,
+     "sigma_MPa": 123.7,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 0.847,
+      "MS_u": 0.974
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.656,
+      "MS_u": 0.758
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK|FA-1_pulse_75.5bar_abs|nominal_CAD_info": {
+     "N_N": 8456.3,
+     "from": "js5",
+     "p_thread_MPa": 47.56,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 92.7,
+     "sigma_passage_MPa": 14.9,
+     "sigma_MPa": 107.6,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 1.123,
+      "MS_u": 1.268
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.903,
+      "MS_u": 1.02
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK|FA-1_rule_90bar_abs_QS|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8456.3,
+     "from": "js5",
+     "p_thread_MPa": 47.56,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 102.3,
+     "sigma_passage_MPa": 19.7,
+     "sigma_MPa": 122.0,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 0.872,
+      "MS_u": 1.001
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.679,
+      "MS_u": 0.782
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK|FA-1_rule_90bar_abs_QS|+/-0.5deg_net_info": {
+     "N_N": 8456.3,
+     "from": "js5",
+     "p_thread_MPa": 47.56,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 106.5,
+     "sigma_passage_MPa": 20.5,
+     "sigma_MPa": 127.0,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 0.799,
+      "MS_u": 0.922
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.613,
+      "MS_u": 0.712
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK|FA-1_rule_90bar_abs_QS|nominal_CAD_info": {
+     "N_N": 8456.3,
+     "from": "js5",
+     "p_thread_MPa": 47.56,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 92.7,
+     "sigma_passage_MPa": 17.8,
+     "sigma_MPa": 110.5,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 1.067,
+      "MS_u": 1.209
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.854,
+      "MS_u": 0.967
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK|FA-1_rule_102bar_abs_0.25-1ms_parts|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8456.3,
+     "from": "js5",
+     "p_thread_MPa": 47.56,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 102.3,
+     "sigma_passage_MPa": 22.3,
+     "sigma_MPa": 124.6,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 0.833,
+      "MS_u": 0.958
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.643,
+      "MS_u": 0.744
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK|FA-1_rule_102bar_abs_0.25-1ms_parts|+/-0.5deg_net_info": {
+     "N_N": 8456.3,
+     "from": "js5",
+     "p_thread_MPa": 47.56,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 106.5,
+     "sigma_passage_MPa": 23.2,
+     "sigma_MPa": 129.7,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 0.761,
+      "MS_u": 0.881
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.579,
+      "MS_u": 0.675
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK|FA-1_rule_102bar_abs_0.25-1ms_parts|nominal_CAD_info": {
+     "N_N": 8456.3,
+     "from": "js5",
+     "p_thread_MPa": 47.56,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 92.7,
+     "sigma_passage_MPa": 20.2,
+     "sigma_MPa": 112.9,
+     "TC02_thread_T": {
+      "T_C": 96.0,
+      "Fty_MPa": 228.4,
+      "Ftu_MPa": 244.1,
+      "MS_y": 1.023,
+      "MS_u": 1.162
+     },
+     "screw_T_sensitivity": {
+      "T_C": 127.0,
+      "Fty_MPa": 204.8,
+      "Ftu_MPa": 217.3,
+      "MS_y": 0.814,
+      "MS_u": 0.925
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK52|none|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8918.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 50.16,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 107.9,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 107.9,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 1.118,
+      "MS_u": 1.263
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.641,
+      "MS_u": 0.744
+     }
+    },
+    "SOAK52|none|+/-0.5deg_net_info": {
+     "N_N": 8918.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 50.16,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 112.3,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 112.3,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 1.035,
+      "MS_u": 1.175
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.577,
+      "MS_u": 0.676
+     }
+    },
+    "SOAK52|none|nominal_CAD_info": {
+     "N_N": 8918.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 50.16,
+     "p_passage_gauge_MPa": 0.0,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 97.8,
+     "sigma_passage_MPa": 0.0,
+     "sigma_MPa": 97.8,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 1.338,
+      "MS_u": 1.498
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.811,
+      "MS_u": 0.925
+     }
+    },
+    "SOAK52|MEOP_45bar_abs|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8918.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 50.16,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 107.9,
+     "sigma_passage_MPa": 9.7,
+     "sigma_MPa": 117.6,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.943,
+      "MS_u": 1.077
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.506,
+      "MS_u": 0.6
+     }
+    },
+    "SOAK52|MEOP_45bar_abs|+/-0.5deg_net_info": {
+     "N_N": 8918.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 50.16,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 112.3,
+     "sigma_passage_MPa": 10.1,
+     "sigma_MPa": 122.5,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.867,
+      "MS_u": 0.995
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.447,
+      "MS_u": 0.537
+     }
+    },
+    "SOAK52|MEOP_45bar_abs|nominal_CAD_info": {
+     "N_N": 8918.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 50.16,
+     "p_passage_gauge_MPa": 4.399,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 97.8,
+     "sigma_passage_MPa": 8.8,
+     "sigma_MPa": 106.6,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 1.145,
+      "MS_u": 1.292
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.662,
+      "MS_u": 0.766
+     }
+    },
+    "SOAK52|FA-1_pulse_75.5bar_abs|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8918.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 50.16,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 107.9,
+     "sigma_passage_MPa": 16.5,
+     "sigma_MPa": 124.4,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.838,
+      "MS_u": 0.964
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.424,
+      "MS_u": 0.513
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK52|FA-1_pulse_75.5bar_abs|+/-0.5deg_net_info": {
+     "N_N": 8918.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 50.16,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 112.3,
+     "sigma_passage_MPa": 17.1,
+     "sigma_MPa": 129.5,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.766,
+      "MS_u": 0.887
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.368,
+      "MS_u": 0.454
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK52|FA-1_pulse_75.5bar_abs|nominal_CAD_info": {
+     "N_N": 8918.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 50.16,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 97.8,
+     "sigma_passage_MPa": 14.9,
+     "sigma_MPa": 112.7,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 1.029,
+      "MS_u": 1.168
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.572,
+      "MS_u": 0.671
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK52|FA-1_rule_90bar_abs_QS|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8918.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 50.16,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 107.9,
+     "sigma_passage_MPa": 19.7,
+     "sigma_MPa": 127.6,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.792,
+      "MS_u": 0.915
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.388,
+      "MS_u": 0.475
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK52|FA-1_rule_90bar_abs_QS|+/-0.5deg_net_info": {
+     "N_N": 8918.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 50.16,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 112.3,
+     "sigma_passage_MPa": 20.5,
+     "sigma_MPa": 132.8,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.721,
+      "MS_u": 0.839
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.334,
+      "MS_u": 0.417
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK52|FA-1_rule_90bar_abs_QS|nominal_CAD_info": {
+     "N_N": 8918.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 50.16,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 97.8,
+     "sigma_passage_MPa": 17.8,
+     "sigma_MPa": 115.6,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.978,
+      "MS_u": 1.114
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.533,
+      "MS_u": 0.629
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK52|FA-1_rule_102bar_abs_0.25-1ms_parts|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 8918.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 50.16,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 107.9,
+     "sigma_passage_MPa": 22.3,
+     "sigma_MPa": 130.2,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.755,
+      "MS_u": 0.876
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.36,
+      "MS_u": 0.445
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK52|FA-1_rule_102bar_abs_0.25-1ms_parts|+/-0.5deg_net_info": {
+     "N_N": 8918.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 50.16,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 112.3,
+     "sigma_passage_MPa": 23.2,
+     "sigma_MPa": 135.6,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.686,
+      "MS_u": 0.802
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.307,
+      "MS_u": 0.389
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "SOAK52|FA-1_rule_102bar_abs_0.25-1ms_parts|nominal_CAD_info": {
+     "N_N": 8918.4,
+     "from": "(b2) rep",
+     "p_thread_MPa": 50.16,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 97.8,
+     "sigma_passage_MPa": 20.2,
+     "sigma_MPa": 118.0,
+     "TC02_thread_T": {
+      "T_C": 94.9,
+      "Fty_MPa": 228.6,
+      "Ftu_MPa": 244.3,
+      "MS_y": 0.938,
+      "MS_u": 1.071
+     },
+     "screw_T_sensitivity": {
+      "T_C": 154.1,
+      "Fty_MPa": 177.1,
+      "Ftu_MPa": 188.2,
+      "MS_y": 0.502,
+      "MS_u": 0.596
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "FA1S|FA-1_pulse_75.5bar_abs|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 3648.3,
+     "from": "js5",
+     "p_thread_MPa": 20.52,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 44.2,
+     "sigma_passage_MPa": 16.5,
+     "sigma_MPa": 60.6,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.896,
+      "MS_u": 3.201
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.896,
+      "MS_u": 3.201
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "FA1S|FA-1_pulse_75.5bar_abs|+/-0.5deg_net_info": {
+     "N_N": 3648.3,
+     "from": "js5",
+     "p_thread_MPa": 20.52,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 46.0,
+     "sigma_passage_MPa": 17.1,
+     "sigma_MPa": 63.1,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.742,
+      "MS_u": 3.036
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.742,
+      "MS_u": 3.036
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "FA1S|FA-1_pulse_75.5bar_abs|nominal_CAD_info": {
+     "N_N": 3648.3,
+     "from": "js5",
+     "p_thread_MPa": 20.52,
+     "p_passage_gauge_MPa": 7.449,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 40.0,
+     "sigma_passage_MPa": 14.9,
+     "sigma_MPa": 54.9,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 3.302,
+      "MS_u": 3.639
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 3.302,
+      "MS_u": 3.639
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "FA1S|FA-1_rule_90bar_abs_QS|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 3648.3,
+     "from": "js5",
+     "p_thread_MPa": 20.52,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 44.2,
+     "sigma_passage_MPa": 19.7,
+     "sigma_MPa": 63.8,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.7,
+      "MS_u": 2.99
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.7,
+      "MS_u": 2.99
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "FA1S|FA-1_rule_90bar_abs_QS|+/-0.5deg_net_info": {
+     "N_N": 3648.3,
+     "from": "js5",
+     "p_thread_MPa": 20.52,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 46.0,
+     "sigma_passage_MPa": 20.5,
+     "sigma_MPa": 66.4,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.554,
+      "MS_u": 2.833
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.554,
+      "MS_u": 2.833
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "FA1S|FA-1_rule_90bar_abs_QS|nominal_CAD_info": {
+     "N_N": 3648.3,
+     "from": "js5",
+     "p_thread_MPa": 20.52,
+     "p_passage_gauge_MPa": 8.899,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 40.0,
+     "sigma_passage_MPa": 17.8,
+     "sigma_MPa": 57.8,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 3.086,
+      "MS_u": 3.407
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 3.086,
+      "MS_u": 3.407
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "FA1S|FA-1_rule_102bar_abs_0.25-1ms_parts|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 3648.3,
+     "from": "js5",
+     "p_thread_MPa": 20.52,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 44.2,
+     "sigma_passage_MPa": 22.3,
+     "sigma_MPa": 66.5,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.552,
+      "MS_u": 2.831
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.552,
+      "MS_u": 2.831
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "FA1S|FA-1_rule_102bar_abs_0.25-1ms_parts|+/-0.5deg_net_info": {
+     "N_N": 3648.3,
+     "from": "js5",
+     "p_thread_MPa": 20.52,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 46.0,
+     "sigma_passage_MPa": 23.2,
+     "sigma_MPa": 69.2,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.412,
+      "MS_u": 2.68
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.412,
+      "MS_u": 2.68
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "FA1S|FA-1_rule_102bar_abs_0.25-1ms_parts|nominal_CAD_info": {
+     "N_N": 3648.3,
+     "from": "js5",
+     "p_thread_MPa": 20.52,
+     "p_passage_gauge_MPa": 10.099,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 40.0,
+     "sigma_passage_MPa": 20.2,
+     "sigma_MPa": 60.2,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.923,
+      "MS_u": 3.231
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.923,
+      "MS_u": 3.231
+     },
+     "note": "SUPERSEDED for the passage (REV-COMB-4 (e): the FA-1 passage pressure exceeds 75.5 / 90 / 102 bar abs); information"
+    },
+    "FA1S|FE_FA1S_15.104MPa_info|ruled_+/-0.25deg_net_GOVERNING": {
+     "N_N": 3648.3,
+     "from": "js5",
+     "p_thread_MPa": 20.52,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.6355,
+     "sigma_thread_MPa": 44.2,
+     "sigma_passage_MPa": 33.1,
+     "sigma_MPa": 77.3,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.054,
+      "MS_u": 2.294
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.054,
+      "MS_u": 2.294
+     }
+    },
+    "FA1S|FE_FA1S_15.104MPa_info|+/-0.5deg_net_info": {
+     "N_N": 3648.3,
+     "from": "js5",
+     "p_thread_MPa": 20.52,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.5415,
+     "sigma_thread_MPa": 46.0,
+     "sigma_passage_MPa": 34.5,
+     "sigma_MPa": 80.5,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 1.934,
+      "MS_u": 2.164
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 1.934,
+      "MS_u": 2.164
+     }
+    },
+    "FA1S|FE_FA1S_15.104MPa_info|nominal_CAD_info": {
+     "N_N": 3648.3,
+     "from": "js5",
+     "p_thread_MPa": 20.52,
+     "p_passage_gauge_MPa": 15.003,
+     "wall_mm": 1.906,
+     "sigma_thread_MPa": 40.0,
+     "sigma_passage_MPa": 30.0,
+     "sigma_MPa": 70.0,
+     "TC02_thread_T": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.374,
+      "MS_u": 2.639
+     },
+     "screw_T_sensitivity": {
+      "T_C": 45.6,
+      "Fty_MPa": 236.1,
+      "Ftu_MPa": 254.6,
+      "MS_y": 2.374,
+      "MS_u": 2.639
+     }
+    }
+   },
+   "governing": {
+    "case": "SOAK52|P_torch_FA1S_151.04bar_abs_uniform|ruled_+/-0.25deg_net_GOVERNING",
+    "N_N": 8918.4,
+    "from": "(b2) rep",
+    "p_thread_MPa": 50.16,
+    "p_passage_gauge_MPa": 15.003,
+    "wall_mm": 1.6355,
+    "sigma_thread_MPa": 107.9,
+    "sigma_passage_MPa": 33.1,
+    "sigma_MPa": 141.1,
+    "TC02_thread_T": {
+     "T_C": 94.9,
+     "Fty_MPa": 228.6,
+     "Ftu_MPa": 244.3,
+     "MS_y": 0.62,
+     "MS_u": 0.732
+    },
+    "screw_T_sensitivity": {
+     "T_C": 154.1,
+     "Fty_MPa": 177.1,
+     "Ftu_MPa": 188.2,
+     "MS_y": 0.256,
+     "MS_u": 0.334
+    },
+    "worst_with_screw_T_sensitivity": {
+     "case": "SOAK70|P_torch_FA1S_151.04bar_abs_uniform|ruled_+/-0.25deg_net_GOVERNING",
+     "T_C": 158.6,
+     "Fty_MPa": 169.2,
+     "Ftu_MPa": 181.2,
+     "MS_y": 0.236,
+     "MS_u": 0.323
+    },
+    "lowest_MS_u_thread_T": {
+     "case": "SOAK52|P_torch_FA1S_151.04bar_abs_uniform|ruled_+/-0.25deg_net_GOVERNING",
+     "T_C": 94.9,
+     "Fty_MPa": 228.6,
+     "Ftu_MPa": 244.3,
+     "MS_y": 0.62,
+     "MS_u": 0.732
+    }
+   },
+   "per_state_GOVERNING_wall": {
+    "PRELOAD": {
+     "N_N": 4096.0,
+     "sigma_MPa": 82.7,
+     "MS_y_thread_T": 1.902,
+     "MS_u_thread_T": 2.143,
+     "MS_y_screw_T": 1.902,
+     "MS_u_screw_T": 2.143
+    },
+    "SOAK70": {
+     "N_N": 8573.4,
+     "sigma_MPa": 136.9,
+     "MS_y_thread_T": 0.667,
+     "MS_u_thread_T": 0.78,
+     "MS_y_screw_T": 0.236,
+     "MS_u_screw_T": 0.323
+    },
+    "SOAK": {
+     "N_N": 8456.3,
+     "sigma_MPa": 135.5,
+     "MS_y_thread_T": 0.686,
+     "MS_u_thread_T": 0.801,
+     "MS_y_screw_T": 0.512,
+     "MS_u_screw_T": 0.604
+    },
+    "SOAK52": {
+     "N_N": 8918.4,
+     "sigma_MPa": 141.1,
+     "MS_y_thread_T": 0.62,
+     "MS_u_thread_T": 0.732,
+     "MS_y_screw_T": 0.256,
+     "MS_u_screw_T": 0.334
+    },
+    "FA1S": {
+     "N_N": 3648.3,
+     "sigma_MPa": 77.3,
+     "MS_y_thread_T": 2.054,
+     "MS_u_thread_T": 2.294,
+     "MS_y_screw_T": 2.054,
+     "MS_u_screw_T": 2.294
+    }
+   },
+   "v1_governing_record": {
+    "case": "SOAK52|FA-1_rule_102bar_abs_0.25-1ms_parts|ruled_+/-0.25deg_net_GOVERNING",
+    "N_N": 8918.2,
+    "from": "(b2) rep",
+    "p_thread_MPa": 50.16,
+    "p_passage_gauge_MPa": 10.099,
+    "wall_mm": 1.6355,
+    "sigma_thread_MPa": 107.9,
+    "sigma_passage_MPa": 22.3,
+    "sigma_MPa": 130.2,
+    "TC02_thread_T": {
+     "T_C": 94.9,
+     "Fty_MPa": 228.6,
+     "Ftu_MPa": 244.3,
+     "MS_y": 0.755,
+     "MS_u": 0.876
+    },
+    "screw_T_sensitivity": {
+     "T_C": 154.1,
+     "Fty_MPa": 177.1,
+     "Ftu_MPa": 188.2,
+     "MS_y": 0.36,
+     "MS_u": 0.445
+    },
+    "worst_with_screw_T_sensitivity": {
+     "case": "SOAK70|FA-1_rule_102bar_abs_0.25-1ms_parts|ruled_+/-0.25deg_net_GOVERNING",
+     "T_C": 158.6,
+     "Fty_MPa": 169.2,
+     "Ftu_MPa": 181.2,
+     "MS_y": 0.342,
+     "MS_u": 0.437
+    }
+   },
+   "flags_within_0.05_or_negative": []
+  }
+ },
+ "comparison_with_reviewer_estimate": {
+  "SOAK52": {
+   "this_row_MS_y_thread_T": 0.67,
+   "this_row_MS_y_screw_T": 0.294
+  },
+  "SOAK70": {
+   "this_row_MS_y_thread_T": 0.719,
+   "this_row_MS_y_screw_T": 0.275
+  },
+  "reviewer_estimate": {
+   "formula": "sigma = sigma_thread + 2.208 x p_g",
+   "SOAK52_MS_y_thread_T": 0.67,
+   "SOAK52_MS_y_screw_T": 0.3,
+   "SOAK70_MS_y_screw_T": 0.275,
+   "tag": "the REVIEWER'S estimate (DERIVED by the reviewer), not this row"
+  },
+  "Lame_passage_factor_governing_wall": 2.2094
+ },
+ "verdict": "Tap wall to the torch passage (az 18 / 342), wall 1.6355 mm net at +/-0.25 deg, CALC on SIM at the 3750 N J-F1 cap, P_torch = FA1S 151.04 bar abs uniform over the passage at every state: governing SOAK52 (N 8572.4 N from (b2) rep, p_thread 48.21 MPa, passage 15.003 MPa gauge): sigma 136.9 MPa, MS_y +0.670 / MS_u +0.785 at the TC-02 thread temperature 94.9 C; with the screw temperature as a sensitivity MS_y +0.275 (SOAK70, 158.6 C).  v1 (P_torch 102 bar abs, rows v7): MS_y +0.814 / screw T +0.389.  Flags within 0.05 or negative (3750 column, all walls): 0; 4096 information column: 0.  R4-01: ligament lowest local natural frequency >= 26 kHz on the extreme bounding strip (CALC, ASSUMED edges), far above the passage (<= 3.45 kHz): DLF 1.0 on the passage peak; NOT MODELLED: wave steepening and shock reflection, losses, torch-chamber compliance, N2O decomposition, a blocked-outlet deflagration.",
+ "R4-01_additions": {
+  "(a)_ligament_lowest_local_natural_frequency": {
+   "value": "lowest local natural frequency >= 26 kHz (period <= 0.038 ms) on the extreme bounding idealisation (hottest_screw_T_of_all_states, +/-0.5deg_net_info, 10.4_twice_the_passage_bore_EXTREME, simply_supported); 116-262 kHz for the governing wall spanning the 5.2 mm passage bore (simply supported / clamped) at the SOAK52 thread temperature",
+   "tag": "CALC (Euler-Bernoulli beam strip, edge conditions and span ASSUMED, -15 % shear / rotary-inertia allowance ASSUMED; E engmat LITERATURE-approx, rho LITERATURE); the web is 1.54-1.91 mm thick and thickens to about +0.4 mm within +/-2.5 mm of the closest approach (two near-perpendicular bores), so the strip spans bound it from below; not an FE modal",
+   "against_the_passage": {
+    "shortest_passage_period_ms": 0.29,
+    "passage_frequency_max_Hz": 3448.0,
+    "ratio_passage_over_ligament_lowest": 0.1301,
+    "harmonic_DLF_1_over_1_minus_r2": 1.0172,
+    "verdict": "the ligament is quasi-static under the passage pressure: DLF 1.0 on the passage peak (as the row); the FA1S design case is >= 16 % above the linear tap peak (REV-COMB-4 R4-01)"
+   },
+   "cases": {
+    "SOAK52_TC02_thread_T|ruled_+/-0.25deg_net_GOVERNING|5.2_passage_bore|clamped-clamped": {
+     "T_C": 94.9,
+     "E_GPa": 66.37,
+     "t_mm": 1.6355,
+     "span_mm": 5.2,
+     "f_kHz": 262.0,
+     "period_ms": 0.0038
+    },
+    "SOAK52_TC02_thread_T|ruled_+/-0.25deg_net_GOVERNING|5.2_passage_bore|simply_supported": {
+     "T_C": 94.9,
+     "E_GPa": 66.37,
+     "t_mm": 1.6355,
+     "span_mm": 5.2,
+     "f_kHz": 115.6,
+     "period_ms": 0.0087
+    },
+    "SOAK52_TC02_thread_T|ruled_+/-0.25deg_net_GOVERNING|10.4_twice_the_passage_bore_EXTREME|clamped-clamped": {
+     "T_C": 94.9,
+     "E_GPa": 66.37,
+     "t_mm": 1.6355,
+     "span_mm": 10.4,
+     "f_kHz": 65.5,
+     "period_ms": 0.0153
+    },
+    "SOAK52_TC02_thread_T|ruled_+/-0.25deg_net_GOVERNING|10.4_twice_the_passage_bore_EXTREME|simply_supported": {
+     "T_C": 94.9,
+     "E_GPa": 66.37,
+     "t_mm": 1.6355,
+     "span_mm": 10.4,
+     "f_kHz": 28.9,
+     "period_ms": 0.0346
+    },
+    "SOAK52_TC02_thread_T|+/-0.5deg_net_info|5.2_passage_bore|clamped-clamped": {
+     "T_C": 94.9,
+     "E_GPa": 66.37,
+     "t_mm": 1.5415,
+     "span_mm": 5.2,
+     "f_kHz": 247.0,
+     "period_ms": 0.004
+    },
+    "SOAK52_TC02_thread_T|+/-0.5deg_net_info|5.2_passage_bore|simply_supported": {
+     "T_C": 94.9,
+     "E_GPa": 66.37,
+     "t_mm": 1.5415,
+     "span_mm": 5.2,
+     "f_kHz": 108.9,
+     "period_ms": 0.0092
+    },
+    "SOAK52_TC02_thread_T|+/-0.5deg_net_info|10.4_twice_the_passage_bore_EXTREME|clamped-clamped": {
+     "T_C": 94.9,
+     "E_GPa": 66.37,
+     "t_mm": 1.5415,
+     "span_mm": 10.4,
+     "f_kHz": 61.7,
+     "period_ms": 0.0162
+    },
+    "SOAK52_TC02_thread_T|+/-0.5deg_net_info|10.4_twice_the_passage_bore_EXTREME|simply_supported": {
+     "T_C": 94.9,
+     "E_GPa": 66.37,
+     "t_mm": 1.5415,
+     "span_mm": 10.4,
+     "f_kHz": 27.2,
+     "period_ms": 0.0367
+    },
+    "SOAK52_TC02_thread_T|nominal_CAD_info|5.2_passage_bore|clamped-clamped": {
+     "T_C": 94.9,
+     "E_GPa": 66.37,
+     "t_mm": 1.906,
+     "span_mm": 5.2,
+     "f_kHz": 305.4,
+     "period_ms": 0.0033
+    },
+    "SOAK52_TC02_thread_T|nominal_CAD_info|5.2_passage_bore|simply_supported": {
+     "T_C": 94.9,
+     "E_GPa": 66.37,
+     "t_mm": 1.906,
+     "span_mm": 5.2,
+     "f_kHz": 134.7,
+     "period_ms": 0.0074
+    },
+    "SOAK52_TC02_thread_T|nominal_CAD_info|10.4_twice_the_passage_bore_EXTREME|clamped-clamped": {
+     "T_C": 94.9,
+     "E_GPa": 66.37,
+     "t_mm": 1.906,
+     "span_mm": 10.4,
+     "f_kHz": 76.3,
+     "period_ms": 0.0131
+    },
+    "SOAK52_TC02_thread_T|nominal_CAD_info|10.4_twice_the_passage_bore_EXTREME|simply_supported": {
+     "T_C": 94.9,
+     "E_GPa": 66.37,
+     "t_mm": 1.906,
+     "span_mm": 10.4,
+     "f_kHz": 33.7,
+     "period_ms": 0.0297
+    },
+    "hottest_screw_T_of_all_states|ruled_+/-0.25deg_net_GOVERNING|5.2_passage_bore|clamped-clamped": {
+     "T_C": 158.6,
+     "E_GPa": 62.82,
+     "t_mm": 1.6355,
+     "span_mm": 5.2,
+     "f_kHz": 254.9,
+     "period_ms": 0.0039
+    },
+    "hottest_screw_T_of_all_states|ruled_+/-0.25deg_net_GOVERNING|5.2_passage_bore|simply_supported": {
+     "T_C": 158.6,
+     "E_GPa": 62.82,
+     "t_mm": 1.6355,
+     "span_mm": 5.2,
+     "f_kHz": 112.4,
+     "period_ms": 0.0089
+    },
+    "hottest_screw_T_of_all_states|ruled_+/-0.25deg_net_GOVERNING|10.4_twice_the_passage_bore_EXTREME|clamped-clamped": {
+     "T_C": 158.6,
+     "E_GPa": 62.82,
+     "t_mm": 1.6355,
+     "span_mm": 10.4,
+     "f_kHz": 63.7,
+     "period_ms": 0.0157
+    },
+    "hottest_screw_T_of_all_states|ruled_+/-0.25deg_net_GOVERNING|10.4_twice_the_passage_bore_EXTREME|simply_supported": {
+     "T_C": 158.6,
+     "E_GPa": 62.82,
+     "t_mm": 1.6355,
+     "span_mm": 10.4,
+     "f_kHz": 28.1,
+     "period_ms": 0.0356
+    },
+    "hottest_screw_T_of_all_states|+/-0.5deg_net_info|5.2_passage_bore|clamped-clamped": {
+     "T_C": 158.6,
+     "E_GPa": 62.82,
+     "t_mm": 1.5415,
+     "span_mm": 5.2,
+     "f_kHz": 240.3,
+     "period_ms": 0.0042
+    },
+    "hottest_screw_T_of_all_states|+/-0.5deg_net_info|5.2_passage_bore|simply_supported": {
+     "T_C": 158.6,
+     "E_GPa": 62.82,
+     "t_mm": 1.5415,
+     "span_mm": 5.2,
+     "f_kHz": 106.0,
+     "period_ms": 0.0094
+    },
+    "hottest_screw_T_of_all_states|+/-0.5deg_net_info|10.4_twice_the_passage_bore_EXTREME|clamped-clamped": {
+     "T_C": 158.6,
+     "E_GPa": 62.82,
+     "t_mm": 1.5415,
+     "span_mm": 10.4,
+     "f_kHz": 60.1,
+     "period_ms": 0.0166
+    },
+    "hottest_screw_T_of_all_states|+/-0.5deg_net_info|10.4_twice_the_passage_bore_EXTREME|simply_supported": {
+     "T_C": 158.6,
+     "E_GPa": 62.82,
+     "t_mm": 1.5415,
+     "span_mm": 10.4,
+     "f_kHz": 26.5,
+     "period_ms": 0.0377
+    },
+    "hottest_screw_T_of_all_states|nominal_CAD_info|5.2_passage_bore|clamped-clamped": {
+     "T_C": 158.6,
+     "E_GPa": 62.82,
+     "t_mm": 1.906,
+     "span_mm": 5.2,
+     "f_kHz": 297.1,
+     "period_ms": 0.0034
+    },
+    "hottest_screw_T_of_all_states|nominal_CAD_info|5.2_passage_bore|simply_supported": {
+     "T_C": 158.6,
+     "E_GPa": 62.82,
+     "t_mm": 1.906,
+     "span_mm": 5.2,
+     "f_kHz": 131.0,
+     "period_ms": 0.0076
+    },
+    "hottest_screw_T_of_all_states|nominal_CAD_info|10.4_twice_the_passage_bore_EXTREME|clamped-clamped": {
+     "T_C": 158.6,
+     "E_GPa": 62.82,
+     "t_mm": 1.906,
+     "span_mm": 10.4,
+     "f_kHz": 74.3,
+     "period_ms": 0.0135
+    },
+    "hottest_screw_T_of_all_states|nominal_CAD_info|10.4_twice_the_passage_bore_EXTREME|simply_supported": {
+     "T_C": 158.6,
+     "E_GPa": 62.82,
+     "t_mm": 1.906,
+     "span_mm": 10.4,
+     "f_kHz": 32.8,
+     "period_ms": 0.0305
+    }
+   }
+  },
+  "(b)_NOT_MODELLED": [
+   "wave steepening and shock reflection",
+   "losses",
+   "torch-chamber compliance",
+   "N2O decomposition",
+   "a blocked-outlet deflagration"
+  ],
+  "(b)_source": "REV-COMB-4 R4-01 'Residual, not modelled' (REVIEW-COMBUSTION-R4.md 2908321d7f75d439); these are outside the row's basis, not covered by it",
+  "(c)_P_torch_statement_verbatim_REV-COMB-4": "P_torch during FA-1: design case FA1S 151.04 bar abs uniform over the passage (REV-COMB-4 R4-01); linear lossless passage peaks <= 129.9 bar abs at the J-FWD tap and <= 148.7 at the torch seat for c 150-1200 m/s; the band values 94 / 121 / 147 / 94 do not bound gas-filled passages."
+ },
+ "t_run_s": 29.0
+}
