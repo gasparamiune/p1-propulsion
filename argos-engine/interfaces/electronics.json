@@ -1,32 +1,15 @@
 {
  "id": "electronics",
- "version": "v4.1",
+ "version": "v4.2",
  "date": "2026-10-21",
- "generated_utc": "2026-10-21T12:38:44Z",
+ "generated_utc": "2026-10-21T17:39:50Z",
  "owner": "electronics (06-electronics)",
- "status": "DESIGN + SIL + schematic, STAGED for the lead (06-electronics/staging_v2.12/; interfaces/electronics.json v4 stays the published file until the lead promotes this one). Firmware v2.12 runs only in SIL (no Teensy HAL): the REV-ELEC-3 R3-01 option (b) seat compensation of the C1 Pc reading on the working basis given at 11:25Z (LEAD 261 (3); the lead confirms or changes it, the fallback and decision (3) at this handback), the TB-state of the LC-TB70 v2 F4 set with PC_SENSOR HIGH, the flight J-FWD indication, the purge FINAL as calibration constants with rule (d), log v13. The ECU v2.5 schematic does NOT show the v2.11 / v2.12 board items (schematic v2.6 NOT drawn); no board has been built and nothing here is hardware-validated or physical approval. Values carry tags; open items are in open_issues.",
+ "status": "DESIGN + SIL + schematic, STAGED for the lead (06-electronics/staging_v2.13/, an overlay on staging_v2.12: build = v2.11 + the v2.12 overlay + the v2.13 overlay; interfaces/electronics.json v4.1 c862375163393adc stays the published file until the lead promotes this one after REV-ELEC-5). Firmware v2.13 runs only in SIL (no Teensy HAL). CARVE-OUT IN FORCE (CHANGELOG 266 (6), verbatim there): option (b) (seat coefficient loaded) is not used for any start with ignition until the v2.13 delta (light-window hold, TC4 step / rate checks, catch-up) is reviewed; A1 FLIGHT is NO-GO until then. The ECU v2.5 schematic does NOT show the v2.11-v2.13 board items (schematic v2.6 NOT drawn); no board has been built and nothing here is hardware-validated or physical approval. Values carry tags; open items are in open_issues.",
  "units": "SI unless the key names another unit (mm in *_mm envelopes, deg in *_deg, kg-cm never used in keys)",
  "supersedes": {
-  "file": "electronics.json v4 (2026-10-21, firmware v2.11)",
-  "sha256_16": "11f7896ad0d0613b",
-  "hub_path": "interfaces/electronics.json (unchanged by this staging)",
-  "staged_from": "06-electronics/staging_v2.11/",
-  "earlier": {
-   "file": "electronics.json v3 (2026-10-13, firmware v2.10)",
-   "sha256_16": "38bf149f368c1d4c",
-   "hub_path": "interfaces/electronics.json (unchanged by this staging)",
-   "local_copy": "results/electronics_v3.json (identical)",
-   "earlier": {
-    "v2": {
-     "sha256_16": "da067408c1594814",
-     "archive": "06-electronics/archive/v2.9/interfaces/electronics_v2.json"
-    },
-    "v1": {
-     "sha256_16": "42fe12e15baa6e3e",
-     "archive": "06-electronics/results/electronics_v1.json"
-    }
-   }
-  }
+  "file": "interfaces/electronics.json v4.1",
+  "sha256_16": "c862375163393adc",
+  "relation": "v4.2 = v4.1 + the v2.13 delta and the REV-ELEC-4 folds; v4.1 sections kept unless named in change_summary_v4p1_to_v4p2"
  },
  "scripts": [
   "06-electronics/calc/v2p12/make_interface_json_v4p1.py (this file; reuses calc/make_interface_json_v3.py Cfg and calc/v2p11/make_interface_json_v4.py refresh_cfg)",
@@ -45,45 +28,162 @@
   "06-electronics/calc/v2p11/gen_tables_v2p4b_leafdiff_v1.py, gen_headers_regen_check_v2p11.py (generated headers vs combustion v2.4b)",
   "06-electronics/firmware/tools/sil_manifest_v1.py (v1.4)",
   "06-electronics/firmware/sil/sc_v211.inc, sc_v211_r2.inc, test_v211.inc, test_v211b.inc (v2.11 scenarios and unit tests)",
-  "carried from v3 unchanged (inputs hash-checked, carried_inputs): calc/bleed_driver_v1.py, fault_path_v4.py, hbleed_provision_v1.py, ecu_v2p3_values_v1.py, pintle_rail_v3.py, over_thrust_v3.py, pintle_rate_map_v1.py; hardware/kicad_gen/run_all.sh (schematic v2.5)"
+  "carried from v3 unchanged (inputs hash-checked, carried_inputs): calc/bleed_driver_v1.py, fault_path_v4.py, hbleed_provision_v1.py, ecu_v2p3_values_v1.py, pintle_rail_v3.py, over_thrust_v3.py, pintle_rate_map_v1.py; hardware/kicad_gen/run_all.sh (schematic v2.5)",
+  {
+   "file": "calc/v2p13/make_interface_json_v4p2.py",
+   "role": "this file"
+  },
+  {
+   "file": "calc/v2p13/item2_hold_gap.py",
+   "role": "ITEM 2 hold-end gap and hold cost"
+  },
+  {
+   "file": "calc/v2p13/s13t_compare_v2p13.py",
+   "role": "S13T v2.13 vs v2.12"
+  },
+  {
+   "file": "calc/v2p13/a5_s13f_summary_v2p13.py",
+   "role": "A5 / S13F summary, A5 stale-compensation estimate"
+  },
+  {
+   "file": "calc/v2p13/s12_compare_v2p13.py",
+   "role": "S12 v2.13 vs v2.12, E4-05 (9) check"
+  },
+  {
+   "file": "calc/v2p13/make_bench_plan_v5p1.py",
+   "role": "bench plan v5.1"
+  },
+  {
+   "file": "calc/v2p13/make_bom_v2p5.py",
+   "role": "BOM v2.5"
+  }
  ],
  "inputs": {
-  "combustion.json": "v2.4d 7dbf425c12300658",
-  "gnc.json": "v3.2 bde317782574cbd9",
-  "mechanical.json": "v2.4 66bc53d88d444679",
-  "lc_tb70_envelope": "04-fea/v352/lc_tb70_envelope_v2.json 7ebd2fd63dc878ef; classifier lc_tb70_envelope.py d14489808338006b",
-  "purge_duration": "02-combustion/data/v2p4/purge_duration_v2p4.json 1ff6bfcd7d2f454c (R4-13)",
-  "review": "reviews/REVIEW-ELECTRONICS-R3.md fcf05f8bc7382cd1 (REV-ELEC-3; R3-01..R3-06, N-01..N-10)",
-  "changelog": "interfaces/CHANGELOG.md, 262 lines at generation, bc80542b3d3e9076 (the brief was written on 260 lines 01c944f5997648da)",
-  "firmware": "v2.12 (config.h line 1 in firmware.v2p12.config_h_line_1); no v2.12 SIL MANIFEST (not run in the time box): binaries and test logs in firmware.v2p12",
-  "files_read_sha256_16": {
-   "interfaces/electronics.json": "11f7896ad0d0613b",
-   "interfaces/combustion.json": "7dbf425c12300658",
-   "interfaces/gnc.json": "bde317782574cbd9",
-   "interfaces/mechanical.json": "66bc53d88d444679",
-   "interfaces/CHANGELOG.md": "bc80542b3d3e9076",
-   "reviews/REVIEW-ELECTRONICS-R3.md": "fcf05f8bc7382cd1",
-   "04-fea/v352/lc_tb70_envelope_v2.json": "7ebd2fd63dc878ef",
-   "04-fea/v352/lc_tb70_envelope.py": "d14489808338006b",
-   "02-combustion/data/v2p4/purge_duration_v2p4.json": "1ff6bfcd7d2f454c",
-   "results/v2p12/c1_drift_v2p12.json": "aefee7551cae1bbf",
-   "results/v2p12/jfwd_ls_threshold_v2p12.json": "fcb80586681ca03b",
-   "results/v2p12/sil/S13T_seat_drift_bpc1_false.json": "24c3aa3c108a7651",
-   "results/v2p12/sil/S13T_seat_drift_bpc1_true.json": "eaae63e074be887e",
-   "results/v2p12/sil/S13T_prefix_v212a_run_log_bpc1_false.txt": "4e87b91cce6bba4a",
-   "results/v2p12/sil/S12_bleed.json": "02d49def4fba065e",
-   "results/sil_v2p11/S12_bleed.json": "40a11d4d42d69026",
-   "results/v2p12/sil/r4_02_reclass_v2p12.json": "f3d91aba932ac851",
-   "results/v2p12/sil/a8_bandhigh/S6R_in_window_overpressure.json": "d8a3fbfa684e6f6e",
-   "results/v2p12/sil/a8_bandhigh/S6C_rc_cost.json": "0d52b41da3402df9",
-   "results/v2p12/sil/test_core_v2p12_log.txt": "c645af8aba83dd04",
-   "results/v2p12/sil/test_core_nohooks_v2p12_log.txt": "92b788bcdd5afb23",
-   "results/v2p12/sil/binaries_v2p12.txt": "ff6e18ba695416b8",
-   "docs/bench_plan_v5.md": "360c1d6695cc305c",
-   "results/bom_v2p4.csv": "eb6e77dcd4610383",
-   "firmware/src/core/config.h": "413369c33caa831b",
-   "firmware/src/core/protocol.h": "e53520aa489e5a67"
-  }
+  "v4p1_inputs": {
+   "combustion.json": "v2.4d 7dbf425c12300658",
+   "gnc.json": "v3.2 bde317782574cbd9",
+   "mechanical.json": "v2.4 66bc53d88d444679",
+   "lc_tb70_envelope": "04-fea/v352/lc_tb70_envelope_v2.json 7ebd2fd63dc878ef; classifier lc_tb70_envelope.py d14489808338006b",
+   "purge_duration": "02-combustion/data/v2p4/purge_duration_v2p4.json 1ff6bfcd7d2f454c (R4-13)",
+   "review": "reviews/REVIEW-ELECTRONICS-R3.md fcf05f8bc7382cd1 (REV-ELEC-3; R3-01..R3-06, N-01..N-10)",
+   "changelog": "interfaces/CHANGELOG.md, 262 lines at generation, bc80542b3d3e9076 (the brief was written on 260 lines 01c944f5997648da)",
+   "firmware": "v2.12 (config.h line 1 in firmware.v2p12.config_h_line_1); no v2.12 SIL MANIFEST (not run in the time box): binaries and test logs in firmware.v2p12",
+   "files_read_sha256_16": {
+    "interfaces/electronics.json": "11f7896ad0d0613b",
+    "interfaces/combustion.json": "7dbf425c12300658",
+    "interfaces/gnc.json": "bde317782574cbd9",
+    "interfaces/mechanical.json": "66bc53d88d444679",
+    "interfaces/CHANGELOG.md": "bc80542b3d3e9076",
+    "reviews/REVIEW-ELECTRONICS-R3.md": "fcf05f8bc7382cd1",
+    "04-fea/v352/lc_tb70_envelope_v2.json": "7ebd2fd63dc878ef",
+    "04-fea/v352/lc_tb70_envelope.py": "d14489808338006b",
+    "02-combustion/data/v2p4/purge_duration_v2p4.json": "1ff6bfcd7d2f454c",
+    "results/v2p12/c1_drift_v2p12.json": "aefee7551cae1bbf",
+    "results/v2p12/jfwd_ls_threshold_v2p12.json": "fcb80586681ca03b",
+    "results/v2p12/sil/S13T_seat_drift_bpc1_false.json": "24c3aa3c108a7651",
+    "results/v2p12/sil/S13T_seat_drift_bpc1_true.json": "eaae63e074be887e",
+    "results/v2p12/sil/S13T_prefix_v212a_run_log_bpc1_false.txt": "4e87b91cce6bba4a",
+    "results/v2p12/sil/S12_bleed.json": "02d49def4fba065e",
+    "results/sil_v2p11/S12_bleed.json": "40a11d4d42d69026",
+    "results/v2p12/sil/r4_02_reclass_v2p12.json": "f3d91aba932ac851",
+    "results/v2p12/sil/a8_bandhigh/S6R_in_window_overpressure.json": "d8a3fbfa684e6f6e",
+    "results/v2p12/sil/a8_bandhigh/S6C_rc_cost.json": "0d52b41da3402df9",
+    "results/v2p12/sil/test_core_v2p12_log.txt": "c645af8aba83dd04",
+    "results/v2p12/sil/test_core_nohooks_v2p12_log.txt": "92b788bcdd5afb23",
+    "results/v2p12/sil/binaries_v2p12.txt": "ff6e18ba695416b8",
+    "docs/bench_plan_v5.md": "360c1d6695cc305c",
+    "results/bom_v2p4.csv": "eb6e77dcd4610383",
+    "firmware/src/core/config.h": "413369c33caa831b",
+    "firmware/src/core/protocol.h": "e53520aa489e5a67"
+   }
+  },
+  "v2p13": {
+   "v4p1": {
+    "path": "interfaces/electronics.json",
+    "sha256_16": "c862375163393adc"
+   },
+   "changelog": {
+    "path": "interfaces/CHANGELOG.md",
+    "sha256_16": "176650fc1512b776"
+   },
+   "review_r4": {
+    "path": "reviews/REVIEW-ELECTRONICS-R4.md",
+    "sha256_16": "70b7103472eebab4"
+   },
+   "combustion": {
+    "path": "interfaces/combustion.json",
+    "sha256_16": "7dbf425c12300658"
+   },
+   "gnc": {
+    "path": "interfaces/gnc.json",
+    "sha256_16": "bde317782574cbd9"
+   },
+   "mechanical": {
+    "path": "interfaces/mechanical.json",
+    "sha256_16": "66bc53d88d444679"
+   },
+   "config_h": {
+    "path": "06-electronics/staging_v2.13/firmware/src/core/config.h",
+    "sha256_16": "319d8a8c2d3cd9c0"
+   },
+   "types_h": {
+    "path": "06-electronics/staging_v2.13/firmware/src/core/types.h",
+    "sha256_16": "57d03b24fde4b134"
+   },
+   "protocol_h": {
+    "path": "06-electronics/staging_v2.13/firmware/src/core/protocol.h",
+    "sha256_16": "6076f5e4675c2e24"
+   },
+   "item2": {
+    "path": "06-electronics/staging_v2.13/results/v2p13/item2_hold_gap.json",
+    "sha256_16": "d872a0478f3483e2"
+   },
+   "tc_log": {
+    "path": "06-electronics/staging_v2.13/results/v2p13/sil/test_core_v2p13_log.txt",
+    "sha256_16": "a50fd6c1ac44ec13"
+   },
+   "tcn_log": {
+    "path": "06-electronics/staging_v2.13/results/v2p13/sil/test_core_nohooks_v2p13_log.txt",
+    "sha256_16": "6b6de5d7e562ecc1"
+   },
+   "s13t_cmp": {
+    "path": "06-electronics/staging_v2.13/results/v2p13/s13t_compare_v2p13.json",
+    "sha256_16": "00baa8ace021eeb7"
+   },
+   "a5_s13f_sum": {
+    "path": "06-electronics/staging_v2.13/results/v2p13/a5_s13f_summary_v2p13.json",
+    "sha256_16": "dcffeae54881c63d"
+   },
+   "s12_cmp": {
+    "path": "06-electronics/staging_v2.13/results/v2p13/s12_compare_v2p13.json",
+    "sha256_16": "1338e490acd7c2f1"
+   },
+   "s13f_false": {
+    "path": "06-electronics/staging_v2.13/results/v2p13/sil/S13F_tc4_fault_bpc1_false.json",
+    "sha256_16": "504ae39fb9b76803"
+   },
+   "s13f_true": {
+    "path": "06-electronics/staging_v2.13/results/v2p13/sil/S13F_tc4_fault_bpc1_true.json",
+    "sha256_16": "4d7fcdff06eeac50"
+   },
+   "a5_false": {
+    "path": "06-electronics/staging_v2.13/results/v2p13/sil/A5_seat_step_relight_bpc1_false.json",
+    "sha256_16": "0ddace7afedfc751"
+   },
+   "a5_true": {
+    "path": "06-electronics/staging_v2.13/results/v2p13/sil/A5_seat_step_relight_bpc1_true.json",
+    "sha256_16": "c23d50fea0044ad6"
+   },
+   "bench_plan_v5_1": {
+    "path": "06-electronics/staging_v2.13/docs/bench_plan_v5_1.md",
+    "sha256_16": "8b052fb2006ee859"
+   },
+   "bom_v2p5": {
+    "path": "06-electronics/staging_v2.13/results/bom_v2p5.csv",
+    "sha256_16": "d684c4442e48a6eb"
+   }
+  },
+  "changelog_lines_at_generation": 268
  },
  "change_summary_v3_to_v4": [
   "v3 (firmware v2.10) -> v4 (firmware v2.11, SIL record 8c1a534c3af1b0ba, MANIFEST eaa9efc5112a8178); STAGED, the hub v3 file is unchanged",
@@ -381,7 +481,7 @@
    "item": "205 flight Pc transducer reselection",
    "status": "DONE (DATASHEET + CALC): C1 Kulite XTL-190SM-2000A; proof requirement restated to >= 166 bar abs by 249 (4): C1 206.8 bar abs",
    "where": "sensors.pressure_transducers; pc_overrange_fa1",
-   "quote": "CHANGELOG line 205 (lead, 2026-10-13): ...e Ø12 x 30 mm free envelope). DECISION: the flight Pc transducer is RESELECTED by Electronics as a miniature seat-mounted unit: body within Ø12 x 30 mm above the seat, front dead volume <= 20 mm3 (<= ..."
+   "quote": "CHANGELOG line 205 (lead, 2026-10-13): ...e \u00d812 x 30 mm free envelope). DECISION: the flight Pc transducer is RESELECTED by Electronics as a miniature seat-mounted unit: body within \u00d812 x 30 mm above the seat, front dead volume <= 20 mm3 (<= ..."
   },
   {
    "line": 206,
@@ -1650,7 +1750,23 @@
    "v": 0.2,
    "tag": "DERIVED (~1560 frames/s x ~130 bit at 1 Mbit/s)"
   },
-  "flight_computer_side": "any Teensy 4.x CAN1 (pins 22/23) or CAN2 (0/1) + 3.3 V transceiver; CAN-FD only on CAN3"
+  "flight_computer_side": "any Teensy 4.x CAN1 (pins 22/23) or CAN2 (0/1) + 3.3 V transceiver; CAN-FD only on CAN3",
+  "v2p13_additions": {
+   "EVENT_BUILD": {
+    "v": {
+     "code": "0x25 (0x15 is IGN_WINDOW, in use since v2.8)",
+     "arg": "b0 seat_arm_rule, b1 hbleed_fitted, b2-b15 0",
+     "when": "once at boot (first step) and at EVERY ARM command received, any state, accepted or refused (Outputs::build_event / build_bits)",
+     "bus_cost": "one EVENT per occasion x the HAL usual 3 copies 10 ms apart: 3 frames at boot + 3 per ARM attempt",
+     "interface": "ADDITIVE (no existing layout changes); decoders ignore unknown codes; no in-tree EVENT consumer; GNC to confirm the FC ignores or decodes 0x25 (OI-GNC-EVENT-BUILD)"
+    },
+    "tag": "DESIGN (LEAD 16:27Z option (2), 16:28Z code of record 0x25)"
+   },
+   "SEAT_TC_cause": {
+    "v": "Abort::SEAT_TC = 32 is an ARM-refusal-only cause: the state stays SAFE, so it never rides an EVENT STATE (5-bit cause field 0-31); it is carried in the uint8 log abort_cause, the channel every ARM-refusal cause uses today (no CAN frame carries an ARM-refusal cause). Guard: can::encodeStateEvent saturates a cause above 31 to 31 and counts it in can::g_state_cause_overflow (static_assert: SEAT_TC is the only cause above the field). A STATE-event cause of 31 means CASE_WARM_STAND only while can::g_state_cause_overflow is 0; the log byte abort_cause (uint8) is the authority. The counter is RAM-only (no log / TLM field; no layout change, LEAD 16:28Z)",
+    "tag": "DESIGN (LEAD 16:27Z, 16:28Z)"
+   }
+  }
  },
  "relight_interface": {
   "sequence_v2p11": "RELIGHT at the planned T_fire: direct path when the line is PRIMED (NC valve latch + opener ramp and torch at E0, lift at E1 on 2oo2 torch confirmation, gate 160 ms, W 650 ms from the lift); prep path when UNPRIMED / UNKNOWN (PREPRESS first). Flight build with the bleed fitted (A1): a RELIGHT is accepted only during PURGE (E0 at PURGE + 2.9 s); in COAST it is refused UNPURGED (LEAD 203 (7))",
@@ -5947,7 +6063,7 @@
   "request": "CHANGELOG line 194 (lead, 2026-10-13): ...ical's OI-32 outlet geometry closes it. (7) R3-10: the stand dynamic Pc channel for IGN-1 and the T series is >= 100 bar abs with a stated proof rating (founder instrumentation item); Electronics states the 070BG flight transducer's over-range behaviour and its effect on the 30 bar abort, the Pc-valid flag and the logged FA-1 peak. (8) R3-06/R3-07/R3-08: the T1-T4 flux test becomes two-sided (shown only if",
   "request_v2p11": [
    "CHANGELOG line 203 (lead, 2026-10-13): ...lished and unreviewed until REV-ELEC-2. (1) OI-FA1-PC-OVERRANGE: as built, v2.10 aborts the A1 relight in 362-494 of the 896 FA-1 grid cases (grid counts, SIM), turning a fault the structure is sized to survive into a vehicle loss, and it neither keeps Pc valid nor flags over-range. Decision: the stand keeps the as-built abort. Flight, v2.11: (a) ADOPTED: a non-sticky over-range bit (PC_VALID 0 only while over range)...",
-   "CHANGELOG line 205 (lead, 2026-10-13): On Mechanical's 203 (2) interim (v351/pc/pc_line_period_v1.json, pc_transducer_temperature_v1.json, pc_space_v1.json; DERIVED lossless 1-D acoustics, gas sound speed in the passage MISSING and bounded 222-400 m/s): the 070BG cannot meet a <= 1 ms transducer-path period on the v3.5.1 head (0.30 m line 5.7-8.7 ms; 100 mm tube 2.8-4.9 ms; seat adapter 2.5-3.3 ms and does not fit the Ø12 x 30 mm free envelope). DECISION: the flight Pc transducer is RESELECTED by Electronics as a miniature seat-mounted unit: body within Ø12 x 30 mm above the seat, front dead volume <= 20 mm3 (<= 60 mm3 if the CC-2 ...",
+   "CHANGELOG line 205 (lead, 2026-10-13): On Mechanical's 203 (2) interim (v351/pc/pc_line_period_v1.json, pc_transducer_temperature_v1.json, pc_space_v1.json; DERIVED lossless 1-D acoustics, gas sound speed in the passage MISSING and bounded 222-400 m/s): the 070BG cannot meet a <= 1 ms transducer-path period on the v3.5.1 head (0.30 m line 5.7-8.7 ms; 100 mm tube 2.8-4.9 ms; seat adapter 2.5-3.3 ms and does not fit the \u00d812 x 30 mm free envelope). DECISION: the flight Pc transducer is RESELECTED by Electronics as a miniature seat-mounted unit: body within \u00d812 x 30 mm above the seat, front dead volume <= 20 mm3 (<= 60 mm3 if the CC-2 ...",
    "CHANGELOG line 249 (lead, 2026-10-21): ...175 rows. (4) RELIGHT AND TRANSDUCER (21:46:49Z): kCaseRelightMax_K = 403.15 K (130 C) on Electronics' basis (A1 merged purge-to-end-of-relight rise 11.9 K + 1 s longer relight 3.0 K + 1 K relative channel); ARM refusals on the start limit (TC1 / TC2) and the TC3 nozzle-holder limit accepted, each limit with value and basis in electronics_v4; line 205's Pc-transducer proof requirement becomes >= 166 bar abs (1.1 x FA1S 151.04, 230 (2)), replacing 112 bar; the C1 pick meets it (206.8 bar abs, DATASHEET 1.5x rule); the head-face peaks 104.5 / 121.6 / 125.1 bar abs (CC-1 at c 222 / 400 m/s, CC-2) are SIM on the ASSUMED 1-D lumped passage model (fa1_chain_v2p11.json), all within FA1S 151.04. (5) FEA3D (21:47:29Z, 21:59:05Z): lc1v352hb accepted as found (superseded, pruned uncited, used by no cell, not re-run; run table 'superseded, never posted'); pose_stop045 R2 / R3 without check_fbd accep..."
   ],
   "transducer_datasheet": {
@@ -6003,7 +6119,7 @@
     "tag": "DATASHEET + DERIVED"
    },
    "price": "TO-QUOTE delivered to Soenderborg DK-6400 (BOM v2.3 line 251; F-6 RFQ)",
-   "kept_070BG": "TE M3234-000005-070BG stays for P_torch (J901) and as the B-PC-1 static reference (BOM 199); its over-range row is F-12 on the spare unit"
+   "kept_070BG": "v4.2 (264 (4)): P_torch moves to the C1-family XTL-190SM-2000A (J901); TE M3234-000005-070BG stays only as the B-PC-1 static reference (BOM 199)"
   },
   "ecu_chain": {
    "topology": {
@@ -7165,12 +7281,12 @@
    "limit": "purge both-open command cap",
    "value": {
     "v": 2.39,
-    "unit": "s",
     "tag": "LEAD 256 (2) / 257 (2)",
+    "unit": "s",
     "src": "config.h kHbleedCap_s"
    },
-   "basis": "LEAD 203 (3) <= 2.55 s; 230 (3): the scheduled command span 2.45 s does not fit a 2.39 s cap, so 2.55 s is kept; physical flow at the cap 2.60 s = 76.05 g on the one basis 29.25 g/s, 80.76 g at the warm end 31.06 g/s",
-   "decision": "CHANGELOG line 230 (lead, 2026-10-19): ...ve on FA1S, so no other margin changes. (3) Purge (OI-42; line 216 (5)): the ONE flow basis 29.25 g/s at 289.5 K is ADOPTED. It gives 76.05 g at the 2.55 s cap, needs <= 2.548 s for 76 g, and needs 2.397 s at the warm end of Combustion's band (27.58-31.06 g/s over 283.15-297.15 K; Cd ASSUMED, 25.30-33.13 g/s over Cd 0.60-0.80). ..."
+   "basis": "v2.12 FINAL basis (CHANGELOG 256 (2), 257 (2), 258 (2)): kPurgeFlow_s 2.43 s and kHbleedCap_s 2.39 s are CALIBRATION constants, default AND maximum (EngineEcu::setPurgeCal, SAFE only, all-or-nothing); the cap is 2.397 s at the defaults; re-set after CF-4 / B-BLEED-1 by rule (d) with (d1) / (d2) (config.h)",
+   "decision": "CHANGELOG 256 (2), 257 (2), 258 (2) (lead, 2026-10-21); REV-ELEC-4 E4-05 (1) replaces the stale 2.55 s / 76.05 g / 80.76 g basis"
   },
   {
    "limit": "hardware both-commanded-open timer (U576-U579, DESIGN, not drawn)",
@@ -7207,7 +7323,7 @@
    }
   },
   {
-   "limit": "ride-through persistence / window / T45 / over-range N / fixed RC (CANDIDATE, default OFF)",
+   "limit": "ride-through persistence / window / T45 / over-range N / fixed RC (ADOPTED on the CHANGELOG 253 (7)(i) / 256 (3) conditions; build value kRideThroughBuild from ECU_RIDE_THROUGH)",
    "value": {
     "kRideOvpTime_s": {
      "v": 0.015,
@@ -7370,8 +7486,217 @@
     "tag": "LEAD form + R3-01 item 4",
     "src": "config.h kIgnBaseCheck_Pa"
    },
-   "basis": "residual + 0.1 bar; per location (pad / stand refuse, A1 keeps / zeroes P0)",
+   "basis": "residual + kIgnBaseDrift 0.06 + 0.10 bar = 0.76 / 0.46 bar (default / B-PC-1-shown build); per location (pad / stand refuse, A1 keeps / zeroes P0)",
    "decision": "CHANGELOG line 216 (lead, 2026-10-13): ...r abs for 34 ms above MEOP, not 72 ms). (4) R2-04, 203 (5) RESTATED per location: pad/stand BASE_HIGH = PC_SENSOR abort with BASE_HIGH, lift never commanded, MV closed by the abort; A1 BASE_HIGH = RUN on the measured P0 (186/166 (1) unchanged); BASE_AMB: Electronics states the outcome per location a..."
+  },
+  {
+   "limit": "C1 seat coefficient bound",
+   "value": {
+    "v": 10000.0,
+    "tag": "DESIGN",
+    "unit": "Pa/K",
+    "src": "config.h kPcSeatCoefMax_PaPerK"
+   },
+   "basis": "v2.13 (REV-ELEC-4 E4-05 (3), Q2; config.h)",
+   "decision": "v4.2 row (v2.13)"
+  },
+  {
+   "limit": "seat compensation hold beyond (from ARM)",
+   "value": {
+    "v": 150.0,
+    "tag": "DESIGN",
+    "unit": "K",
+    "src": "config.h kPcSeatDevMax_K"
+   },
+   "basis": "v2.13 (REV-ELEC-4 E4-05 (3), Q2; config.h)",
+   "decision": "v4.2 row (v2.13)"
+  },
+  {
+   "limit": "seat TC plausible range min",
+   "value": {
+    "v": 223.15,
+    "tag": "DESIGN",
+    "unit": "K",
+    "src": "config.h kPcSeatTcMin_K"
+   },
+   "basis": "v2.13 (REV-ELEC-4 E4-05 (3), Q2; config.h)",
+   "decision": "v4.2 row (v2.13)"
+  },
+  {
+   "limit": "seat TC plausible range max",
+   "value": {
+    "v": 473.15,
+    "tag": "DESIGN",
+    "unit": "K",
+    "src": "config.h kPcSeatTcMax_K"
+   },
+   "basis": "v2.13 (REV-ELEC-4 E4-05 (3), Q2; config.h)",
+   "decision": "v4.2 row (v2.13)"
+  },
+  {
+   "limit": "seat T_cal minimum",
+   "value": {
+    "v": 283.15,
+    "tag": "DESIGN",
+    "unit": "K",
+    "src": "config.h kPcSeatTcalMin_K"
+   },
+   "basis": "v2.13 (REV-ELEC-4 E4-05 (3), Q2; config.h)",
+   "decision": "v4.2 row (v2.13)"
+  },
+  {
+   "limit": "seat T_cal default",
+   "value": {
+    "v": 293.15,
+    "tag": "ASSUMED",
+    "unit": "K",
+    "src": "config.h kPcSeatTcalDefault_K"
+   },
+   "basis": "v2.13 (REV-ELEC-4 E4-05 (3), Q2; config.h)",
+   "decision": "v4.2 row (v2.13)"
+  },
+  {
+   "limit": "seat T_cal maximum",
+   "value": {
+    "v": 308.15,
+    "tag": "DESIGN",
+    "unit": "K",
+    "src": "config.h kPcSeatTcalMax_K"
+   },
+   "basis": "v2.13 (REV-ELEC-4 E4-05 (3), Q2; config.h)",
+   "decision": "v4.2 row (v2.13)"
+  },
+  {
+   "limit": "seat static term at ARM |T_seat - T_cal| (E4-N01: 30 -> 40 K)",
+   "value": {
+    "v": 40.0,
+    "tag": "DESIGN v2.13",
+    "unit": "K",
+    "src": "config.h kPcSeatArmDevMax_K"
+   },
+   "basis": "v2.13 (REV-ELEC-4 E4-05 (3), Q2; config.h)",
+   "decision": "v4.2 row (v2.13)"
+  },
+  {
+   "limit": "light-rule zero drift term",
+   "value": {
+    "v": 6000.0,
+    "tag": "DERIVED v2.12, compensated, k <= 3",
+    "unit": "Pa",
+    "src": "config.h kIgnBaseDrift_Pa"
+   },
+   "basis": "v2.13 (REV-ELEC-4 E4-05 (3), Q2; config.h)",
+   "decision": "v4.2 row (v2.13)"
+  },
+  {
+   "limit": "torch re-zero limit (re-base OPEN, 264 (4), E4-N04)",
+   "value": {
+    "v": 60000.0,
+    "tag": "DERIVED v2.12",
+    "unit": "Pa",
+    "src": "config.h kPtorchRezeroMax_Pa"
+   },
+   "basis": "v2.13 (REV-ELEC-4 E4-05 (3), Q2; config.h)",
+   "decision": "v4.2 row (v2.13)"
+  },
+  {
+   "limit": "J-FWD indication level (E4-N03: 47.5 bar abs GOVERNS; 47.75 is the lowest raw peak of a Q_JFWD > 60 bar abs case on the binding chain c1_cc1_c400_v6, other chains 47.986 / 48.121 / 48.377: 0.25 bar margin, not a threshold)",
+   "value": {
+    "v": 4750000.0,
+    "tag": "DERIVED on SIM (calc/v2p12/jfwd_ls_threshold_v2p12.py); TO-VERIFY with the B-PC-1 chain",
+    "unit": "Pa",
+    "src": "config.h kJfwdLsRawAbs_Pa"
+   },
+   "basis": "v2.13 (REV-ELEC-4 E4-05 (3), Q2; config.h)",
+   "decision": "v4.2 row (v2.13)"
+  },
+  {
+   "limit": "TC4 step check (every conversion, every state)",
+   "value": {
+    "v": 1.5,
+    "tag": "REV-ELEC-4 Q2; DERIVED: 6 x the 0.24 K per 0.1 s physical maximum",
+    "unit": "K",
+    "src": "config.h kPcSeatStepMax_K"
+   },
+   "basis": "v2.13 (REV-ELEC-4 E4-05 (3), Q2; config.h)",
+   "decision": "v4.2 row (v2.13)"
+  },
+  {
+   "limit": "T_c slew outside the hold",
+   "value": {
+    "v": 5.0,
+    "tag": "REV-ELEC-4 Q2: about 2 x the 2.42 K/s physical maximum",
+    "unit": "K/s",
+    "src": "config.h kPcSeatSlew_Kps"
+   },
+   "basis": "v2.13 (REV-ELEC-4 E4-05 (3), Q2; config.h)",
+   "decision": "v4.2 row (v2.13)"
+  },
+  {
+   "limit": "TC4 rate-check trip |reading - T_c|",
+   "value": {
+    "v": 3.0,
+    "tag": "REV-ELEC-4 Q2",
+    "unit": "K",
+    "src": "config.h kPcSeatRateTrip_K"
+   },
+   "basis": "v2.13 (REV-ELEC-4 E4-05 (3), Q2; config.h)",
+   "decision": "v4.2 row (v2.13)"
+  },
+  {
+   "limit": "light-window hold after E2",
+   "value": {
+    "v": 0.45,
+    "tag": "REV-ELEC-4 Q2",
+    "unit": "s",
+    "src": "config.h kPcSeatHoldPostE2_s"
+   },
+   "basis": "v2.13 (REV-ELEC-4 E4-05 (3), Q2; config.h)",
+   "decision": "v4.2 row (v2.13)"
+  },
+  {
+   "limit": "catch-up time cap / hold duration (ITEM 2)",
+   "value": {
+    "v": 2.0,
+    "tag": "LEAD 16:11Z ITEM 2; DERIVED: legal catch-up <= 0.94 x the hold at 2.42 K/s",
+    "unit": "-",
+    "src": "config.h kPcSeatCatchCapX"
+   },
+   "basis": "v2.13 (REV-ELEC-4 E4-05 (3), Q2; config.h)",
+   "decision": "v4.2 row (v2.13)"
+  },
+  {
+   "limit": "A1 pad rule build value (core default; A1 flight build TRUE)",
+   "value": {
+    "v": false,
+    "tag": "LEAD 264 (2)",
+    "unit": "-",
+    "src": "config.h kSeatArmRuleBuild"
+   },
+   "basis": "v2.13 (REV-ELEC-4 E4-05 (3), Q2; config.h)",
+   "decision": "v4.2 row (v2.13)"
+  },
+  {
+   "limit": "JFWD_LS relight inhibit (264 (7) PROVISIONAL)",
+   "value": {
+    "v": true,
+    "tag": "LEAD 264 (7) PROVISIONAL",
+    "unit": "-",
+    "src": "config.h kJfwdLsRelightInhibit"
+   },
+   "basis": "v2.13 (REV-ELEC-4 E4-05 (3), Q2; config.h)",
+   "decision": "v4.2 row (v2.13)"
+  },
+  {
+   "limit": "SEAT_STEP relight inhibit (A5 option; lead to rule)",
+   "value": {
+    "v": false,
+    "tag": "DESIGN, author recommendation; LEAD to rule",
+    "unit": "-",
+    "src": "config.h kSeatStepRelightInhibit"
+   },
+   "basis": "v2.13 (REV-ELEC-4 E4-05 (3), Q2; config.h)",
+   "decision": "v4.2 row (v2.13)"
   }
  ],
  "over_thrust": {
@@ -8425,7 +8750,7 @@
     "tag": "ASSUMED space reservation incl. flanges and horn hub; excludes horn sweep"
    },
    "mounting_pattern": {
-    "v": "standard-size servo flange, 4 x ~Ø4.5 mm on ~49.5 x 10 mm",
+    "v": "standard-size servo flange, 4 x ~\u00d84.5 mm on ~49.5 x 10 mm",
     "tag": "ASSUMED class value - VERIFY on received unit before machining"
    },
    "output": {
@@ -8608,7 +8933,7 @@
     "tag": "ASSUMED space reservation incl. flanges and horn hub; excludes horn sweep"
    },
    "mounting_pattern": {
-    "v": "standard-size servo flange, 4 x ~Ø4.5 mm on ~49.5 x 10 mm",
+    "v": "standard-size servo flange, 4 x ~\u00d84.5 mm on ~49.5 x 10 mm",
     "tag": "ASSUMED class value - VERIFY on received unit before machining"
    },
    "output": {
@@ -9025,7 +9350,7 @@
      "PC": "Kulite XTL-190SM-2000A (C1, seat-mounted on the head, J601)",
      "P_FEED": "Kulite XTL-190SM-2000A (C1, J602)",
      "P_MID": "Kulite XTL-190SM-2000A (C1, J511)",
-     "P_TORCH": "TE M3234-000005-070BG (J901)",
+     "P_TORCH": "Kulite XTL-190SM-2000A (C1 family, proof 206.8 bar abs [DATASHEET]; J901, on the torch body) - 264 (4) option 2 ADOPTED; re-base of kTorchArmZeroMax_Pa / kPtorchRezeroMax_Pa OPEN (E4-N04)",
      "P_TANK": "TE M3234-000005-170BG (J603)",
      "stand_static_reference": "TE M3234-000005-070BG (B-PC-1, BOM 199)"
     },
@@ -9084,7 +9409,7 @@
     "TC1 type K case az 90 (U604)",
     "TC2 type K case az 270 (U605)",
     "TC3 type K nozzle holder (U606)",
-    "TC4 type K bore top (U904)",
+    "TC4 type K C1 seat (MAX31856 U904, J904; grounded-junction MI type K at the C1 boss; input of the option (b) seat compensation)",
     "TC5 type T MSS-1 (U905)",
     "TC6 type T MSS-2 (U906)"
    ],
@@ -9126,7 +9451,72 @@
     "tag": "ASSUMED",
     "src": "config.h kNozzleHolderOverTemp_K"
    },
-   "install": "TC junction spot-welded to a 4 x 4 x 0.05 mm 304 SS shim; 25 um polyimide film between shim and the 6061 case OD (electrical isolation: the MAX31856 needs a floating TC, BIAS to T-, DS Note 6); high-temperature filled adhesive both sides (>= 200 C continuous rating: soak 190.9 C SIM); 0.25 mm glass-braid K leads anchored 15 mm along the hoop isotherm, then strain-relieved; no connector (continuous Class 1 wire to J605 / J606)"
+   "install": "TC junction spot-welded to a 4 x 4 x 0.05 mm 304 SS shim; 25 um polyimide film between shim and the 6061 case OD (electrical isolation: the MAX31856 needs a floating TC, BIAS to T-, DS Note 6); high-temperature filled adhesive both sides (>= 200 C continuous rating: soak 190.9 C SIM); 0.25 mm glass-braid K leads anchored 15 mm along the hoop isotherm, then strain-relieved; no connector (continuous Class 1 wire to J605 / J606)",
+   "tc4_hal_contract_v2p13": {
+    "hold_last_conversion": "Inputs::tc_bore_K holds the last MAX31856 conversion between conversions (a change of the value = a new conversion for the step check); tc_bore_valid false only on a fault (types.h)",
+    "filter": {
+     "v": "50 Hz notch (CR0 bit 0 = 1)",
+     "tag": "LEAD 16:11Z ITEM 3; DK (Sonderborg) and AR mains are 50 Hz"
+    },
+    "mode": {
+     "v": "auto-conversion, CMODE = 1 (\"Conversions occur continuously every 100ms (nominal)\")",
+     "tag": "DATASHEET 19-7534 Rev 0 (2/15); TO-VERIFY on the PDF"
+    },
+    "avgsel_max_samples": {
+     "v": 2.0,
+     "tag": "LEAD 16:11Z ITEM 3",
+     "unit": "-",
+     "src": "config.h kPcSeatAvgselMax"
+    },
+    "conversion_period_max": {
+     "v": 0.13,
+     "tag": "DATASHEET 19-7534 Rev 0 tCONV 50 Hz MAX 110 ms + (samples - 1) x 20 ms; TYP / MAX columns TO-VERIFY on the PDF",
+     "unit": "s",
+     "src": "config.h kPcSeatConvMax_s"
+    },
+    "tCONV_datasheet": {
+     "v": {
+      "auto_conversion_2_to_n_ms": {
+       "60Hz": [
+        82,
+        90
+       ],
+       "50Hz": [
+        98,
+        110
+       ]
+      },
+      "one_shot_or_first_ms": {
+       "60Hz": [
+        143,
+        155
+       ],
+       "50Hz": [
+        169,
+        185
+       ]
+      },
+      "avgsel_add_per_conversion_ms": {
+       "60Hz": "(samples - 1) x 16.67",
+       "50Hz": "(samples - 1) x 20"
+      },
+      "avgsel_add_first_conversion_ms": {
+       "60Hz": "33.33 per extra sample",
+       "50Hz": "40 per extra sample"
+      }
+     },
+     "tag": "DATASHEET 19-7534 Rev 0 (2/15), tCONV [TYP, MAX], https://www-cce.cldnet.analog.com/media/en/technical-documentation/data-sheets/MAX31856.pdf (LEAD 16:11Z); TYP / MAX columns TO-VERIFY on the PDF"
+    },
+    "step_limit_margin": {
+     "v": "2.42 K/s x 0.110 s = 0.27 K per conversion = 5.6x under 1.5 K (1 sample); 0.31 K = 4.8x at 2 samples (0.130 s); 4 samples 3.6x, 16 samples 1.5x (not allowed); a longer configured period needs kPcSeatStepMax_K re-derived (6 x 2.42 K/s x period)",
+     "tag": "DERIVED (DATASHEET periods x SIM 2.42 K/s, REV-ELEC-4 data/seat_rate_max.json); config.h static_assert 4 x 2.42 x kPcSeatConvMax_s <= kPcSeatStepMax_K"
+    },
+    "bench": "B-TC-1 measures the conversion period on the flight U904 (bench plan v5.1)",
+    "E4_N10_grounded_junction": {
+     "v": "OPEN: v4.1 cites MAX31856 DS Note 6 for the case TCs (\"the MAX31856 needs a floating TC, BIAS to T-\"); TC4 is a grounded-junction MI TC at the C1 boss, which conflicts with that note (input common-mode range, open-TC detection with BIAS, ground loop and the E4-01 EMI path). Not closed in v2.13: the datasheet text on the grounded-junction common mode and fault detection has not been read from the PDF this round",
+     "tag": "TO-VERIFY (DATASHEET 19-7534 Rev 0 Note 6, as cited in v4.1); OI-TC4-GROUNDED-JUNCTION"
+    }
+   }
   },
   "photodiode": "FA-1 head on J902 (Si photodiode + log TIA, 0-5 V), part TO-SELECT (BOM row); valid 0.02 V to 4.8 V",
   "temperature_other": [
@@ -9493,10 +9883,30 @@
    "mitigation": "none in v2.11 (OI-BLEED-DETECT); pad BIT S1 / S3 catch a single stuck-open valve before flight",
    "source": "CHANGELOG line 203 (lead, 2026-10-13): ...rge_bound wording is corrected in v3.2. (4) S12 OI-BLEED-DETECT (V1 stuck open with V2 closed: undetected on the stand, 5.05 s late in flight, 104 g): v2.11 design item, detection <= 0.5 s on stand and flight, or an FMEA residual with its vented mass given to ...",
    "tag": "SIM S12 v2.11 (SIL plant ESTIMATE); residual for GNC / FMEA (LEAD 203 (4))"
+  },
+  {
+   "id": "FMEA-A1-TC4-READING",
+   "mode": "TC4 seat TC (MAX31856 U904, J904, grounded-junction MI type K at the C1 boss) reading error",
+   "causes": "spark-coupled interference, a lead short to a colder point, junction debond, open TC, MAX31856 fault",
+   "local_effect": "the compensation wrong by coef x dT, i.e. 0.0248-0.0744 bar/K at k 1-3",
+   "system_effect_without_the_fix": "false or premature E2 with run-lift flow into an unlit chamber; at A1 k = 3 with >= 30 K the FC release predicate is met at the false E2 and the engine aborts 280 ms later; a lost relight or first start (FLAMEOUT / PC_SENSOR / TORCH_LOST); in RUN a false FLAMEOUT after a true light (+90 K at A1 k = 3: E2 + 58 ms); a Pc bias up to coef x 150 K = 3.7 bar (k = 1), 11.2 bar (k = 3) [SIM reviewer SIL / DERIVED, REV-ELEC-4 Q2]",
+   "detection": "MAX31856 fault bits (tc_bore_valid), range 223.15-473.15 K, 150 K from the reference, f3 SEAT_STEP (step 1.5 K per conversion, rate 3 K from T_c)",
+   "mitigation": "v2.13: light-window hold (IGNITION entry .. E2 + 0.45 s), step check every conversion in every state, rate check / 5 K/s slew outside the hold, catch-up after the hold (ITEM 2), trip = compensation held until the next ARM",
+   "residual": "an uncompensated seat drift after a hold or a trip: fail-safe refusals of the v2.11 type (A5 evidence); an error below the step and rate limits (< 1.5 K per conversion and a ramp <= 5 K/s) is followed by the compensation: <= coef x 3 K = 0.22 bar at k = 3 outside the hold [DERIVED]; inside the hold no TC4 reading moves Pc",
+   "source": "REV-ELEC-4 E4-01 / Q2; ECU v2.13; SIL S13F (v2p13_delta.sil.s13f)"
+  },
+  {
+   "id": "FMEA-A1-SEAT-RULE-BUILD",
+   "mode": "A1 image built with seat_arm_rule FALSE (the core default kSeatArmRuleBuild; the A1 HAL must set TRUE)",
+   "effect": "flight ARM allowed without the coefficient loaded or with TC4 invalid: the 264 (2) protection is lost (the fallback, which loses the A1 relight at k = 3 [SIM S13T])",
+   "detection": "EVENT BUILD 0x25 b0 after power-up and at the ARM attempt, log ovr_flags b7; the pad row \"build bits\" (NO-GO on 0)",
+   "mitigation": "build requirement \"A1 flight build: seat_arm_rule TRUE\" next to kHbleedFitted (OI-A1-BUILD-SEAT-RULE, owner Electronics; the A1 HAL is not in this tree)",
+   "residual": "none beyond the pad procedure being followed",
+   "source": "LEAD 16:11Z RULING 1 (e)"
   }
  ],
  "pad_go_no_go_a1": {
-  "rule": "every item GO before the A1 launch commit; one NO-GO stops the count. The ECU items are SIL evidence (v2.11) until B-ECU-1, B-BLEED-1, B-TC-1 and B-FC-1 pass on hardware",
+  "rule": "every item GO before the A1 launch commit; one NO-GO stops the count. The ECU items are SIL evidence (v2.13) until B-ECU-1, B-BLEED-1, B-TC-1 and B-FC-1 pass on hardware. UNDER THE 266 (6) CARVE-OUT THE A1 PAD IS NO-GO until the v2.13 delta is reviewed (REV-ELEC-5)",
   "items": [
    {
     "item": "wind",
@@ -9511,7 +9921,7 @@
    {
     "item": "bleed closure",
     "go": "before IGNITE: V1 and V2 commanded closed with the drivers inhibited, P_mid low, no EVENT HBLEED leak/fault and no MV fault bit in TLM_FAST d6-d7. In the sequence: the pad BIT S0-S4 runs in PREPRESS and aborts BLEED_FAULT before IGNITION if a step fails (its result is not available at the launch commit)",
-    "source": "combustion.json v2.4b igniter.sequence.v.arm_preconditions; ECU v2.11 pad BIT"
+    "source": "combustion.json v2.4d igniter.sequence.v.arm_preconditions (path present in v2.4d); ECU v2.11 pad BIT"
    },
    {
     "item": "ECU armed",
@@ -9532,12 +9942,28 @@
     "item": "case TCs",
     "go": "TC1 and TC2 valid and at or below 403.15 K (130.0 C), TC3 at or below 523.15 K (250.0 C) (else ARM is refused OVER_TEMP)",
     "source": "LEAD 249 (4); ECU v2.11 ARM check; test_core \"v2.11 case A - 3 K\""
+   },
+   {
+    "item": "seat compensation (264 (2))",
+    "go": "the B-PC-1 coefficient is loaded (setPcSeatCoef != 0) and TC4 is valid and in range at ARM: the A1 flight image (seat_arm_rule TRUE) refuses ARM Abort::SEAT_TC (32) otherwise; on a refused ARM read abort_cause from the log (the only channel for every ARM-refusal cause, LEAD 16:28Z). NO-GO until the v2.13 delta is reviewed (266 (6))",
+    "source": "CHANGELOG 264 (2), 266 (6); ECU v2.13 armChecksOk / startBlock (test_v213 \"LEAD 264 (2) A1 pad rule\")"
+   },
+   {
+    "item": "build bits (RULING 1 (c), LEAD 16:27Z option (2))",
+    "go": "EVENT BUILD 0x25 read after power-up AND at the ARM attempt: arg b0 seat_arm_rule = 1 and b1 hbleed_fitted = the A1 build value (1 unless CF-4 clears the bleed: kHbleedFitted, LEAD 2026-10-13); log v13 ovr_flags b7 = 1. Any other value: NO-GO (an A1 image built with seat_arm_rule FALSE allows a flight ARM without the coefficient: FMEA-A1-SEAT-RULE-BUILD)",
+    "source": "LEAD 16:11Z RULING 1 (a)-(e), 16:27Z option (2); ECU v2.13 (test_v213 \"EVENT BUILD 0x25\")"
+   },
+   {
+    "item": "JFWD_LS relight inhibit (264 (7) PROVISIONAL)",
+    "go": "the A1 image carries kJfwdLsRelightInhibit TRUE (build constant; no ground input). In flight a flagged first light (f3 JFWD_LS) makes the ECU refuse PURGE / RELIGHT JFWD_USED (TLM_RELIGHT d6 = 17) and the FC takes the lost-relight outcome of gnc.json v3.2",
+    "source": "CHANGELOG 264 (7); ECU v2.13 startBlock (test_v213 \"LEAD 264 (7) PROVISIONAL\")"
    }
   ],
-  "bench_plan": "06-electronics/docs/bench_plan_v4.md, A1 pad go/no-go list"
+  "bench_plan": "06-electronics/staging_v2.13/docs/bench_plan_v5_1.md, A1 pad go/no-go list (v4.2 / v2.13 citations)",
+  "citation_note_v2p13": "E4-05 (5): item sources name the ECU version that introduced each check (v2.10 / v2.11); every one is present in the v2.13 firmware (test_core v2.13 run, v2p13_delta.tests); the rule and the bench plan cite v4.2 / v2.13 / bench plan v5.1"
  },
  "harness_across_gimbal": {
-  "bundle": "Pc C1 bridge (4 + shield: the Kulite integral 0.9 m cable to an in-line break, BOM v2.3 line 259), pintle servo HV69 (3 x AWG20 on PRAIL), pintle encoder (4 + shield), case TCs x2 + nozzle holder TC (K), bore-top TC (stand), servo-bracket NTC (2), photodiode head lead (3, shielded) if the head sits on the engine side; V1 bleed line -2 across the gimbal (Mechanical)",
+  "bundle": "Pc C1 bridge (4 + shield: the Kulite integral 0.9 m cable to an in-line break, BOM v2.5), pintle servo HV69 (3 x AWG20 on PRAIL), pintle encoder (4 + shield), case TCs x2 + nozzle holder TC (K), C1 seat TC (TC4, J904), servo-bracket NTC (2), photodiode head lead (3, shielded) if the head sits on the engine side; V1 bleed line -2 across the gimbal (Mechanical)",
   "igniter": "separate HV/pyro loop",
   "service_loop": "route near pivot axis, >= 100 mm free length, bend radius >= 10 x OD, clamp both ends, PTFE/FEP insulation + glass sleeve near chamber",
   "lengths": "TO-DEFINE on the CAD solids"
@@ -9971,7 +10397,7 @@
     "stuck_open_first_burn_d1.0mm"
    ],
    "mass_over_limit_cases": 6,
-   "mass_note": "purge mass from the SIL plant (single 1.0 mm equivalent orifice, Cd 0.70 ASSUMED, Dyer flux at the tank state): an ESTIMATE that differs from Combustion's decided-path value (<= 73.0 g at 2.5 s); B-BLEED-1 measures the mass (pass <= 76 g)",
+   "mass_note": "purge mass from the SIL plant (single 1.0 mm equivalent orifice, Cd 0.70 ASSUMED, Dyer flux at the tank state): the SIL nominal 76.38 g at 31.85 g/s is an ESTIMATE (the plant flow is 2.5 % above the 31.06 g/s bound) against the FINAL basis DERIVED 71.1-75.8 g (REV-ELEC-4 E4-05 (9) / E4-N05); B-BLEED-1 measures the mass (pass <= 76 g)",
    "label_note": "the S12 scenario text keeps its \"S12 v2.10\" label: it is the v2.11 run (manifest record)"
   },
   "sil_s11_fault_path_v4": [
@@ -10195,7 +10621,7 @@
   "superseded_by": "log_v13 (v2.12)"
  },
  "bom": {
-  "file": "06-electronics/results/bom_v2p3.csv (v2.3) 305dc29ff856475b; results/bom_v2p3.json 82d1ef1c6fcf92d3 (calc/v2p11/bom_v2p3.py)",
+  "file": "staging_v2.13/results/bom_v2p5.csv",
   "summary": {
    "version": "v2.3",
    "date": "2026-10-21",
@@ -10495,7 +10921,34 @@
   "v2p4": {
    "file": "06-electronics/results/bom_v2p4.csv eb6e77dcd4610383",
    "change": "rows 205 (TC4 becomes the C1 seat TC, flight use defined) and 251 (compensated band, R3-05) text only; 266 rows, line numbers kept; no price entered (TO-QUOTE delivered to Soenderborg, DK-6400)"
-  }
+  },
+  "v2p5": {
+   "sha256_16": "d684c4442e48a6eb",
+   "base": "results/bom_v2p4.csv eb6e77dcd4610383 (v4.1 bom dict cited v2.3: E4-05 (6))",
+   "changes": [
+    "row 187 relabelled \"C1 seat TC (TC4, MAX31856 U904, J904)\" (E4-06 (3))",
+    "C7 bore-top stand-DAQ TC added as a stand-only row (CHANGELOG l.55; config.h; E4-06 (4))",
+    "row 83 (J904) relabelled \"type K C1 seat TC (TC4, J904; v2.12 option (b) input)\" (E4-05 (6))",
+    "P_torch C1-family XTL-190SM-2000A row 267 and its INA333 amplifier row 268 (264 (4)); row 199 TE 070BG qty 2 -> 1 (B-PC-1 reference only), row 225 M3200 mates qty 3 -> 2, row 81 J901 connector to be replaced at schematic v2.6 (NOT drawn)",
+    "prices TO-QUOTE, delivered to Sonderborg DK-6400 (all new rows)",
+    "seat TC mass 5 g ASSUMED (mass statement)"
+   ],
+   "rows": 269,
+   "price_basis_counts": {
+    "CATALOGUE": 3,
+    "NO PURCHASE (PCB copper pad)": 26,
+    "NO PURCHASE (PCB hole)": 1,
+    "NO PURCHASE (superseded in v2.3: P_mid is a C1 Kulite channel, line 251)": 1,
+    "NO PURCHASE here (owner: Combustion / Mechanical)": 2,
+    "NO PURCHASE here (owner: Combustion)": 1,
+    "NO PURCHASE here (owner: GNC / Mechanical)": 1,
+    "NO PURCHASE here (owner: Mechanical (MV-P))": 2,
+    "NO PURCHASE here (owner: Mechanical)": 1,
+    "TO-QUOTE": 231
+   },
+   "total": "UNKNOWN: rows are TO-QUOTE (no zero and no from-prices used); delivered prices to Sonderborg, DK-6400 not quoted"
+  },
+  "summary_note": "summary is the v2.3 record (rows 1-266, unchanged here); v2p4 and v2p5 carry the later changes (E4-05 (6))"
  },
  "bench_plan": {
   "file": "06-electronics/docs/bench_plan_v5.md 360c1d6695cc305c",
@@ -10508,21 +10961,21 @@
     "B-PWR-1 / B-PWR-2: power and arming (RE-09)",
     "B-ECU-1: I/O, CAN and log",
     "B-PT-1 (new): tank-pressure channel calibration (LEAD 172 (4) guard band)",
-    "B-PC-1: Pc chain on the C1 transducer (REV §9; LEAD 166 (1), (5), 205, 206 (3))",
+    "B-PC-1: Pc chain on the C1 transducer (REV \u00a79; LEAD 166 (1), (5), 205, 206 (3))",
     "B-DPC-1 (new): stand dynamic Pc channel (LEAD 172 (5); range and proof per LEAD 194 (7), REV-COMB-3 R3-10)",
     "B-TC-1 (new): case-TC channel (Part A, LEAD rulings 2026-10-20; LEAD 243 (3))",
     "B-MV-1: main valve",
-    "B-PNT-1: pintle (ENG-03; REV §9)",
-    "B-TVC-1: gimbal (REV §9; RE-24)",
+    "B-PNT-1: pintle (ENG-03; REV \u00a79)",
+    "B-TVC-1: gimbal (REV \u00a79; RE-24)",
     "CHK-PW (new): hardware purge window (LEAD 166 (3); schematic v2.5)",
     "CHK-BT (new): hardware both-commanded-open timer (LEAD 166 (3), 216 (5); schematic v2.6 U576-U579, NOT drawn)",
-    "B-BLEED-1: head-end bleed (REV §9; LEAD 164, 166 (3))",
-    "B-IGN-1: igniter EMI (REV §9 via IGN-1; RE-18)",
+    "B-BLEED-1: head-end bleed (REV \u00a79; LEAD 164, 166 (3))",
+    "B-IGN-1: igniter EMI (REV \u00a79 via IGN-1; RE-18)",
     "B-FC-1: FC link, drogue telemetry, ABORT path, R2 command hold (LEAD 168, 175, 181, 186)",
     "B-SAFE-1 (new): stand safing after a no-light (LEAD 172 (1))",
     "HIL-OT-1 / HIL-TR-1 / HIL-RST-1 (RE-28; LEAD 166 (8))",
     "LEAK-1, CF-3, CF-4 (Mechanical / Combustion rigs; Electronics instrumentation)",
-    "IGN-1 / T1: relative light rule on hardware (REV §9)",
+    "IGN-1 / T1: relative light rule on hardware (REV \u00a79)",
     "T1-T4 F_acc (written out; no v1 text is needed)",
     "GSE: launch commit wind (LEAD 181 (6): HARD rule for A1; was provisional in LEAD 161 (6))",
     "A1 pad go/no-go list (LEAD 181 (6); LEAD 175 (4); combustion.json v2.4 arm preconditions)"
@@ -10615,7 +11068,14 @@
    "v": "Electronics net -0.061 kg; worst combination: Mechanical v3.5.2 +0.0118 kg (without the TC-09 thinning) + the C1 Pc addition with no credit for the P_feed / P_mid reduction = +0.025 kg; below the 0.10 kg re-fly trigger in every combination. Not CONFIRMED (nothing weighed): information for GNC, not a re-fly input",
    "tag": "DERIVED + Mechanical CALC (mechanical.json gimballed_mass_properties_v352)"
   },
-  "owner": "Mechanical carries the C1 masses and the removed 070BG / sense line in the ledger (requests)"
+  "owner": "Mechanical carries the C1 masses and the removed 070BG / sense line in the ledger (requests)",
+  "seat_tc_v2p13": {
+   "v": {
+    "C1_seat_TC_TC4_g": 5.0,
+    "note": "MI type K seat TC at the C1 boss with its lead to J904 (gimballed head side)"
+   },
+   "tag": "ASSUMED (5 g; not weighed); Mechanical carries it in the ledger; below the 0.10 kg re-fly trigger with the v4.1 combination (+0.030 kg worst)"
+  }
  },
  "open_issues": [
   {
@@ -10829,13 +11289,14 @@
    "severity": "HIGH",
    "owner": "LEAD (ruling) / Electronics / founders (B-PC-1, F-10) / Mechanical (seat TC mount)",
    "issue": "R3-01: option (b) implemented in SIL; needs the lead ruling, the per-serial coefficient and T_cal (B-PC-1 over 0-85 C), the thermal-zero maximum (F-10), the seat TC mounting at the C1 boss and the P_mid / U570 temperature (MISSING)",
-   "closure": "lead ruling; B-PC-1 zero-TC row; F-10 answer"
+   "closure": "lead ruling; B-PC-1 zero-TC row; F-10 answer",
+   "status_v2p13": "v4.2: the lead ruled 264 (2) (option (b) ADOPTED, A1 pad rule) and 264 (3); v2.13 adds the light-window hold, the TC4 step / rate checks and the catch-up (E4-01); remaining: REV-ELEC-5 on the v2.13 delta (266 (6) carve-out), the per-serial coefficient and T_cal (B-PC-1, E4-02 rule), F-10, the seat TC mount (Mechanical), P_mid / U570 (MISSING)"
   },
   {
    "id": "OI-STAND-RELIGHT-COEF",
    "severity": "MEDIUM",
    "owner": "Electronics / founders",
-   "issue": "S13T: a stand relight after a B1-length burn is refused NOT_VENTED when the seat coefficient is 10 % low at k >= 2 (0.27-0.40 bar residual on the 0.30 bar limit): B-PC-1 must hold the coefficient to about 5 % at k = 3 (safe refusal)",
+   "issue": "S13T: a stand relight after a B1-length burn is refused NOT_VENTED when the seat coefficient is 10 % low at k >= 2 (0.27-0.40 bar residual on the 0.30 bar limit): B-PC-1 must hold |eps| <= eps_max(k_meas) of the E4-02 table (0.8 % at k = 3 with the adders; beyond it the stand relight is planned REFUSED NOT_VENTED, safe)",
    "closure": "B-PC-1 per-serial residual over the 50.4 K span"
   },
   {
@@ -10843,21 +11304,94 @@
    "severity": "HIGH",
    "owner": "LEAD / Electronics / Combustion / Mechanical",
    "issue": "R4-12: 070BG proof 141.0 bar abs < 166.14 bar abs required at FA1S; isolate or move P_torch to a C1-family unit (rev_comb_4_items_v2p12.R4-12)",
-   "closure": "lead choice; F-7 / F-12 data"
+   "closure": "lead choice; F-7 / F-12 data",
+   "status_v2p13": "v4.2: CLOSED by 264 (4) option 2 (P_torch on the C1-family XTL-190SM-2000A, proof 206.8 bar abs [DATASHEET] >= 166.14 bar abs; BOM v2.5 rows 267-268); follow-on OI-PTORCH-REBASE (E4-N04)"
   },
   {
    "id": "OI-T4-RESIZE",
    "severity": "MEDIUM",
    "owner": "Combustion / Mechanical / LEAD",
    "issue": "N-07: at the B1 end-of-burn rate the re-sized T4 relight (4.59 s) needs the case TCs <= 112.7 C at the relight; the B1 p99 burn ends at about 137.8 C; a coast longer than about 19 s or a shorter relight (bench plan v5 T1-T4)",
-   "closure": "Combustion re-run of the T4 rows on the re-sized profile; Mechanical soak-back"
+   "closure": "Combustion re-run of the T4 rows on the re-sized profile; Mechanical soak-back",
+   "status_v2p13": "v4.2: 264 (5) adopted the shorter relight (coast not lengthened); bench plan v5.1 restates T4 as a relight-latency demonstration from a soaked state, its length from the Combustion T4 re-run (still OPEN), and T4 waits for the lift of 266 (6) (E4-06 (2))"
   },
   {
    "id": "OI-JFWD-FLIGHT",
    "severity": "MEDIUM",
    "owner": "LEAD",
    "issue": "a flagged first light (f3 JFWD_LS) leaves the relight on a used joint; line 231 covers one Z3 event per assembly (LEAD 258 (4) OPEN)",
-   "closure": "lead ruling before flight acceptance"
+   "closure": "lead ruling before flight acceptance",
+   "status_v2p13": "v4.2: 264 (7) PROVISIONAL inhibit IMPLEMENTED in v2.13 (kJfwdLsRelightInhibit true: PURGE / RELIGHT refused JFWD_USED 17 in flight after f3 JFWD_LS; unit test) with a pad row; the final ruling (LEAD 258 (4)) stays OPEN"
+  },
+  {
+   "id": "OI-REV-ELEC-5",
+   "severity": "HIGH",
+   "issue": "the v2.13 delta is not reviewed: the 266 (6) carve-out stays; A1 flight NO-GO; no stand relight",
+   "owner": "lead (REV-ELEC-5)",
+   "closure": "REV-ELEC-5 verdict + lead lift of 266 (6)"
+  },
+  {
+   "id": "OI-A1-BUILD-SEAT-RULE",
+   "severity": "HIGH",
+   "issue": "A1 flight build requirement: seat_arm_rule TRUE (next to kHbleedFitted); the A1 HAL is not in this tree",
+   "owner": "Electronics",
+   "closure": "HAL-1; pad row \"build bits\" (EVENT BUILD b0 = 1)"
+  },
+  {
+   "id": "OI-GNC-EVENT-BUILD",
+   "severity": "LOW",
+   "issue": "EVENT 0x25 BUILD is a new code (additive): confirm the FC ignores or decodes it",
+   "owner": "GNC",
+   "closure": "GNC statement against v4.2"
+  },
+  {
+   "id": "OI-SEAT-STEP-RELIGHT",
+   "severity": "MEDIUM",
+   "issue": "A5: SEAT_STEP latched before a relight - proceed on the held compensation (kSeatStepRelightInhibit false) or inhibit",
+   "owner": "lead",
+   "closure": "lead ruling on the A5 evidence (v2p13_delta.sil.a5_*)"
+  },
+  {
+   "id": "OI-TC4-GROUNDED-JUNCTION",
+   "severity": "MEDIUM",
+   "issue": "E4-N10: grounded-junction TC4 on the MAX31856 against DS Note 6 (floating TC, BIAS to T-): common-mode range, open-TC detection, EMI path; TO-VERIFY on the datasheet PDF; option: an insulated-junction TC4",
+   "owner": "Electronics (+ Mechanical for the mount)",
+   "closure": "datasheet read + B-TC-1 TC4 row"
+  },
+  {
+   "id": "OI-MAX31856-TCONV",
+   "severity": "LOW",
+   "issue": "tCONV TYP / MAX columns and the AVGSEL increments TO-VERIFY on the 19-7534 Rev 0 PDF; the bench measures the U904 period",
+   "owner": "Electronics",
+   "closure": "datasheet read + B-TC-1"
+  },
+  {
+   "id": "OI-PTORCH-REBASE",
+   "severity": "MEDIUM",
+   "issue": "E4-N04: with P_torch on the C1-family XTL-190SM-2000A the torch zero shift is 0.32 x k bar (A1) / 1.28 x k bar (stand) at 0.0248 bar/K [DERIVED], above kPtorchRezeroMax_Pa 0.60 bar on the stand for k >= 0.47: the re-base needs compensation or a photodiode-guarded torch gate; the torch local heat is MISSING",
+   "owner": "Electronics (re-base); Combustion / Mechanical (torch local heat)",
+   "closure": "next Electronics round after the torch heat"
+  },
+  {
+   "id": "OI-HB-BACKSTOP-2741",
+   "severity": "MEDIUM",
+   "issue": "E4-N08: the hardware both-open timer U577 allows up to 2.741 s if the firmware cap fails, above Combustion v2.4d \"never above\" 2.39 s; option RSET 59.0 kOhm (2.475 s nominal, 2.398 s minimum) narrows it",
+   "owner": "Combustion + lead",
+   "closure": "B-BLEED-1 ruling"
+  },
+  {
+   "id": "OI-SIL-MANIFEST-V2",
+   "severity": "LOW",
+   "issue": "E4-N11: SIL MANIFEST_v2 for the full record on v2.13 (Part C): NOT DONE in v2.13 (time box: Part A and B first, brief 15:32Z)",
+   "owner": "Electronics",
+   "closure": "next Electronics round (tools/sil_manifest_v1.py extended to the v2.13 scenarios)"
+  },
+  {
+   "id": "OI-S13T-COMPRESSED-AXIS",
+   "severity": "LOW",
+   "issue": "the S13T compressed SIL burn moves the stand TC4 node 25x faster than physical; the as-is v2.13 stand runs trip SEAT_STEP in burn 1 (artefact); the disclosed seat time-axis variant is the comparison basis; a real-time-burn S13T would remove it",
+   "owner": "Electronics",
+   "closure": "next SIL round"
   }
  ],
  "requests": [
@@ -11496,10 +12030,11 @@
  },
  "log_v13": {
   "v": "LogRecord v13 = 185 bytes at 1 kHz: v12 + int16 seat_comp_hPa (INT16_MIN = compensation off) + int16 seat_ref_dK (T_seat,ARM - 273.15 K in 0.1 K; INT16_MIN = no reference) + uint8 f3_flags (b0 TB_STATE, b1 TB_PCS_HIGH, b2 SEAT_COMP, b3 SEAT_FROZEN, b4 SEAT_NOREF, b5 JFWD_LS, b6 PT_RZ_REJ, b7 zero); kLogVersion 13",
-  "tag": "DESIGN protocol.h; test_core \"LogRecord v13 is 185 bytes\""
+  "tag": "DESIGN protocol.h; test_core \"LogRecord v13 is 185 bytes\"",
+  "ovr_flags_b7_v2p13": "ovr_flags b7 = ovr::SEAT_RULE_BUILD (EngineEcu::seat_arm_rule; was always 0); layout unchanged, 185 B, version 13"
  },
  "r3_01_c1_drift": {
-  "status": "SIL / CALC evidence complete for items 1-8 except P_mid / U570 (MISSING, Mechanical); option (b) implemented on the working basis; CLOSED WITH RESIDUAL pending the lead ruling (b) / fallback / decision (3), B-PC-1 (per-serial coefficient, T_cal) and F-10 (thermal-zero maximum)",
+  "status": "SIL / CALC evidence complete for items 1-8 except P_mid / U570 (MISSING, Mechanical); option (b) implemented on the working basis; CLOSED WITH RESIDUAL: the lead ruled CHANGELOG 264 (2) (option (b) ADOPTED; the fallback is not a flight configuration) and 264 (3) (decision (3), A1 BASE_AMB ADOPTED as built); the 266 (6) carve-out holds until the v2.13 delta is reviewed (REV-ELEC-5); residual: B-PC-1 (per-serial coefficient, T_cal) and F-10 (thermal-zero maximum)",
   "evidence": {
    "c1_drift": "results/v2p12/c1_drift_v2p12.json aefee7551cae1bbf",
    "S13T_default_build": "results/v2p12/sil/S13T_seat_drift_bpc1_false.json 24c3aa3c108a7651",
@@ -11917,7 +12452,11 @@
    "k_low_end_below_30_A1_T0_40C": 1.227,
    "k_low_end_below_30_A1_T0_20C": 2.82,
    "k_low_end_below_30_stand_T0_24C_B1_end": 1.73,
-   "band_high_add_for_S6R_S6C_recheck_bar": 4.456
+   "band_high_add_for_S6R_S6C_recheck_bar": 4.456,
+   "U330_ordering_stand_relight_light_E4_04": {
+    "v": "stand relight light: the U330 low edge falls below the 30 bar abs firmware abort from k = 0.725 at T0 24 C (29.59 bar abs at k = 1, 26.62 at k = 3) and from k = 1.21 at T0 0 C; under (b) the firmware reads the compensated Pc and U330 the raw path, so on a stand relight the hardware trip can act first. The SIL S13T stand relights reach a U330 node maximum of 15.73 bar abs [SIM], so no SIL run exercises it; the bench plan row is correct",
+    "tag": "DERIVED (REV-ELEC-4 E4-04, data/r4_01_c1_drift_v2.json); SIM for the node maximum"
+   }
   },
   "A5_model": {
    "v": "pc_zero_err(t) = s x k x 0.0248 bar/K x ((T0 - T_trim) + f(T0) x dT_seat(t)), dT_seat from Mechanical's seat history interpolated onto the SIL timeline (burn compressed onto the SIL burn, coast and relight in real time); applied to the C1 reading before the ADC and the U330 RC; seat TC model: lag 0.25 s, error +/-0.30 K after 0.70 s (comp_under / comp_over with the coefficient -/+10 %); P_mid / U570 at BL-08: MISSING (Mechanical c1seat/torch_port_bl08_v352_v1.json 20220647d32cbbbc gives the steps)",
@@ -12254,12 +12793,51 @@
    }
   },
   "stand_relight_after_B1": {
-   "v": "option (b): RUN (all comp / comp_over runs; comp_under refused NOT_VENTED at k >= 2-3: a coefficient 10 % low leaves 0.27-0.40 bar on the 0.30 bar limit); fallback (coefficient 0): REFUSED NOT_VENTED (refuse 8) in every run that arms - the uncompensated drift 0.78-4.10 bar exceeds the re-zero limit, both re-zeros are rejected and the stand vent check refuses (safe: no light attempted). RULE: a stand relight after a B1-length burn needs option (b) with the per-serial coefficient within about 5 % at k = 3 (B-PC-1 row)",
-   "tag": "SIM (S13T)"
+   "v": "option (b): RUN (all comp / comp_over runs; comp_under refused NOT_VENTED at k >= 2-3: a coefficient 10 % low leaves 0.27-0.40 bar on the 0.30 bar limit); fallback (coefficient 0): REFUSED NOT_VENTED (refuse 8) in every run that arms - the uncompensated drift 0.78-4.10 bar exceeds the re-zero limit, both re-zeros are rejected and the stand vent check refuses (safe: no light attempted). RULE (E4-02, Q3): a stand relight after a B1-length burn needs option (b) with |eps| <= eps_max(k_meas) of the E4-02 table (e4_02_rule)",
+   "tag": "SIM (S13T)",
+   "status_v2p13": "SUSPENDED under the 266 (6) carve-out until the v2.13 delta is reviewed (REV-ELEC-5); evidence on v2.13: v2p13_delta.sil"
   },
   "decision_3": {
    "v": "RECOMMENDATION: keep the A1 BASE_AMB outcome as built (PC_SENSOR abort on the relight, fail-safe, no false E2) and adopt option (b): with the compensation BASE_AMB occurs in 0 of the A1 runs (T0 0 / 20 / 40 C, k 1-3, both signs, coefficient +/-10 %, TC +/-0.3 K), every lit A1 run reaches RUN with E2 - light 15-19 ms and no unlit run reaches E2 (both builds). With the fallback (coefficient 0) at T0 20 C the A1 relight is lost at k = 3 in the default build (TORCH_FAULT on +, BASE_AMB -> PC_SENSOR on -) and already at k >= 1.5 on the - sign in the B-PC-1-shown build (base check 0.46 bar against the 0.55 bar needed); ARM is refused at T0 0 / 40 C (|T0 - T_cal| = 20 K) for k >= 1.5 and on one sign at k = 1.0 in SIL (static term 0.496 bar plus the ARM reading against 0.5 bar). The fallback is acceptable only with k <= 2 (default build) or k <= 1 (B-PC-1-shown build) by F-10, and with k x 0.0248 bar/K x |T0 - T_cal| clearly below 0.5 bar at ARM",
    "tag": "SIM (S13T) + DERIVED"
+  },
+  "e4_02_rule": {
+   "rule": "The coefficient error |eps| (fit or loaded value against the true slope) must satisfy |eps| <= eps_max(k_meas), k_meas = the B-PC-1 slope / 0.0248 bar/K, read from the table and interpolated DOWNWARD in k. If |eps| > eps_max(k_meas), the stand relight after a B1-length burn is planned as REFUSED NOT_VENTED (fail-safe; no relight objective claimed). Replaces \"within 5 % at k = 3\" (REV-ELEC-4 E4-02 / Q3; 266 (7))",
+   "table": [
+    {
+     "k": 1.0,
+     "eps_max_with_adders_pct": 11.2,
+     "without_adders_pct": 19.2
+    },
+    {
+     "k": 1.25,
+     "eps_max_with_adders_pct": 8.1,
+     "without_adders_pct": 14.5
+    },
+    {
+     "k": 1.5,
+     "eps_max_with_adders_pct": 6.0,
+     "without_adders_pct": 11.3
+    },
+    {
+     "k": 2.0,
+     "eps_max_with_adders_pct": 3.4,
+     "without_adders_pct": 7.4
+    },
+    {
+     "k": 2.5,
+     "eps_max_with_adders_pct": 1.8,
+     "without_adders_pct": 5.0
+    },
+    {
+     "k": 3.0,
+     "eps_max_with_adders_pct": 0.8,
+     "without_adders_pct": 3.4
+    }
+   ],
+   "tag": "DERIVED (REV-ELEC-4 scripts/e4_02_eps_table.py 8cfd6416b913b096, data/e4_02_eps_table.json bc09a12ed3c63351) on Mechanical SIM seat histories x the DATASHEET typical 0.0248 bar/K; tau 0.25 s and the 0.3 K TC error ASSUMED; adders 0.1012 bar (zero drift 0.05 ASSUMED, outgassing 0.05 DESIGN, noise 0.0012 DERIVED); T_aw 1500 K ASSUMED",
+   "re_zero1_note": "re-zero1 does not close at k = 3 with the adders even at eps 0; the NOT_VENTED check against re-zero1 needs eps <= 0.2-8.7 % for k 3-1 (not a second line to count on)",
+   "A1": "not affected: A1 re-zero2 closes to 11.5 % at k = 3 with the adders; the 10 % B-PC-1 pass criterion holds for flight (E4-N06: thin, 0.286 vs 0.30 bar)"
   }
  },
  "tb_state_v2p12": {
@@ -12583,7 +13161,7 @@
   }
  },
  "rev_elec_3_author_status": {
-  "R3-01": "CLOSED WITH RESIDUAL: r3_01_c1_drift (lead ruling on (b) / fallback / decision (3) pending; B-PC-1, F-10)",
+  "R3-01": "CLOSED WITH RESIDUAL: r3_01_c1_drift (lead ruled 264 (2) / 264 (3); 266 (6) carve-out until REV-ELEC-5; B-PC-1, F-10)",
   "R3-02": "CLOSED: bench plan v5 F-14 (verbatim rules, TB-state set, Q_JFWD signals); TB-state implemented; citation corrected (ride_through.S6R_in_window_overpressure.jfwd_rule)",
   "R3-03": "CLOSED: bench plan v5 B-TC-1 CJTO trim step (or the untrimmed formula) and EMI mean-shift pass",
   "R3-04": "CLOSED: verdict_227_5.conditions + decided_by_R2_runs",
@@ -12592,7 +13170,995 @@
   "N-01": "bench plan v5 B-MV-1 row (post-abort closure with the pintle on the ARM bus, with HIL-TR-1)",
   "N-02": "label: S6R input_peak_bar_abs = the profile head pressure at the abort (or at the run end), NOT the profile target (slow ramps abort before it: 36.41 / 18.71 bar against 60); SIL field name unchanged",
   "N-04": "R4-02 re-classification",
-  "N-07": "bench plan v5 T1-T4 rows re-sized inside A = 150 C (open conflict on the T4 coast: OI-T4-RESIZE)",
+  "N-07": "bench plan v5 T1-T4 rows re-sized inside A = 150 C (open conflict on the T4 coast: OI-T4-RESIZE); v4.2: T4 restated as a relight-latency demonstration from a soaked state (264 (5), bench plan v5.1, E4-06 (2))",
   "N-09": "config.h comments corrected (R2 hold, 070BG re-zero basis, P_mid chain, closure-confirmation signal, U576-U579; also the ARM limit FS basis and the flow-start 0.42 s); OI-STALE-LABELS CLOSED"
+ },
+ "lead_message_times_v2p13": "citations \"LEAD 16:11Z\", \"LEAD 16:27Z\" and \"LEAD 16:28Z\" in the v2.13 sources and here name the lead messages sent 16:11:21Z, 16:25:26Z (headed 16:27Z, CHANGELOG 268 (10)) and 16:28:24Z (CHANGELOG 268 (4))",
+ "changelog_folding_v2p13": [
+  {
+   "item": "264 (1) v2.12 handback received and verified",
+   "status": "FOLDED (information)"
+  },
+  {
+   "item": "264 (2) option (b) ADOPTED; A1 pad rule (coefficient loaded and TC4 valid at ARM)",
+   "status": "IMPLEMENTED v2.13 (EngineEcu::seat_arm_rule, Abort::SEAT_TC 32, refuse::SEAT_TC 18; A1 flight build TRUE = OPEN build item); acceptance sentence replaced by the E4-02 rule (266 (7))",
+   "where": "v2p13_delta.pad_rule_264_2; pad_go_no_go_a1; r3_01_c1_drift.e4_02_rule"
+  },
+  {
+   "item": "264 (3) decision (3) A1 BASE_AMB ADOPTED as built",
+   "status": "evidence re-shown on v2.13 (A8: v2p13_delta.sil.s13t)"
+  },
+  {
+   "item": "264 (4) P_torch -> XTL-190SM-2000A",
+   "status": "FOLDED (sensors, BOM v2.5); re-base OPEN (OI-PTORCH-REBASE, E4-N04)"
+  },
+  {
+   "item": "264 (5) T4 shorter relight",
+   "status": "FOLDED in bench plan v5.1 (T4 = relight-latency demonstration from a soaked state; length from the Combustion T4 re-run; waits for the lift of 266 (6))"
+  },
+  {
+   "item": "264 (6) A1 flight T0 0-40 C ASSUMED design range",
+   "status": "FOLDED (E4-N01: kPcSeatArmDevMax_K 40 K arms T0 0 C with T_cal 35 C); founders confirm the climate"
+  },
+  {
+   "item": "264 (7) JFWD_LS inhibits the A1 relight (PROVISIONAL)",
+   "status": "IMPLEMENTED v2.13 (jfwd_relight_inhibit, refuse::JFWD_USED 17, kJfwdLsRelightInhibit true)"
+  },
+  {
+   "item": "264 (8) REV-ELEC-4",
+   "status": "verdict ACCEPT WITH COMMENTS (266 (4)); v2.13 answers E4-01 .. E4-06; REV-ELEC-5 next"
+  },
+  {
+   "item": "266 (6) carve-out",
+   "status": "IN FORCE in v4.2 (status, pad rows, stand relight)"
+  },
+  {
+   "item": "266 (7) v4.1 promoted; TC4 rename; E4-02 / E4-03 / E4-04 corrections",
+   "status": "FOLDED (this file)"
+  }
+ ],
+ "v2p13_delta": {
+  "E4_01_hold_and_checks": {
+   "hold": "T_c frozen from IGNITION entry (the entry-tick compensation is the latched value; entry >= 45 ms before E1 [SIM]) to E2 + kPcSeatHoldPostE2_s, or until IGNITION is left without E2",
+   "step_check": "every conversion, every state (inside the hold too): |T_n - T_n-1| > kPcSeatStepMax_K -> SEAT_STEP",
+   "rate_check": "outside the hold: T_c slews toward the reading at <= kPcSeatSlew_Kps; |reading - T_c| > kPcSeatRateTrip_K -> SEAT_STEP",
+   "catch_up_ITEM_2": "after the hold, if 3 K < g0 <= kPcSeatSlew_Kps x hold duration: the rate trip is replaced, while T_c slews, by a growth trip (gap > lowest gap since the hold end + kPcSeatStepMax_K) and a time cap (gap still > 3 K at kPcSeatCatchCapX x hold duration after the hold end); the normal check resumes at gap <= 3 K; g0 above the bound trips at the hold end; the step check stays on (LEAD 16:27Z ACCEPTED)",
+   "on_trip": "T_c holds its last good value, f3 SEAT_STEP (log v13 f3_flags b7) latched until the next ARM",
+   "constants": {
+    "kPcSeatStepMax_K": {
+     "v": 1.5,
+     "tag": "REV-ELEC-4 Q2; DERIVED: 6 x the 0.24 K per 0.1 s physical maximum",
+     "unit": "K",
+     "src": "config.h kPcSeatStepMax_K"
+    },
+    "kPcSeatSlew_Kps": {
+     "v": 5.0,
+     "tag": "REV-ELEC-4 Q2: about 2 x the 2.42 K/s physical maximum",
+     "unit": "K/s",
+     "src": "config.h kPcSeatSlew_Kps"
+    },
+    "kPcSeatRateTrip_K": {
+     "v": 3.0,
+     "tag": "REV-ELEC-4 Q2",
+     "unit": "K",
+     "src": "config.h kPcSeatRateTrip_K"
+    },
+    "kPcSeatHoldPostE2_s": {
+     "v": 0.45,
+     "tag": "REV-ELEC-4 Q2",
+     "unit": "s",
+     "src": "config.h kPcSeatHoldPostE2_s"
+    },
+    "kPcSeatCatchCapX": {
+     "v": 2.0,
+     "tag": "LEAD 16:11Z ITEM 2; DERIVED: legal catch-up <= 0.94 x the hold at 2.42 K/s",
+     "unit": "-",
+     "src": "config.h kPcSeatCatchCapX"
+    },
+    "kPcSeatAvgselMax": {
+     "v": 2.0,
+     "tag": "LEAD 16:11Z ITEM 3",
+     "unit": "-",
+     "src": "config.h kPcSeatAvgselMax"
+    },
+    "kPcSeatConvMax_s": {
+     "v": 0.13,
+     "tag": "DATASHEET 19-7534 tCONV 50 Hz MAX + AVGSEL; TO-VERIFY",
+     "unit": "s",
+     "src": "config.h kPcSeatConvMax_s"
+    }
+   },
+   "hold_cost_re_derived": {
+    "v": {
+     "A1": {
+      "first_start": {
+       "drift_entry_to_E2_K": 0.0036,
+       "bar_k1": 0.0001,
+       "bar_k3": 0.0003,
+       "drift_whole_hold_K": 0.0376,
+       "whole_hold_bar_k3": 0.0028
+      },
+      "relight_nominal": {
+       "drift_entry_to_E2_K": 0.4369,
+       "bar_k1": 0.0108,
+       "bar_k3": 0.0325,
+       "drift_whole_hold_K": 0.6235,
+       "whole_hold_bar_k3": 0.0464
+      },
+      "relight_any_time": {
+       "drift_entry_to_E2_K": 0.9653,
+       "bar_k1": 0.0239,
+       "bar_k3": 0.0718,
+       "drift_whole_hold_K": 1.5869,
+       "whole_hold_bar_k3": 0.1181
+      }
+     },
+     "GVHI": {
+      "first_start": {
+       "drift_entry_to_E2_K": 0.0064,
+       "bar_k1": 0.0002,
+       "bar_k3": 0.0005,
+       "drift_whole_hold_K": 0.0351,
+       "whole_hold_bar_k3": 0.0026
+      },
+      "relight_nominal": {
+       "drift_entry_to_E2_K": 0.5225,
+       "bar_k1": 0.013,
+       "bar_k3": 0.0389,
+       "drift_whole_hold_K": 1.0902,
+       "whole_hold_bar_k3": 0.0811
+      },
+      "relight_any_time": {
+       "drift_entry_to_E2_K": 0.9536,
+       "bar_k1": 0.0236,
+       "bar_k3": 0.0709,
+       "drift_whole_hold_K": 2.0237,
+       "whole_hold_bar_k3": 0.1506
+      }
+     },
+     "GVLO": {
+      "first_start": {
+       "drift_entry_to_E2_K": 0.0064,
+       "bar_k1": 0.0002,
+       "bar_k3": 0.0005,
+       "drift_whole_hold_K": 0.0351,
+       "whole_hold_bar_k3": 0.0026
+      },
+      "relight_nominal": {
+       "drift_entry_to_E2_K": 0.4499,
+       "bar_k1": 0.0112,
+       "bar_k3": 0.0335,
+       "drift_whole_hold_K": 0.933,
+       "whole_hold_bar_k3": 0.0694
+      },
+      "relight_any_time": {
+       "drift_entry_to_E2_K": 0.972,
+       "bar_k1": 0.0241,
+       "bar_k3": 0.0723,
+       "drift_whole_hold_K": 2.0628,
+       "whole_hold_bar_k3": 0.1535
+      }
+     }
+    },
+    "tag": "DERIVED on SIM (Mechanical seat histories); coef k = 1 0.0248 bar/K, k = 3 0.0744 bar/K (sim.h seat_c_PaK)",
+    "file": "results/v2p13/item2_hold_gap.json",
+    "sha256_16": "d872a0478f3483e2"
+   },
+   "ITEM_2_hold_end_gap": {
+    "v": {
+     "longest_legal_hold_s": {
+      "A1_flight_relight": 1.1480000000000001,
+      "A1_pad_first": 0.898,
+      "stand_first": 0.848,
+      "stand_relight": 0.851
+     },
+     "A1_relight": {
+      "nominal_E0_g0_K": 0.6235,
+      "nominal_margin_vs_3K": 4.81,
+      "envelope_g0_K": 1.5869,
+      "envelope_margin_vs_3K": 1.89,
+      "envelope_max_rate_Kps": 1.383,
+      "margin_with_catch_up_bound": 3.62
+     },
+     "stand_relight_GVHI": {
+      "nominal_E0_g0_K": 1.0902,
+      "envelope_g0_K": 2.0237,
+      "envelope_margin_vs_3K": 1.48,
+      "margin_with_catch_up_bound": 2.1
+     },
+     "stand_relight_GVLO": {
+      "nominal_E0_g0_K": 0.933,
+      "envelope_g0_K": 2.0628,
+      "envelope_margin_vs_3K": 1.45,
+      "margin_with_catch_up_bound": 2.06
+     },
+     "first_starts_g0_K": {
+      "A1_pad": 0.0376,
+      "stand": 0.0351
+     },
+     "widest_accepted_g0_compensation_error": "coef x 5 K/s x hold duration: k = 3, 1.148 s flight-relight hold -> 0.0744 bar/K x 5.74 K = 0.43 bar at the hold end; it decays as T_c closes at (5 - r) K/s: <= 1.6 s at r = 1.383 K/s (A1 envelope), and at most kPcSeatCatchCapX x hold = 2.3 s before a trip; it lands in RUN after E2 + 0.45 s (the relight base and the light rule are latched before E2; it can touch the RUN monitors: PC_BAND, the 30 bar firmware over-pressure and FLAMEOUT read the compensated Pc). A physical seat (<= 2.42 K/s) gives g0 <= 1.59 / 2.06 K = 0.12 / 0.15 bar [DERIVED]; REV-ELEC-5 judges tying the bound to the physical maximum (one constant)"
+    },
+    "tag": "DERIVED on SIM (Mechanical seat histories, TC4 node) - results/v2p13/item2_hold_gap.json; preliminary SIM rates from REV-ELEC-4 data/seat_rate_max.json 750d091d7e5ec049"
+   }
+  },
+  "E4_03": "both fixes: SAFE entry clears the seat reference / compensation / hold, and the ARM check compares |pc_f_ + pc_zero_ + seat_comp_ - arm_stat| (UT-4: 0 of 8 differ)",
+  "E4_N01": "kPcSeatArmDevMax_K 30 -> 40 K (option 2 of the review) with a unit test (T0 0 C / T_cal 35 C arms; +0.6 bar still refused; 40.5 K refused)",
+  "pad_rule_264_2": {
+   "ecu": "EngineEcu::seat_arm_rule (core default kSeatArmRuleBuild FALSE; A1 flight build TRUE, the kHbleedFitted pattern, LEAD 16:11Z RULING 1 ACCEPTED)",
+   "flight_ARM": "refused Abort::SEAT_TC (32) if the coefficient is 0 or TC4 is invalid / out of range",
+   "pad_first_start": "PREPRESS / IGNITE (starts 0, flight) refused refuse::SEAT_TC (18) with no seat reference (SEAT_NOREF) or SEAT_STEP set",
+   "build_requirement": "A1 flight build: seat_arm_rule TRUE - OPEN build item, owner Electronics (the A1 HAL is not in this tree): OI-A1-BUILD-SEAT-RULE",
+   "reporting": "EVENT BUILD 0x25 b0 + log ovr_flags b7 (can_interface.v2p13_additions)"
+  },
+  "jfwd_inhibit_264_7": "PURGE / RELIGHT / IGNITE with starts >= 1 in flight refused refuse::JFWD_USED (17) when f3 JFWD_LS is latched (kJfwdLsRelightInhibit true, PROVISIONAL)",
+  "A5_seat_step_option": "kSeatStepRelightInhibit (default false = proceed on the held compensation; true = refuse::SEAT_STEP (19)); the lead rules after the A5 evidence (sil.a5_*)",
+  "A5_recommendation": {
+   "recommendation": "PROCEED HELD (kSeatStepRelightInhibit false, as built); the lead rules (OI-SEAT-STEP-RELIGHT)",
+   "sim_bpc1_false": {
+    "n_runs": 108,
+    "n_FALSE_E2": 0,
+    "n_E2_before_light": 0,
+    "n_lit_RUN": 12,
+    "n_lit_refused": 44,
+    "n_lit_abort_or_other": 4,
+    "n_lit_controls_RUN": 12,
+    "tally": {
+     "inhibit lit REFUSED": 12,
+     "proceed lit PC_SENSOR": 2,
+     "proceed lit REFUSED": 32,
+     "proceed lit RUN": 12,
+     "proceed lit TORCH_FAULT": 2,
+     "proceed unlit REFUSED": 32,
+     "proceed unlit unlit_NO_IGNITION": 12,
+     "proceed unlit unlit_PC_SENSOR": 2,
+     "proceed unlit unlit_TORCH_FAULT": 2
+    },
+    "cells": {
+     "A1_flight burn1 proceed lit": {
+      "PC_SENSOR": 2,
+      "RUN": 4,
+      "SEAT_STEP": 8,
+      "TORCH_FAULT": 2,
+      "abort_PC_SENSOR": 2,
+      "abort_TORCH_FAULT": 2,
+      "n": 8
+     },
+     "A1_flight coast proceed lit": {
+      "RUN": 8,
+      "SEAT_STEP": 8,
+      "n": 8
+     },
+     "A1_flight burn1 proceed unlit": {
+      "SEAT_STEP": 8,
+      "abort_NO_IGNITION": 4,
+      "abort_PC_SENSOR": 2,
+      "abort_TORCH_FAULT": 2,
+      "n": 8,
+      "unlit_NO_IGNITION": 4,
+      "unlit_PC_SENSOR": 2,
+      "unlit_TORCH_FAULT": 2
+     },
+     "A1_flight coast proceed unlit": {
+      "SEAT_STEP": 8,
+      "abort_NO_IGNITION": 8,
+      "n": 8,
+      "unlit_NO_IGNITION": 8
+     },
+     "A1_flight burn1 inhibit lit": {
+      "REFUSED": 2,
+      "SEAT_STEP": 2,
+      "n": 2,
+      "refuse_19": 2
+     },
+     "A1_flight coast inhibit lit": {
+      "REFUSED": 2,
+      "SEAT_STEP": 2,
+      "n": 2,
+      "refuse_19": 2
+     },
+     "stand_after_B1_GVHI burn1 proceed lit": {
+      "REFUSED": 8,
+      "SEAT_STEP": 8,
+      "n": 8,
+      "refuse_8": 8
+     },
+     "stand_after_B1_GVHI coast proceed lit": {
+      "REFUSED": 8,
+      "SEAT_STEP": 8,
+      "n": 8,
+      "refuse_8": 8
+     },
+     "stand_after_B1_GVHI burn1 proceed unlit": {
+      "REFUSED": 8,
+      "SEAT_STEP": 8,
+      "n": 8,
+      "refuse_8": 8
+     },
+     "stand_after_B1_GVHI coast proceed unlit": {
+      "REFUSED": 8,
+      "SEAT_STEP": 8,
+      "n": 8,
+      "refuse_8": 8
+     },
+     "stand_after_B1_GVHI burn1 inhibit lit": {
+      "REFUSED": 2,
+      "SEAT_STEP": 2,
+      "n": 2,
+      "refuse_8": 2
+     },
+     "stand_after_B1_GVHI coast inhibit lit": {
+      "REFUSED": 2,
+      "SEAT_STEP": 2,
+      "n": 2,
+      "refuse_8": 2
+     },
+     "stand_after_B1_GVLO burn1 proceed lit": {
+      "REFUSED": 8,
+      "SEAT_STEP": 8,
+      "n": 8,
+      "refuse_8": 8
+     },
+     "stand_after_B1_GVLO coast proceed lit": {
+      "REFUSED": 8,
+      "SEAT_STEP": 8,
+      "n": 8,
+      "refuse_8": 8
+     },
+     "stand_after_B1_GVLO burn1 proceed unlit": {
+      "REFUSED": 8,
+      "SEAT_STEP": 8,
+      "n": 8,
+      "refuse_8": 8
+     },
+     "stand_after_B1_GVLO coast proceed unlit": {
+      "REFUSED": 8,
+      "SEAT_STEP": 8,
+      "n": 8,
+      "refuse_8": 8
+     },
+     "stand_after_B1_GVLO burn1 inhibit lit": {
+      "REFUSED": 2,
+      "SEAT_STEP": 2,
+      "n": 2,
+      "refuse_8": 2
+     },
+     "stand_after_B1_GVLO coast inhibit lit": {
+      "REFUSED": 2,
+      "SEAT_STEP": 2,
+      "n": 2,
+      "refuse_8": 2
+     }
+    }
+   },
+   "sim_bpc1_true": {
+    "n_runs": 108,
+    "n_FALSE_E2": 0,
+    "n_E2_before_light": 0,
+    "n_lit_RUN": 10,
+    "n_lit_refused": 44,
+    "n_lit_abort_or_other": 6,
+    "n_lit_controls_RUN": 12,
+    "tally": {
+     "inhibit lit REFUSED": 12,
+     "proceed lit PC_SENSOR": 4,
+     "proceed lit REFUSED": 32,
+     "proceed lit RUN": 10,
+     "proceed lit TORCH_FAULT": 2,
+     "proceed unlit REFUSED": 32,
+     "proceed unlit unlit_NO_IGNITION": 10,
+     "proceed unlit unlit_PC_SENSOR": 4,
+     "proceed unlit unlit_TORCH_FAULT": 2
+    },
+    "cells": {
+     "A1_flight burn1 proceed lit": {
+      "PC_SENSOR": 2,
+      "RUN": 4,
+      "SEAT_STEP": 8,
+      "TORCH_FAULT": 2,
+      "abort_PC_SENSOR": 2,
+      "abort_TORCH_FAULT": 2,
+      "n": 8
+     },
+     "A1_flight coast proceed lit": {
+      "PC_SENSOR": 2,
+      "RUN": 6,
+      "SEAT_STEP": 8,
+      "abort_PC_SENSOR": 2,
+      "n": 8
+     },
+     "A1_flight burn1 proceed unlit": {
+      "SEAT_STEP": 8,
+      "abort_NO_IGNITION": 4,
+      "abort_PC_SENSOR": 2,
+      "abort_TORCH_FAULT": 2,
+      "n": 8,
+      "unlit_NO_IGNITION": 4,
+      "unlit_PC_SENSOR": 2,
+      "unlit_TORCH_FAULT": 2
+     },
+     "A1_flight coast proceed unlit": {
+      "SEAT_STEP": 8,
+      "abort_NO_IGNITION": 6,
+      "abort_PC_SENSOR": 2,
+      "n": 8,
+      "unlit_NO_IGNITION": 6,
+      "unlit_PC_SENSOR": 2
+     },
+     "A1_flight burn1 inhibit lit": {
+      "REFUSED": 2,
+      "SEAT_STEP": 2,
+      "n": 2,
+      "refuse_19": 2
+     },
+     "A1_flight coast inhibit lit": {
+      "REFUSED": 2,
+      "SEAT_STEP": 2,
+      "n": 2,
+      "refuse_19": 2
+     },
+     "stand_after_B1_GVHI burn1 proceed lit": {
+      "REFUSED": 8,
+      "SEAT_STEP": 8,
+      "n": 8,
+      "refuse_8": 8
+     },
+     "stand_after_B1_GVHI coast proceed lit": {
+      "REFUSED": 8,
+      "SEAT_STEP": 8,
+      "n": 8,
+      "refuse_8": 8
+     },
+     "stand_after_B1_GVHI burn1 proceed unlit": {
+      "REFUSED": 8,
+      "SEAT_STEP": 8,
+      "n": 8,
+      "refuse_8": 8
+     },
+     "stand_after_B1_GVHI coast proceed unlit": {
+      "REFUSED": 8,
+      "SEAT_STEP": 8,
+      "n": 8,
+      "refuse_8": 8
+     },
+     "stand_after_B1_GVHI burn1 inhibit lit": {
+      "REFUSED": 2,
+      "SEAT_STEP": 2,
+      "n": 2,
+      "refuse_8": 2
+     },
+     "stand_after_B1_GVHI coast inhibit lit": {
+      "REFUSED": 2,
+      "SEAT_STEP": 2,
+      "n": 2,
+      "refuse_8": 2
+     },
+     "stand_after_B1_GVLO burn1 proceed lit": {
+      "REFUSED": 8,
+      "SEAT_STEP": 8,
+      "n": 8,
+      "refuse_8": 8
+     },
+     "stand_after_B1_GVLO coast proceed lit": {
+      "REFUSED": 8,
+      "SEAT_STEP": 8,
+      "n": 8,
+      "refuse_8": 8
+     },
+     "stand_after_B1_GVLO burn1 proceed unlit": {
+      "REFUSED": 8,
+      "SEAT_STEP": 8,
+      "n": 8,
+      "refuse_8": 8
+     },
+     "stand_after_B1_GVLO coast proceed unlit": {
+      "REFUSED": 8,
+      "SEAT_STEP": 8,
+      "n": 8,
+      "refuse_8": 8
+     },
+     "stand_after_B1_GVLO burn1 inhibit lit": {
+      "REFUSED": 2,
+      "SEAT_STEP": 2,
+      "n": 2,
+      "refuse_8": 2
+     },
+     "stand_after_B1_GVLO coast inhibit lit": {
+      "REFUSED": 2,
+      "SEAT_STEP": 2,
+      "n": 2,
+      "refuse_8": 2
+     }
+    }
+   },
+   "stale_compensation_at_relight": {
+    "tag": "DERIVED on SIM (Mechanical seat histories, TC4 node dT_sensor_K; SIL burn 0.866 s mapped onto the Mechanical burn)",
+    "A1_flight": {
+     "burn1_2.90s": {
+      "t_mech_trip_s": 1.497,
+      "t_mech_relight_E0_s": 22.211,
+      "dT_K": 13.71,
+      "error_k1_bar": 0.34,
+      "error_k3_bar": 1.02
+     },
+     "coast_10.0s": {
+      "t_mech_trip_s": 10.141,
+      "t_mech_relight_E0_s": 22.211,
+      "dT_K": 9.53,
+      "error_k1_bar": 0.236,
+      "error_k3_bar": 0.709
+     }
+    },
+    "stand_after_B1_GVHI": {
+     "burn1_2.90s": {
+      "t_mech_trip_s": 9.151,
+      "t_mech_relight_E0_s": 40.321,
+      "dT_K": 50.97,
+      "error_k1_bar": 1.264,
+      "error_k3_bar": 3.792
+     },
+     "coast_10.0s": {
+      "t_mech_trip_s": 28.251,
+      "t_mech_relight_E0_s": 40.321,
+      "dT_K": 21.11,
+      "error_k1_bar": 0.524,
+      "error_k3_bar": 1.571
+     }
+    },
+    "stand_after_B1_GVLO": {
+     "burn1_2.90s": {
+      "t_mech_trip_s": 9.151,
+      "t_mech_relight_E0_s": 40.321,
+      "dT_K": 51.28,
+      "error_k1_bar": 1.272,
+      "error_k3_bar": 3.816
+     },
+     "coast_10.0s": {
+      "t_mech_trip_s": 28.251,
+      "t_mech_relight_E0_s": 40.321,
+      "dT_K": 20.04,
+      "error_k1_bar": 0.497,
+      "error_k3_bar": 1.491
+     }
+    }
+   },
+   "summary_file": {
+    "file": "results/v2p13/a5_s13f_summary_v2p13.json",
+    "sha256_16": "dcffeae54881c63d"
+   },
+   "why": "SIM (both builds): no FALSE_E2 and no E2 before the plant light with either option. A1 relight: PROCEED keeps the relight where the stale compensation is small (default build: every k = 1 case and every coast trip at 10.0 s, stale error <= 0.71 bar at k = 3, 12 of 16 lit relights RUN; B-PC-1-shown build: 10 of 16, the k = 3 s = -1 coast trips at -0.71 bar abort PC_SENSOR because its BASE_AMB bound is -0.46 bar) and fails safe where it is large (burn-1 trip at k = 3, about 1.0 bar: s = +1 -> TORCH_FAULT; s = -1 -> PC_SENSOR in IGNITION). Mechanism by code reading, not traced in SIL: TORCH_FAULT because the torch confirmation counts only while the main Pc gauge is below kTorchGateMaxPcG_Pa 1 bar, so the abort comes at the 0.16 s torch gate before the lift (no main N2O); PC_SENSOR because the A1 BASE_AMB path keeps P0 = 0 and the E1 -> E2 A7 low edge (P0 - 0.30 bar for 50 ms) trips after the lift, like an early NO_IGNITION. INHIBIT refuses every A1 relight after a SEAT_STEP (refuse 19). Stand relight: both options refuse (NOT_VENTED 8 is checked before SEAT_STEP 19; the stale error is 0.5-3.8 bar), so the stand outcome does not depend on the option",
+   "residual": "with PROCEED the frozen T_c stays frozen to the next ARM, so a stale offset coef x (seat rise since the trip) rides into the relight RUN and grows with the relight-burn seat rise: it is not the decaying ITEM 2 error. By code reading the existing gates bound the offset that can start the A1 relight: below +1.0 bar (the torch-confirmation gate kTorchGateMaxPcG_Pa) and above -kIgnBaseCheck_Pa = -0.76 bar (-0.46 bar in the B-PC-1-shown build: BASE_AMB sets P0 = 0 and the A7 hold low edge trips); SIL A5 agrees (+/-0.71 bar ran in the default build, -0.71 bar aborted in the B-PC-1-shown build, +/-1.02 bar aborted in both). It can touch the RUN monitors that read the compensated Pc (PC_BAND, the 30 bar firmware over-pressure, FLAMEOUT): s = +1 reads high (a later FLAMEOUT, an earlier over-pressure abort), s = -1 reads low (an earlier FLAMEOUT, safe direction). The A1 relight objective is the reason to proceed; INHIBIT is the conservative alternative at the cost of every relight after a SEAT_STEP. SIL plant on ASSUMED / Combustion bands: firmware-sequencing evidence only"
+  },
+  "tests": {
+   "test_core_hooks": "343 passed, 0 failed",
+   "test_core_nohooks": "342 passed, 0 failed",
+   "v2p13_units": {
+    "UT-1": "PASS",
+    "UT-2": "PASS",
+    "UT-3": "PASS",
+    "UT-4": "PASS",
+    "UT-5": "PASS",
+    "UT-6": "PASS"
+   },
+   "v2p13_other": {
+    "E4-N01 40 K": "PASS",
+    "264 (2) pad rule": "PASS",
+    "264 (7) JFWD / A5 option": "PASS",
+    "EVENT BUILD + log b7": "PASS",
+    "SEAT_TC no STATE event + encoder guard": "PASS"
+   },
+   "logs": {
+    "hooks": "a50fd6c1ac44ec13",
+    "nohooks": "6b6de5d7e562ecc1"
+   },
+   "disclosures": [
+    "UT-3 measures the step effect over 100 ms and bounds the later residual (the held-compensation residual coef x seat rate x time since the freeze)",
+    "UT-5 tolerance x 1.001 + 0.5 Pa (float rounding of T_c)",
+    "v212-1 (a) / (c) stimuli changed from instantaneous jumps to 4 K/s ramps (LEAD ACCEPTED 16:11Z); assertions unchanged"
+   ]
+  },
+  "sil": {
+   "s13t": {
+    "file": "results/v2p13/s13t_compare_v2p13.json",
+    "sha256_16": "00baa8ace021eeb7",
+    "builds": {
+     "bpc1_false": {
+      "variant": "as is",
+      "n_runs": 240,
+      "n_same": 163,
+      "n_differ": 77,
+      "n_FALSE_E2": 0,
+      "outcomes": {
+       "ARM_REFUSED": 49,
+       "PC_SENSOR": 1,
+       "REFUSED": 107,
+       "RUN": 48,
+       "TORCH_FAULT": 1,
+       "unlit_NO_IGNITION": 32,
+       "unlit_PC_SENSOR": 1,
+       "unlit_TORCH_FAULT": 1
+      },
+      "differ_by_location_comp": {
+       "stand_after_B1_GVHI comp": 32,
+       "stand_after_B1_GVHI comp_over": 8,
+       "stand_after_B1_GVHI comp_under": 6,
+       "stand_after_B1_GVLO comp": 16,
+       "stand_after_B1_GVLO comp_over": 8,
+       "stand_after_B1_GVLO comp_under": 7
+      },
+      "outcome_transitions": {
+       "REFUSED -> REFUSED": 3,
+       "RUN -> REFUSED": 58,
+       "unlit_NO_IGNITION -> REFUSED": 16
+      },
+      "SEAT_STEP_by_location_comp": {
+       "stand_after_B1_GVHI comp": 32,
+       "stand_after_B1_GVHI comp_over": 8,
+       "stand_after_B1_GVHI comp_under": 8,
+       "stand_after_B1_GVLO comp": 16,
+       "stand_after_B1_GVLO comp_over": 8,
+       "stand_after_B1_GVLO comp_under": 8
+      },
+      "A1_comp_runs": 64,
+      "A1_comp_BASE_AMB": 0
+     },
+     "bpc1_false_ts": {
+      "variant": "SIL-only seat time-axis hook (disclosed)",
+      "n_runs": 240,
+      "n_same": 239,
+      "n_differ": 1,
+      "n_FALSE_E2": 0,
+      "outcomes": {
+       "ARM_REFUSED": 49,
+       "PC_SENSOR": 1,
+       "REFUSED": 34,
+       "RUN": 105,
+       "TORCH_FAULT": 1,
+       "unlit_NO_IGNITION": 48,
+       "unlit_PC_SENSOR": 1,
+       "unlit_TORCH_FAULT": 1
+      },
+      "differ_by_location_comp": {
+       "stand_after_B1_GVLO comp_under": 1
+      },
+      "outcome_transitions": {
+       "RUN -> REFUSED": 1
+      },
+      "SEAT_STEP_by_location_comp": {},
+      "A1_comp_runs": 64,
+      "A1_comp_BASE_AMB": 0
+     },
+     "bpc1_true_ts": {
+      "variant": "SIL-only seat time-axis hook (disclosed)",
+      "n_runs": 240,
+      "n_same": 239,
+      "n_differ": 1,
+      "n_FALSE_E2": 0,
+      "outcomes": {
+       "ARM_REFUSED": 49,
+       "PC_SENSOR": 3,
+       "REFUSED": 34,
+       "RUN": 103,
+       "TORCH_FAULT": 1,
+       "unlit_NO_IGNITION": 46,
+       "unlit_PC_SENSOR": 3,
+       "unlit_TORCH_FAULT": 1
+      },
+      "differ_by_location_comp": {
+       "stand_after_B1_GVLO comp_under": 1
+      },
+      "outcome_transitions": {
+       "RUN -> REFUSED": 1
+      },
+      "SEAT_STEP_by_location_comp": {},
+      "A1_comp_runs": 64,
+      "A1_comp_BASE_AMB": 0
+     }
+    },
+    "tag": "SIM"
+   },
+   "s13f_bpc1_false": {
+    "n_controls": 112,
+    "n_controls_without_start": 0,
+    "n_fault_runs": 2576,
+    "n_FALSE_E2": 0,
+    "n_E2_before_light": 0,
+    "n_lit_not_RUN": 0,
+    "n_unlit_not_NO_IGNITION": 0,
+    "n_other_differs": 0,
+    "failures": [],
+    "pass_rule": "0 FALSE_E2; 0 E2 before the plant light; control RUN -> fault RUN with no abort; control unlit_NO_IGNITION -> fault unlit_NO_IGNITION; any other control outcome -> the same outcome",
+    "sha256_16": "504ae39fb9b76803"
+   },
+   "a5_bpc1_false": {
+    "n_runs": 108,
+    "n_FALSE_E2": 0,
+    "n_E2_before_light": 0,
+    "n_lit_RUN": 12,
+    "n_lit_refused": 44,
+    "n_lit_abort_or_other": 4,
+    "n_lit_controls_RUN": 12,
+    "tally": {
+     "inhibit lit REFUSED": 12,
+     "proceed lit PC_SENSOR": 2,
+     "proceed lit REFUSED": 32,
+     "proceed lit RUN": 12,
+     "proceed lit TORCH_FAULT": 2,
+     "proceed unlit REFUSED": 32,
+     "proceed unlit unlit_NO_IGNITION": 12,
+     "proceed unlit unlit_PC_SENSOR": 2,
+     "proceed unlit unlit_TORCH_FAULT": 2
+    },
+    "sha256_16": "0ddace7afedfc751"
+   },
+   "s13f_bpc1_true": {
+    "n_controls": 112,
+    "n_controls_without_start": 0,
+    "n_fault_runs": 2576,
+    "n_FALSE_E2": 0,
+    "n_E2_before_light": 0,
+    "n_lit_not_RUN": 0,
+    "n_unlit_not_NO_IGNITION": 0,
+    "n_other_differs": 0,
+    "failures": [],
+    "pass_rule": "0 FALSE_E2; 0 E2 before the plant light; control RUN -> fault RUN with no abort; control unlit_NO_IGNITION -> fault unlit_NO_IGNITION; any other control outcome -> the same outcome",
+    "sha256_16": "4d7fcdff06eeac50"
+   },
+   "a5_bpc1_true": {
+    "n_runs": 108,
+    "n_FALSE_E2": 0,
+    "n_E2_before_light": 0,
+    "n_lit_RUN": 10,
+    "n_lit_refused": 44,
+    "n_lit_abort_or_other": 6,
+    "n_lit_controls_RUN": 12,
+    "tally": {
+     "inhibit lit REFUSED": 12,
+     "proceed lit PC_SENSOR": 4,
+     "proceed lit REFUSED": 32,
+     "proceed lit RUN": 10,
+     "proceed lit TORCH_FAULT": 2,
+     "proceed unlit REFUSED": 32,
+     "proceed unlit unlit_NO_IGNITION": 10,
+     "proceed unlit unlit_PC_SENSOR": 4,
+     "proceed unlit unlit_TORCH_FAULT": 2
+    },
+    "sha256_16": "c23d50fea0044ad6"
+   },
+   "s12_bpc1_false": {
+    "n_cases": [
+     38,
+     38
+    ],
+    "fail": [
+     4,
+     4
+    ],
+    "failed_cases_v2p13": [
+     "stuck_open_after_lift_d0.6mm_stand",
+     "stuck_open_after_lift_d0.8mm_stand",
+     "stuck_open_after_lift_d1.0mm_stand",
+     "stuck_open_first_burn_d1.0mm"
+    ],
+    "mass_over_limit_cases": [
+     5,
+     5
+    ],
+    "n_differ": 0,
+    "differences": [],
+    "E4_05_9_stale_text_absent": true,
+    "mass_note_v2p13": "purge mass from the SIL plant (single 1.0 mm equivalent orifice, Cd 0.70 ASSUMED, Dyer flux at the tank state): an ESTIMATE against the FINAL basis DERIVED 71.1-75.8 g (v2.13, REV-ELEC-4 E4-05 (9) / E4-N05; the SIL nominal 76.38 g at 31.85 g/s is 2.5 % above the 31.06 g/s bound); B-BLEED-1 measures the mass (pass <= 76 g)",
+    "file": "results/v2p13/s12_compare_v2p13.json",
+    "sha256_16": "1338e490acd7c2f1",
+    "note": "[v2.12 record, v2.13]: S12 re-run on v2.13 (standard build) for E4-05 (9) (S12_bleed.json now carries the FINAL mass basis) and as a regression check"
+   },
+   "seat_time_axis_variant": "DISCLOSED SIL-only variant (ECU_SIL_TEST_HOOKS, EngineEcu::sil_seat_ts, SimConfig::seat_ts_hook): S13T maps the 0.866 s SIL burn onto the Mechanical burn (stand 21.651 s = 25x, A1 3.541 s = 4.1x), so the stand TC4 node moves 36.5 / 38.9 K/s in SIL time (physical 1.46 / 1.56 K/s). The variant runs the TC4 slew / catch-up bound and the post-E2 hold on the Mechanical axis during the compressed burn only (1 elsewhere). It changes no threshold and is absent from the flight build; the S13T as-is runs are reported beside it"
+  }
+ },
+ "notes_v2p13": {
+  "E4-N06": "A1 re-zero2 margin at k = 3 is 11.5 % against the 10 % B-PC-1 pass criterion (0.286 vs 0.30 bar with adders) [DERIVED]: holds, thinly",
+  "E4-N07": "the compensation is a static linear coefficient; hysteresis, a non-linear zero and diaphragm gradients beyond the modelled sensor-node term (-0.29 to -2.28 K) are not represented; B-PC-1 over 0-85 C with 2 cycles is the only check",
+  "E4-N09": "TB-state is conservative (any over-range sample, a nozzle-holder OVER_TEMP): acceptable for a test-bed indication"
+ },
+ "change_summary_v4p1_to_v4p2": [
+  {
+   "path": "/sensors/thermocouples/channels[3]",
+   "change": "'bore top' -> 'C1 seat' (264 (2), 266 (7), E4-05 (6))"
+  },
+  {
+   "path": "/sensors/thermocouples/tc4_hal_contract_v2p13",
+   "change": "new (ITEM 3: 50 Hz, AVGSEL <= 2, tCONV DATASHEET values; E4-N10 OPEN)"
+  },
+  {
+   "path": "/harness_across_gimbal/bundle",
+   "change": "'bore-top TC (stand)' -> 'C1 seat TC (TC4, J904)' (E4-05 (6)); BOM v2.3 -> v2.5"
+  },
+  {
+   "path": "/mass_statement/seat_tc_v2p13",
+   "change": "seat TC 5 g ASSUMED (E4-05 (6))"
+  },
+  {
+   "path": "/limits_v2p11[4]",
+   "change": "E4-05 (1)"
+  },
+  {
+   "path": "/limits_v2p11[14]",
+   "change": "E4-05 (2)"
+  },
+  {
+   "path": "/limits_v2p11[7]",
+   "change": "E4-05 (4)"
+  },
+  {
+   "path": "/limits_v2p11[+19 rows]",
+   "change": "E4-05 (3) missing rows + the v2.13 constants and flags with tags"
+  },
+  {
+   "path": "/r3_01_c1_drift/stand_relight_after_B1",
+   "change": "E4-02 rule (5 % sentence removed); SUSPENDED status"
+  },
+  {
+   "path": "/r3_01_c1_drift/e4_02_rule",
+   "change": "new (Q3 table)"
+  },
+  {
+   "path": "/r3_01_c1_drift/A8_U330/U330_ordering_stand_relight_light_E4_04",
+   "change": "new (E4-04)"
+  },
+  {
+   "path": "/open_issues/OI-STAND-RELIGHT-COEF",
+   "change": "E4-02 rule in place of 5 %"
+  },
+  {
+   "path": "/head_end_bleed_provision/sil_s12/mass_note",
+   "change": "E4-05 (9): '<= 73.0 g at 2.5 s' -> DERIVED 71.1-75.8 g, SIL 76.38 g ESTIMATE"
+  },
+  {
+   "path": "/sensors/pressure_transducers/selection/v/P_TORCH",
+   "change": "264 (4) fold: XTL-190SM-2000A, re-base OPEN"
+  },
+  {
+   "path": "/pc_overrange_fa1/transducer_datasheet/kept_070BG",
+   "change": "264 (4) fold"
+  },
+  {
+   "path": "/changelog_folding_v2p13",
+   "change": "new (264 (1)-(8), 266 (6)-(7))"
+  },
+  {
+   "path": "/pad_go_no_go_a1",
+   "change": "E4-05 (5), E4-06 (1), RULING 1 (c): seat, build-bits and JFWD rows; NO-GO under the carve-out"
+  },
+  {
+   "path": "/fmea_rows_a1",
+   "change": "+ FMEA-A1-TC4-READING (Q2), FMEA-A1-SEAT-RULE-BUILD (RULING 1 (e))"
+  },
+  {
+   "path": "/can_interface/v2p13_additions",
+   "change": "EVENT BUILD 0x25 (additive), SEAT_TC 32 note + encoder guard"
+  },
+  {
+   "path": "/log_v13/ovr_flags_b7_v2p13",
+   "change": "RULING 1 (b) log bit"
+  },
+  {
+   "path": "/bom",
+   "change": "BOM v2.5"
+  },
+  {
+   "path": "/v2p13_delta",
+   "change": "new"
+  },
+  {
+   "path": "/r3_01_c1_drift/status",
+   "change": "E4-05 (6): 'pending' -> the 264 (2) / (3) rulings"
+  },
+  {
+   "path": "/rev_elec_3_author_status/R3-01",
+   "change": "E4-05 (6)"
+  },
+  {
+   "path": "/rev_elec_3_author_status/N-07",
+   "change": "E4-06 (2)"
+  },
+  {
+   "path": "/open_issues/OI-C1-SEAT-DRIFT/status_v2p13",
+   "change": "264 rulings / v2.13"
+  },
+  {
+   "path": "/open_issues/OI-PTORCH-PROOF/status_v2p13",
+   "change": "264 rulings / v2.13"
+  },
+  {
+   "path": "/open_issues/OI-T4-RESIZE/status_v2p13",
+   "change": "264 rulings / v2.13"
+  },
+  {
+   "path": "/open_issues/OI-JFWD-FLIGHT/status_v2p13",
+   "change": "264 rulings / v2.13"
+  },
+  {
+   "path": "/open_issues",
+   "change": "+ 10 v2.13 items with owners"
+  }
+ ],
+ "config_changes_v4p1_to_v4p2": [
+  {
+   "name": "kPcSeatArmDevMax_K",
+   "v2p13": 40.0,
+   "tag": "DESIGN v2.13",
+   "v2p12": 30.0
+  },
+  {
+   "name": "kPcSeatStepMax_K",
+   "v2p13": 1.5,
+   "tag": "REV-ELEC-4 Q2; DERIVED: 6 x the 0.24 K per 0.1 s physical maximum",
+   "v2p12": "new"
+  },
+  {
+   "name": "kPcSeatSlew_Kps",
+   "v2p13": 5.0,
+   "tag": "REV-ELEC-4 Q2: about 2 x the 2.42 K/s physical maximum",
+   "v2p12": "new"
+  },
+  {
+   "name": "kPcSeatRateTrip_K",
+   "v2p13": 3.0,
+   "tag": "REV-ELEC-4 Q2",
+   "v2p12": "new"
+  },
+  {
+   "name": "kPcSeatHoldPostE2_s",
+   "v2p13": 0.45,
+   "tag": "REV-ELEC-4 Q2",
+   "v2p12": "new"
+  },
+  {
+   "name": "kPcSeatCatchCapX",
+   "v2p13": 2.0,
+   "tag": "LEAD 16:11Z ITEM 2; DERIVED: legal catch-up <= 0.94 x the hold at 2.42 K/s",
+   "v2p12": "new"
+  },
+  {
+   "name": "kPcSeatAvgselMax",
+   "v2p13": 2.0,
+   "tag": "LEAD 16:11Z ITEM 3",
+   "v2p12": "new"
+  },
+  {
+   "name": "kPcSeatConvMax_s",
+   "v2p13": 0.13,
+   "tag": "DATASHEET 19-7534 tCONV 50 Hz MAX + AVGSEL; TO-VERIFY",
+   "v2p12": "new"
+  },
+  {
+   "name": "kSeatArmRuleBuild",
+   "v2p13": false,
+   "tag": "LEAD 264 (2)",
+   "v2p12": "new"
+  },
+  {
+   "name": "kJfwdLsRelightInhibit",
+   "v2p13": true,
+   "tag": "LEAD 264 (7) PROVISIONAL",
+   "v2p12": "new"
+  },
+  {
+   "name": "kSeatStepRelightInhibit",
+   "v2p13": false,
+   "tag": "DESIGN, author recommendation; LEAD to rule",
+   "v2p12": "new"
+  }
+ ],
+ "self_check_v2p13": {
+  "stale_strings_absent_in_current_sections": {
+   "TC4 type K bore top": true,
+   "bore-top TC (stand)": true,
+   "within about 5 % at k = 3": true,
+   "<= 73.0 g at 2.5 s": true,
+   "Combustion's decided-path value": true
+  },
+  "log": "185 B v13",
+  "EVENT_BUILD_0x25_in_protocol_h": true,
+  "tests_pass": true
  }
 }

@@ -1,0 +1,210 @@
+--- /home/claude/work/shared-fallback/engine/06-electronics/staging_v2.12/firmware/src/core/engine_ecu.cpp	2026-10-21 12:03:30.145914308 +0000
++++ /home/claude/work/shared-fallback/engine/06-electronics/staging_v2.13/firmware/src/core/engine_ecu.cpp	2026-10-21 16:37:25.005450462 +0000
+@@ -1,3 +1,4 @@
++// [v2.13 2026-10-21, REV-ELEC-4 E4-01 (light-window hold, TC4 step / rate checks, f3::SEAT_STEP), E4-03 (ARM check + SAFE-entry clear), E4-N02 (LEAD 264 (2) pad rule Abort::SEAT_TC / refuse::SEAT_TC, 264 (7) JFWD_LS relight inhibit refuse::JFWD_USED), A5 option refuse::SEAT_STEP; full list in the ELEC-V213 handback]
+ // [v2.11 2026-10-20, LEAD CHANGELOG 216/227/230 + lead rulings 21:46:49Z / 21:51:07Z: case-TC A 423.15 K / start 403.15 K / stand T0 (CASE_WARM_STAND), R2 lift-commanded hold + ECU backstop E2 + 0.85 s, fixed ride RC, cold ARM margin + PREPRESS safe exit, pad / stand BASE_AMB lift refusal (216 (4)); full list in the ELEC-V211 handback]
+ // [v2.11 2026-10-13, LEAD CHANGELOG 203/205: non-sticky flight HIGH over-range + above-FS flag, FA-1 ride-through CANDIDATE (default OFF), unpurged flight RELIGHT guard (UNPURGED), log v12; full list in the ELEC-V211 handback]
+ // [v2.10 2026-10-13, REV-ELEC-1 + LEAD CHANGELOG 164/166/168/172/175/181/186: state machine and monitors for the v2.10 rules; unpurged RELIGHT (integrated purge deleted); PC_VALID and encoder outputs; R2 command hold + Cmd::DROGUE (186 (2)); full list in 06-electronics/REPORT-v2.10-HANDBACK.md] ARGOS engine ECU - state machine, sequencing, safety monitor (v2.9, 2026-10-13: LEAD decisions - light detection by the ADOPTED
+@@ -51,7 +52,7 @@
+                             "PC_SENSOR", "BATT_LOW", "MV_FAULT", "ARM_LOST", "WATCHDOG", "PC_OVERPRESSURE",
+                             "HW_OVERPRESSURE", "TVC_SUPPLY", "OVERCURRENT", "MAINT_JAM", "TORCH_FAULT", "RELIGHT_LOCKOUT",
+                             "OVER_THRUST", "MODE_MISMATCH", "BAY_HOT", "TANK_HOT", "BLEED_FAULT", "TORCH_LOST",
+-                            "TANK_COLD", "CASE_WARM_STAND"};
++                            "TANK_COLD", "CASE_WARM_STAND", "SEAT_TC"};
+   const unsigned i = static_cast<unsigned>(a);
+   return i < sizeof(n) / sizeof(n[0]) ? n[i] : "?";
+ }
+@@ -89,6 +90,7 @@
+   ptorch_zero_ = 0.0f; ptorch_zero_acc_ = 0.0f; ptorch_zero_n_ = 0; torch_low_seen_ = false;
+   lockout_ = false; lockout_event_ = false; lockout_clear_ = false; lit_since_boot_ = false; clear_lockout_refused_ = 0;
+   sh_open_ = false; sh_event_ = false; sh_boot_seen_ = false; t_sh_ = -1e9;   // v2.10 safing hold (NV b4 read at the first step)
++  build_event_ = false; build_boot_seen_ = false;                               // v2.13 EVENT BUILD (sent at the first step)
+   lit_session_ = false; lit_session_event_ = false; lit_session_close_ = false;
+   mv_seat_wait_ = false; mv_seat_timeout_ = false; seat_n_ = 0; prail_lost_ = false; t_bus_on_ = -1.0;
+   p_prail_.reset(); p_pcsens_.reset();
+@@ -571,6 +573,12 @@
+   if (pre && tank_cold_ && (starts_ == 0 || stand_)) return refuse::TANK_COLD;   // v2.10 RE-17
+   // R4: stand relights, and (v2.8 final) a stand start after an abort (a vapour-segment start uses the R2/R3 logic)
+   if (pre && stand_ && (starts_ >= 1 || segVapourPending(in)) && !r4_ok_now_) return refuse::R4_SENSOR;
++  // v2.13 (LEAD 264 (2), REV-ELEC-4 E4-N02): flight PAD first start with the rule - the seat compensation must be active and not held
++  if (seat_arm_rule && !stand_ && starts_ == 0 && (!pcSeatCompActive() || seat_step_)) return refuse::SEAT_TC;
++  // v2.13 (LEAD 264 (7) PROVISIONAL): a flagged light (f3::JFWD_LS) in this arming inhibits the FLIGHT relight (lost-relight outcome)
++  if (jfwd_relight_inhibit && !stand_ && starts_ >= 1 && jfwd_ls_) return refuse::JFWD_USED;
++  // v2.13 (A5, lead decision; build value cfg::kSeatStepRelightInhibit): FLIGHT relight with f3::SEAT_STEP latched
++  if (seat_step_relight_inhibit && !stand_ && starts_ >= 1 && seat_step_) return refuse::SEAT_STEP;
+   return refuse::NONE;
+ }
+ 
+@@ -654,6 +662,10 @@
+   // v2.6: the pintle monitor episode is NOT reset on state changes (a jam spanning RUN -> SHUTDOWN -> COAST keeps its timer);
+   // SAFE entry from a powered state arms the one-off unpowered spring-closing check
+   if (s == State::SAFE) safe_chk_ = prev != State::SAFE;
++  // v2.13 (REV-ELEC-4 E4-03): SAFE is a fresh-ECU state for the C1 seat compensation - no reference, no compensation, no hold (v2.12 kept the
++  // previous ARM reference in SAFE, so the ARM sanity check saw an already compensated reading and subtracted the static term a second
++  // time). The latched f3 flags (SEAT_NOREF, SEAT_STEP) stay until the next ARM. armChecksOk also adds the applied compensation back.
++  if (s == State::SAFE) { seat_ref_ok_ = false; seat_comp_ = 0.0f; seat_hold_ = false; seat_hold_prev_ = false; t_e2_seat_ = -1.0; seat_catch_ = false; }
+   if (s == State::SAFE || s == State::ARMED) arm_drop_ = false;
+   bleed_active_ = false;
+   const bool hold_mv = kMvHoldOpenInCoast && starts_ < kMaxStarts;
+@@ -661,6 +673,8 @@
+     case State::ARMED: pc_zero_acc_ = 0; pc_zero_n_ = 0; t_arm_req_ = t; mv_latch_ = false; mv_cocking_ = false; t_mv_cmd_ = t;
+       ptorch_zero_acc_ = 0.0f; ptorch_zero_n_ = 0;   // v2.7 P_torch auto-zero with the Pc one
+       sref_acc_ = 0.0; sref_n_ = 0; sref_win_n_ = 0; seat_ref_ok_ = false; seat_noref_ = false; seat_comp_ = 0.0f;   // v2.12 seat reference
++      seat_step_ = false; seat_hold_ = false; seat_hold_prev_ = false; t_e2_seat_ = -1.0; seat_gap_max_K_ = 0.0f;  // v2.13 (re-reference)
++      seat_catch_ = false; t_seat_hold0_ = -1.0;
+       tb_state_ = false; tb_pcs_high_ = false; jfwd_ls_ = false; pt_rz_rej_ = false; break;                          // v2.12 f3 latches
+     case State::PREPRESS: {
+       mv_latch_ = true; mv_cocking_ = true; t_mv_cmd_ = t; relight_direct_ = false;   // v2.8: the PREPRESS path (pad, gas in the segment)
+@@ -683,6 +697,7 @@
+       lit_ = false; ign_ok_n_ = 0; ++starts_; t_ign_ = t; mv_latch_ = true; prop_closed_ = false;
+       torch_ok_ = false; torch_ok_n_ = 0; torch_closed_ = false; torch_low_seen_ = false; prop_bs_n_ = 0;
+       ignDetReset();                              // v2.9 light-rule baseline of this start
++      t_e2_seat_ = -1.0;                          // v2.13 E4-01: light-window hold from this entry (seatCompStep) until E2 + 0.45 s
+       t_e3_ = -1.0; a7_flag_ = false;             // v2.9 A7 / E3 per burn
+       ls_ = LightSpikeRec{}; ls_t_pk_raw_ = ls_t_pk_filt_ = -1.0;   // v2.10 LIGHT_SPIKE record of this start
+       ride_tol_n_ = 0; p_t45_.reset(); ign_ovr_n_ = 0; ride_ovr_tol_n_ = 0;   // v2.11 ride-through CANDIDATE: per start
+@@ -725,6 +740,10 @@
+       thr_rl_.init = false; thr_rl_.step(thrust::thrustFromPcAbs(pcc_.setpointActive(), pamb_Pa), 0.0f, kDt_s); start_ramp_ = true;
+       hold_ramp_ = false;   // v2.10 LEAD 186 (2)
+       r2_backstop_ = false; r2_hold_ticks_ = 0;   // v2.11 LEAD 216 (2)(b): backstop per start (E2 = this RUN entry)
++      t_e2_seat_ = t;                             // v2.13 E4-01: the seat hold ends at E2 + kPcSeatHoldPostE2_s
++#ifdef ECU_SIL_TEST_HOOKS
++      sil_ts_e2_ = sil_seat_ts > 1.0f ? sil_seat_ts : 1.0f;   // SIL-only S13T variant (1 = off)
++#endif
+       break;
+     case State::SHUTDOWN:   // v2.7 RC-01: pintle first; the NC valve stays latched until the seat is confirmed or kMvSeatTimeout_s
+       if (!hold_mv && mv_latch_) { mv_seat_wait_ = true; seat_n_ = 0; mv_seat_timeout_ = false; }
+@@ -784,11 +803,15 @@
+   if (in.vbat_V < kBattArmMin_V) { *why = Abort::BATT_LOW; return false; }
+   if (!(supply_.vplugPred() >= kTvcSupplyMin_V)) { *why = Abort::TVC_SUPPLY; return false; }   // v2.3 FM-PWR-01 (LEAD ARM rule;
+                                                                                                 //   no valid prediction = refused)
++  // v2.13 (LEAD 264 (2) A1 pad rule, REV-ELEC-4 E4-N02): flight mode with the rule (A1 build) - coefficient loaded AND TC4 valid in range
++  if (seat_arm_rule && !modeStrapStand(in) && (seat_coef_ == 0.0f || !seat_tc_ok_)) { *why = Abort::SEAT_TC; return false; }
+   // v2.6 OI-6: zero sanity on the 50 Hz filtered gauge reading (before the auto-zero), not on one raw sample
+   // v2.12 (R3-01 option (b)): minus the static thermal zero term coef x (T_seat - T_cal) when set and the seat TC is valid (config.h)
++  // v2.13 (REV-ELEC-4 E4-03): pc_f_ is the COMPENSATED reading; the applied compensation seat_comp_ is added back so the uncompensated
++  // gauge is compared once with the static term (0 in SAFE since v2.13, which clears the compensation at SAFE entry)
+   const float arm_stat = (seat_coef_ != 0.0f && seat_tc_ok_ && std::fabs(in.tc_bore_K - seat_tcal_K_) <= kPcSeatArmDevMax_K)
+                              ? seat_coef_ * (in.tc_bore_K - seat_tcal_K_) : 0.0f;
+-  if (!pc_sensor_ok_ || std::fabs(pc_f_ + pc_zero_ - arm_stat) > kPcArmZeroMax_Pa) { *why = Abort::PC_SENSOR; return false; }
++  if (!pc_sensor_ok_ || std::fabs(pc_f_ + pc_zero_ + seat_comp_ - arm_stat) > kPcArmZeroMax_Pa) { *why = Abort::PC_SENSOR; return false; }
+   // v2.7: the flame gate needs a plausible torch transducer on the vented torch (TEB band) unless the stand timing-only key is armed
+   if (!bypass_armed_ && (!in.ptorch_valid || std::fabs(in.ptorch_Pa) > kTorchArmZeroMax_Pa)) { *why = Abort::TORCH_FAULT; return false; }
+   if (in.ptank_Pa > kTankOverPressure_Pa) { *why = Abort::TANK_OVERPRESSURE; return false; }
+@@ -829,6 +852,7 @@
+ void EngineEcu::handleCommand(Cmd c, uint16_t arg, const Inputs& in, double t) {
+   switch (c) {
+     case Cmd::ARM:
++      build_event_ = true;   // v2.13 (LEAD 16:27Z RULING 1 (b) option (2)): EVENT BUILD at every ARM attempt (any state, accepted or not)
+       if (st_ == State::SAFE && !abort_latched_) {
+         Abort why = Abort::NONE;
+         if (armChecksOk(in, &why)) {
+@@ -1327,18 +1351,70 @@
+ // its mean over the ARM auto-zero window (latched with pc_zero_arm_; fewer than kPcSeatRefMinFrac valid samples -> OFF for this
+ // arming, f3::SEAT_NOREF). TC invalid / out of range / more than kPcSeatDevMax_K from the reference after ARM -> the last value is
+ // held (f3::SEAT_FROZEN). The re-zero limits then act on the compensated residual. U330 (analog) is NOT compensated.
++// v2.13 (REV-ELEC-4 E4-01 MAJOR, Q2): the compensation runs on the compensation temperature T_c (light-window hold from IGNITION entry to
++// E2 + 0.45 s, TC4 step check on every conversion, rate check / slew outside the hold, f3::SEAT_STEP latched until the next ARM; config.h)
+ void EngineEcu::seatCompStep(const Inputs& in) {
+-  seat_tc_ok_ = in.tc_bore_valid && std::isfinite(in.tc_bore_K) && in.tc_bore_K > kPcSeatTcMin_K && in.tc_bore_K < kPcSeatTcMax_K;
++  const double t = in.t_s;
++  const bool finite = in.tc_bore_valid && std::isfinite(in.tc_bore_K);
++  seat_tc_ok_ = finite && in.tc_bore_K > kPcSeatTcMin_K && in.tc_bore_K < kPcSeatTcMax_K;
+   seat_frozen_ = false;
+-  if (!seat_ref_ok_ || seat_coef_ == 0.0f) { seat_comp_ = 0.0f; return; }
+-  if (seat_tc_ok_ && std::fabs(in.tc_bore_K - seat_ref_K_) <= kPcSeatDevMax_K) seat_comp_ = seat_coef_ * (in.tc_bore_K - seat_ref_K_);
+-  else seat_frozen_ = true;   // hold the last compensation
++  // v2.13 (REV-ELEC-4 Q2 (2)) STEP CHECK, every conversion, every state, inside the hold too (a new conversion = a changed reading, HAL
++  // contract in config.h; an invalid reading is skipped and the next valid one is compared with the last valid one). It latches only with a
++  // coefficient loaded (coefficient 0 = no compensation: TC4 then has no effect on Pc and no flag is raised)
++  if (finite) {
++    if (seat_coef_ != 0.0f && seat_prev_ok_ && std::fabs(in.tc_bore_K - seat_Tprev_K_) > kPcSeatStepMax_K) seat_step_ = true;
++    seat_Tprev_K_ = in.tc_bore_K; seat_prev_ok_ = true;
++  }
++  // v2.13 (Q2 (1)) LIGHT-WINDOW HOLD, judged on the state at the start of this tick: the IGNITION entry tick still updates T_c (that
++  // compensation is the latched value); from the next tick T_c is frozen until E2 + kPcSeatHoldPostE2_s, or until IGNITION is left
++  // without E2 (t_e2_seat_ is set at the RUN entry = E2 and cleared at IGNITION / ARMED / SAFE entry)
++#ifdef ECU_SIL_TEST_HOOKS
++  const double hold_post_s = kPcSeatHoldPostE2_s / sil_ts_e2_;   // SIL-only S13T variant (sil_ts_e2_ 1 = the flight value)
++#else
++  const double hold_post_s = kPcSeatHoldPostE2_s;
++#endif
++  const bool hold = st_ == State::IGNITION || (t_e2_seat_ >= 0.0 && t + kTimeEps_s < t_e2_seat_ + hold_post_s);
++  const bool hold_end = seat_hold_prev_ && !hold;
++#ifdef ECU_SIL_TEST_HOOKS
++  const float slew_Kps = kPcSeatSlew_Kps * sil_seat_ts;   // SIL only: compressed seat time axis (S13T variant); 1 by default
++#else
++  const float slew_Kps = kPcSeatSlew_Kps;
++#endif
++  if (hold && !seat_hold_prev_) { t_seat_hold0_ = t; seat_catch_ = false; }   // v2.13 ITEM 2: hold start (a new hold ends a catch-up)
++  seat_hold_prev_ = hold;
++  if (!seat_ref_ok_ || seat_coef_ == 0.0f) { seat_hold_ = false; seat_comp_ = 0.0f; seat_catch_ = false; return; }
++  seat_hold_ = hold;
++  const bool plaus = seat_tc_ok_ && std::fabs(in.tc_bore_K - seat_ref_K_) <= kPcSeatDevMax_K;
++  if (hold_end && plaus) {
++    const float g0 = std::fabs(in.tc_bore_K - seat_Tc_K_);
++    seat_gap_max_K_ = std::fmax(seat_gap_max_K_, g0);              // record (SIL / handback)
++    // v2.13 (LEAD 16:11Z ITEM 2, accepted 16:27Z) CATCH-UP: a hold-end gap a plausible (<= kPcSeatSlew_Kps) seat drift could have built
++    // over the hold replaces the rate trip by the growth / time-cap trips while T_c slews; a larger g0 trips below (normal rate check)
++    const double dh = t_seat_hold0_ >= 0.0 ? t - t_seat_hold0_ : 0.0;
++    if (!seat_step_ && g0 > kPcSeatRateTrip_K && g0 <= slew_Kps * static_cast<float>(dh)) {
++      seat_catch_ = true; seat_catch_lim_K_ = g0 + kPcSeatStepMax_K; t_seat_catch_cap_ = t + kPcSeatCatchCapX * dh;
++    }
++  }
++  if (!plaus) seat_frozen_ = true;                                  // v2.12 range / kPcSeatDevMax_K: T_c held this tick
++  else if (!hold && !seat_step_) {
++    // v2.13 (Q2 (2)) RATE CHECK outside the hold, then the slew of T_c toward the reading (bumpless resume after the hold)
++    const float gap = in.tc_bore_K - seat_Tc_K_, ag = std::fabs(gap);
++    if (seat_catch_) {                                              // v2.13 ITEM 2 catch-up (the step check above stays on)
++      if (ag <= kPcSeatRateTrip_K) seat_catch_ = false;             // caught up: the normal rate check from the next tick
++      else if (ag > seat_catch_lim_K_ || t > t_seat_catch_cap_ + kTimeEps_s) { seat_step_ = true; seat_catch_ = false; }   // growth / cap
++      else seat_catch_lim_K_ = std::fmin(seat_catch_lim_K_, ag + kPcSeatStepMax_K);   // ratchet on the lowest gap so far
++    }
++    else if (ag > kPcSeatRateTrip_K) seat_step_ = true;             // trip: T_c keeps its last good value
++    if (!seat_step_) { const float d = slew_Kps * kDt_s; seat_Tc_K_ += clampf(gap, -d, d); }
++  }
++  seat_comp_ = seat_coef_ * (seat_Tc_K_ - seat_ref_K_);
+ }
+ 
+ void EngineEcu::seatLatch() {
+   seat_ref_ok_ = sref_n_ > 0 && static_cast<float>(sref_n_) >= kPcSeatRefMinFrac * static_cast<float>(sref_win_n_);
+   seat_ref_K_ = seat_ref_ok_ ? static_cast<float>(sref_acc_ / sref_n_) : 0.0f;
+   seat_noref_ = !seat_ref_ok_ && seat_coef_ != 0.0f;
++  seat_Tc_K_ = seat_ref_K_;   // v2.13: the compensation temperature starts at the reference (comp 0 at the latch, as v2.12)
+   sref_acc_ = 0.0; sref_n_ = 0; sref_win_n_ = 0;
+ }
+ 
+@@ -1367,10 +1443,14 @@
+   if (pc_high) tb_pcs_high_ = true;
+ }
+ 
++uint8_t EngineEcu::buildBits() const {   // v2.13 (LEAD 16:27Z): EVENT BUILD arg
++  return static_cast<uint8_t>((seat_arm_rule ? evt::BUILD_SEAT_RULE : 0u) | (hbleed_fitted ? evt::BUILD_HBLEED : 0u));
++}
+ uint8_t EngineEcu::f3Flags() const {
+   return static_cast<uint8_t>((tb_state_ ? f3::TB_STATE : 0u) | (tb_pcs_high_ ? f3::TB_PCS_HIGH : 0u) |
+                               (pcSeatCompActive() ? f3::SEAT_COMP : 0u) | (seat_frozen_ ? f3::SEAT_FROZEN : 0u) |
+-                              (seat_noref_ ? f3::SEAT_NOREF : 0u) | (jfwd_ls_ ? f3::JFWD_LS : 0u) | (pt_rz_rej_ ? f3::PT_RZ_REJ : 0u));
++                              (seat_noref_ ? f3::SEAT_NOREF : 0u) | (jfwd_ls_ ? f3::JFWD_LS : 0u) | (pt_rz_rej_ ? f3::PT_RZ_REJ : 0u) |
++                              (seat_step_ ? f3::SEAT_STEP : 0u));   // v2.13 b7
+ }
+ 
+ void EngineEcu::step(const Inputs& in, const Commands& cmd, Outputs& out) {
+@@ -1394,6 +1474,7 @@
+   hb_event_ = hb::EV_NONE; rz_event_ = false; a7_event_ = false; hb_flow_event_ = false;                          // v2.9 one-tick pulses
+   ls_event_ = false;                                                                      // v2.10 one-tick pulse
+   sh_event_ = false;                                                                      // v2.10 one-tick pulse
++  build_event_ = !build_boot_seen_; build_boot_seen_ = true;                              // v2.13 EVENT BUILD at boot (one tick)
+   if (!sh_boot_seen_) {   // v2.10 (LEAD 172 (1)): a safing hold open at a reset (NV b4) restarts at boot - the elapsed time is unknown
+     sh_boot_seen_ = true;
+     if (in.nv_safing_hold) { sh_open_ = true; sh_event_ = true; t_sh_ = t; }
+@@ -1840,7 +1921,8 @@
+   out.ovr_flags = static_cast<uint8_t>((pc_overrange_ ? ovr::OVERRANGE : 0u) | (pc_above_fs_ ? ovr::ABOVE_FS : 0u) |
+                                        (ride_win_ ? ovr::RIDE_WIN : 0u) | ((ride_tol_ || ride_ovr_tol_) ? ovr::RIDE_TOL : 0u) |
+                                        (ride_t45_ ? ovr::T45 : 0u) |
+-                                       (ride_through ? ovr::RIDE_BUILD : 0u));
++                                       (ride_through ? ovr::RIDE_BUILD : 0u) | (seat_arm_rule ? ovr::SEAT_RULE_BUILD : 0u));
++  out.build_event = build_event_; out.build_bits = buildBits();   // v2.13 EVENT BUILD
+   // v2.10 (LEAD CHANGELOG 175 (4)): pad launch-commit bit (TLM_RELIGHT d6 b7); (3): encoder lift for TLM_FAST d4-d5 (0xFFFF invalid)
+   out.pc_commit_valid = pc_sensor_ok_ && !(faults_ & fault::PC_SENSOR) && !(abort_latched_ && abort_ == Abort::PC_SENSOR);
+   out.pintle_meas_m = in.pintle_meas_m; out.pintle_meas_valid = in.pintle_meas_valid;
